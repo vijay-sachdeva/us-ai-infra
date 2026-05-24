@@ -596,8 +596,12 @@
   }
   .topstory .ts-text { font-size: 13.5px; font-weight: 600; color: var(--ink); flex: 1; min-width: 220px; }
   .topstory .ts-src { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
-  .head-contact { font-size: 12px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
-  .head-contact:hover { color: var(--accent); }
+  .head-contact { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; line-height: 1.25; white-space: nowrap; }
+  .head-contact-row { font-size: 11px; color: var(--ink-2); font-weight: 500; }
+  .head-contact-label { font-weight: 700; margin-right: 4px; }
+  .head-contact-row a { color: inherit; text-decoration: none; }
+  .head-contact-row a:hover { color: var(--accent); }
+  .head-contact-name { font-size: 10px; color: #94a3b8; font-weight: 500; }
 
   @media (max-width: 480px) {
     .cost-row { grid-template-columns: 112px 1fr 62px; gap: 8px; }
@@ -626,8 +630,11 @@
       </div>
     </div>
     <div class="head-meta">
-      <a class="head-contact" href="mailto:vijaysachdeva@gmail.com">Vijay Sachdeva &middot; vijaysachdeva@gmail.com</a>
       <div class="live"><span class="dot"></span> Updated <span id="updated-date">—</span></div>
+      <div class="head-contact">
+        <div class="head-contact-row"><span class="head-contact-label">Contact</span><a href="mailto:vijaysachdeva@gmail.com">vijaysachdeva@gmail.com</a></div>
+        <div class="head-contact-name">Vijay Sachdeva</div>
+      </div>
     </div>
   </div>
 </header>
