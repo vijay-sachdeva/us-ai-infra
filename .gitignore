@@ -1,0 +1,12 @@
+# Internal working notes — keep out of the public repo
+SESSION_HANDOFF.md
+DEPLOY.md
+GITHUB_PUBLISH_BRIEF.md
+
+# Claude Code local session state
+.claude/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp

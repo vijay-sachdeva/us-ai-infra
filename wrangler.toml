@@ -1,0 +1,3 @@
+name = "datacenter-monitor-chat"
+main = "chatbot-worker.js"
+compatibility_date = "2025-05-01"
