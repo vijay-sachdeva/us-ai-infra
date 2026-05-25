@@ -1,0 +1,340 @@
+#!/usr/bin/env python3
+"""Daily refresh for the US AI Infrastructure Monitor dashboard.
+
+Asks Claude (via Anthropic API, with web search) to identify fresh US AI
+data-center news, applies surgical edits to three fields inside the
+`const DATA = {...}` object in index.html, and writes the file back.
+
+Safety guards:
+  * Only touches three fields: lastUpdated, topStory, feed.
+  * Aborts (does not write) if the post-edit file size moves outside
+    [95%, 110%] of the pre-edit size.
+  * Aborts and reverts if `git diff --stat index.html` shows more than
+    MAX_DIFF_LINES insertions+deletions.
+
+If anything goes wrong, the script exits non-zero — the workflow's
+commit step will skip when there are no changes to index.html, so a
+failed run produces no commit.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+from anthropic import Anthropic
+
+
+# -------------------- configuration --------------------
+
+INDEX_HTML = Path("index.html")
+
+# Use a current Sonnet model. Update if your account has a newer one.
+MODEL = "claude-sonnet-4-5-20250929"
+MAX_TOKENS = 4096
+
+# Web-search budget. Each search counts toward Anthropic's per-search cost.
+WEB_SEARCH_MAX_USES = 5
+
+# Safety bounds. A normal daily refresh adds/removes < 30 lines and moves
+# the file size by < 1 KB.
+MIN_SIZE_RATIO = 0.95
+MAX_SIZE_RATIO = 1.10
+MAX_DIFF_LINES = 30
+
+
+# -------------------- parsing helpers --------------------
+
+LAST_UPDATED_RE = re.compile(r'(?m)^\s*lastUpdated:\s*"(\d{4}-\d{2}-\d{2})"')
+
+# topStory: { ... }  followed by a `},` — single-line or multi-line.
+TOP_STORY_RE = re.compile(
+    r'(?ms)^(\s*)topStory:\s*\{(.*?)\n\s*\},'
+)
+
+# feed: [ ... ],  — followed by a blank line and `transparency:` (next field).
+FEED_RE = re.compile(
+    r'(?ms)^(\s*)feed:\s*\[\n(.*?)\n\s*\],'
+)
+
+
+def extract_current_state(html: str) -> tuple[str | None, str, str]:
+    """Return (lastUpdated, topStory_raw_block, feed_raw_body)."""
+    m_last = LAST_UPDATED_RE.search(html)
+    last_updated = m_last.group(1) if m_last else None
+
+    m_top = TOP_STORY_RE.search(html)
+    top_story = m_top.group(0) if m_top else ""
+
+    m_feed = FEED_RE.search(html)
+    feed_body = m_feed.group(2) if m_feed else ""
+
+    return last_updated, top_story, feed_body
+
+
+# -------------------- prompt --------------------
+
+def build_prompt(last_updated: str | None,
+                 top_story_block: str,
+                 feed_body: str,
+                 today_iso: str) -> str:
+    return f"""You are doing the daily news refresh for the US AI Infrastructure Monitor dashboard
+at https://vijay-sachdeva.github.io/us-ai-infra/.
+
+GOAL
+Identify significant US AI data-center news from roughly the past 24-72 hours and decide whether to update three fields in the dashboard's DATA object:
+  - lastUpdated:   YYYY-MM-DD date
+  - topStory:      {{ date, text, src, url }} — the prominent news banner near the top
+  - feed:          array of ~8 {{ date, text, src }} entries — the "Recent developments" section
+
+CONSTRAINTS
+- Be conservative. A day with no major news is normal — set lastUpdated to today's date, leave topStory and feed unchanged.
+- Use the web_search tool to find fresh news. Prefer primary sources (company press releases, SEC filings) and credible industry outlets (Data Center Dynamics, Data Center Knowledge, Data Center Frontier, Bloomberg, Reuters, WSJ, CNBC, Fortune, S&P Global, Utility Dive).
+- Avoid speculation, opinion, paywalled sources, and generic AI-hype coverage with no concrete US data-center hook.
+- Look specifically for: hyperscaler announcements (AWS, MSFT, Google, Meta, Oracle, CoreWeave, Nebius, Lambda, Crusoe), material data-center projects (new sites, expansions, capex revisions), power/grid news (interconnection, transformers, utility deals), new analyst reports (Goldman Sachs, CBRE, JLL, Morgan Stanley, SemiAnalysis), major M&A or regulation.
+
+TODAY (UTC): {today_iso}
+CURRENT lastUpdated: {last_updated}
+
+CURRENT topStory block:
+```
+{top_story_block}
+```
+
+CURRENT feed body (each line is one entry):
+```
+{feed_body}
+```
+
+OUTPUT
+Return STRICTLY a single JSON object (no markdown fences, no commentary before or after) with EXACTLY this shape:
+
+{{
+  "lastUpdated": "{today_iso}",
+  "topStory": null,
+  "feedPrepend": [],
+  "feedDropFromEnd": 0,
+  "summary": "Date bump only — no fresh news"
+}}
+
+Field semantics:
+  - "lastUpdated": always set to today's date in YYYY-MM-DD.
+  - "topStory":  null to keep current; otherwise {{ "date": "Mon DD, YYYY", "text": "1-2 factual sentences, no opinion", "src": "Publication", "url": "https://..." }}.
+  - "feedPrepend": list of 0-3 NEW items to prepend to the feed. Each is {{ "date": "MMM YYYY", "text": "1-2 factual sentences", "src": "Publication" }}.
+  - "feedDropFromEnd": integer >= 0. How many entries to drop from the END of the feed array. Typically equals len(feedPrepend) so the array stays around 8 entries. Set to 0 if feedPrepend is empty.
+  - "summary": short one-line description of what changed today.
+
+Hard rules:
+- All text strings MUST be valid JSON: escape any embedded double quotes as \\" and any embedded backslashes as \\\\.
+- Do NOT include literal newlines inside string values.
+- Do NOT include trailing commas.
+- If you cannot find any significant fresh news after web search, return the "Date bump only" template above verbatim with today's date filled in.
+
+Begin.
+"""
+
+
+# -------------------- Anthropic call --------------------
+
+def call_claude(prompt: str) -> dict:
+    """Call the Anthropic API with web_search; return parsed JSON edits."""
+    client = Anthropic()  # picks up ANTHROPIC_API_KEY from env
+
+    response = client.messages.create(
+        model=MODEL,
+        max_tokens=MAX_TOKENS,
+        tools=[{
+            "type": "web_search_20250305",
+            "name": "web_search",
+            "max_uses": WEB_SEARCH_MAX_USES,
+        }],
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    # Concatenate any text blocks in the final response.
+    text = "".join(
+        block.text for block in response.content
+        if getattr(block, "type", None) == "text"
+    ).strip()
+
+    if not text:
+        raise RuntimeError("Empty response from model")
+
+    # Strip stray code fences if the model added them anyway.
+    text = re.sub(r'^```(?:json)?\s*', '', text)
+    text = re.sub(r'\s*```$', '', text)
+
+    return json.loads(text)
+
+
+# -------------------- edit application --------------------
+
+def js_string(s: str) -> str:
+    """Serialize a Python string to a JS double-quoted string literal."""
+    return '"' + s.replace('\\', '\\\\').replace('"', '\\"') + '"'
+
+
+def render_top_story_block(indent: str, top: dict) -> str:
+    """Render a topStory block in the existing file's style."""
+    item_indent = indent + "  "
+    return (
+        f"{indent}topStory: {{\n"
+        f"{item_indent}date: {js_string(top['date'])},\n"
+        f"{item_indent}text: {js_string(top['text'])},\n"
+        f"{item_indent}src: {js_string(top['src'])},\n"
+        f"{item_indent}url: {js_string(top['url'])}\n"
+        f"{indent}}},"
+    )
+
+
+def render_feed_item(indent: str, item: dict) -> str:
+    """Render one feed item in the existing one-line-per-item style."""
+    return (
+        f"{indent}{{ date: {js_string(item['date'])}, "
+        f"text: {js_string(item['text'])}, "
+        f"src: {js_string(item['src'])} }},"
+    )
+
+
+def apply_edits(html: str, edits: dict) -> str:
+    """Apply the JSON-described edits to the HTML text. Returns new html."""
+    new_html = html
+
+    # 1. lastUpdated
+    new_date = edits.get("lastUpdated")
+    if new_date:
+        new_html, n = LAST_UPDATED_RE.subn(
+            lambda m: m.group(0).replace(m.group(1), new_date),
+            new_html,
+            count=1,
+        )
+        if n != 1:
+            raise RuntimeError("Could not locate lastUpdated line")
+
+    # 2. topStory
+    top = edits.get("topStory")
+    if top is not None:
+        m = TOP_STORY_RE.search(new_html)
+        if not m:
+            raise RuntimeError("Could not locate topStory block")
+        indent = m.group(1)
+        new_block = render_top_story_block(indent, top)
+        new_html = new_html[: m.start()] + new_block + new_html[m.end():]
+
+    # 3. feed: prepend new items, drop from end
+    prepend = edits.get("feedPrepend") or []
+    drop_n = int(edits.get("feedDropFromEnd") or 0)
+
+    if prepend or drop_n > 0:
+        m = FEED_RE.search(new_html)
+        if not m:
+            raise RuntimeError("Could not locate feed array")
+        indent = m.group(1)
+        item_indent = indent + "  "
+        existing_lines = m.group(2).split("\n")
+        # Keep only lines that look like items (start with `{` after indent).
+        items = [ln for ln in existing_lines if ln.strip().startswith("{")]
+
+        # Drop from end.
+        if drop_n > 0:
+            items = items[:-drop_n] if drop_n < len(items) else []
+
+        # Prepend new items.
+        new_items = [render_feed_item(item_indent, it) for it in prepend]
+        all_items = new_items + items
+        new_body = "\n".join(all_items)
+
+        new_block = f"{indent}feed: [\n{new_body}\n{indent}],"
+        new_html = new_html[: m.start()] + new_block + new_html[m.end():]
+
+    return new_html
+
+
+# -------------------- validation & main --------------------
+
+def git_diff_lines(path: str) -> int:
+    """Return total insertions+deletions for one file vs HEAD."""
+    out = subprocess.run(
+        ["git", "diff", "--numstat", path],
+        capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    if not out:
+        return 0
+    ins, dels, _ = out.split(maxsplit=2)
+    return int(ins) + int(dels)
+
+
+def revert_index():
+    subprocess.run(["git", "checkout", "--", str(INDEX_HTML)], check=True)
+
+
+def main() -> int:
+    today_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    print(f"[refresh] today (UTC): {today_iso}")
+
+    html_before = INDEX_HTML.read_text(encoding="utf-8")
+    size_before = len(html_before.encode("utf-8"))
+    print(f"[refresh] file size before: {size_before} bytes")
+
+    last_updated, top_block, feed_body = extract_current_state(html_before)
+    print(f"[refresh] current lastUpdated: {last_updated}")
+
+    if last_updated == today_iso:
+        print("[refresh] already updated today — exiting cleanly with no change")
+        return 0
+
+    prompt = build_prompt(last_updated, top_block, feed_body, today_iso)
+    print("[refresh] calling Anthropic API ...")
+
+    try:
+        edits = call_claude(prompt)
+    except Exception as e:
+        print(f"[refresh] ERROR calling Claude: {e}", file=sys.stderr)
+        return 1
+
+    print("[refresh] model returned:")
+    print(json.dumps(edits, indent=2)[:1500])
+
+    try:
+        html_after = apply_edits(html_before, edits)
+    except Exception as e:
+        print(f"[refresh] ERROR applying edits: {e}", file=sys.stderr)
+        return 1
+
+    size_after = len(html_after.encode("utf-8"))
+    ratio = size_after / size_before
+    print(f"[refresh] file size after:  {size_after} bytes (ratio {ratio:.4f})")
+
+    if ratio < MIN_SIZE_RATIO or ratio > MAX_SIZE_RATIO:
+        print(
+            f"[refresh] ABORT: size ratio {ratio:.4f} outside "
+            f"[{MIN_SIZE_RATIO}, {MAX_SIZE_RATIO}] — refusing to write",
+            file=sys.stderr,
+        )
+        return 1
+
+    INDEX_HTML.write_text(html_after, encoding="utf-8")
+
+    diff_lines = git_diff_lines(str(INDEX_HTML))
+    print(f"[refresh] git diff lines: {diff_lines}")
+
+    if diff_lines > MAX_DIFF_LINES:
+        print(
+            f"[refresh] ABORT: diff {diff_lines} lines exceeds limit "
+            f"{MAX_DIFF_LINES} — reverting",
+            file=sys.stderr,
+        )
+        revert_index()
+        return 1
+
+    print(f"[refresh] OK: {edits.get('summary', '(no summary)')}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
