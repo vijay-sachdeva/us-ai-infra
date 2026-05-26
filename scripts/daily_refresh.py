@@ -152,6 +152,60 @@ def _date_bump_only(today_iso: str, reason: str) -> dict:
     }
 
 
+def _extract_json(text: str) -> dict | None:
+    """Robustly extract a JSON object from a possibly-noisy model response.
+
+    Claude often wraps the JSON in ```json ... ``` fences and writes a
+    preamble explaining its reasoning. We try several strategies before
+    giving up.
+    """
+    text = text.strip()
+    if not text:
+        return None
+
+    # Strategy 1: the whole text is already valid JSON.
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+
+    # Strategy 2: text contains a ```json ... ``` (or ``` ... ```) fence.
+    for fence_pattern in (
+        r'```json\s*(\{[\s\S]*?\})\s*```',
+        r'```\s*(\{[\s\S]*?\})\s*```',
+    ):
+        for m in re.finditer(fence_pattern, text):
+            try:
+                return json.loads(m.group(1))
+            except json.JSONDecodeError:
+                continue
+
+    # Strategy 3: scan for any balanced { ... } slice that parses as JSON.
+    # Walk through every '{' as a potential start and use a brace counter
+    # to find its matching '}'. Try parsing each candidate.
+    depth = 0
+    start = -1
+    for i, ch in enumerate(text):
+        if ch == '{':
+            if depth == 0:
+                start = i
+            depth += 1
+        elif ch == '}':
+            if depth > 0:
+                depth -= 1
+                if depth == 0 and start >= 0:
+                    candidate = text[start : i + 1]
+                    try:
+                        parsed = json.loads(candidate)
+                        # Prefer objects that look like our schema.
+                        if isinstance(parsed, dict) and "lastUpdated" in parsed:
+                            return parsed
+                    except json.JSONDecodeError:
+                        pass
+
+    return None
+
+
 def call_claude(prompt: str, today_iso: str) -> dict:
     """Call the Anthropic API with web_search; return parsed JSON edits.
 
@@ -198,17 +252,14 @@ def call_claude(prompt: str, today_iso: str) -> dict:
         )
         return _date_bump_only(today_iso, f"no text from model; stop_reason={response.stop_reason}")
 
-    # Strip stray code fences if the model added them anyway.
-    text = re.sub(r'^```(?:json)?\s*', '', text)
-    text = re.sub(r'\s*```$', '', text)
-
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError as e:
-        print(f"[refresh] JSON parse error: {e}", file=sys.stderr)
+    parsed = _extract_json(text)
+    if parsed is None:
+        print(f"[refresh] JSON extraction failed.", file=sys.stderr)
         print(f"[refresh] raw text (first 1500 chars):\n{text[:1500]}", file=sys.stderr)
         print("[refresh] Falling back to date-bump-only edit.", file=sys.stderr)
-        return _date_bump_only(today_iso, "JSON parse failed")
+        return _date_bump_only(today_iso, "JSON extraction failed")
+
+    return parsed
 
 
 # -------------------- edit application --------------------
