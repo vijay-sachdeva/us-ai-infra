@@ -36,7 +36,7 @@ INDEX_HTML = Path("index.html")
 
 # Use a current Sonnet model. Update if your account has a newer one.
 MODEL = "claude-sonnet-4-5-20250929"
-MAX_TOKENS = 4096
+MAX_TOKENS = 8192
 
 # Web-search budget. Each search counts toward Anthropic's per-search cost.
 WEB_SEARCH_MAX_USES = 5
@@ -141,8 +141,24 @@ Begin.
 
 # -------------------- Anthropic call --------------------
 
-def call_claude(prompt: str) -> dict:
-    """Call the Anthropic API with web_search; return parsed JSON edits."""
+def _date_bump_only(today_iso: str, reason: str) -> dict:
+    """Fallback edit that only updates lastUpdated and leaves topStory/feed alone."""
+    return {
+        "lastUpdated": today_iso,
+        "topStory": None,
+        "feedPrepend": [],
+        "feedDropFromEnd": 0,
+        "summary": f"Date bump only ({reason})",
+    }
+
+
+def call_claude(prompt: str, today_iso: str) -> dict:
+    """Call the Anthropic API with web_search; return parsed JSON edits.
+
+    On any anomaly (no text content, malformed JSON, etc.) returns a
+    date-bump-only edit so the daily refresh still advances `lastUpdated`
+    rather than crashing the whole workflow.
+    """
     client = Anthropic()  # picks up ANTHROPIC_API_KEY from env
 
     response = client.messages.create(
@@ -156,6 +172,18 @@ def call_claude(prompt: str) -> dict:
         messages=[{"role": "user", "content": prompt}],
     )
 
+    # Diagnostic logging — visible in the GitHub Actions log on every run.
+    print(f"[refresh] API stop_reason: {response.stop_reason}")
+    print(f"[refresh] API model used:  {response.model}")
+    print(f"[refresh] content blocks:  {len(response.content)}")
+    for i, block in enumerate(response.content):
+        block_type = getattr(block, "type", "?")
+        if block_type == "text":
+            preview = block.text[:240].replace("\n", " ⏎ ")
+            print(f"[refresh]   block[{i}] text ({len(block.text)} chars): {preview}")
+        else:
+            print(f"[refresh]   block[{i}] type: {block_type}")
+
     # Concatenate any text blocks in the final response.
     text = "".join(
         block.text for block in response.content
@@ -163,13 +191,24 @@ def call_claude(prompt: str) -> dict:
     ).strip()
 
     if not text:
-        raise RuntimeError("Empty response from model")
+        print(
+            f"[refresh] No text content in response (stop_reason={response.stop_reason}). "
+            "Falling back to date-bump-only edit.",
+            file=sys.stderr,
+        )
+        return _date_bump_only(today_iso, f"no text from model; stop_reason={response.stop_reason}")
 
     # Strip stray code fences if the model added them anyway.
     text = re.sub(r'^```(?:json)?\s*', '', text)
     text = re.sub(r'\s*```$', '', text)
 
-    return json.loads(text)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as e:
+        print(f"[refresh] JSON parse error: {e}", file=sys.stderr)
+        print(f"[refresh] raw text (first 1500 chars):\n{text[:1500]}", file=sys.stderr)
+        print("[refresh] Falling back to date-bump-only edit.", file=sys.stderr)
+        return _date_bump_only(today_iso, "JSON parse failed")
 
 
 # -------------------- edit application --------------------
@@ -292,7 +331,7 @@ def main() -> int:
     print("[refresh] calling Anthropic API ...")
 
     try:
-        edits = call_claude(prompt)
+        edits = call_claude(prompt, today_iso)
     except Exception as e:
         print(f"[refresh] ERROR calling Claude: {e}", file=sys.stderr)
         return 1
