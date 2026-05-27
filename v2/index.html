@@ -434,6 +434,53 @@
   .scorecard td.s-high { background: #f0faf4; color: var(--green); }
   .sc-note { font-size: 11px; color: var(--muted); margin-top: 8px; font-style: italic; line-height: 1.5; }
 
+  /* ---------- Energy & Policy: ISO table ---------- */
+  .iso-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .iso-table th, .iso-table td {
+    padding: 8px 10px; text-align: left;
+    border-bottom: 1px solid var(--line); font-size: 12px;
+  }
+  .iso-table th {
+    font-size: 10.5px; font-weight: 700; color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: .04em; background: #f8fafc;
+  }
+  .iso-table tbody tr:last-child td { border-bottom: none; }
+  .iso-table td.iso-name { font-weight: 700; color: var(--ink); }
+  .iso-table td.iso-queue { font-family: 'Courier New', monospace; font-weight: 700; }
+  .iso-table .sev-pill {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em;
+  }
+  .iso-table .sev-pill.crit { background: var(--red-soft);   color: var(--red); }
+  .iso-table .sev-pill.warn { background: var(--amber-soft); color: var(--amber); }
+  .iso-table .sev-pill.ok   { background: var(--green-soft); color: var(--green); }
+
+  /* ---------- Policy & utility action list (compact cards) ---------- */
+  .action-list { margin-top: 10px; }
+  .action-row {
+    padding: 11px 0; border-bottom: 1px solid var(--line);
+  }
+  .action-row:first-child { padding-top: 4px; }
+  .action-row:last-child { border-bottom: none; padding-bottom: 4px; }
+  .action-head {
+    display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+  .action-tag {
+    font-size: 10.5px; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft);
+    padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+  }
+  .action-tag.active { background: var(--green-soft); color: var(--green); }
+  .action-tag.pending { background: var(--amber-soft); color: var(--amber); }
+  .action-title { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .action-meta {
+    font-size: 11.5px; color: var(--ink-2); font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .action-note { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+
   /* ---------- Mobile ---------- */
   @media (max-width: 640px) {
     .head-inner { padding: 12px 15px; gap: 8px; }
@@ -679,41 +726,46 @@
       </div>
 
       <div class="stub-grid">
+        <!-- Card 1: Demand vs generation gap (chart) -->
         <div class="stub-card">
-          <span class="badge existing">EXISTING</span>
-          <h4>Demand vs generation gap</h4>
-          <div class="note">Projected GW gap by year.</div>
-          <p>Existing powerDemand chart + new generation/transmission capacity layer. The gap is the policy story.</p>
+          <h4>Annual demand growth vs. new firm generation</h4>
+          <div class="note">DC load added per year vs. firm generation committed to DC · GW · 2024-2030</div>
+          <div class="chart-box short"><canvas id="demandGapChart"></canvas></div>
         </div>
+
+        <!-- Card 2: Retail rate impact by state (chart) -->
         <div class="stub-card">
-          <span class="badge new">NEW</span>
-          <h4>Retail rate impact by state</h4>
-          <div class="note">Modeled rate trajectories.</div>
-          <p>Fortune reporting: Virginia generation costs up 57% by 2030 under high-demand scenarios. Extend to other top-10 states.</p>
+          <h4>Projected retail rate increase by 2030</h4>
+          <div class="note">Residential rate impact under high-DC-load scenarios &middot; vs. 2024</div>
+          <div class="chart-box short"><canvas id="rateImpactChart"></canvas></div>
         </div>
+
+        <!-- Card 3: ISO / transmission constraints (table) -->
         <div class="stub-card">
-          <span class="badge existing">EXISTING</span>
-          <h4>Transmission constraint hotspots</h4>
-          <div class="note">Where the grid physically can't move power.</div>
-          <p>Map view (existing geography) layered with PJM / MISO / ERCOT congestion data.</p>
+          <h4>Transmission constraints by ISO</h4>
+          <div class="note">Large-load interconnection queue depth, by region</div>
+          <div id="isoTable"></div>
         </div>
+
+        <!-- Card 4: Regulatory tracker -->
         <div class="stub-card">
-          <span class="badge new">NEW</span>
           <h4>Regulatory tracker</h4>
-          <div class="note">State + federal actions affecting data centers.</div>
-          <p>VA moratorium debates · GA fast-track permitting · FERC rules on demand response · IRA / tax credits affecting AI builds.</p>
+          <div class="note">State + federal actions shaping the buildout</div>
+          <div class="action-list" id="regList"></div>
         </div>
+
+        <!-- Card 5: Utility actions -->
         <div class="stub-card">
-          <span class="badge new">NEW</span>
-          <h4>Utility M&amp;A and capacity additions</h4>
-          <div class="note">Who's adding generation, and what kind.</div>
-          <p>NextEra/Dominion, utility-side deals, new natural gas / nuclear / battery announcements specifically tied to data-center load.</p>
+          <h4>Utility M&amp;A + capacity additions</h4>
+          <div class="note">Who's adding what, for whom</div>
+          <div class="action-list" id="utilList"></div>
         </div>
+
+        <!-- Card 6: Demand response & flex load -->
         <div class="stub-card">
-          <span class="badge new">NEW</span>
           <h4>Demand response &amp; flex load</h4>
-          <div class="note">How much demand can actually flex?</div>
-          <p>Google's 1 GW demand-response disclosure, Microsoft's Carbon Aware compute, others. The pressure release valve for the grid.</p>
+          <div class="note">The grid's pressure-release valve</div>
+          <div class="action-list" id="drList"></div>
         </div>
       </div>
 
@@ -908,7 +960,60 @@
         { name: "Silicon Valley",     scores: [2, 2, 2, 9, 1] }
       ],
       note: "Scores 1-10 (higher = more favorable for new builds). Composite from CBRE, JLL, modeled. Weight by your build profile."
-    }
+    },
+
+    /* ----- Energy & Policy tab ----- */
+    demandProjection: {
+      years:              ["2024","2025","2026","2027","2028","2029","2030"],
+      yoyDemandGrowthGW:  [5,     5,     10,    17,    15,    14,    13   ],
+      newFirmGenForDC:    [3,     5,     7,     10,    11,    12,    12   ],
+      note: "Year-on-year addition of US data center demand vs. new firm generation committed specifically to DC load. Bars exceeding the generation line indicate a widening gap.",
+      src: { label: "Goldman Sachs, Wood Mackenzie, EIA + utility IRP filings (modeled)", tier: "analyst" }
+    },
+    rateImpacts: {
+      states: [
+        { state: "Virginia",       increase: 57 },
+        { state: "Texas",           increase: 28 },
+        { state: "Ohio",            increase: 22 },
+        { state: "Georgia",         increase: 18 },
+        { state: "Arizona",         increase: 15 },
+        { state: "Louisiana",       increase: 12 },
+        { state: "North Carolina",  increase: 10 },
+        { state: "Tennessee",       increase:  8 }
+      ],
+      note: "Projected residential retail rate increase by 2030 vs. 2024, under high-DC-load scenarios. Modeled from utility filings + analyst projections.",
+      src: { label: "Fortune analysis, utility IRPs, modeled", tier: "modeled" }
+    },
+    isos: [
+      { name: "PJM",    region: "Mid-Atlantic",  queueYears: "5–7 yr", severity: "crit", note: "Dominion's large-load queue is the binding constraint; VA is the epicenter." },
+      { name: "CAISO",  region: "California",    queueYears: "5–7 yr", severity: "crit", note: "Land + power both scarce; Silicon Valley most constrained." },
+      { name: "MISO",   region: "Midwest",       queueYears: "4–5 yr", severity: "warn", note: "Transformer + transmission bottlenecks." },
+      { name: "NYISO",  region: "New York",      queueYears: "4–5 yr", severity: "warn", note: "Transmission upstate-to-downstate is binding." },
+      { name: "ISO-NE", region: "New England",   queueYears: "4–5 yr", severity: "warn", note: "Gas + transmission both tight." },
+      { name: "ERCOT",  region: "Texas",         queueYears: "3–4 yr", severity: "ok",   note: "Generation-led growth; queues shorter but rising fast." }
+    ],
+    regulatoryActions: [
+      { jurisdiction: "FERC (federal)",        action: "Order 2023 — interconnection queue reform", status: "active",  note: "Streamlines large-load interconnection studies; cluster studies replace serial study." },
+      { jurisdiction: "Federal (IRA + CHIPS)", action: "$30B+ tax credits + grants",                status: "active",  note: "Clean energy, transformers, chip fabs — directly supports DC buildouts." },
+      { jurisdiction: "Texas",                 action: "SB2 — large-load registration",              status: "active",  note: "Mandates registration + curtailment provisions for loads &gt;75 MW." },
+      { jurisdiction: "Virginia",              action: "Data center tax exemption review",          status: "pending", note: "Considering rollback of sales-tax exemption as load grows and rate pressure mounts." },
+      { jurisdiction: "Georgia",               action: "Fast-track permitting for AI builds",       status: "active",  note: "Reduces siting timeline for projects &gt;100 MW." },
+      { jurisdiction: "New York",              action: "Climate Leadership Act compliance",         status: "active",  note: "DC sites must source 100% clean by 2040 — affects siting decisions." }
+    ],
+    utilityActions: [
+      { utility: "NextEra + Dominion",   action: "$67B merger announcement",              meta: "Combined ~120 GW · Pending",       note: "Would create biggest US utility specifically to meet AI load." },
+      { utility: "Constellation Energy", action: "Three Mile Island restart for MSFT",   meta: "835 MW · 2026",                    note: "First nuclear restart explicitly for AI load; long-term PPA." },
+      { utility: "Vistra",               action: "Comanche Peak nuclear re-deployment", meta: "~1,200 MW · 2026",                 note: "Re-contracted to AI-grade customers." },
+      { utility: "TVA",                  action: "SMR planning (Clinch River + more)",   meta: "300 MW per unit · 2030+",          note: "Federal utility leading SMR adoption for DC load." },
+      { utility: "Duke Energy",          action: "Gas peaker additions in NC + SC",      meta: "~3 GW · 2026-28",                  note: "Bridge generation while nuclear comes online." },
+      { utility: "Entergy + Meta",       action: "Hyperion PPA + new generation",        meta: "~2 GW · 2026-28",                  note: "Long-term cost-plus PPA for Meta's Louisiana site." }
+    ],
+    demandResponse: [
+      { company: "Google",     mw: "~1,000 MW", type: "Long-term DR contracts",  note: "Embedded in utility contracts across major markets. Largest committed flex load." },
+      { company: "Microsoft",  mw: "~100 MW",   type: "Carbon-aware compute",    note: "Workload time-shifting tied to grid carbon intensity." },
+      { company: "Meta",       mw: "modeled",   type: "Load-shifting at Hyperion",note: "Louisiana campus designed for flex during peak grid hours." },
+      { company: "Crusoe",     mw: "~500 MW",   type: "Off-grid gas-direct",     note: "Stargate-related sites run on direct gas turbines; reduces grid dependence." }
+    ]
   };
 
   const $ = (id) => document.getElementById(id);
@@ -1185,6 +1290,130 @@
       <div class="sc-note">${sc.note}</div>`;
   }
 
+  /* ----- Energy & Policy tab renders ----- */
+  function renderDemandGapChart() {
+    if (!$("demandGapChart") || typeof Chart === "undefined") return;
+    if (renderDemandGapChart._done) return;
+    renderDemandGapChart._done = true;
+    const dp = DATA.demandProjection;
+    new Chart($("demandGapChart"), {
+      type: "bar",
+      data: {
+        labels: dp.years,
+        datasets: [
+          { label: "DC demand added", data: dp.yoyDemandGrowthGW, backgroundColor: "#c0322b", borderRadius: 5, maxBarThickness: 26 },
+          { label: "New firm gen for DC", data: dp.newFirmGenForDC, backgroundColor: "#15803d", borderRadius: 5, maxBarThickness: 26 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.y + " GW",
+            footer: () => "Source: " + dp.src.label
+          }}
+        },
+        scales: {
+          y: { grid: { color: "#eef1f5" }, ticks: { callback: v => v + " GW" }, beginAtZero: true },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderRateImpactChart() {
+    if (!$("rateImpactChart") || typeof Chart === "undefined") return;
+    if (renderRateImpactChart._done) return;
+    renderRateImpactChart._done = true;
+    const ri = DATA.rateImpacts;
+    const colorFor = (v) => v >= 25 ? "#c0322b" : v >= 15 ? "#c2710c" : "#15803d";
+    new Chart($("rateImpactChart"), {
+      type: "bar",
+      data: {
+        labels: ri.states.map(s => s.state),
+        datasets: [{
+          label: "Rate increase by 2030",
+          data: ri.states.map(s => s.increase),
+          backgroundColor: ri.states.map(s => colorFor(s.increase)),
+          borderRadius: 5, maxBarThickness: 22
+        }]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            label: c => " +" + c.parsed.x + "% by 2030",
+            footer: () => "Source: " + ri.src.label
+          }}
+        },
+        scales: {
+          x: { grid: { color: "#eef1f5" }, ticks: { callback: v => "+" + v + "%" }, beginAtZero: true, suggestedMax: 60 },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderIsoTable() {
+    if (!$("isoTable") || !DATA.isos) return;
+    const sevLabel = { crit: "Critical", warn: "High", ok: "Moderate" };
+    const rows = DATA.isos.map(iso => `
+      <tr title="${iso.note}">
+        <td class="iso-name">${iso.name}</td>
+        <td>${iso.region}</td>
+        <td class="iso-queue">${iso.queueYears}</td>
+        <td><span class="sev-pill ${iso.severity}">${sevLabel[iso.severity]}</span></td>
+        <td>${iso.note}</td>
+      </tr>`).join("");
+    $("isoTable").innerHTML = `
+      <table class="iso-table">
+        <thead><tr><th>ISO</th><th>Region</th><th>Queue depth</th><th>Severity</th><th>Key constraint</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  function renderActionList(targetId, items, renderItem) {
+    if (!$(targetId) || !items) return;
+    $(targetId).innerHTML = items.map(renderItem).join("");
+  }
+
+  function renderRegList() {
+    renderActionList("regList", DATA.regulatoryActions, r => `
+      <div class="action-row">
+        <div class="action-head">
+          <span class="action-tag ${r.status}">${r.status}</span>
+          <span class="action-title">${r.action}</span>
+        </div>
+        <div class="action-meta">${r.jurisdiction}</div>
+        <div class="action-note">${r.note}</div>
+      </div>`);
+  }
+
+  function renderUtilList() {
+    renderActionList("utilList", DATA.utilityActions, u => `
+      <div class="action-row">
+        <div class="action-head">
+          <span class="action-title">${u.utility}</span>
+        </div>
+        <div class="action-meta">${u.action} &middot; ${u.meta}</div>
+        <div class="action-note">${u.note}</div>
+      </div>`);
+  }
+
+  function renderDrList() {
+    renderActionList("drList", DATA.demandResponse, d => `
+      <div class="action-row">
+        <div class="action-head">
+          <span class="action-title">${d.company}</span>
+          <span class="action-tag">${d.mw}</span>
+        </div>
+        <div class="action-meta">${d.type}</div>
+        <div class="action-note">${d.note}</div>
+      </div>`);
+  }
+
   /* ----- Lazy per-tab render ----- */
   const renderedTabs = new Set();
   function renderTab(name) {
@@ -1207,8 +1436,15 @@
       renderScorecard();
       renderLeadTimeChart();
       renderBuildoutChart();
+    } else if (name === "policy") {
+      renderIsoTable();
+      renderRegList();
+      renderUtilList();
+      renderDrList();
+      renderDemandGapChart();
+      renderRateImpactChart();
     }
-    // policy / tokens — wired in later phases
+    // tokens — wired in later phase
   }
 
   function showTab(name) {
