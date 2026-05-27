@@ -1595,33 +1595,52 @@
 
   // One-time Chart.js setup — register datalabels plugin and set defaults
   let _chartsInit = false;
+  const _charts = {};  // id → Chart instance, used to destroy on theme change
+  function getChartColors() {
+    const dark = document.documentElement.getAttribute("data-theme") === "dark";
+    return {
+      text:  dark ? "#cbd5e1" : "#0f1b2d",
+      label: dark ? "#cbd5e1" : "#475569",
+      grid:  dark ? "#334155" : "#eef1f5"
+    };
+  }
+  function applyChartDefaults() {
+    if (typeof Chart === "undefined") return;
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = getChartColors().text;
+  }
   function initCharts() {
     if (_chartsInit || typeof Chart === "undefined") return;
     _chartsInit = true;
     if (typeof ChartDataLabels !== "undefined") {
       Chart.register(ChartDataLabels);
-      // Disable globally; each chart opts in via plugins.datalabels
       Chart.defaults.plugins = Chart.defaults.plugins || {};
       Chart.defaults.plugins.datalabels = { display: false };
     }
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.color = "#0f1b2d";
+    applyChartDefaults();
   }
-  // Common datalabel style used by most charts
-  const LABEL_STYLE = {
-    color: "#475569",
-    font: { weight: 700, size: 11 },
-    anchor: "end",
-    align: "end"
-  };
+  // Common datalabel style — picks up current theme color
+  function LABEL_STYLE_FN() {
+    return {
+      color: getChartColors().label,
+      font: { weight: 700, size: 11 },
+      anchor: "end",
+      align: "end"
+    };
+  }
+  // Backward-compat: legacy `LABEL_STYLE` callsites still see the current theme's values
+  const LABEL_STYLE = new Proxy({}, {
+    get(_, prop) { return LABEL_STYLE_FN()[prop]; }
+  });
 
   function renderCapexChart() {
     if (!$("coCapexChart") || typeof Chart === "undefined") return;
     if (renderCapexChart._done) return;
     renderCapexChart._done = true;
+    initCharts(); applyChartDefaults();
     const cc = DATA.companyCapex;
-    initCharts();
-    new Chart($("coCapexChart"), {
+    const cl = getChartColors();
+    _charts.coCapexChart = new Chart($("coCapexChart"), {
       type: "bar",
       data: { labels: cc.companies, datasets: [{
         label: "2026 capex", data: cc.values,
@@ -1632,14 +1651,14 @@
         layout: { padding: { top: 24 } },
         plugins: {
           legend: { display: false },
-          datalabels: Object.assign({}, LABEL_STYLE, { display: true, formatter: v => "$" + v + "B" }),
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, formatter: v => "$" + v + "B" }),
           tooltip: { callbacks: {
             label: c => " $" + c.parsed.y + "B planned capex",
             footer: items => { const s = cc.srcs[items[0].dataIndex]; return s ? "Source: " + s.label : ""; }
           }}
         },
         scales: {
-          y: { grid: { color: "#eef1f5" }, ticks: { callback: v => "$" + v + "B" }, beginAtZero: true },
+          y: { grid: { color: cl.grid }, ticks: { callback: v => "$" + v + "B" }, beginAtZero: true },
           x: { grid: { display: false } }
         }
       }
@@ -1650,8 +1669,10 @@
     if (!$("vacancyChart") || typeof Chart === "undefined") return;
     if (renderVacancyChart._done) return;
     renderVacancyChart._done = true;
+    initCharts(); applyChartDefaults();
     const v = DATA.vacancyTrend;
-    new Chart($("vacancyChart"), {
+    const cl = getChartColors();
+    _charts.vacancyChart = new Chart($("vacancyChart"), {
       type: "line",
       data: {
         labels: v.years,
@@ -1670,14 +1691,14 @@
         layout: { padding: { top: 18 } },
         plugins: {
           legend: { display: false },
-          datalabels: { display: true, color: "#475569", font: { weight: 700, size: 11 }, align: "top", offset: 6, formatter: v => v + "%" },
+          datalabels: { display: true, color: cl.label, font: { weight: 700, size: 11 }, align: "top", offset: 6, formatter: v => v + "%" },
           tooltip: { callbacks: {
             label: c => " " + c.parsed.y + "% vacancy",
             footer: () => v.src ? "Source: " + v.src.label : ""
           }}
         },
         scales: {
-          y: { grid: { color: "#eef1f5" }, ticks: { callback: x => x + "%" }, beginAtZero: true, suggestedMax: 11 },
+          y: { grid: { color: cl.grid }, ticks: { callback: x => x + "%" }, beginAtZero: true, suggestedMax: 11 },
           x: { grid: { display: false } }
         }
       }
@@ -1802,9 +1823,11 @@
     if (!$("leadTimeChart") || typeof Chart === "undefined") return;
     if (renderLeadTimeChart._done) return;
     renderLeadTimeChart._done = true;
+    initCharts(); applyChartDefaults();
     const sorted = [...DATA.markets].sort((a, b) => b.lead - a.lead);
     const colorFor = (l) => l >= 6 ? "#c0322b" : l >= 4 ? "#c2710c" : "#15803d";
-    new Chart($("leadTimeChart"), {
+    const cl = getChartColors();
+    _charts.leadTimeChart = new Chart($("leadTimeChart"), {
       type: "bar",
       data: {
         labels: sorted.map(m => m.name),
@@ -1820,14 +1843,14 @@
         layout: { padding: { right: 28 } },
         plugins: {
           legend: { display: false },
-          datalabels: Object.assign({}, LABEL_STYLE, { display: true, formatter: v => v + " yr" }),
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, formatter: v => v + " yr" }),
           tooltip: { callbacks: {
             label: c => " " + c.parsed.x + " years",
             footer: items => { const m = sorted[items[0].dataIndex]; return m ? m.note : ""; }
           }}
         },
         scales: {
-          x: { grid: { color: "#eef1f5" }, ticks: { callback: v => v + " yr" }, beginAtZero: true, suggestedMax: 8 },
+          x: { grid: { color: cl.grid }, ticks: { callback: v => v + " yr" }, beginAtZero: true, suggestedMax: 8 },
           y: { grid: { display: false } }
         }
       }
@@ -1850,8 +1873,10 @@
     if (!$("buildoutChart") || typeof Chart === "undefined") return;
     if (renderBuildoutChart._done) return;
     renderBuildoutChart._done = true;
+    initCharts(); applyChartDefaults();
     const hm = DATA.hyperscalerMW;
-    new Chart($("buildoutChart"), {
+    const cl = getChartColors();
+    _charts.buildoutChart = new Chart($("buildoutChart"), {
       type: "bar",
       data: {
         labels: hm.companies,
@@ -1865,7 +1890,7 @@
         layout: { padding: { right: 40 } },
         plugins: {
           legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
-          datalabels: Object.assign({}, LABEL_STYLE, {
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), {
             display: true,
             font: { weight: 700, size: 10 },
             formatter: v => v >= 1000 ? (v/1000).toFixed(1) + " GW" : v + " MW"
@@ -1876,7 +1901,7 @@
           }}
         },
         scales: {
-          x: { grid: { color: "#eef1f5" }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(1) + " GW" : v + " MW" }, beginAtZero: true },
+          x: { grid: { color: cl.grid }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(1) + " GW" : v + " MW" }, beginAtZero: true },
           y: { grid: { display: false } }
         }
       }
@@ -2044,8 +2069,10 @@
     if (!$("demandGapChart") || typeof Chart === "undefined") return;
     if (renderDemandGapChart._done) return;
     renderDemandGapChart._done = true;
+    initCharts(); applyChartDefaults();
     const dp = DATA.demandProjection;
-    new Chart($("demandGapChart"), {
+    const cl = getChartColors();
+    _charts.demandGapChart = new Chart($("demandGapChart"), {
       type: "bar",
       data: {
         labels: dp.years,
@@ -2059,14 +2086,14 @@
         layout: { padding: { top: 22 } },
         plugins: {
           legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
-          datalabels: Object.assign({}, LABEL_STYLE, { display: true, font: { weight: 700, size: 10 }, formatter: v => v + " GW" }),
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, font: { weight: 700, size: 10 }, formatter: v => v + " GW" }),
           tooltip: { callbacks: {
             label: c => " " + c.dataset.label + ": " + c.parsed.y + " GW",
             footer: () => "Source: " + dp.src.label
           }}
         },
         scales: {
-          y: { grid: { color: "#eef1f5" }, ticks: { callback: v => v + " GW" }, beginAtZero: true },
+          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true },
           x: { grid: { display: false } }
         }
       }
@@ -2077,9 +2104,11 @@
     if (!$("rateImpactChart") || typeof Chart === "undefined") return;
     if (renderRateImpactChart._done) return;
     renderRateImpactChart._done = true;
+    initCharts(); applyChartDefaults();
     const ri = DATA.rateImpacts;
     const colorFor = (v) => v >= 25 ? "#c0322b" : v >= 15 ? "#c2710c" : "#15803d";
-    new Chart($("rateImpactChart"), {
+    const cl = getChartColors();
+    _charts.rateImpactChart = new Chart($("rateImpactChart"), {
       type: "bar",
       data: {
         labels: ri.states.map(s => s.state),
@@ -2095,14 +2124,14 @@
         layout: { padding: { right: 36 } },
         plugins: {
           legend: { display: false },
-          datalabels: Object.assign({}, LABEL_STYLE, { display: true, formatter: v => "+" + v + "%" }),
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, formatter: v => "+" + v + "%" }),
           tooltip: { callbacks: {
             label: c => " +" + c.parsed.x + "% by 2030",
             footer: () => "Source: " + ri.src.label
           }}
         },
         scales: {
-          x: { grid: { color: "#eef1f5" }, ticks: { callback: v => "+" + v + "%" }, beginAtZero: true, suggestedMax: 60 },
+          x: { grid: { color: cl.grid }, ticks: { callback: v => "+" + v + "%" }, beginAtZero: true, suggestedMax: 60 },
           y: { grid: { display: false } }
         }
       }
@@ -2173,7 +2202,9 @@
     if (!$("tokenVolumeChart") || typeof Chart === "undefined") return;
     if (renderTokenVolumeChart._done) return;
     renderTokenVolumeChart._done = true;
+    initCharts(); applyChartDefaults();
     const tv = DATA.tokenVolume;
+    const cl = getChartColors();
     const datasets = tv.providers.map(p => ({
       label: p.name,
       data: p.values,
@@ -2184,7 +2215,7 @@
       tension: 0.32,
       pointRadius: 0
     }));
-    new Chart($("tokenVolumeChart"), {
+    _charts.tokenVolumeChart = new Chart($("tokenVolumeChart"), {
       type: "line",
       data: { labels: tv.quarters, datasets: datasets },
       options: {
@@ -2198,7 +2229,7 @@
           }}
         },
         scales: {
-          y: { stacked: true, grid: { color: "#eef1f5" }, ticks: { callback: v => v.toLocaleString() + "T" }, beginAtZero: true },
+          y: { stacked: true, grid: { color: cl.grid }, ticks: { callback: v => v.toLocaleString() + "T" }, beginAtZero: true },
           x: { grid: { display: false } }
         }
       }
@@ -2209,7 +2240,9 @@
     if (!$("priceCompressionChart") || typeof Chart === "undefined") return;
     if (renderPriceCompressionChart._done) return;
     renderPriceCompressionChart._done = true;
+    initCharts(); applyChartDefaults();
     const pc = DATA.priceCompression;
+    const cl = getChartColors();
     // Group models by family for color-coded scatter datasets
     const byFamily = {};
     pc.models.forEach(m => {
@@ -2227,7 +2260,7 @@
       pointRadius: 6,
       pointHoverRadius: 8
     }));
-    new Chart($("priceCompressionChart"), {
+    _charts.priceCompressionChart = new Chart($("priceCompressionChart"), {
       type: "scatter",
       data: { datasets: datasets },
       options: {
@@ -2239,7 +2272,7 @@
           }}
         },
         scales: {
-          y: { type: "logarithmic", grid: { color: "#eef1f5" },
+          y: { type: "logarithmic", grid: { color: cl.grid },
             ticks: { callback: v => "$" + v },
             title: { display: true, text: "$/1M output tokens (log)" }
           },
@@ -2370,6 +2403,23 @@
     const next = current === "light" ? "dark" : "light";
     localStorage.setItem(THEME_KEY, next);
     applyTheme(next);
+    // Destroy & rebuild charts so text + grid colors pick up the new theme
+    if (typeof _charts !== "undefined") {
+      for (const id in _charts) {
+        if (_charts[id] && typeof _charts[id].destroy === "function") {
+          try { _charts[id].destroy(); } catch (_) {}
+        }
+        delete _charts[id];
+      }
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart"].forEach(fn => {
+        if (typeof window[fn] === "function") window[fn]._done = false;
+        try { eval(fn)._done = false; } catch(_) {}
+      });
+      if (typeof renderedTabs !== "undefined" && renderedTabs.clear) renderedTabs.clear();
+      // Re-trigger render for current tab
+      const cur = (location.hash || "#overview").slice(1);
+      if (typeof showTab === "function") showTab(cur);
+    }
   }
   applyTheme(localStorage.getItem(THEME_KEY) || "light");
   (function () {
