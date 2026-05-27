@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <style>
@@ -1598,13 +1599,34 @@
       </div>`).join("");
   }
 
+  // One-time Chart.js setup — register datalabels plugin and set defaults
+  let _chartsInit = false;
+  function initCharts() {
+    if (_chartsInit || typeof Chart === "undefined") return;
+    _chartsInit = true;
+    if (typeof ChartDataLabels !== "undefined") {
+      Chart.register(ChartDataLabels);
+      // Disable globally; each chart opts in via plugins.datalabels
+      Chart.defaults.plugins = Chart.defaults.plugins || {};
+      Chart.defaults.plugins.datalabels = { display: false };
+    }
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = "#0f1b2d";
+  }
+  // Common datalabel style used by most charts
+  const LABEL_STYLE = {
+    color: "#475569",
+    font: { weight: 700, size: 11 },
+    anchor: "end",
+    align: "end"
+  };
+
   function renderCapexChart() {
     if (!$("coCapexChart") || typeof Chart === "undefined") return;
     if (renderCapexChart._done) return;
     renderCapexChart._done = true;
     const cc = DATA.companyCapex;
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.color = "#0f1b2d";
+    initCharts();
     new Chart($("coCapexChart"), {
       type: "bar",
       data: { labels: cc.companies, datasets: [{
@@ -1613,8 +1635,10 @@
       }]},
       options: {
         responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 24 } },
         plugins: {
           legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE, { display: true, formatter: v => "$" + v + "B" }),
           tooltip: { callbacks: {
             label: c => " $" + c.parsed.y + "B planned capex",
             footer: items => { const s = cc.srcs[items[0].dataIndex]; return s ? "Source: " + s.label : ""; }
@@ -1649,8 +1673,10 @@
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 18 } },
         plugins: {
           legend: { display: false },
+          datalabels: { display: true, color: "#475569", font: { weight: 700, size: 11 }, align: "top", offset: 6, formatter: v => v + "%" },
           tooltip: { callbacks: {
             label: c => " " + c.parsed.y + "% vacancy",
             footer: () => v.src ? "Source: " + v.src.label : ""
@@ -1797,8 +1823,10 @@
       },
       options: {
         indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 28 } },
         plugins: {
           legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE, { display: true, formatter: v => v + " yr" }),
           tooltip: { callbacks: {
             label: c => " " + c.parsed.x + " years",
             footer: items => { const m = sorted[items[0].dataIndex]; return m ? m.note : ""; }
@@ -1840,8 +1868,14 @@
       },
       options: {
         indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 40 } },
         plugins: {
           legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          datalabels: Object.assign({}, LABEL_STYLE, {
+            display: true,
+            font: { weight: 700, size: 10 },
+            formatter: v => v >= 1000 ? (v/1000).toFixed(1) + " GW" : v + " MW"
+          }),
           tooltip: { callbacks: {
             label: c => " " + c.dataset.label + ": " + c.parsed.x.toLocaleString() + " MW",
             footer: () => "Source: " + hm.srcLabel
@@ -2028,8 +2062,10 @@
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 22 } },
         plugins: {
           legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          datalabels: Object.assign({}, LABEL_STYLE, { display: true, font: { weight: 700, size: 10 }, formatter: v => v + " GW" }),
           tooltip: { callbacks: {
             label: c => " " + c.dataset.label + ": " + c.parsed.y + " GW",
             footer: () => "Source: " + dp.src.label
@@ -2062,8 +2098,10 @@
       },
       options: {
         indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 36 } },
         plugins: {
           legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE, { display: true, formatter: v => "+" + v + "%" }),
           tooltip: { callbacks: {
             label: c => " +" + c.parsed.x + "% by 2030",
             footer: () => "Source: " + ri.src.label
