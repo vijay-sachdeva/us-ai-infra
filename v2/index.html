@@ -12,6 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -431,6 +433,37 @@
     transition: width .25s ease;
   }
   .irr-meta { font-size: 11px; color: var(--muted); font-style: italic; line-height: 1.5; }
+
+  /* ---------- D3 US map ---------- */
+  .map-shell {
+    position: relative; width: 100%;
+    background: linear-gradient(180deg, #f7f9fb, #f0f4f8);
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+    min-height: 300px; margin-top: 12px;
+  }
+  .map-shell svg { display: block; width: 100%; }
+  .map-label {
+    position: absolute; top: 12px; left: 14px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .14em;
+    color: #c2cad6; text-transform: uppercase; pointer-events: none; z-index: 2;
+  }
+  .map-tip {
+    display: none; position: absolute; z-index: 10; pointer-events: none;
+    background: rgba(15,27,45,.92); color: #fff;
+    font-size: 12px; line-height: 1.55; padding: 8px 12px;
+    border-radius: 9px; max-width: 220px;
+    box-shadow: 0 4px 16px rgba(15,27,45,.22);
+  }
+  .map-tip b { font-weight: 700; display: block; margin-bottom: 2px; }
+  .map-tip .tip-muted { color: rgba(255,255,255,.65); font-size: 11px; }
+  .map-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+  .map-legend span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+  .map-legend .lg-dot { width: 11px; height: 11px; border-radius: 50%; }
+  @media (max-width: 640px) { .map-city-label { display: none; } }
+  [data-theme="dark"] .map-shell {
+    background: linear-gradient(180deg, #0f172a, #1e293b);
+    border-color: var(--line);
+  }
 
   /* ---------- Engineer: interconnection funnel ---------- */
   .funnel-flow {
@@ -1048,6 +1081,20 @@
         <div class="funnel-conv" id="funnelConv"></div>
       </div>
 
+      <!-- Full-width: US data center map -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Where the capacity sits — primary US markets</h4>
+        <div class="note">Bubble size = operational GW &middot; color by status &middot; hover for detail</div>
+        <div class="map-shell" id="map">
+          <span class="map-label">US Primary Markets</span>
+        </div>
+        <div class="map-legend">
+          <span><span class="lg-dot" style="background:#d4452f"></span>Power-constrained</span>
+          <span><span class="lg-dot" style="background:#1d4ed8"></span>Major growth</span>
+          <span><span class="lg-dot" style="background:#15803d"></span>Emerging</span>
+        </div>
+      </div>
+
       <div class="stub-grid" style="margin-top:14px">
         <!-- Card 2: Lead time by region (chart) -->
         <div class="stub-card">
@@ -1300,14 +1347,14 @@
       }
     },
     markets: [
-      { name: "Northern Virginia", operational: 12, pipeline: 1100, lead: 7, note: "PJM-gated. 1,102 MW absorption." },
-      { name: "Phoenix, AZ",       operational: 4,  pipeline: 1300, lead: 4, note: "Major growth. Water + grid pressure." },
-      { name: "Chicago, IL",       operational: 3,  pipeline: 1180, lead: 4, note: "ComEd queue." },
-      { name: "Atlanta, GA",       operational: 3,  pipeline: 1110, lead: 4, note: "Fast-rising hub." },
-      { name: "Dallas, TX",        operational: 7,  pipeline: 950,  lead: 3, note: "ERCOT advantage." },
-      { name: "Central Ohio",      operational: 4,  pipeline: 700,  lead: 3, note: "Gigawatt campuses." },
-      { name: "Louisiana",         operational: 1,  pipeline: 600,  lead: 3, note: "Meta Hyperion site." },
-      { name: "Silicon Valley",    operational: 2,  pipeline: 380,  lead: 6, note: "Land + power both scarce." }
+      { name: "Northern Virginia", operational: 12, pipeline: 1100, lead: 7, type: "constrained", lon: -77.2,  lat: 38.9, status: "Power-constrained", note: "PJM-gated. 1,102 MW absorption." },
+      { name: "Phoenix, AZ",       operational: 4,  pipeline: 1300, lead: 4, type: "growth",      lon: -112.1, lat: 33.4, status: "Major growth",      note: "Water + grid pressure." },
+      { name: "Chicago, IL",       operational: 3,  pipeline: 1180, lead: 4, type: "growth",      lon: -87.6,  lat: 41.8, status: "Major growth",      note: "ComEd queue." },
+      { name: "Atlanta, GA",       operational: 3,  pipeline: 1110, lead: 4, type: "growth",      lon: -84.4,  lat: 33.7, status: "Major growth",      note: "Fast-rising hub." },
+      { name: "Dallas, TX",        operational: 7,  pipeline: 950,  lead: 3, type: "growth",      lon: -96.8,  lat: 32.8, status: "Major growth",      note: "ERCOT advantage." },
+      { name: "Central Ohio",      operational: 4,  pipeline: 700,  lead: 3, type: "emerging",    lon: -82.9,  lat: 40.0, status: "Emerging",           note: "Gigawatt campuses." },
+      { name: "Louisiana",         operational: 1,  pipeline: 600,  lead: 3, type: "emerging",    lon: -91.8,  lat: 32.1, status: "Emerging",           note: "Meta Hyperion site." },
+      { name: "Silicon Valley",    operational: 2,  pipeline: 380,  lead: 6, type: "constrained", lon: -122.0, lat: 37.4, status: "Power-constrained", note: "Land + power both scarce." }
     ],
     hyperscalerMW: {
       companies:   ["Amazon (AWS)", "Meta", "Microsoft", "Google", "Oracle"],
@@ -1771,6 +1818,145 @@
     });
   }
 
+  function renderMap() {
+    const container = $("map");
+    if (!container) return;
+    if (renderMap._done) return;
+    if (typeof d3 === "undefined" || typeof topojson === "undefined") {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px">Map requires d3 + topojson — reload when online.</div>';
+      return;
+    }
+    renderMap._done = true;
+
+    const typeColor = { constrained: "#d4452f", growth: "#1d4ed8", emerging: "#15803d" };
+    const maxOp = Math.max.apply(null, DATA.markets.map(m => m.operational));
+
+    // Tooltip element (singleton)
+    let tip = container.querySelector(".map-tip");
+    if (!tip) {
+      tip = document.createElement("div");
+      tip.className = "map-tip";
+      container.appendChild(tip);
+    }
+    function moveTip(event) {
+      const rect = container.getBoundingClientRect();
+      let tx = event.clientX - rect.left + 14;
+      let ty = event.clientY - rect.top - 10;
+      if (tx + 240 > container.clientWidth) tx = event.clientX - rect.left - 244;
+      tip.style.left = tx + "px";
+      tip.style.top  = ty + "px";
+    }
+
+    function buildMap() {
+      // Remove any prior SVG (for resize redraws)
+      container.querySelectorAll("svg").forEach(s => s.remove());
+      const W = container.clientWidth || 560;
+      const H = Math.round(W * 0.58);
+      container.style.minHeight = H + "px";
+
+      const svg = d3.select(container).append("svg")
+        .attr("viewBox", "0 0 " + W + " " + H)
+        .attr("width", W).attr("height", H);
+
+      d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
+        const proj = d3.geoAlbersUsa()
+          .fitExtent([[12, 12], [W - 12, H - 12]],
+            topojson.feature(us, us.objects.nation));
+        const path = d3.geoPath().projection(proj);
+
+        // States
+        svg.append("g").selectAll("path")
+          .data(topojson.feature(us, us.objects.states).features)
+          .join("path")
+          .attr("d", path)
+          .attr("fill", "#eaeff5")
+          .attr("stroke", "#fff")
+          .attr("stroke-width", 1.2);
+
+        // Internal borders
+        svg.append("path")
+          .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
+          .attr("d", path)
+          .attr("fill", "none")
+          .attr("stroke", "#d0d9e4")
+          .attr("stroke-width", 0.5);
+
+        // Bubble drop shadow
+        const defs = svg.append("defs");
+        const filter = defs.append("filter").attr("id", "mapShadow")
+          .attr("x", "-40%").attr("y", "-40%").attr("width", "180%").attr("height", "180%");
+        filter.append("feDropShadow")
+          .attr("dx", 0).attr("dy", 2).attr("stdDeviation", 3)
+          .attr("flood-color", "rgba(15,27,45,.25)");
+
+        // Market bubbles
+        DATA.markets.forEach(m => {
+          const xy = proj([m.lon, m.lat]);
+          if (!xy) return;
+          const [x, y] = xy;
+          const r = 16 + (m.operational / maxOp) * 22;
+          const col = typeColor[m.type] || "#475569";
+
+          const g = svg.append("g").style("cursor", "default");
+
+          g.append("circle")
+            .attr("cx", x).attr("cy", y).attr("r", r)
+            .attr("fill", col).attr("fill-opacity", 0.88)
+            .attr("stroke", "#fff").attr("stroke-width", 2.5)
+            .attr("filter", "url(#mapShadow)");
+
+          g.append("text")
+            .attr("x", x).attr("y", y)
+            .attr("text-anchor", "middle").attr("dominant-baseline", "central")
+            .attr("fill", "#fff")
+            .attr("font-family", "Inter, sans-serif")
+            .attr("font-size", Math.max(12, Math.round(r * 0.64)) + "px")
+            .attr("font-weight", "800")
+            .attr("pointer-events", "none")
+            .text(m.operational);
+
+          g.append("text")
+            .attr("x", x).attr("y", y + r + 11)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#3a4a5c")
+            .attr("font-family", "Inter, sans-serif")
+            .attr("font-size", "9.5px").attr("font-weight", "700")
+            .attr("pointer-events", "none")
+            .attr("class", "map-city-label")
+            .text(m.name.replace(", AZ", "").replace(", IL", "").replace(", GA", "").replace(", TX", ""));
+
+          g.on("mouseenter", function (event) {
+              tip.innerHTML = "<b>" + m.name + "</b>" +
+                m.operational + " GW operational · " + m.pipeline.toLocaleString() + " MW pipeline" +
+                '<br><span class="tip-muted">~' + m.lead + ' yr to power · ' + m.status + '</span>';
+              tip.style.display = "block";
+              moveTip(event);
+            })
+            .on("mousemove", moveTip)
+            .on("mouseleave", () => { tip.style.display = "none"; });
+        });
+      }).catch(() => {
+        svg.append("text")
+          .attr("x", W / 2).attr("y", H / 2)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#8a97a8").attr("font-size", "13px")
+          .attr("font-family", "Inter, sans-serif")
+          .text("Map requires network — reload when online");
+      });
+    }
+
+    buildMap();
+    // Redraw on resize (debounced)
+    let rto;
+    window.addEventListener("resize", () => {
+      clearTimeout(rto);
+      rto = setTimeout(() => {
+        renderMap._done = false;  // allow rebuild
+        renderMap();
+      }, 200);
+    });
+  }
+
   function renderScorecard() {
     if (!$("scorecardWrap") || !DATA.siteScorecards) return;
     const sc = DATA.siteScorecards;
@@ -2067,6 +2253,7 @@
       renderScorecard();
       renderLeadTimeChart();
       renderBuildoutChart();
+      renderMap();
     } else if (name === "grid") {
       renderIsoTable();
       renderRegList();
