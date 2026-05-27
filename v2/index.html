@@ -680,11 +680,11 @@
 <!-- ================= TAB NAV ================= -->
 <nav class="tabs">
   <ul>
-    <li><a href="#overview" data-tab="overview">🌐 Overview</a></li>
-    <li><a href="#investor" data-tab="investor">💰 Investor</a></li>
-    <li><a href="#engineer" data-tab="engineer">⚙️ Engineer</a></li>
-    <li><a href="#policy" data-tab="policy">🏛️ Energy &amp; Policy</a></li>
-    <li><a href="#tokens" data-tab="tokens">🪙 Token Economics</a></li>
+    <li><a href="#overview" data-tab="overview">Overview</a></li>
+    <li><a href="#capital"  data-tab="capital">Capital</a></li>
+    <li><a href="#buildout" data-tab="buildout">Buildout</a></li>
+    <li><a href="#grid"     data-tab="grid">Grid</a></li>
+    <li><a href="#tokens"   data-tab="tokens">Tokens</a></li>
   </ul>
 </nav>
 
@@ -694,7 +694,7 @@
 
     <!-- ============ OVERVIEW ============ -->
     <section class="tab-content" data-tab="overview">
-      <h2 class="tab-title">🌐 Overview</h2>
+      <h2 class="tab-title">Overview</h2>
       <p class="tab-sub">The 30-second pitch. Pick a persona below for the deep dive.</p>
 
       <div class="hero-headline">
@@ -709,35 +709,31 @@
       <!-- KPI strip (lifted from production) -->
       <div class="kpis" id="kpis"></div>
 
-      <p class="tab-sub" style="margin-top:32px"><b>Dive deeper — pick a persona view:</b></p>
+      <p class="tab-sub" style="margin-top:32px"><b>Dive deeper:</b></p>
       <div class="persona-picker">
-        <a href="#investor">
-          <div class="icon">💰</div>
-          <div class="pname">Investor</div>
-          <div class="pdesc">Capex magnitudes, vacancy + supply, $/MW returns, M&amp;A heatmap.</div>
+        <a href="#capital">
+          <div class="pname">Capital</div>
+          <div class="pdesc">Capex magnitudes, vacancy, $/MW returns, M&amp;A heatmap. For investors.</div>
         </a>
-        <a href="#engineer">
-          <div class="icon">⚙️</div>
-          <div class="pname">Engineer</div>
-          <div class="pdesc">Power availability, interconnection queues, transformer lead times, bottlenecks.</div>
+        <a href="#buildout">
+          <div class="pname">Buildout</div>
+          <div class="pdesc">Interconnection queues, lead times, cost stack, site selection. For builders.</div>
         </a>
-        <a href="#policy">
-          <div class="icon">🏛️</div>
-          <div class="pname">Energy &amp; Policy</div>
-          <div class="pdesc">Grid expansion, rate impact, transmission constraints, regulatory tracker.</div>
+        <a href="#grid">
+          <div class="pname">Grid</div>
+          <div class="pdesc">Demand vs generation, rate impact, regulation, utility actions. For energy + policy.</div>
         </a>
         <a href="#tokens">
-          <div class="icon">🪙</div>
-          <div class="pname">Token Economics</div>
+          <div class="pname">Tokens</div>
           <div class="pdesc">Industry token volume, $/token compression, tokens × energy bridge.</div>
         </a>
       </div>
     </section>
 
-    <!-- ============ INVESTOR ============ -->
-    <section class="tab-content" data-tab="investor">
-      <h2 class="tab-title">💰 Investor</h2>
-      <p class="tab-sub">For capital allocators — VCs, public-market investors, corp dev, strategic capital.</p>
+    <!-- ============ CAPITAL ============ -->
+    <section class="tab-content" data-tab="capital">
+      <h2 class="tab-title">Capital</h2>
+      <p class="tab-sub">Where the money goes — capex, vacancy, returns, M&amp;A. For capital allocators, VCs, corp dev, public-market investors.</p>
 
       <div class="so-what">
         <label>So what</label>
@@ -792,15 +788,15 @@
       </div>
 
       <div class="cross-ref">
-        <strong>🪙 Token economics →</strong>
+        <strong>Tokens →</strong>
         $/token compression compresses inference revenue per token. <a href="#tokens">Open the unit-economics deep dive →</a>
       </div>
     </section>
 
-    <!-- ============ ENGINEER ============ -->
-    <section class="tab-content" data-tab="engineer">
-      <h2 class="tab-title">⚙️ Engineer</h2>
-      <p class="tab-sub">For infra leaders — site selection, capacity planning, supply chain risk.</p>
+    <!-- ============ BUILDOUT ============ -->
+    <section class="tab-content" data-tab="buildout">
+      <h2 class="tab-title">Buildout</h2>
+      <p class="tab-sub">How capacity actually gets built — queues, lead times, cost stack, site selection. For infra leaders and supply-chain planners.</p>
 
       <div class="so-what">
         <label>So what</label>
@@ -853,15 +849,15 @@
       </div>
 
       <div class="cross-ref">
-        <strong>🪙 Token economics →</strong>
+        <strong>Tokens →</strong>
         Tokens per MW-hour. Energy efficiency curves for inference. <a href="#tokens">Open the energy bridge →</a>
       </div>
     </section>
 
-    <!-- ============ ENERGY & POLICY ============ -->
-    <section class="tab-content" data-tab="policy">
-      <h2 class="tab-title">🏛️ Energy &amp; Policy</h2>
-      <p class="tab-sub">For utility planners, regulators, energy desk reporters, policy analysts.</p>
+    <!-- ============ GRID ============ -->
+    <section class="tab-content" data-tab="grid">
+      <h2 class="tab-title">Grid</h2>
+      <p class="tab-sub">The energy + policy story — demand vs generation, rate impact, regulation, utility responses. For utility planners, regulators, energy reporters, policy analysts.</p>
 
       <div class="so-what">
         <label>So what</label>
@@ -913,15 +909,15 @@
       </div>
 
       <div class="cross-ref">
-        <strong>🪙 Token economics →</strong>
+        <strong>Tokens →</strong>
         Tokens &times; energy: how much grid load does AI inference actually create per unit of usage? <a href="#tokens">Open the adoption-vs-energy curve →</a>
       </div>
     </section>
 
-    <!-- ============ TOKEN ECONOMICS ============ -->
+    <!-- ============ TOKENS ============ -->
     <section class="tab-content" data-tab="tokens">
-      <h2 class="tab-title">🪙 Token Economics</h2>
-      <p class="tab-sub">The hidden story behind the buildout. How much AI is actually being run, what it costs, and what it consumes.</p>
+      <h2 class="tab-title">Tokens</h2>
+      <p class="tab-sub">The AI economy underneath the buildout — how much is run, what it costs, what it consumes.</p>
 
       <div class="so-what">
         <label>The hidden story</label>
@@ -1743,21 +1739,21 @@
     if (name === "overview") {
       renderTopStory();
       renderKpis();
-    } else if (name === "investor") {
+    } else if (name === "capital") {
       renderCostStack("costStack");
       renderDeals();
       renderPlays();
       renderIrrTable();
       renderCapexChart();
       renderVacancyChart();
-    } else if (name === "engineer") {
+    } else if (name === "buildout") {
       renderFunnel();
       renderEquipmentLeadTimes();
       renderCostStack("costStackEngineer");
       renderScorecard();
       renderLeadTimeChart();
       renderBuildoutChart();
-    } else if (name === "policy") {
+    } else if (name === "grid") {
       renderIsoTable();
       renderRegList();
       renderUtilList();
@@ -1784,7 +1780,14 @@
     document.title = 'v2 (WIP) — US AI Infrastructure Monitor · ' + name;
     renderTab(name);
   }
-  function fromHash() { return (location.hash || '#overview').slice(1); }
+  // Legacy hash aliases — anyone with a /#investor bookmark from earlier WIP
+  // gets routed to the right tab under the new name.
+  const HASH_ALIASES = { investor: "capital", engineer: "buildout", policy: "grid" };
+  function fromHash() {
+    let h = (location.hash || '#overview').slice(1);
+    if (HASH_ALIASES[h]) h = HASH_ALIASES[h];
+    return h;
+  }
 
   showTab(fromHash());          // initial activation also renders the active tab
   window.addEventListener('hashchange', function () { showTab(fromHash()); });
