@@ -842,7 +842,7 @@
       <!-- Card 2: $/token compression (full-width, log y) -->
       <div class="stub-card" style="margin-top:14px">
         <h4>$/token compression — the 100× price drop</h4>
-        <div class="note">Output price per 1M tokens at launch &middot; log Y axis &middot; lower-right = newer + cheaper</div>
+        <div class="note">$ per 1M output tokens at launch &middot; <b>log Y axis</b> (data spans ~125&times; from frontier to OSS-hosted &mdash; linear would hide the cheap end) &middot; lower-right = newer + cheaper</div>
         <div class="chart-box" style="height:320px"><canvas id="priceCompressionChart"></canvas></div>
       </div>
 
@@ -1082,7 +1082,6 @@
         { name: "GPT-4 (launch)",         year: 2023.2, price: 60,   family: "openai" },
         { name: "GPT-4 Turbo",            year: 2023.9, price: 30,   family: "openai" },
         { name: "GPT-4o",                  year: 2024.4, price: 15,   family: "openai" },
-        { name: "GPT-4o-mini",             year: 2024.6, price: 0.6,  family: "openai" },
         { name: "GPT-4.1",                 year: 2025.3, price: 8,    family: "openai" },
         { name: "Claude 3 Opus",           year: 2024.2, price: 75,   family: "anthropic" },
         { name: "Claude 3.5 Sonnet",       year: 2024.5, price: 15,   family: "anthropic" },
@@ -1586,8 +1585,11 @@
           x: { type: "linear", min: 2023, max: 2026,
             grid: { display: false },
             ticks: { stepSize: 0.5, callback: v => {
-              const y = Math.floor(v); const q = Math.round((v - y) * 4);
-              return q === 0 ? y : y + "." + (q * 25 / 100).toFixed(2).slice(2);
+              const y = Math.floor(v);
+              const frac = v - y;
+              if (frac < 0.1) return y + "-H1";
+              if (frac > 0.4 && frac < 0.6) return y + "-H2";
+              return "";
             }},
             title: { display: true, text: "Launch date" }
           }
