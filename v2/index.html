@@ -1826,6 +1826,63 @@
     return h;
   }
 
+  /* ----- Motion: scroll-triggered fade-in + animated number counters ----- */
+  function animateNumber(el) {
+    const target = el.getAttribute("data-target");
+    if (!target) return;
+    const prefix = target.startsWith("$") ? "$" : "";
+    const numericTarget = parseFloat(target.replace("$", ""));
+    const isInt = !target.includes(".");
+    const duration = 1400;
+    const t0 = performance.now();
+    function step(now) {
+      const t = Math.min((now - t0) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);  // easeOutCubic
+      const current = numericTarget * eased;
+      el.textContent = prefix + (isInt ? Math.round(current) : current.toFixed(1));
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  let _fadeObserver = null, _numObserver = null;
+  function motionObserveAll() {
+    if (!("IntersectionObserver" in window)) return;
+    if (!_fadeObserver) {
+      _fadeObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-in");
+            _fadeObserver.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.05, rootMargin: "0px 0px -20px 0px" });
+    }
+    if (!_numObserver) {
+      _numObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting && e.target.hasAttribute("data-target")) {
+            animateNumber(e.target);
+            _numObserver.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.3 });
+    }
+    // Fade-in candidates — apply class only once each, then observe
+    document.querySelectorAll(
+      ".stub-card, .so-what, .hero-headline, .persona-picker a"
+    ).forEach(function (el) {
+      if (!el.classList.contains("fade-init")) {
+        el.classList.add("fade-init");
+        _fadeObserver.observe(el);
+      }
+    });
+    // Number counters — observe any not-yet-observed targets
+    document.querySelectorAll(".num[data-target]").forEach(function (el) {
+      _numObserver.observe(el);
+    });
+  }
+
   showTab(fromHash());          // initial activation also renders the active tab
   motionObserveAll();           // wire up fade-ins + KPI counters
   window.addEventListener('hashchange', function () { showTab(fromHash()); });
