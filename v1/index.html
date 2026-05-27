@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>US AI Infrastructure Monitor</title>
+<meta name="description" content="A live dashboard tracking US AI infrastructure: data center power demand, capacity, capex, deployment geography, and delivery bottlenecks." />
+<link rel="icon" type="image/png" href="favicon.png" />
+<link rel="apple-touch-icon" href="favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #0f1b2d;
+    --ink-2: #475569;
+    --muted: #8a97a8;
+    --line: #e6e9ee;
+    --accent: #1d4ed8;
+    --accent-soft: #eef3ff;
+    --amber: #c2710c;
+    --amber-soft: #fdf3e6;
+    --green: #15803d;
+    --green-soft: #ecf7ef;
+    --red: #c0322b;
+    --red-soft: #fbeceb;
+    --shadow: 0 1px 2px rgba(15,27,45,.04), 0 6px 20px rgba(15,27,45,.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- Layout ---------- */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+  section { margin: 38px 0; }
+
+  /* ---------- Header ---------- */
+  header.site {
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .head-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 22px; max-width: 1180px; margin: 0 auto; gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .glyph {
+    width: 38px; height: 38px; border-radius: 9px;
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+    display: flex; align-items: center; justify-content: center; flex: none;
+  }
+  .brand .glyph svg { width: 21px; height: 21px; }
+  .brand h1 { font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+  .brand p { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .head-meta { display: flex; align-items: center; gap: 14px; }
+  .live {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 600; color: var(--ink-2);
+    background: var(--bg); border: 1px solid var(--line);
+    padding: 7px 12px; border-radius: 999px; white-space: nowrap;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 0 0 rgba(21,128,61,.5); animation: pulse 2.4s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(21,128,61,.45); }
+    70% { box-shadow: 0 0 0 7px rgba(21,128,61,0); }
+    100% { box-shadow: 0 0 0 0 rgba(21,128,61,0); }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-top: 34px; text-align: center; }
+  .hero .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+  }
+  .hero h2 {
+    font-size: 33px; font-weight: 800; letter-spacing: -.025em;
+    line-height: 1.18; max-width: 760px; margin: 0 auto;
+  }
+  .hero p.sub {
+    margin: 12px auto 0; font-size: 15.5px; color: var(--ink-2);
+    max-width: 720px;
+  }
+
+  /* ---------- KPI strip ---------- */
+  .kpis {
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 14px; margin-top: 26px;
+  }
+  .kpi {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 13px; padding: 16px 16px 13px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column;
+  }
+  .kpi .label {
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .04em; margin-bottom: 9px;
+  }
+  .kpi .value { font-size: 25px; font-weight: 800; letter-spacing: -.02em; }
+  .kpi .value span { font-size: 15px; font-weight: 700; color: var(--ink-2); }
+  .kpi .delta { font-size: 12px; font-weight: 500; color: var(--ink-2); margin-top: 5px; flex: 1; }
+  .kpi .delta b { font-weight: 700; }
+  .up { color: var(--green); }
+  .warn { color: var(--amber); }
+  .crit { color: var(--red); }
+  .kpi-sub {
+    font-size: 10px; color: var(--muted); font-weight: 500;
+    margin-top: 4px; line-height: 1.4;
+  }
+  .def-card h4 { margin-bottom: 6px; }
+  .def-card p { font-size: 12.5px; color: var(--ink-2); line-height: 1.55; }
+
+  /* KPI source badge */
+  .kpi-src {
+    margin-top: 9px; padding-top: 8px; border-top: 1px solid #f0f2f5;
+    display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+  }
+  .kpi-src a {
+    font-size: 10px; font-weight: 600; color: var(--muted);
+    display: flex; align-items: center; gap: 3px;
+  }
+  .kpi-src a:hover { color: var(--accent); text-decoration: none; }
+  .kpi-src a svg { flex: none; }
+
+  /* ---------- Tier badges ---------- */
+  .tier {
+    font-size: 9.5px; font-weight: 700; padding: 1px 6px;
+    border-radius: 4px; text-transform: uppercase; letter-spacing: .05em;
+    white-space: nowrap;
+  }
+  .tier-primary  { background: var(--green-soft);  color: var(--green); }
+  .tier-analyst  { background: var(--accent-soft); color: var(--accent); }
+  .tier-modeled  { background: var(--amber-soft);  color: var(--amber); }
+
+  /* ---------- Section heads ---------- */
+  .sec-head { margin-bottom: 16px; }
+  .sec-head h3 {
+    font-size: 20px; font-weight: 700; letter-spacing: -.02em;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .sec-head h3 .tick {
+    width: 4px; height: 19px; border-radius: 3px; background: var(--accent);
+    display: inline-block;
+  }
+  .sec-head p { font-size: 13.5px; color: var(--ink-2); margin-top: 5px; }
+
+  /* ---------- Cards / grids ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 20px; box-shadow: var(--shadow);
+  }
+  .card h4 { font-size: 14.5px; font-weight: 700; }
+  .card .note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .chart-box { position: relative; height: 290px; margin-top: 14px; }
+  .chart-box.tall { height: 320px; }
+
+  /* ---------- Map ---------- */
+  .map-shell {
+    position: relative; width: 100%;
+    background: linear-gradient(180deg, #f7f9fb, #f0f4f8);
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+    min-height: 300px;
+  }
+  .map-shell svg { display: block; width: 100%; }
+  .map-label {
+    position: absolute; top: 12px; left: 14px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .14em;
+    color: #c2cad6; text-transform: uppercase; pointer-events: none; z-index: 2;
+  }
+  /* Map tooltip */
+  .map-tip {
+    display: none; position: absolute; z-index: 10; pointer-events: none;
+    background: rgba(15,27,45,.92); color: #fff;
+    font-size: 12px; line-height: 1.55; padding: 8px 12px;
+    border-radius: 9px; max-width: 210px;
+    box-shadow: 0 4px 16px rgba(15,27,45,.22);
+  }
+  .map-tip b { font-weight: 700; display: block; margin-bottom: 2px; }
+  .map-tip .tip-muted { color: rgba(255,255,255,.65); font-size: 11px; }
+  .map-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+  .map-legend span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+  .lg-dot { width: 11px; height: 11px; border-radius: 50%; }
+
+  /* ---------- Market table ---------- */
+  table.mkt { width: 100%; border-collapse: collapse; }
+  table.mkt th {
+    text-align: left; font-size: 10.5px; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--muted); font-weight: 700;
+    padding: 0 8px 9px; border-bottom: 1px solid var(--line);
+  }
+  table.mkt th.num, table.mkt td.num { text-align: right; }
+  table.mkt td {
+    padding: 11px 8px; font-size: 13px; border-bottom: 1px solid #f0f2f5;
+  }
+  table.mkt tr:last-child td { border-bottom: none; }
+  table.mkt td.name { font-weight: 600; }
+  .mini-bar {
+    height: 6px; border-radius: 4px; background: var(--accent);
+    display: inline-block; vertical-align: middle;
+  }
+  .pill {
+    font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+    display: inline-block;
+  }
+  .pill-red { background: var(--red-soft); color: var(--red); }
+  .pill-amber { background: var(--amber-soft); color: var(--amber); }
+  .pill-green { background: var(--green-soft); color: var(--green); }
+  .pill-blue { background: var(--accent-soft); color: var(--accent); }
+  .pill-purple { background: #f3f0ff; color: #7c3aed; }
+
+  /* ---------- Bottlenecks ---------- */
+  .btl {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 13px; padding: 17px; box-shadow: var(--shadow);
+    border-left: 4px solid var(--line);
+  }
+  .btl.sev-critical { border-left-color: var(--red); }
+  .btl.sev-high { border-left-color: var(--amber); }
+  .btl.sev-medium { border-left-color: #d4a017; }
+  .btl .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .btl h4 { font-size: 14.5px; font-weight: 700; }
+  .btl .sev {
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .04em; padding: 3px 8px; border-radius: 5px; white-space: nowrap;
+  }
+  .sev-critical .sev { background: var(--red-soft); color: var(--red); }
+  .sev-high .sev { background: var(--amber-soft); color: var(--amber); }
+  .sev-medium .sev { background: #fcf6e3; color: #a07a0a; }
+  .btl p { font-size: 12.8px; color: var(--ink-2); margin-top: 9px; }
+  .btl .stat {
+    margin-top: 12px; font-size: 12px; font-weight: 600; color: var(--ink);
+    background: var(--bg); border-radius: 7px; padding: 8px 10px;
+  }
+
+  /* ---------- Timeline ---------- */
+  .tl-row {
+    display: grid; grid-template-columns: 178px 1fr 96px;
+    align-items: center; gap: 12px; padding: 9px 0;
+  }
+  .tl-row .ph { font-size: 13px; font-weight: 600; }
+  .tl-track {
+    position: relative; height: 26px; background: var(--bg);
+    border-radius: 6px; overflow: hidden;
+  }
+  .tl-fill {
+    position: absolute; height: 100%; border-radius: 6px;
+    display: flex; align-items: center;
+  }
+  .tl-dur { font-size: 12px; font-weight: 700; color: var(--ink-2); text-align: right; }
+  .tl-scale {
+    display: flex; justify-content: space-between; margin-top: 6px;
+    padding-left: 190px; font-size: 10.5px; color: var(--muted); font-weight: 600;
+  }
+  .tl-callout {
+    margin-top: 16px; background: var(--accent-soft); border: 1px solid #dbe6ff;
+    border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #1e3a8a;
+  }
+
+  /* ---------- Projects ---------- */
+  .proj {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 13px; padding: 17px; box-shadow: var(--shadow);
+  }
+  .proj .ph-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .proj h4 { font-size: 15px; font-weight: 700; }
+  .proj .loc { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 1px; }
+  .proj .metrics { display: flex; gap: 18px; margin-top: 14px; flex-wrap: wrap; }
+  .proj .metrics div .m-val { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+  .proj .metrics div .m-lbl { font-size: 10.5px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .proj .owner {
+    font-size: 11px; font-weight: 700; color: var(--ink-2);
+    margin-top: 13px; padding-top: 11px; border-top: 1px solid #f0f2f5;
+  }
+
+  /* ---------- AI Cloud Provider cards ---------- */
+  .prov-card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 13px; padding: 18px; box-shadow: var(--shadow);
+  }
+  .prov-card .prov-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .prov-card .prov-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex: none; margin-top: 4px;
+  }
+  .prov-card .prov-name { font-size: 15px; font-weight: 700; }
+  .prov-card .prov-type { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+  .prov-stats { display: flex; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
+  .prov-stats .ps-val { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+  .prov-stats .ps-lbl { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .prov-card .prov-note {
+    font-size: 11.5px; color: var(--ink-2); margin-top: 11px;
+    padding-top: 10px; border-top: 1px solid #f0f2f5; line-height: 1.55;
+  }
+  .prov-card .prov-src {
+    margin-top: 8px; display: flex; align-items: center; gap: 5px;
+  }
+
+  /* ---------- Transparency panel ---------- */
+  details.trans-wrap {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; box-shadow: var(--shadow); overflow: hidden;
+  }
+  details.trans-wrap summary {
+    cursor: pointer; user-select: none; list-style: none;
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px;
+    font-size: 14.5px; font-weight: 700; color: var(--ink);
+  }
+  details.trans-wrap summary::-webkit-details-marker { display: none; }
+  details.trans-wrap[open] summary {
+    border-bottom: 1px solid var(--line);
+  }
+  .trans-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--accent-soft);
+    display: flex; align-items: center; justify-content: center; flex: none;
+  }
+  .trans-icon svg { width: 16px; height: 16px; }
+  .trans-sub { font-size: 12.5px; color: var(--muted); font-weight: 500; margin-left: 2px; }
+  .trans-chevron { margin-left: auto; color: var(--muted); transition: transform .2s; font-size: 14px; }
+  details.trans-wrap[open] .trans-chevron { transform: rotate(180deg); }
+  table.trans-tbl { width: 100%; border-collapse: collapse; }
+  table.trans-tbl th {
+    text-align: left; font-size: 10.5px; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--muted); font-weight: 700;
+    padding: 10px 16px 9px; border-bottom: 1px solid var(--line);
+    background: #fafbfc;
+  }
+  table.trans-tbl td {
+    padding: 10px 16px; font-size: 12.5px; border-bottom: 1px solid #f0f2f5;
+    vertical-align: top;
+  }
+  table.trans-tbl tr:last-child td { border-bottom: none; }
+  table.trans-tbl td.tc-claim { font-weight: 600; min-width: 200px; }
+  table.trans-tbl td.tc-value { white-space: nowrap; font-weight: 700; }
+  table.trans-tbl td.tc-note { color: var(--ink-2); font-size: 11.5px; max-width: 340px; }
+  table.trans-tbl td.tc-src a { font-size: 11.5px; color: var(--accent); white-space: nowrap; }
+  .trans-legend {
+    display: flex; gap: 18px; padding: 12px 16px;
+    background: #fafbfc; border-top: 1px solid var(--line);
+    font-size: 11.5px; color: var(--ink-2); flex-wrap: wrap;
+  }
+  .trans-legend span { display: flex; align-items: center; gap: 6px; }
+
+  /* ---------- News feed ---------- */
+  .feed-item {
+    display: flex; gap: 14px; padding: 13px 0; border-bottom: 1px solid #f0f2f5;
+  }
+  .feed-item:last-child { border-bottom: none; }
+  .feed-date {
+    flex: none; width: 64px; font-size: 11px; font-weight: 700;
+    color: var(--accent); padding-top: 1px;
+  }
+  .feed-body p { font-size: 13.5px; color: var(--ink); font-weight: 500; }
+  .feed-body .src { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+
+  /* ---------- Footer ---------- */
+  footer.site {
+    border-top: 1px solid var(--line); background: #fff;
+    margin-top: 46px; padding: 28px 0 40px;
+  }
+  footer .cols { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 28px; }
+  footer h5 {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--muted); margin-bottom: 10px;
+  }
+  footer p, footer li { font-size: 12.5px; color: var(--ink-2); }
+  footer ul { list-style: none; }
+  footer li { padding: 3px 0; }
+  .disclaimer {
+    margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line);
+    font-size: 11.5px; color: var(--muted); line-height: 1.6;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 940px) {
+    .kpis { grid-template-columns: repeat(3, 1fr); }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+    footer .cols { grid-template-columns: 1fr; gap: 18px; }
+    .hero h2 { font-size: 26px; }
+    .tl-row { grid-template-columns: 120px 1fr 70px; }
+    .tl-scale { padding-left: 132px; }
+  }
+  @media (max-width: 640px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .hero h2 { font-size: 23px; }
+    table.trans-tbl td.tc-note { display: none; }
+    table.trans-tbl td.tc-claim { min-width: 0; }
+    table.trans-tbl td.tc-src a { white-space: normal; }
+    .map-city-label { display: none; }
+    .head-contact-name { display: none; }
+    .top-banner { font-size: 11.5px; padding: 7px 12px; }
+  }
+  @media (max-width: 480px) {
+    .wrap { padding: 0 15px; }
+    .head-inner { padding: 12px 15px; gap: 10px; }
+    .brand .glyph { width: 33px; height: 33px; }
+    .brand .glyph svg { width: 18px; height: 18px; }
+    .brand h1 { font-size: 14px; }
+    .brand p { display: none; }
+    .head-contact { display: none; }
+    .live { font-size: 11px; padding: 6px 9px; }
+    .hero { padding-top: 24px; }
+    .hero h2 { font-size: 20.5px; }
+    .hero p.sub { font-size: 14px; }
+    .kpis { gap: 10px; margin-top: 20px; }
+    .kpi { padding: 13px 13px 11px; }
+    .kpi .value { font-size: 21px; }
+    section { margin: 26px 0; }
+    .card { padding: 15px; }
+    .sec-head h3 { font-size: 17.5px; }
+    .sec-head p { font-size: 12.5px; }
+    .tl-row { grid-template-columns: 92px 1fr 54px; gap: 8px; }
+    .tl-row .ph { font-size: 11px; }
+    .tl-dur { font-size: 11px; }
+    .tl-scale { padding-left: 100px; font-size: 9.5px; }
+    table.mkt th:nth-child(3), table.mkt td:nth-child(3) { display: none; }
+    table.trans-tbl th, table.trans-tbl td { padding-left: 10px; padding-right: 10px; }
+    .proj .metrics { gap: 14px; }
+    .prov-stats { gap: 14px; }
+    footer.site { margin-top: 32px; }
+    .top-banner { font-size: 11px; padding: 6px 10px; line-height: 1.4; }
+  }
+
+  /* ---------- Chat assistant ---------- */
+  .chat-fab {
+    position: fixed; right: 22px; bottom: 22px; z-index: 200;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #fff; border: none;
+    font-family: inherit; font-size: 13.5px; font-weight: 600;
+    padding: 12px 18px; border-radius: 999px; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(29,78,216,.32);
+  }
+  .chat-fab svg { width: 18px; height: 18px; flex: none; }
+  .chat-fab:hover { background: #1a44bf; }
+  .chat-panel {
+    position: fixed; right: 22px; bottom: 22px; z-index: 201;
+    width: 374px; max-width: calc(100vw - 32px);
+    height: 540px; max-height: calc(100vh - 44px);
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: 0 14px 44px rgba(15,27,45,.24);
+    display: none; flex-direction: column; overflow: hidden;
+  }
+  .chat-panel.open { display: flex; }
+  .chat-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 15px; border-bottom: 1px solid var(--line);
+  }
+  .chat-head .ic {
+    width: 30px; height: 30px; border-radius: 8px; flex: none;
+    background: var(--accent-soft);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .chat-head .ic svg { width: 16px; height: 16px; }
+  .chat-head h4 { font-size: 14px; font-weight: 700; }
+  .chat-head p { font-size: 11.5px; color: var(--muted); font-weight: 500; }
+  .chat-close {
+    margin-left: auto; background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 22px; line-height: 1; padding: 2px 6px;
+  }
+  .chat-close:hover { color: var(--ink); }
+  .chat-body {
+    flex: 1; overflow-y: auto; padding: 15px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .chat-msg {
+    font-size: 13px; line-height: 1.55; padding: 9px 12px;
+    border-radius: 12px; max-width: 86%; white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .chat-msg.bot {
+    background: var(--bg); color: var(--ink);
+    align-self: flex-start; border-bottom-left-radius: 4px;
+  }
+  .chat-msg.user {
+    background: var(--accent); color: #fff;
+    align-self: flex-end; border-bottom-right-radius: 4px;
+  }
+  .chat-msg.note {
+    background: var(--amber-soft); color: var(--amber);
+    font-size: 11.5px; align-self: stretch; max-width: 100%;
+  }
+  .chat-foot { border-top: 1px solid var(--line); padding: 10px 12px; }
+  .chat-input-row { display: flex; gap: 8px; align-items: flex-end; }
+  .chat-input {
+    flex: 1; font-family: inherit; font-size: 13px; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 9px 11px; resize: none; max-height: 92px; line-height: 1.5;
+  }
+  .chat-input:focus { outline: none; border-color: var(--accent); }
+  .chat-send {
+    background: var(--accent); color: #fff; border: none; cursor: pointer;
+    width: 36px; height: 36px; border-radius: 10px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .chat-send:disabled { opacity: .45; cursor: default; }
+  .chat-send svg { width: 16px; height: 16px; }
+  .chat-disclaim {
+    font-size: 10px; color: var(--muted); margin-top: 7px; text-align: center;
+  }
+  .chat-dots span {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted); margin: 0 1.5px;
+    animation: chatblink 1.4s infinite both;
+  }
+  .chat-dots span:nth-child(2) { animation-delay: .2s; }
+  .chat-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes chatblink { 0%,80%,100% { opacity:.25 } 40% { opacity:1 } }
+  @media (max-width: 640px) {
+    .chat-panel {
+      right: 10px; left: 10px; bottom: 10px; top: 10px;
+      width: auto; max-width: none; height: auto; max-height: none;
+    }
+    .chat-fab { right: 14px; bottom: 14px; padding: 11px 16px; }
+  }
+
+  /* ---------- Two-lens bars ---------- */
+  .lens-bar {
+    display: flex; height: 46px; border-radius: 7px;
+    overflow: hidden; margin-top: 12px;
+  }
+  .lens-seg {
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 13px; font-weight: 700;
+    min-width: 0; overflow: hidden;
+  }
+  .lens-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 11px; }
+  .lens-legend span { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-2); }
+  .lens-legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; flex: none; }
+  .lens-note {
+    margin-top: 14px; background: var(--accent-soft); border: 1px solid #dbe6ff;
+    border-radius: 10px; padding: 12px 14px; font-size: 12.5px; color: #1e3a8a;
+  }
+
+  /* ---------- Cost stack ---------- */
+  .cost-group-label {
+    font-size: 11.5px; font-weight: 700; color: var(--ink-2);
+    margin: 15px 0 5px; display: flex; align-items: center; gap: 6px;
+  }
+  .cost-group-label i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .cost-row {
+    display: grid; grid-template-columns: 168px 1fr 80px;
+    align-items: center; gap: 12px; padding: 5px 0;
+  }
+  .cost-row .cn { font-size: 13px; color: var(--ink); }
+  .cost-row .cb { height: 18px; border-radius: 4px; }
+  .cost-row .cv { font-size: 13px; text-align: right; font-weight: 700; }
+  .cost-sub {
+    display: flex; justify-content: space-between; padding: 8px 0 0;
+    margin-top: 5px; border-top: 1px solid var(--line);
+    font-size: 13px; font-weight: 700; color: var(--ink-2);
+  }
+  .cost-total {
+    display: flex; justify-content: space-between; padding: 10px 0 0;
+    margin-top: 5px; border-top: 2px solid var(--ink);
+    font-size: 15.5px; font-weight: 800;
+  }
+
+  /* ---------- Eval stub ---------- */
+  .eval-badge {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .05em; color: var(--amber);
+    background: var(--amber-soft); padding: 3px 9px; border-radius: 5px; margin-bottom: 10px;
+  }
+  .eval-stub h4 { font-size: 15px; margin-bottom: 6px; }
+  .eval-stub p { font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ---------- KPI source label ---------- */
+  .kpi-srclabel { font-size: 10px; font-weight: 600; color: var(--muted); }
+  .lens-seg, .cost-row { cursor: help; }
+  .topstory {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: var(--accent-soft); border: 1px solid #dbe6ff;
+    border-radius: 12px; padding: 11px 16px;
+    text-decoration: none; transition: border-color .15s;
+  }
+  a.topstory:hover { border-color: var(--accent); }
+  .topstory .ts-tag {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--accent); white-space: nowrap;
+  }
+  .topstory .ts-text { font-size: 13.5px; font-weight: 600; color: var(--ink); flex: 1; min-width: 220px; }
+  .topstory .ts-src { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+  .head-contact { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; line-height: 1.25; white-space: nowrap; }
+  .head-contact-row { font-size: 11px; color: var(--ink-2); font-weight: 500; }
+  .head-contact-label { font-weight: 700; margin-right: 4px; }
+  .head-contact-row a { color: inherit; text-decoration: none; }
+  .head-contact-row a:hover { color: var(--accent); }
+  .head-contact-name { font-size: 10px; color: #94a3b8; font-weight: 500; }
+
+  /* ---------- Public-data disclaimer banner ---------- */
+  .top-banner {
+    background: #f8fafc;
+    color: var(--ink-2);
+    border-bottom: 1px solid var(--line);
+    font-size: 12px; font-weight: 500;
+    padding: 8px 0;
+    line-height: 1.45;
+  }
+  .top-banner .tb-wrap {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+    max-width: 1180px; padding: 0 22px; margin: 0 auto;
+  }
+  .top-banner .tb-left,
+  .top-banner .tb-right {
+    display: flex; align-items: center; gap: 6px;
+    white-space: nowrap; flex: 0 0 auto;
+  }
+  .top-banner .tb-center { flex: 1; text-align: center; }
+  .top-banner .tb-right a { color: var(--ink-2); text-decoration: none; font-weight: 600; }
+  .top-banner .tb-right a:hover { color: var(--accent); }
+  .top-banner .tb-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(21,128,61,.45); animation: pulse 2.4s infinite;
+    display: inline-block;
+  }
+  @media (max-width: 720px) {
+    .top-banner .tb-wrap { flex-direction: column; gap: 3px; }
+    .top-banner .tb-center { order: -1; }
+  }
+
+  @media (max-width: 480px) {
+    .cost-row { grid-template-columns: 112px 1fr 62px; gap: 8px; }
+    .cost-row .cn, .cost-row .cv { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= TOP DISCLAIMER ================= -->
+<div class="top-banner">
+  <div class="tb-wrap">
+    <span class="tb-left"><span class="tb-dot"></span> Updated <span class="tb-date">—</span></span>
+    <span class="tb-center">All insights are derived from publicly available information.</span>
+    <span class="tb-right">Contact <a href="mailto:vijaysachdeva@gmail.com">vijaysachdeva@gmail.com</a></span>
+  </div>
+</div>
+
+<!-- ================= HEADER ================= -->
+<header class="site">
+  <div class="head-inner">
+    <div class="brand">
+      <div class="glyph">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="5" rx="1.5" stroke="#fff" stroke-width="1.8"/>
+          <rect x="3" y="11.5" width="18" height="5" rx="1.5" stroke="#fff" stroke-width="1.8"/>
+          <circle cx="7" cy="6.5" r="1" fill="#fff"/>
+          <circle cx="7" cy="14" r="1" fill="#fff"/>
+          <path d="M14 20v-3M10 20v-3M18 20v-3" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>US AI Infrastructure Monitor</h1>
+        <p>Hyperscale capacity &middot; power &middot; capex &middot; bottlenecks</p>
+      </div>
+    </div>
+    <div class="head-meta">
+      <div class="live"><span class="dot"></span> Updated <span id="updated-date">—</span></div>
+      <div class="head-contact">
+        <div class="head-contact-row"><span class="head-contact-label">Contact</span><a href="mailto:vijaysachdeva@gmail.com">vijaysachdeva@gmail.com</a></div>
+        <div class="head-contact-name">Vijay Sachdeva</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= TOP STORY ================= -->
+<div class="wrap" style="padding-top:18px">
+  <div id="topStory"></div>
+</div>
+
+<!-- ================= HERO ================= -->
+<div class="wrap hero">
+  <div class="eyebrow">State of the Industry</div>
+  <h2>The US data center buildout has hit a power wall &mdash; demand is racing ahead of the grid.</h2>
+  <p class="sub">Hyperscalers are committing record capital to AI infrastructure, but electricity, transformers and interconnection queues now set the pace. This monitor tracks where capacity is going, what it costs, and what is holding it back.</p>
+
+  <!-- KPI STRIP -->
+  <div class="kpis" id="kpis"></div>
+</div>
+
+<!-- ================= 41 GW BREAKDOWN ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> What is the 41 GW?</h3>
+    <p>The headline figure is <b>total US data center power demand</b> — the electricity every US data center draws today. Here's what that number comprises and where it sits in the broader capacity pipeline.</p>
+  </div>
+  <div class="card">
+    <h4>The grid bottleneck — capacity pipeline</h4>
+    <div class="note">From the interconnect queue to energized load &middot; US data centers &middot; hover bars for detail</div>
+    <div class="chart-box" style="height:210px"><canvas id="funnelChart"></canvas></div>
+  </div>
+  <div class="grid-2" style="margin-top:1rem">
+    <div class="card">
+      <h4>By operator</h4>
+      <div class="note">Estimated operator share of US data center power demand &middot; GW &middot; operators do not disclose exact figures</div>
+      <div class="chart-box"><canvas id="breakdownCompanyChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h4>By geography</h4>
+      <div class="note">Approximate regional share of US data center power demand &middot; GW</div>
+      <div class="chart-box"><canvas id="breakdownGeoChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TWO-LENS CAPACITY ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> The 41 GW, two ways</h3>
+    <p>The same 41 GW can be read by who consumes the capacity or by who builds and owns it. Both views total 41 GW &mdash; two lenses on the same megawatts, never added together.</p>
+  </div>
+  <div class="card">
+    <h4>By end user &mdash; who consumes the capacity</h4>
+    <div class="note">Share of US data center power demand by the operator running the workloads &middot; GW</div>
+    <div id="lensEndUser"></div>
+  </div>
+  <div class="card" style="margin-top:1rem">
+    <h4>By developer &mdash; who built &amp; owns the capacity</h4>
+    <div class="note">Share by the company that developed the facility &middot; colocation developers appear here, not above &middot; GW</div>
+    <div id="lensDeveloper"></div>
+    <div class="lens-note" id="lensNote"></div>
+  </div>
+</section>
+
+<!-- ================= POWER & CAPEX TRAJECTORY ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> Demand &amp; capital trajectory</h3>
+    <p>US data center electricity load and the capital spending behind the AI infrastructure buildout, 2023&ndash;2030.</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h4>US data center power demand</h4>
+      <div class="note">Gigawatts of electricity load &middot; 2024&ndash;25 estimated, 2026&ndash;30 forecast</div>
+      <div class="chart-box"><canvas id="powerChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h4>Major operators — capex trajectory</h4>
+      <div class="note">Six largest AI infrastructure operators combined, USD billions &middot; ~75% AI-related in 2026</div>
+      <div class="chart-box"><canvas id="capexChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COST PER MW ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> What a megawatt costs</h3>
+    <p>The capital cost of building one megawatt of AI data center capacity, layer by layer. The facility &mdash; building, power and cooling &mdash; is a fraction of the all-in figure; GPUs dominate.</p>
+  </div>
+  <div class="card">
+    <h4>Cost build-up per MW</h4>
+    <div class="note">Illustrative order-of-magnitude $/MW &middot; GPU generation and cooling design swing these widely</div>
+    <div id="costStack" style="margin-top:6px"></div>
+  </div>
+</section>
+
+<!-- ================= HYPERSCALER MW ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> Capacity by hyperscaler</h3>
+    <p>Self-operated IT capacity in use today versus the announced and under-construction pipeline. These figures count company-built facilities only &mdash; a narrower measure than the power-demand shares above, which include leased colocation. Pipeline figures are industry estimates; operators do not publish exact per-site megawatts.</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h4>Megawatts: operational vs. pipeline</h4>
+      <div class="note">Self-operated IT capacity, MW &middot; 2025&ndash;26</div>
+      <div class="chart-box tall"><canvas id="mwChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h4>2026 capex by operator</h4>
+      <div class="note">Major AI infrastructure operators &middot; planned capex, USD billions</div>
+      <div class="chart-box tall"><canvas id="coCapexChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= AI-NATIVE CLOUD PROVIDERS ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> AI-native cloud providers</h3>
+    <p>Beyond the hyperscalers, a new tier of AI-native infrastructure companies is rapidly scaling GPU compute capacity. These operators specialize in dense GPU clusters for AI training and inference workloads.</p>
+  </div>
+  <div class="grid-2" style="margin-bottom:16px">
+    <div class="card">
+      <h4>Operational vs. pipeline capacity</h4>
+      <div class="note">Megawatts &middot; operational = active Q1–Q2 2026; pipeline = contracted / under build</div>
+      <div class="chart-box tall"><canvas id="aiCloudChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h4>How they compare to hyperscalers</h4>
+      <div class="note">Operational IT load MW &middot; hyperscalers = modeled from capex; AI-native = company-disclosed</div>
+      <div class="chart-box tall"><canvas id="allOpsChart"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-4" id="providerCards"></div>
+</section>
+
+<!-- ================= GEOGRAPHY ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> Where the capacity is going</h3>
+    <p>Hyperscale activity concentrates in a handful of metros &mdash; and is now spilling into new power-rich regions as legacy hubs run short of electricity.</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h4>Geographic concentration</h4>
+      <div class="note">Bubble size and number show operational power demand &middot; GW &middot; eight largest metros</div>
+      <div class="map-shell" id="map">
+        <div class="map-label">Operational demand by market &mdash; GW</div>
+      </div>
+      <div class="map-legend">
+        <span><i class="lg-dot" style="background:#d4452f"></i> Power-constrained</span>
+        <span><i class="lg-dot" style="background:#1d4ed8"></i> Major growth market</span>
+        <span><i class="lg-dot" style="background:#15803d"></i> Emerging / power-rich</span>
+      </div>
+    </div>
+    <div class="card">
+      <h4>Top US markets</h4>
+      <div class="note">Ranked by operational demand &middot; time to power = typical interconnection lead time</div>
+      <table class="mkt" id="mktTable" style="margin-top:14px">
+        <thead>
+          <tr><th>Market</th><th class="num">Operational</th><th class="num">Pipeline</th><th class="num">Time to power</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TIME TO DEPLOYMENT ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> Time to deployment</h3>
+    <p>Typical duration of each phase for a hyperscale campus. Phases overlap in practice; power interconnection is the critical path.</p>
+  </div>
+  <div class="card">
+    <div id="timeline"></div>
+    <div class="tl-scale">
+      <span>0</span><span>12</span><span>24</span><span>36</span><span>48+ months</span>
+    </div>
+    <div class="tl-callout" id="tl-callout"></div>
+  </div>
+</section>
+
+<!-- ================= PROJECTS ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> Marquee projects tracker</h3>
+    <p>The largest US campuses defining the current build cycle.</p>
+  </div>
+  <div class="grid-3" id="projects"></div>
+</section>
+
+<!-- ================= BOTTLENECKS ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> What is holding it back</h3>
+    <p>Demand is not the constraint &mdash; delivery is. The binding bottleneck has migrated from the server rack to the substation.</p>
+  </div>
+  <div class="grid-3" id="bottlenecks"></div>
+</section>
+
+<!-- ================= NEWS FEED ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> Recent developments</h3>
+    <p>Latest signals from hyperscaler disclosures, market research and infrastructure reporting.</p>
+  </div>
+  <div class="card"><div id="feed"></div></div>
+</section>
+
+<!-- ================= DATA TRANSPARENCY ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> Data transparency</h3>
+    <p>Every key figure on this dashboard carries a named source and a confidence tier. Tiers: <strong>Primary</strong> = direct company filing or official release &middot; <strong>Analyst</strong> = credible third-party research &middot; <strong>Modeled</strong> = derived from multiple inputs.</p>
+  </div>
+  <details class="trans-wrap" open>
+    <summary>
+      <span class="trans-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+      </span>
+      Claim-level audit trail
+      <span class="trans-sub">— all key figures with sources and confidence tiers</span>
+      <span class="trans-chevron">▾</span>
+    </summary>
+    <div>
+      <table class="trans-tbl" id="transTable">
+        <thead>
+          <tr>
+            <th>Claim</th>
+            <th>Dashboard value</th>
+            <th>Tier</th>
+            <th>Source</th>
+            <th class="tc-note">Note</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="trans-legend">
+        <span><span class="tier tier-primary">Primary</span> Direct company filing or official release — highest confidence</span>
+        <span><span class="tier tier-analyst">Analyst</span> Credible third-party research — reliable but may revise</span>
+        <span><span class="tier tier-modeled">Modeled</span> Derived from multiple inputs — label reflects uncertainty</span>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- ================= METHODOLOGY ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> Methodology</h3>
+    <p>How the figures on this dashboard are put together.</p>
+  </div>
+  <div class="card">
+    <p id="methodologyPanel" style="font-size:13.5px;color:var(--ink-2);line-height:1.65"></p>
+  </div>
+</section>
+
+<!-- ================= EVALUATION ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> Evaluation</h3>
+    <p>A structured eval of this dashboard's accuracy, coverage and freshness.</p>
+  </div>
+  <div class="card eval-stub">
+    <div class="eval-badge">In development</div>
+    <h4>Evaluation framework</h4>
+    <p>A systematic eval &mdash; fact-checking key figures against primary sources, scoring source coverage and data freshness, and flagging drift over time &mdash; will be published in this section. The framework is being built; results will appear here once the first run is complete.</p>
+  </div>
+</section>
+
+<!-- ================= KEY DEFINITIONS ================= -->
+<section class="wrap">
+  <div class="sec-head">
+    <h3><span class="tick"></span> Key definitions</h3>
+    <p>Data center capacity is reported in several units that are easy to conflate. These are the terms used across this dashboard and exactly what each one counts.</p>
+  </div>
+  <div class="grid-3">
+    <div class="card def-card">
+      <h4>Operational</h4>
+      <p>Capacity energized and drawing power today &mdash; the opposite of pipeline.</p>
+    </div>
+    <div class="card def-card">
+      <h4>Pipeline</h4>
+      <p>Capacity announced, contracted, permitted or under construction but not yet energized. Forward-looking &mdash; the most uncertain figures on this page.</p>
+    </div>
+    <div class="card def-card">
+      <h4>IT load</h4>
+      <p>Electricity drawn by the compute equipment itself &mdash; servers, GPUs, storage and networking. Excludes cooling and power-conversion overhead.</p>
+    </div>
+    <div class="card def-card">
+      <h4>Facility load &middot; power demand</h4>
+      <p>Total electricity a site draws, including cooling and conversion losses &mdash; typically 1.2&ndash;1.5&times; IT load. The headline &ldquo;power demand&rdquo; figures here are facility load.</p>
+    </div>
+    <div class="card def-card">
+      <h4>Interconnect queue</h4>
+      <p>Projects that have formally requested a utility grid connection but are not yet approved or energized. Queue volume far exceeds what will be built.</p>
+    </div>
+    <div class="card def-card">
+      <h4>Capex</h4>
+      <p>Capital expenditure &mdash; money committed to land, buildings, servers, chips and power equipment. Reported capex is guidance for planned spend, not cash already deployed.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h5>About this monitor</h5>
+        <p>An independent dashboard tracking US AI infrastructure — data center power demand, capital spending, deployment geography and delivery bottlenecks. Data is compiled from public hyperscaler disclosures, market-research reports and infrastructure reporting.</p>
+      </div>
+      <div>
+        <h5>Primary sources</h5>
+        <ul id="sources"></ul>
+      </div>
+      <div>
+        <h5>Contact / feedback</h5>
+        <p>Vijay Sachdeva</p>
+        <p><a href="mailto:vijaysachdeva@gmail.com">vijaysachdeva@gmail.com</a></p>
+      </div>
+    </div>
+    <div class="disclaimer">
+      Figures are best-available estimates as of the date shown and carry meaningful uncertainty. Hyperscalers do not publish exact per-site megawatt or capex allocations; pipeline and per-company capacity numbers are modeled from public disclosures, analyst research and reported project announcements. AI-native cloud provider capacity figures are sourced from company disclosures and industry reporting where available, and estimated otherwise. This dashboard is for informational purposes only and is not investment advice.
+    </div>
+  </div>
+</footer>
+
+<!-- ================= CHAT ASSISTANT ================= -->
+<button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  Ask agent
+</button>
+<div class="chat-panel" id="chatPanel" role="dialog" aria-label="Dashboard assistant">
+  <div class="chat-head">
+    <div class="ic">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <div>
+      <h4>Agent</h4>
+      <p>Ask about the data on this page</p>
+    </div>
+    <button class="chat-close" id="chatClose" aria-label="Close assistant">&times;</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-foot">
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask a question&hellip;"></textarea>
+      <button class="chat-send" id="chatSend" aria-label="Send message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>
+      </button>
+    </div>
+    <div class="chat-disclaim">Answers are generated and may be imprecise &mdash; verify against the dashboard.</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA  —  edit this object to refresh the dashboard.
+   The daily scheduled task updates the values, lastUpdated
+   date, and the "feed" array below.
+
+   src fields: { url, label, tier }
+   tier: "primary" | "analyst" | "modeled"
+   ============================================================ */
+const DATA = {
+  lastUpdated: "2026-05-26",
+
+  topStory: {
+    date: "May 18, 2026",
+    text: "NextEra Energy agreed to acquire Virginia utility Dominion for about $67B — the largest US utility merger, aimed at meeting surging AI data center power demand.",
+    src: "CNBC",
+    url: "https://www.cnbc.com/2026/05/18/nextera-nee-dominion-energy-d-data-center-ai.html"
+  },
+
+  kpis: [
+    { label: "US power demand 2026", value: "41", unit: "GW",
+      sub: "All US data centers · facility-level load",
+      delta: "<b class='up'>+32%</b> vs. 31 GW in 2025",
+      src: { url: "https://www.goldmansachs.com/insights/articles/us-data-center-power-demand-projected-to-double-by-2027", label: "Goldman Sachs Research", tier: "analyst" } },
+    { label: "Major operators capex", value: "$808", unit: "B",
+      sub: "Six largest operators · projected 2026 spend",
+      delta: "<b class='up'>~75% AI-related</b> · up sharply on the AI buildout",
+      src: { label: "Company 2026 guidance", tier: "analyst" } },
+    { label: "Under construction", value: "6.0", unit: "GW",
+      delta: "Primary US markets · per latest CBRE report",
+      src: { url: "https://www.cbre.com/insights/books/north-america-data-center-trends-h2-2025", label: "CBRE North America Trends", tier: "analyst" } },
+    { label: "Primary-market vacancy", value: "1.4", unit: "%",
+      delta: "<b class='warn'>Record low</b> — supply-starved",
+      src: { url: "https://www.cbre.com/insights/books/north-america-data-center-trends-h2-2025", label: "CBRE North America Trends", tier: "analyst" } },
+    { label: "Transformer lead time", value: "Up to 5", unit: "yrs",
+      delta: "<b class='crit'>Was ~2 yrs</b> pre-2020",
+      src: { url: "https://www.datacenterknowledge.com/hyperscalers/hyperscalers-in-2026-what-s-next-for-the-world-s-largest-data-center-operators-", label: "Industry reporting", tier: "analyst" } },
+    { label: "2026 builds facing delays", value: "30–50", unit: "%",
+      delta: "<b class='warn'>Analyst estimate</b> · power-equipment constraints",
+      src: { url: "https://www.datacenterknowledge.com/hyperscalers/hyperscalers-in-2026-what-s-next-for-the-world-s-largest-data-center-operators-", label: "Secondary industry reporting", tier: "analyst" } }
+  ],
+
+  powerBreakdown: {
+    funnel: {
+      stages: ["Interconnect queue", "Under construction", "Operational"],
+      values: [97, 6, 41],
+      colors: ["#60a5fa","#f59e0b","#10b981"],
+      notes: [
+        "Active US data center interconnection requests per LBNL Queued Up 2025",
+        "CBRE-tracked primary US markets (latest CBRE figure)",
+        "Total US data center power demand, energized today — Goldman Sachs / analyst consensus"
+      ],
+      srcs: [
+        { url: "https://emp.lbl.gov/queued-up", label: "LBNL Queued Up 2025", tier: "analyst" },
+        { url: "https://www.cbre.com/insights/books/north-america-data-center-trends-h2-2025", label: "CBRE North America Trends H2 2025", tier: "analyst" },
+        { url: "https://www.goldmansachs.com/insights/articles/us-data-center-power-demand-projected-to-double-by-2027", label: "Goldman Sachs Research", tier: "analyst" }
+      ]
+    },
+    byCompany: {
+      companies: ["AWS", "Microsoft Azure", "Google Cloud", "Meta", "Other operators"],
+      values: [8, 7, 6, 5, 15],
+      colors: ["#f97316","#0ea5e9","#22c55e","#3b82f6","#8b5cf6"],
+      note: "Rough analyst estimates of operator share of US data center power demand; operators do not publish per-facility figures. 'Other operators' covers colocation, enterprise and AI-native providers. Sources: Morgan Stanley, CBRE, SemiAnalysis 2025.",
+      src: { url: "https://www.cbre.com/insights/books/north-america-data-center-trends-h2-2025", label: "CBRE / Morgan Stanley / SemiAnalysis estimates", tier: "analyst" }
+    },
+    byGeo: {
+      markets: ["Northern Virginia", "Dallas, TX", "Phoenix, AZ", "Central Ohio", "Atlanta, GA", "Chicago, IL", "Silicon Valley", "Louisiana", "Other US"],
+      values: [12, 7, 4, 4, 3, 3, 2, 1, 5],
+      colors: ["#ef4444","#f97316","#eab308","#22c55e","#8b5cf6","#ec4899","#06b6d4","#14b8a6","#94a3b8"],
+      note: "Approximate regional share of US data center operational power demand. The eight metros shown also appear on the map above; 'Other US' covers smaller and dispersed markets.",
+      src: { label: "CBRE / analyst estimates", tier: "analyst" }
+    }
+  },
+
+  powerDemand: {
+    years:  ["2024","2025","2026","2027","2028","2029","2030"],
+    values: [26, 31, 41, 58, 73, 87, 100],
+    actualThrough: 1,
+    context: [
+      "Pre-AI baseline; ChatGPT-era growth beginning",
+      "Estimated; AI training demand accelerating",
+      "Goldman Sachs near-term estimate",
+      "Wood Mackenzie outer-year forecast",
+      "Wood Mackenzie forecast",
+      "Wood Mackenzie forecast",
+      "Wood Mackenzie forecast — high uncertainty"
+    ],
+    src: { url: "https://www.goldmansachs.com/insights/articles/us-data-center-power-demand-projected-to-double-by-2027", label: "Goldman Sachs / Wood Mackenzie" }
+  },
+
+  capexTrajectory: {
+    years:  ["2023","2024","2025","2026"],
+    values: [160, 250, 450, 808],
+    notes:  ["Pre-AI surge baseline","ChatGPT-driven acceleration","AI buildout accelerates","~75% AI-related; 2026 guidance"],
+    src: { label: "Company 2026 guidance / analyst estimates" }
+  },
+
+  hyperscalerMW: {
+    companies:   ["Amazon (AWS)", "Meta", "Microsoft", "Google", "Oracle"],
+    operational: [2300, 1500, 1200, 510, 470],
+    pipeline:    [2600, 3100, 2300, 1900, 1600],
+    colors:      ["#ff9900", "#0866ff", "#0078d4", "#34a853", "#c74634"],
+    srcs: [
+      { url: "https://ir.aboutamazon.com/", label: "Amazon IR — modeled", tier: "modeled" },
+      { url: "https://investor.fb.com/", label: "Meta IR — modeled", tier: "modeled" },
+      { url: "https://investor.microsoft.com/", label: "Microsoft IR — modeled", tier: "modeled" },
+      { url: "https://abc.xyz/investor/", label: "Alphabet IR — modeled", tier: "modeled" },
+      { url: "https://investor.oracle.com/", label: "Oracle IR — modeled", tier: "modeled" }
+    ]
+  },
+
+  companyCapex: {
+    companies: ["Amazon", "Microsoft", "Google", "Meta", "Oracle", "CoreWeave"],
+    values:    [200, 190, 185, 150, 50, 33],   /* 2026 guidance; major operators total ~$808B */
+    colors:    ["#ff9900", "#0078d4", "#34a853", "#0866ff", "#c74634", "#7c3aed"],
+    srcs: [
+      { label: "Amazon 2026 guidance" },
+      { label: "Microsoft 2026 guidance" },
+      { label: "Alphabet 2026 guidance" },
+      { label: "Meta 2026 guidance" },
+      { label: "Oracle FY2026 guidance" },
+      { label: "CoreWeave 2026 guidance" }
+    ]
+  },
+
+  twoLens: {
+    total: 41,
+    endUser: [
+      { label: "Hyperscalers", value: 27, color: "#1d4ed8", detail: "AWS, Microsoft Azure, Google Cloud, Meta and Oracle — running their own cloud and AI workloads." },
+      { label: "AI-native", value: 6, color: "#7c3aed", detail: "CoreWeave, Nebius, Lambda, Crusoe and xAI — GPU-specialist clouds." },
+      { label: "Enterprise", value: 8, color: "#64748b", detail: "Banks, retailers, government and other corporates running their own data center workloads." }
+    ],
+    developer: [
+      { label: "Hyperscaler self-built", value: 18, color: "#1d4ed8", detail: "Facilities the hyperscalers designed and built for their own use." },
+      { label: "Colocation developers", value: 19, color: "#0f9d6e", detail: "Digital Realty, Equinix, Vantage, QTS, Aligned and similar landlords who build space and lease it out." },
+      { label: "AI-native self-built", value: 4, color: "#7c3aed", detail: "Facilities the AI-native clouds built themselves, such as CoreWeave and Crusoe campuses." }
+    ],
+    note: "Hyperscalers lease a large share of their capacity from colocation developers, so the two lenses are different slices of the same 41 GW — not additive. Operator-level splits are analyst estimates."
+  },
+
+  costStack: {
+    layers: [
+      { name: "Site & shell", value: 5, group: "facility", detail: "Land, the building shell, and core structural and mechanical work." },
+      { name: "Power equipment", value: 4, group: "facility", detail: "Transformers, switchgear, generators and UPS — the power distribution chain." },
+      { name: "Cooling", value: 2, group: "facility", detail: "Chillers, liquid-cooling loops or air handlers that remove heat from the racks." },
+      { name: "Servers & networking", value: 8, group: "compute", detail: "Compute servers, storage and the networking fabric." },
+      { name: "GPUs / accelerators", value: 23, group: "compute", detail: "AI accelerator chips — the single largest cost layer and the most volatile." }
+    ],
+    facilitySubtotal: 11,
+    allInTotal: 42,
+    note: "Facility layers are paid by the developer; compute layers by the consumer, even in leased space. Illustrative order-of-magnitude figures."
+  },
+
+  /* AI-native cloud providers — a new tier of GPU-specialist operators */
+  aiCloudProviders: [
+    {
+      name: "CoreWeave",
+      type: "AI-native GPU cloud",
+      color: "#7c3aed",
+      operational: 1000,   /* MW active, Q1 2026; 49 facilities across US + EU */
+      pipeline: 3500,      /* MW contracted with utilities; 3.5 GW contracted total per Q1 2026 */
+      capex2026: "$31–35B",
+      backlog: "$66.8B",
+      note: "1 GW active across 49 facilities as of Q1 2026. 3.5 GW contracted with utilities. Targeting 1.7 GW active by end-2026, 8 GW by 2030. $31–35B capex guided for 2026.",
+      pill: "pill-purple",
+      src: { url: "https://www.datacenterdynamics.com/en/news/coreweave-aims-to-add-5gw-more-data-center-capacity-by-2030-anticipates-capex-in-2026-to-double/", label: "Data Center Dynamics / CoreWeave earnings", tier: "primary" }
+    },
+    {
+      name: "Nebius",
+      type: "AI infrastructure (US + EU)",
+      color: "#0ea5e9",
+      operational: 200,    /* MW connected, end-2025 */
+      pipeline: 600,       /* MW to reach 800 MW–1 GW by end-2026 */
+      capex2026: "n/d",
+      backlog: "n/d",
+      note: "~220 MW connected, ~100 MW active end-2025. Targeting 800 MW–1 GW connected by end-2026. Expanding across US (NJ, MO, AL, OK, MN) and Europe.",
+      pill: "pill-blue",
+      src: { url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001513845&type=6-K", label: "Nebius SEC 6-K filings", tier: "primary" }
+    },
+    {
+      name: "Lambda Labs",
+      type: "GPU cloud for AI research",
+      color: "#f97316",
+      operational: 100,    /* MW operational; 320+ MW total committed */
+      pipeline: 220,       /* MW in build toward 320+ MW committed */
+      capex2026: "n/d",
+      backlog: "n/d",
+      note: "320+ MW signed and committed; 100 MW AI factory in Kansas City (2026); 3 GW target by 2030. Raised $1.5B+ Nov 2025.",
+      pill: "pill-amber",
+      src: { url: "https://lambda.ai/blog/lambda-to-build-a-100mw-ai-factory-in-kansas-city-mo", label: "Lambda AI Blog", tier: "primary" }
+    },
+    {
+      name: "Crusoe Energy",
+      type: "Sustainable AI cloud",
+      color: "#10b981",
+      operational: 200,    /* MW deployed including Abilene phase 1 */
+      pipeline: 1000,      /* MW long-term Abilene TX build (1.2 GW campus) */
+      capex2026: "n/d",
+      backlog: "n/d",
+      note: "Abilene, TX campus: 1.2 GW long-term plan; 200+ MW phase 1 operational. Powered by natural gas + flared energy. Key Stargate infrastructure partner.",
+      pill: "pill-green",
+      src: { url: "https://www.datacenterfrontier.com/hyperscale/article/55276169/crusoe-adds-45-gw-natural-gas-to-fuel-ai-expands-abilene-data-center-to-1-2-gw", label: "Data Center Frontier", tier: "analyst" }
+    }
+  ],
+
+  markets: [
+    { name: "Northern Virginia", operational: 12, pipeline: 1100, status: "Power-constrained", pill: "pill-red",
+      lon: -77.2, lat: 38.9, type: "constrained", lead: 7, note: "1,102 MW annual absorption — PJM-gated" },
+    { name: "Phoenix, AZ",       operational: 4,  pipeline: 1300, status: "Major growth",      pill: "pill-blue",
+      lon: -112.1,lat: 33.4, type: "growth",      lead: 4, note: "Grid pressure" },
+    { name: "Chicago, IL",       operational: 3,  pipeline: 1180, status: "Major growth",      pill: "pill-blue",
+      lon: -87.6, lat: 41.8, type: "growth",      lead: 4, note: "ComEd queue" },
+    { name: "Atlanta, GA",       operational: 3,  pipeline: 1110, status: "Major growth",      pill: "pill-blue",
+      lon: -84.4, lat: 33.7, type: "growth",      lead: 4, note: "Fast-rising hub" },
+    { name: "Dallas, TX",        operational: 7,  pipeline: 950,  status: "Major growth",      pill: "pill-blue",
+      lon: -96.8, lat: 32.8, type: "growth",      lead: 3, note: "+424 MW absorbed" },
+    { name: "Central Ohio",      operational: 4,  pipeline: 700,  status: "Emerging",          pill: "pill-green",
+      lon: -82.9, lat: 40.0, type: "emerging",    lead: 3, note: "Gigawatt campuses" },
+    { name: "Louisiana",         operational: 1,  pipeline: 600,  status: "Emerging",          pill: "pill-green",
+      lon: -91.8, lat: 32.1, type: "emerging",    lead: 3, note: "Meta Hyperion" },
+    { name: "Silicon Valley",    operational: 2,  pipeline: 380,  status: "Power-constrained", pill: "pill-red",
+      lon: -122.0,lat: 37.4, type: "constrained", lead: 6, note: "Land + power limits" }
+  ],
+
+  bottlenecks: [
+    { title: "Grid interconnection", sev: "critical",
+      desc: "Utility interconnection queues for large loads now stretch years. A campus joining the Northern Virginia queue today may not draw utility power until 2030–2033.",
+      stat: "Dominion Energy large-load queue: 36+ months" },
+    { title: "Transformers & switchgear", sev: "critical",
+      desc: "High-voltage transformers are the hardest-to-source component. Lead times have stretched from ~24–30 months pre-2020 to as long as 5 years.",
+      stat: "Power equipment lead times: 2–5 years" },
+    { title: "Power generation & supply", sev: "high",
+      desc: "There is not enough firm generation to match demand. By some industry estimates, a substantial share of US data centers slated for 2026 — on the order of 30–50% — could face delays tied to power and equipment availability.",
+      stat: "Transformers & firm generation are the binding constraint" },
+    { title: "Permitting & zoning", sev: "high",
+      desc: "Many projects remain stalled in the planning stage. Local zoning fights, environmental review and rising community opposition extend timelines unpredictably.",
+      stat: "Pipeline growth slowed despite record demand" },
+    { title: "Water & cooling", sev: "medium",
+      desc: "Water-stressed growth markets such as Phoenix and parts of Texas push operators toward closed-loop liquid and air-cooled designs, adding cost and complexity.",
+      stat: "Cooling redesigns common in arid metros" },
+    { title: "Skilled labor", sev: "medium",
+      desc: "A shortage of electricians, pipefitters and commissioning specialists constrains how fast multiple gigawatt-scale sites can be built in parallel.",
+      stat: "Trades shortage extends build schedules" }
+  ],
+
+  timeline: [
+    { phase: "Site selection & land", start: 0,  end: 6,  dur: "3–6 mo",    color: "#94a3b8" },
+    { phase: "Permitting & zoning",   start: 3,  end: 18, dur: "6–18 mo",   color: "#d4a017" },
+    { phase: "Power interconnection", start: 6,  end: 54, dur: "12–48+ mo", color: "#c0322b" },
+    { phase: "Construction",          start: 22, end: 46, dur: "12–24 mo",  color: "#1d4ed8" },
+    { phase: "Commissioning",         start: 44, end: 52, dur: "3–6 mo",    color: "#15803d" }
+  ],
+  timelineNote: "Full lifecycle from planning to commissioning typically runs 3–6 years. Where power is pre-secured, operators are compressing gigawatt-scale builds toward 1–2 years — some with on-site gas turbines to bypass the grid entirely.",
+
+  projects: [
+    { name: "Hyperion",             owner: "Meta",                       loc: "Richland Parish, Louisiana",
+      mw: "5,000",  capex: "$27B+",   online: "2028–30",  status: "Under construction",    pill: "pill-amber" },
+    { name: "Prometheus",           owner: "Meta",                       loc: "New Albany, Ohio",
+      mw: "1,000",  capex: "n/d",     online: "2026",     status: "Commissioning",         pill: "pill-blue"  },
+    { name: "Stargate — Abilene",  owner: "OpenAI / Oracle / SoftBank", loc: "Abilene, Texas",
+      mw: "1,200+", capex: "Multi-$B",online: "2025–26",  status: "Under construction",    pill: "pill-amber" },
+    { name: "Fairwater",            owner: "Microsoft",                  loc: "Mount Pleasant, Wisconsin",
+      mw: "n/d",    capex: "$3.3B",   online: "2025–26",  status: "Operational (phase 1)", pill: "pill-green" },
+    { name: "AWS campus expansion", owner: "Amazon",                     loc: "New Carlisle, Indiana",
+      mw: "2,250+", capex: "$11B+",   online: "2026+",    status: "Under construction",    pill: "pill-amber" },
+    { name: "Colossus 2",           owner: "xAI",                        loc: "Memphis, Tennessee",
+      mw: "1,000+", capex: "Multi-$B",online: "2026",     status: "Fast-track build",      pill: "pill-amber" }
+  ],
+
+  feed: [
+    { date: "May 2026", text: "Aligned unveiled a 540 MW, six-building hyperscale campus on 313 acres in Hale County, Texas — self-funding dedicated electrical infrastructure with Xcel Energy and targeting Q1 2027 service for the first building, with the full build projected to inject about $5B into the regional economy.", src: "Data Center Knowledge" },
+    { date: "May 2026", text: "Google said it has integrated about 1 GW of demand-response capacity into long-term utility contracts across the US — a milestone for flexible-load operating models as data center owners try to defuse grid backlash.", src: "Google · The Keyword" },
+    { date: "May 2026", text: "New industry analysis warns that more than half of US data centers planned for delivery this year may slip, with high-voltage transformer lead times now stretching to roughly four years.", src: "PV Magazine · Energy News Beat" },
+    { date: "May 2026", text: "Applied Digital signed a 300 MW lease with an investment-grade hyperscaler for its Polaris Forge 3 campus in North Dakota — a deal valued at about $7.5B, with options that could lift it to roughly $18.5B.", src: "Data Center Dynamics" },
+    { date: "May 2026", text: "Nebius unveiled plans for a second US gigawatt-scale data center campus in Pennsylvania, sized at up to 1.2 GW, with initial power targeted for end-2027.", src: "Data Center Dynamics" },
+    { date: "May 2026", text: "Blackstone agreed to invest about $5B of equity in a new AI infrastructure platform built around Google TPUs, aiming to bring an initial 500 MW of compute online by 2027.", src: "Industry reporting" },
+    { date: "May 2026", text: "NextEra Energy agreed to acquire Virginia utility Dominion for about $67B, a deal that would create the largest US utility in a bid to meet surging AI data center power demand.", src: "Fortune" },
+    { date: "May 2026", text: "Amazon expanded its planned AWS data center investment in Mississippi to $25B, adding new projects in Madison and Hinds counties.", src: "Data Center Knowledge" }
+  ],
+
+  transparency: [
+    { claim: "US data center power demand 2026",  value: "41 GW",       tier: "analyst",
+      srcLabel: "Goldman Sachs Research",
+      srcUrl: "https://www.goldmansachs.com/insights/articles/us-data-center-power-demand-projected-to-double-by-2027",
+      note: "Facility-level power demand across all US data centers. Near-term estimate blended with Wood Mackenzie outer-year forecasts." },
+    { claim: "Major operators 2026 capex",         value: "~$808 B",     tier: "analyst",
+      srcLabel: "Company 2026 guidance (consensus)",
+      note: "Amazon ~$200B, Microsoft ~$190B, Google ~$185B, Meta ~$150B, Oracle ~$50B, CoreWeave ~$33B. Company 2026 guidance; ~75% AI-related per company commentary." },
+    { claim: "US under-construction capacity",     value: "6.0 GW",      tier: "analyst",
+      srcLabel: "CBRE North America Data Center Trends H2 2025",
+      srcUrl: "https://www.cbre.com/insights/books/north-america-data-center-trends-h2-2025",
+      note: "Primary markets only. Power availability caps the active pipeline." },
+    { claim: "Primary-market vacancy rate",        value: "1.4%",        tier: "analyst",
+      srcLabel: "CBRE North America Data Center Trends H2 2025",
+      srcUrl: "https://www.cbre.com/insights/books/north-america-data-center-trends-h2-2025",
+      note: "Record low across all major US primary markets." },
+    { claim: "Transformer lead time",              value: "Up to 5 yrs", tier: "analyst",
+      srcLabel: "Industry reporting (multiple outlets)",
+      srcUrl: "https://www.datacenterknowledge.com/hyperscalers/hyperscalers-in-2026-what-s-next-for-the-world-s-largest-data-center-operators-",
+      note: "Was ~2 years pre-2020. High-voltage transformer shortage is a critical path constraint." },
+    { claim: "2026 builds facing delivery delays",       value: "~30–50% (est.)",      tier: "analyst",
+      srcLabel: "Industry reporting (multiple outlets)",
+      srcUrl: "https://www.datacenterknowledge.com/hyperscalers/hyperscalers-in-2026-what-s-next-for-the-world-s-largest-data-center-operators-",
+      note: "Range comes from secondary industry reporting, not a primary disclosure — treat as directional. Power-equipment shortages, primarily transformers, cited as the main driver." },
+    { claim: "Amazon (AWS) operational capacity",  value: "2,300 MW",    tier: "modeled",
+      srcLabel: "Amazon IR — modeled",
+      srcUrl: "https://ir.aboutamazon.com/",
+      note: "AWS does not publish per-site MW. Derived from capex disclosures and announced project MW." },
+    { claim: "Meta operational capacity",          value: "1,500 MW",    tier: "modeled",
+      srcLabel: "Meta IR — modeled",
+      srcUrl: "https://investor.fb.com/",
+      note: "Meta publishes capex but not granular MW. Modeled from project announcements." },
+    { claim: "Microsoft operational capacity",     value: "1,200 MW",    tier: "modeled",
+      srcLabel: "Microsoft IR — modeled",
+      srcUrl: "https://investor.microsoft.com/",
+      note: "Microsoft does not disclose per-site MW. Modeled estimate." },
+    { claim: "Google operational capacity",        value: "510 MW",      tier: "modeled",
+      srcLabel: "Alphabet IR — modeled",
+      srcUrl: "https://abc.xyz/investor/",
+      note: "Alphabet does not publish per-site MW. Modeled from project locations and capex." },
+    { claim: "CoreWeave operational capacity",     value: "1,000 MW",    tier: "primary",
+      srcLabel: "CoreWeave Q1 2026 earnings + Futurum Group",
+      srcUrl: "https://www.datacenterdynamics.com/en/news/coreweave-aims-to-add-5gw-more-data-center-capacity-by-2030-anticipates-capex-in-2026-to-double/",
+      note: "1 GW active across 49 facilities as of Q1 2026 per company disclosure. Contracted pipeline is 3.5 GW with utilities — much larger than the incremental-to-1.7GW figure used in prior versions. Targeting 1.7 GW active by end-2026, 8 GW by 2030." },
+    { claim: "CoreWeave contracted pipeline",      value: "3,500 MW",    tier: "primary",
+      srcLabel: "CoreWeave Q1 2026 earnings",
+      srcUrl: "https://www.datacenterdynamics.com/en/news/coreweave-aims-to-add-5gw-more-data-center-capacity-by-2030-anticipates-capex-in-2026-to-double/",
+      note: "3.5 GW contracted with utilities as of Q1 2026. Virtually all expected to come online by 2027. This is grid interconnection capacity, not all of which will be active IT load simultaneously." },
+    { claim: "Nebius connected power (end-2025)",  value: "~220 MW",     tier: "primary",
+      srcLabel: "Nebius SEC Form 6-K filing",
+      srcUrl: "https://www.sec.gov/Archives/edgar/data/0001513845/000110465925075028/tm2522866d1_ex99-2.htm",
+      note: "220 MW connected, ~100 MW active end-2025. Targeting 800 MW–1 GW by end-2026." },
+    { claim: "Lambda Labs committed capacity",     value: "320+ MW",     tier: "primary",
+      srcLabel: "Lambda AI blog",
+      srcUrl: "https://lambda.ai/blog/lambda-to-build-a-100mw-ai-factory-in-kansas-city-mo",
+      note: "320+ MW fully leased, signed and committed per company disclosure." },
+    { claim: "Crusoe Abilene campus (long-term)",  value: "1,200 MW",    tier: "analyst",
+      srcLabel: "Data Center Frontier",
+      srcUrl: "https://www.datacenterfrontier.com/hyperscale/article/55276169/crusoe-adds-45-gw-natural-gas-to-fuel-ai-expands-abilene-data-center-to-1-2-gw",
+      note: "Long-term build target. Phase 1 (~200 MW) operational. Key Stargate infrastructure partner." }
+  ],
+
+  sources: [
+    { name: "CBRE — North America Data Center Trends", url: "https://www.cbre.com/insights/books/north-america-data-center-trends-h2-2025" },
+    { name: "JLL — North America Data Center Report", url: "https://www.jll.com/en-us/insights/market-dynamics/north-america-data-centers" },
+    { name: "Goldman Sachs Research — Power demand", url: "https://www.goldmansachs.com/insights/articles/us-data-center-power-demand-projected-to-double-by-2027" },
+    { name: "S&P Global — Grid-power demand", url: "https://www.spglobal.com/energy/en/news-research/latest-news/electric-power/101425-data-center-grid-power-demand-to-rise-22-in-2025-nearly-triple-by-2030" },
+    { name: "Data Center Knowledge — Hyperscalers 2026", url: "https://www.datacenterknowledge.com/hyperscalers/hyperscalers-in-2026-what-s-next-for-the-world-s-largest-data-center-operators-" },
+    { name: "Data Center Dynamics — CoreWeave capacity", url: "https://www.datacenterdynamics.com/en/news/coreweave-aims-to-add-5gw-more-data-center-capacity-by-2030-anticipates-capex-in-2026-to-double/" },
+    { name: "Nebius Group — SEC 6-K filings", url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001513845&type=6-K" },
+    { name: "Lambda AI — Kansas City AI factory", url: "https://lambda.ai/blog/lambda-to-build-a-100mw-ai-factory-in-kansas-city-mo" }
+  ],
+
+  methodology: "The 41 GW headline is total US data center facility-level power demand. It is sliced two ways — by end user and by developer — which each total 41 GW and must not be added together. Per-operator capacity and the operator share of demand are analyst estimates; operators do not disclose per-site megawatts. Capex covers the major AI infrastructure operators and reflects company 2026 guidance. The $/MW cost build-up is an illustrative order-of-magnitude estimate. Power-demand projections blend near-term analyst estimates with outer-year forecasts. All figures carry meaningful uncertainty and are revised as new disclosures appear."
+};
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  const d = new Date(DATA.lastUpdated + "T00:00:00");
+  const formattedDate = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  $("updated-date").textContent = formattedDate;
+  document.querySelectorAll(".tb-date").forEach(function (el) { el.textContent = formattedDate; });
+
+  if ($("topStory") && DATA.topStory) {
+    const ts = DATA.topStory;
+    const inner =
+      '<span class="ts-tag"><span class="dot"></span> Top story</span>' +
+      '<span class="ts-text">' + ts.text + '</span>' +
+      '<span class="ts-src">' + ts.date + ' · ' + ts.src + (ts.url ? ' ↗' : '') + '</span>';
+    $("topStory").innerHTML = ts.url
+      ? '<a class="topstory" href="' + ts.url + '" target="_blank" rel="noopener">' + inner + '</a>'
+      : '<div class="topstory">' + inner + '</div>';
+  }
+
+  const tierIcon = '<svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6.5l3 3 6-7"/></svg>';
+  $("kpis").innerHTML = DATA.kpis.map(k => `
+    <div class="kpi">
+      <div class="label">${k.label}</div>
+      <div class="value">${k.value}<span> ${k.unit}</span></div>
+      ${k.sub ? `<div class="kpi-sub">${k.sub}</div>` : ""}
+      <div class="delta">${k.delta}</div>
+      <div class="kpi-src">
+        <span class="kpi-srclabel">Source: ${k.src.label}</span>
+      </div>
+    </div>`).join("");
+
+  const ranked = [...DATA.markets].sort((a, b) => b.operational - a.operational);
+  $("mktTable").querySelector("tbody").innerHTML = ranked.map(m => `
+    <tr>
+      <td class="name">${m.name}<br><span style="font-size:11px;color:var(--muted);font-weight:500">${m.note}</span></td>
+      <td class="num">${m.operational} GW</td>
+      <td class="num">${m.pipeline.toLocaleString()} MW</td>
+      <td class="num">~${m.lead} yrs</td>
+    </tr>`).join("");
+
+  // D3 choropleth map
+  (function renderMap() {
+    const container = $("map");
+    if (!container || typeof d3 === "undefined" || typeof topojson === "undefined") return;
+
+    const typeColor = { constrained: "#d4452f", growth: "#1d4ed8", emerging: "#15803d" };
+    const maxOp = Math.max(...DATA.markets.map(m => m.operational));
+
+    // Tooltip element
+    const tip = document.createElement("div");
+    tip.className = "map-tip";
+    container.appendChild(tip);
+
+    function buildMap() {
+      // Remove old SVG if resizing
+      container.querySelectorAll("svg").forEach(s => s.remove());
+      const W = container.clientWidth || 540;
+      const H = Math.round(W * 0.60);
+      container.style.minHeight = H + "px";
+
+      const svg = d3.select("#map").append("svg")
+        .attr("viewBox", `0 0 ${W} ${H}`)
+        .attr("width", W).attr("height", H);
+
+      d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
+        const proj = d3.geoAlbersUsa()
+          .fitExtent([[12, 12], [W - 12, H - 12]],
+            topojson.feature(us, us.objects.nation));
+        const path = d3.geoPath().projection(proj);
+
+        // State fills
+        svg.append("g").selectAll("path")
+          .data(topojson.feature(us, us.objects.states).features)
+          .join("path")
+          .attr("d", path)
+          .attr("fill", "#eaeff5")
+          .attr("stroke", "#fff")
+          .attr("stroke-width", 1.2);
+
+        // State borders (internal mesh)
+        svg.append("path")
+          .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
+          .attr("d", path)
+          .attr("fill", "none")
+          .attr("stroke", "#d0d9e4")
+          .attr("stroke-width", 0.5);
+
+        // Bubble shadow filter
+        const defs = svg.append("defs");
+        const filter = defs.append("filter").attr("id", "bshadow").attr("x", "-40%").attr("y", "-40%").attr("width", "180%").attr("height", "180%");
+        filter.append("feDropShadow").attr("dx", 0).attr("dy", 2).attr("stdDeviation", 3).attr("flood-color", "rgba(15,27,45,.25)");
+
+        // Market bubbles
+        DATA.markets.forEach(m => {
+          const xy = proj([m.lon, m.lat]);
+          if (!xy) return;
+          const [x, y] = xy;
+          const r = 16 + (m.operational / maxOp) * 22;
+          const col = typeColor[m.type];
+
+          const g = svg.append("g").style("cursor", "default");
+
+          g.append("circle")
+            .attr("cx", x).attr("cy", y).attr("r", r)
+            .attr("fill", col).attr("fill-opacity", 0.88)
+            .attr("stroke", "#fff").attr("stroke-width", 2.5)
+            .attr("filter", "url(#bshadow)");
+
+          g.append("text")
+            .attr("x", x).attr("y", y)
+            .attr("text-anchor", "middle").attr("dominant-baseline", "central")
+            .attr("fill", "#fff")
+            .attr("font-family", "Inter, sans-serif")
+            .attr("font-size", Math.max(12, Math.round(r * 0.64)) + "px")
+            .attr("font-weight", "800")
+            .attr("pointer-events", "none")
+            .text(m.operational);
+
+          // City label below bubble (hidden on mobile via CSS)
+          g.append("text")
+            .attr("x", x).attr("y", y + r + 11)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#3a4a5c")
+            .attr("font-family", "Inter, sans-serif")
+            .attr("font-size", "9.5px").attr("font-weight", "700")
+            .attr("pointer-events", "none")
+            .attr("class", "map-city-label")
+            .text(m.name.replace(", AZ","").replace(", IL","").replace(", GA","").replace(", TX",""));
+
+          // Hover
+          g.on("mouseenter", function(event) {
+              tip.innerHTML = `<b>${m.name}</b>${m.operational} GW operational · ${m.pipeline.toLocaleString()} MW pipeline<br><span class="tip-muted">~${m.lead} yr to power · ${m.status}</span>`;
+              tip.style.display = "block";
+              moveTip(event);
+            })
+            .on("mousemove", moveTip)
+            .on("mouseleave", () => { tip.style.display = "none"; });
+        });
+
+      }).catch(() => {
+        svg.append("text")
+          .attr("x", W / 2).attr("y", H / 2)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#8a97a8").attr("font-size", "13px")
+          .attr("font-family", "Inter, sans-serif")
+          .text("Map requires network — reload when online");
+      });
+    }
+
+    function moveTip(event) {
+      const rect = container.getBoundingClientRect();
+      let tx = event.clientX - rect.left + 14;
+      let ty = event.clientY - rect.top - 10;
+      if (tx + 220 > container.clientWidth) tx = event.clientX - rect.left - 224;
+      tip.style.left = tx + "px";
+      tip.style.top  = ty + "px";
+    }
+
+    buildMap();
+
+    // Redraw on resize (debounced)
+    let rto;
+    window.addEventListener("resize", () => {
+      clearTimeout(rto);
+      rto = setTimeout(buildMap, 180);
+    });
+  })();
+
+  $("bottlenecks").innerHTML = DATA.bottlenecks.map(b => `
+    <div class="btl sev-${b.sev}">
+      <div class="top"><h4>${b.title}</h4><span class="sev">${b.sev}</span></div>
+      <p>${b.desc}</p>
+      <div class="stat">${b.stat}</div>
+    </div>`).join("");
+
+  const TL_MAX = 54;
+  $("timeline").innerHTML = DATA.timeline.map(t => {
+    const left = (t.start / TL_MAX) * 100;
+    const width = ((t.end - t.start) / TL_MAX) * 100;
+    return `<div class="tl-row"><div class="ph">${t.phase}</div><div class="tl-track"><div class="tl-fill" style="left:${left}%;width:${width}%;background:${t.color}"></div></div><div class="tl-dur">${t.dur}</div></div>`;
+  }).join("");
+  $("tl-callout").innerHTML = "<b>Critical path:</b> " + DATA.timelineNote;
+
+  $("projects").innerHTML = DATA.projects.map(p => `
+    <div class="proj">
+      <div class="ph-row"><div><h4>${p.name}</h4><div class="loc">${p.loc}</div></div><span class="pill ${p.pill}">${p.status}</span></div>
+      <div class="metrics">
+        <div><div class="m-val">${p.mw}</div><div class="m-lbl">Megawatts</div></div>
+        <div><div class="m-val">${p.capex}</div><div class="m-lbl">Capex</div></div>
+        <div><div class="m-val">${p.online}</div><div class="m-lbl">Online</div></div>
+      </div>
+      <div class="owner">Operator — ${p.owner}</div>
+    </div>`).join("");
+
+  $("providerCards").innerHTML = DATA.aiCloudProviders.map(p => `
+    <div class="prov-card">
+      <div class="prov-head">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="prov-dot" style="background:${p.color}"></div>
+            <div class="prov-name">${p.name}</div>
+          </div>
+          <div class="prov-type">${p.type}</div>
+        </div>
+        <span class="tier tier-${p.src.tier}">${p.src.tier}</span>
+      </div>
+      <div class="prov-stats">
+        <div><div class="ps-val">${p.operational.toLocaleString()} <span style="font-size:13px;font-weight:600;color:var(--ink-2)">MW</span></div><div class="ps-lbl">Operational</div></div>
+        <div><div class="ps-val">${p.pipeline.toLocaleString()} <span style="font-size:13px;font-weight:600;color:var(--ink-2)">MW</span></div><div class="ps-lbl">Pipeline</div></div>
+        ${p.capex2026 !== "n/d" ? `<div><div class="ps-val">${p.capex2026}</div><div class="ps-lbl">2026 capex</div></div>` : ""}
+      </div>
+      <div class="prov-note">${p.note}</div>
+      <div class="prov-src"><span style="font-size:11px;color:var(--muted)">${p.src.label}</span></div>
+    </div>`).join("");
+
+  $("transTable").querySelector("tbody").innerHTML = DATA.transparency.map(t => `
+    <tr>
+      <td class="tc-claim">${t.claim}</td>
+      <td class="tc-value">${t.value}</td>
+      <td><span class="tier tier-${t.tier}">${t.tier}</span></td>
+      <td class="tc-src">${t.srcLabel}</td>
+      <td class="tc-note">${t.note}</td>
+    </tr>`).join("");
+
+  $("feed").innerHTML = DATA.feed.map(f => `
+    <div class="feed-item">
+      <div class="feed-date">${f.date}</div>
+      <div class="feed-body"><p>${f.text}</p><div class="src">${f.src}</div></div>
+    </div>`).join("");
+
+  $("sources").innerHTML = DATA.sources.map(s => `<li>${s.name}</li>`).join("");
+  $("methodologyPanel").textContent = DATA.methodology;
+
+  // Two-lens capacity bars
+  (function () {
+    const tl = DATA.twoLens;
+    const block = (arr) => {
+      const segs = arr.map(s => `<div class="lens-seg" title="${s.label} · ${s.value} GW — ${s.detail}" style="width:${(s.value / tl.total * 100).toFixed(2)}%;background:${s.color}">${s.value}</div>`).join("");
+      const leg = arr.map(s => `<span title="${s.detail}"><i style="background:${s.color}"></i>${s.label} · ${s.value} GW</span>`).join("");
+      return `<div class="lens-bar">${segs}</div><div class="lens-legend">${leg}</div>`;
+    };
+    if ($("lensEndUser")) $("lensEndUser").innerHTML = block(tl.endUser);
+    if ($("lensDeveloper")) $("lensDeveloper").innerHTML = block(tl.developer);
+    if ($("lensNote")) $("lensNote").textContent = tl.note;
+  })();
+
+  // Cost stack build-up
+  (function () {
+    const cs = DATA.costStack;
+    const max = Math.max(...cs.layers.map(l => l.value));
+    const facColor = "#1d9e75", compColor = "#1d4ed8";
+    const rowHtml = (l, color) => `<div class="cost-row" title="${l.name}: ${l.detail}"><span class="cn">${l.name}</span><div class="cb" style="width:${(l.value / max * 100).toFixed(1)}%;background:${color}"></div><span class="cv">$${l.value}M</span></div>`;
+    let html = `<div class="cost-group-label"><i style="background:${facColor}"></i>Facility — paid by the developer</div>`;
+    cs.layers.filter(l => l.group === "facility").forEach(l => { html += rowHtml(l, facColor); });
+    html += `<div class="cost-sub"><span>Facility subtotal</span><span>$${cs.facilitySubtotal}M / MW</span></div>`;
+    html += `<div class="cost-group-label"><i style="background:${compColor}"></i>Compute — paid by the consumer</div>`;
+    cs.layers.filter(l => l.group === "compute").forEach(l => { html += rowHtml(l, compColor); });
+    html += `<div class="cost-total"><span>All-in total</span><span>$${cs.allInTotal}M / MW</span></div>`;
+    if ($("costStack")) $("costStack").innerHTML = html;
+  })();
+
+  if (typeof Chart === "undefined") return;
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.color = "#0f1b2d";
+  Chart.defaults.font.size = 12;
+  const gridCfg = { color: "#eef0f3" };
+
+  if (typeof ChartDataLabels !== "undefined") {
+    Chart.register(ChartDataLabels);
+    Chart.defaults.plugins.datalabels = {
+      color: "#0f1b2d",
+      font: { weight: "700", size: 11 },
+      anchor: "end", align: "end", offset: 3, clamp: true,
+      formatter: v => (v === null || v === undefined || v === "") ? "" : Math.round(v)
+    };
+    Chart.defaults.scales.linear.grace = "8%";
+  }
+
+  const pd = DATA.powerDemand;
+  const actual   = pd.values.map((v, i) => i <= pd.actualThrough ? v : null);
+  const forecast = pd.values.map((v, i) => i >= pd.actualThrough ? v : null);
+  new Chart($("powerChart"), {
+    type: "line",
+    data: { labels: pd.years, datasets: [
+      { label: "Estimated", data: actual,   borderColor: "#1d4ed8", backgroundColor: "rgba(29,78,216,.10)", fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: "#1d4ed8", borderWidth: 2.5, datalabels: { display: ctx => ctx.dataIndex === 0 } },
+      { label: "Forecast",  data: forecast, borderColor: "#c2710c", backgroundColor: "rgba(194,113,12,.08)", fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: "#c2710c", borderWidth: 2.5, borderDash: [6,4] }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 16 } },
+        datalabels: { align: "top", anchor: "end" },
+        tooltip: { callbacks: {
+          label: c => " " + c.parsed.y + " GW",
+          afterBody: items => pd.context[items[0].dataIndex] ? [pd.context[items[0].dataIndex]] : [],
+          footer: () => "Source: " + pd.src.label
+        }}},
+      scales: { y: { grid: gridCfg, ticks: { callback: v => v + " GW" }, beginAtZero: true }, x: { grid: { display: false } } }
+    }
+  });
+
+  const ct = DATA.capexTrajectory;
+  new Chart($("capexChart"), {
+    type: "bar",
+    data: { labels: ct.years, datasets: [{ label: "Combined capex", data: ct.values,
+      backgroundColor: ["#cdd9f7","#9bb5f0","#5b85e8","#1d4ed8"], borderRadius: 6, maxBarThickness: 64 }]},
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: {
+          label: c => " $" + c.parsed.y + "B combined",
+          afterBody: items => ct.notes[items[0].dataIndex] ? [ct.notes[items[0].dataIndex]] : [],
+          footer: () => "Source: " + ct.src.label
+        }}},
+      scales: { y: { grid: gridCfg, ticks: { callback: v => "$" + v + "B" }, beginAtZero: true }, x: { grid: { display: false } } }
+    }
+  });
+
+  const mw = DATA.hyperscalerMW;
+  new Chart($("mwChart"), {
+    type: "bar",
+    data: { labels: mw.companies, datasets: [
+      { label: "Operational", data: mw.operational, backgroundColor: "#1d4ed8", borderRadius: 5, maxBarThickness: 26 },
+      { label: "Pipeline",    data: mw.pipeline,    backgroundColor: "#c2710c", borderRadius: 5, maxBarThickness: 26 }
+    ]},
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 16 } },
+        tooltip: { callbacks: {
+          label: c => " " + c.dataset.label + ": " + c.parsed.x.toLocaleString() + " MW",
+          footer: items => { const s = mw.srcs[items[0].dataIndex]; return s ? "Tier: " + s.tier + " — " + s.label : ""; }
+        }}},
+      scales: { x: { grid: gridCfg, ticks: { callback: v => (v/1000) + " GW" }, beginAtZero: true }, y: { grid: { display: false }, afterFit: s => { s.width = Math.max(s.width, 138); } } }
+    }
+  });
+
+  const cc = DATA.companyCapex;
+  new Chart($("coCapexChart"), {
+    type: "bar",
+    data: { labels: cc.companies, datasets: [{ label: "2026 capex", data: cc.values,
+      backgroundColor: cc.colors, borderRadius: 6, maxBarThickness: 70 }]},
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: {
+          label: c => " $" + c.parsed.y + "B planned capex",
+          footer: items => { const s = cc.srcs[items[0].dataIndex]; return s ? "Source: " + s.label : ""; }
+        }}},
+      scales: { y: { grid: gridCfg, ticks: { callback: v => "$" + v + "B" }, beginAtZero: true }, x: { grid: { display: false } } }
+    }
+  });
+
+  const acp = DATA.aiCloudProviders;
+  new Chart($("aiCloudChart"), {
+    type: "bar",
+    data: { labels: acp.map(p => p.name), datasets: [
+      { label: "Operational", data: acp.map(p => p.operational), backgroundColor: "#1d4ed8", borderRadius: 5, maxBarThickness: 26 },
+      { label: "Pipeline",    data: acp.map(p => p.pipeline),    backgroundColor: "#c2710c", borderRadius: 5, maxBarThickness: 26 }
+    ]},
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 16 } },
+        tooltip: { callbacks: {
+          label: c => " " + c.dataset.label + ": " + c.parsed.x.toLocaleString() + " MW",
+          footer: items => { const p = acp[items[0].dataIndex]; return "Tier: " + p.src.tier + " — " + p.src.label; }
+        }}},
+      scales: { x: { grid: gridCfg, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(1)+" GW" : v+" MW" }, beginAtZero: true }, y: { grid: { display: false }, afterFit: s => { s.width = Math.max(s.width, 138); } } }
+    }
+  });
+
+  const allOps = [
+    ...mw.companies.map((name, i) => ({ name, mw: mw.operational[i], color: mw.colors[i], tier: "modeled" })),
+    ...acp.map(p => ({ name: p.name, mw: p.operational, color: p.color, tier: p.src.tier }))
+  ].sort((a, b) => b.mw - a.mw);
+
+  new Chart($("allOpsChart"), {
+    type: "bar",
+    data: { labels: allOps.map(o => o.name), datasets: [{
+      label: "Operational MW (IT load)", data: allOps.map(o => o.mw),
+      backgroundColor: allOps.map(o => o.color), borderRadius: 5, maxBarThickness: 28
+    }]},
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: {
+          label: c => " " + c.parsed.x.toLocaleString() + " MW operational IT load",
+          afterBody: () => ["Hyperscalers: modeled from capex + projects", "AI-native: company-disclosed where available"],
+          footer: items => "Data tier: " + allOps[items[0].dataIndex].tier
+        }}},
+      scales: { x: { grid: gridCfg, ticks: { callback: v => (v/1000).toFixed(1)+" GW" }, beginAtZero: true }, y: { grid: { display: false }, afterFit: s => { s.width = Math.max(s.width, 138); } } }
+    }
+  });
+
+  // ── 41 GW BREAKDOWN ────────────────────────────────────────────
+  const pb = DATA.powerBreakdown;
+
+  new Chart($("funnelChart"), {
+    type: "bar",
+    data: {
+      labels: pb.funnel.stages,
+      datasets: [{ data: pb.funnel.values, backgroundColor: pb.funnel.colors, borderRadius: 4, maxBarThickness: 44 }]
+    },
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: {
+          label: c => " " + c.parsed.x.toLocaleString() + " GW",
+          afterBody: items => [pb.funnel.notes[items[0].dataIndex]],
+          footer: items => "Source: " + pb.funnel.srcs[items[0].dataIndex].label
+        }}},
+      scales: {
+        x: { grid: gridCfg, ticks: { callback: v => v.toLocaleString() + " GW" }, beginAtZero: true },
+        y: { grid: { display: false }, afterFit: s => { s.width = Math.max(s.width, 138); } }
+      }
+    }
+  });
+
+  new Chart($("breakdownCompanyChart"), {
+    type: "bar",
+    data: {
+      labels: pb.byCompany.companies,
+      datasets: [{ data: pb.byCompany.values, backgroundColor: pb.byCompany.colors, borderRadius: 4, maxBarThickness: 32 }]
+    },
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: {
+          label: c => " " + c.parsed.x + " GW (analyst estimate)",
+          afterBody: () => [pb.byCompany.note],
+          footer: () => "Tier: " + pb.byCompany.src.tier + " — " + pb.byCompany.src.label
+        }}},
+      scales: {
+        x: { grid: gridCfg, ticks: { callback: v => v + " GW" }, beginAtZero: true },
+        y: { grid: { display: false }, afterFit: s => { s.width = Math.max(s.width, 138); } }
+      }
+    }
+  });
+
+  new Chart($("breakdownGeoChart"), {
+    type: "bar",
+    data: {
+      labels: pb.byGeo.markets,
+      datasets: [{ data: pb.byGeo.values, backgroundColor: pb.byGeo.colors, borderRadius: 4, maxBarThickness: 32 }]
+    },
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: {
+          label: c => " " + c.parsed.x + " GW",
+          afterBody: () => [pb.byGeo.note],
+          footer: () => "Source: " + pb.byGeo.src.label
+        }}},
+      scales: {
+        x: { grid: gridCfg, ticks: { callback: v => v + " GW" }, beginAtZero: true },
+        y: { grid: { display: false }, afterFit: s => { s.width = Math.max(s.width, 138); } }
+      }
+    }
+  });
+
+})();
+
+/* ============================================================
+   CHAT ASSISTANT  —  swappable responder
+   Scripted mode answers from the DATA object and needs no
+   backend (works on static hosting). To enable the live
+   OpenAI-powered assistant, deploy chatbot-worker.js and put
+   its URL in CHAT_CONFIG.apiEndpoint below.
+   ============================================================ */
+(function () {
+  const CHAT_CONFIG = {
+    apiEndpoint: ""   /* e.g. "https://datacenter-monitor-chat.<you>.workers.dev" */
+  };
+
+  const el = (id) => document.getElementById(id);
+  const fab = el("chatFab"), panel = el("chatPanel"), bodyEl = el("chatBody");
+  const input = el("chatInput"), sendBtn = el("chatSend"), closeBtn = el("chatClose");
+  if (!fab || !panel || typeof DATA === "undefined") return;
+
+  const history = [];
+  let busy = false;
+
+  function dataContext() {
+    const pb = DATA.powerBreakdown, pd = DATA.powerDemand, ct = DATA.capexTrajectory;
+    const cc = DATA.companyCapex, tl = DATA.twoLens, cs = DATA.costStack;
+    const lines = [];
+    lines.push("US AI Infrastructure Monitor — data as of " + DATA.lastUpdated + ".");
+    lines.push("Headline KPIs: " + DATA.kpis.map(k => k.label + " = " + k.value + " " + k.unit).join("; ") + ".");
+    lines.push("US data center power demand by year (GW): " + pd.years.map((y, i) => y + ":" + pd.values[i]).join(", ") + ".");
+    lines.push("Hyperscaler capex trajectory by year (USD bn): " + ct.years.map((y, i) => y + ":" + ct.values[i]).join(", ") + ".");
+    lines.push("2026 capex by major operator (USD bn): " + cc.companies.map((c, i) => c + ":" + cc.values[i]).join(", ") + ".");
+    lines.push("41 GW by operator (GW): " + pb.byCompany.companies.map((c, i) => c + ":" + pb.byCompany.values[i]).join(", ") + ".");
+    lines.push("41 GW by region (GW): " + pb.byGeo.markets.map((c, i) => c + ":" + pb.byGeo.values[i]).join(", ") + ".");
+    lines.push("41 GW by end user (GW): " + tl.endUser.map(s => s.label + ":" + s.value).join(", ") + ".");
+    lines.push("41 GW by developer (GW): " + tl.developer.map(s => s.label + ":" + s.value).join(", ") + ".");
+    lines.push("Cost to build 1 MW (USD millions, illustrative): " + cs.layers.map(l => l.name + ":" + l.value).join(", ") + "; facility subtotal " + cs.facilitySubtotal + ", all-in " + cs.allInTotal + ".");
+    lines.push("Markets (pipeline MW, time-to-power years): " + DATA.markets.map(m => m.name + " " + m.pipeline + "MW/" + m.lead + "yr").join("; ") + ".");
+    lines.push("Bottlenecks: " + DATA.bottlenecks.map(b => b.title + " [" + b.sev + "]").join(", ") + ".");
+    lines.push("AI-native clouds (operational/pipeline MW): " + DATA.aiCloudProviders.map(p => p.name + " " + p.operational + "/" + p.pipeline).join("; ") + ".");
+    lines.push("Marquee projects: " + DATA.projects.map(p => p.name + " (" + p.owner + ", " + p.mw + " MW, online " + p.online + ")").join("; ") + ".");
+    return lines.join("\n");
+  }
+
+  function addMsg(text, cls) {
+    const d = document.createElement("div");
+    d.className = "chat-msg " + cls;
+    d.textContent = text;
+    bodyEl.appendChild(d);
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+    return d;
+  }
+
+  function addTyping() {
+    const d = document.createElement("div");
+    d.className = "chat-msg bot chat-dots";
+    d.innerHTML = "<span></span><span></span><span></span>";
+    bodyEl.appendChild(d);
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+    return d;
+  }
+
+  function scriptedAnswer(q) {
+    const s = q.toLowerCase();
+    const has = function () {
+      for (let i = 0; i < arguments.length; i++) if (s.indexOf(arguments[i]) !== -1) return true;
+      return false;
+    };
+    const pd = DATA.powerDemand, pb = DATA.powerBreakdown;
+    if (has("power demand", "41 gw", "electricity", "how much power", "load"))
+      return "US data center power demand is about " + pd.values[2] + " GW in 2026, up from " + pd.values[1] + " GW in 2025, and is forecast to reach roughly " + pd.values[pd.values.length - 1] + " GW by 2030. That figure is total facility-level demand across all US data centers.";
+    if (has("capex", "capital", "spend", "spending", "investment", "808"))
+      return "The major AI infrastructure operators — Amazon, Microsoft, Google, Meta, Oracle and CoreWeave — are guiding about $" + DATA.companyCapex.values.reduce((a, b) => a + b, 0) + "B of combined 2026 capex, with about three-quarters AI-related.";
+    if (has("cost", "$/mw", "per mw", "build cost"))
+      return "Building one MW of AI data center capacity costs roughly $" + DATA.costStack.allInTotal + "M all-in (illustrative): about $" + DATA.costStack.facilitySubtotal + "M for the facility — site, power and cooling — and the rest for servers and GPUs, which are the largest single layer.";
+    if (has("bottleneck", "constraint", "holding it back", "delay", "blocker"))
+      return "The tracked bottlenecks are: " + DATA.bottlenecks.map(b => b.title).join(", ") + ". Grid interconnection and high-voltage transformers are the binding constraints.";
+    if (has("transformer", "lead time"))
+      return "High-voltage transformer lead times have stretched to as long as 5 years, up from about 2 years pre-2020 — one of the critical-path constraints on new capacity.";
+    if (has("market", "geography", "region", "where", "virginia", "phoenix", "texas"))
+      return "Top markets by active pipeline: " + DATA.markets.slice().sort((a, b) => b.pipeline - a.pipeline).slice(0, 4).map(m => m.name + " (" + m.pipeline + " MW)").join(", ") + ".";
+    if (has("operator", "by company", "aws", "amazon", "microsoft", "azure", "google", "meta"))
+      return "Estimated operator share of US data center power demand: " + pb.byCompany.companies.map((c, i) => c + " " + pb.byCompany.values[i] + " GW").join(", ") + ".";
+    if (has("coreweave", "nebius", "lambda", "crusoe", "ai-native", "ai native", "gpu cloud", "neocloud"))
+      return "AI-native cloud providers tracked: " + DATA.aiCloudProviders.map(p => p.name + " (" + p.operational + " MW operational, " + p.pipeline + " MW pipeline)").join("; ") + ".";
+    if (has("project", "hyperion", "stargate", "colossus", "prometheus", "fairwater"))
+      return "Marquee projects: " + DATA.projects.map(p => p.name + " — " + p.owner + ", " + p.mw + " MW, online " + p.online).join("; ") + ".";
+    if (has("vacancy", "supply"))
+      return "Primary-market vacancy is at a record-low 1.4% — the market is supply-starved, with power availability capping the pipeline.";
+    return null;
+  }
+
+  async function aiAnswer(q) {
+    const res = await fetch(CHAT_CONFIG.apiEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: q, history: history.slice(-8), context: dataContext() })
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const j = await res.json();
+    return ((j.answer || j.reply || "") + "").trim() || "No answer was returned.";
+  }
+
+  async function respond(q) {
+    q = (q || "").trim();
+    if (busy || !q) return;
+    busy = true; sendBtn.disabled = true;
+    addMsg(q, "user");
+    history.push({ role: "user", content: q });
+    input.value = ""; autosize();
+    const typing = addTyping();
+    try {
+      let answer;
+      if (CHAT_CONFIG.apiEndpoint) {
+        answer = await aiAnswer(q);
+      } else {
+        await new Promise(r => setTimeout(r, 320));
+        answer = scriptedAnswer(q) || "I can answer questions about power demand, capex, bottlenecks, markets, operators and projects shown on this dashboard. For open-ended questions, the live AI assistant can be switched on — see chatbot-worker.js.";
+      }
+      typing.remove();
+      addMsg(answer, "bot");
+      history.push({ role: "assistant", content: answer });
+    } catch (err) {
+      typing.remove();
+      addMsg("Sorry — I couldn't reach the assistant right now." + (CHAT_CONFIG.apiEndpoint ? " Check that the backend is deployed and reachable." : ""), "note");
+    }
+    busy = false; sendBtn.disabled = false;
+    input.focus();
+  }
+
+  function autosize() {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 92) + "px";
+  }
+
+  function openPanel() {
+    panel.classList.add("open");
+    fab.style.display = "none";
+    if (!bodyEl.children.length)
+      addMsg("Hi — ask me about US data center power demand, capex, bottlenecks, markets or operators on this dashboard.", "bot");
+    setTimeout(() => input.focus(), 50);
+  }
+
+  function closePanel() {
+    panel.classList.remove("open");
+    fab.style.display = "";
+  }
+
+  fab.addEventListener("click", openPanel);
+  closeBtn.addEventListener("click", closePanel);
+  sendBtn.addEventListener("click", () => respond(input.value));
+  input.addEventListener("input", autosize);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); respond(input.value); }
+  });
+})();
+</script>
+
+</body>
+</html>
