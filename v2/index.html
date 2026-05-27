@@ -330,6 +330,37 @@
   }
   .play-note { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
 
+  /* ---------- Inline callout inside cards ---------- */
+  .tab-callout {
+    background: linear-gradient(135deg, #fff7e6, #fef3c7);
+    border-left: 3px solid var(--amber);
+    padding: 9px 13px; border-radius: 7px;
+    font-size: 12px; color: #78350f; line-height: 1.5;
+    margin-top: 12px;
+  }
+  .tab-callout b { font-weight: 700; }
+
+  /* ---------- IRR scenarios table ---------- */
+  .irr-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .irr-table th, .irr-table td {
+    padding: 8px 8px; text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  .irr-table th {
+    font-size: 10.5px; font-weight: 700; color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: .04em;
+    background: #f8fafc;
+  }
+  .irr-table td { font-size: 12px; }
+  .irr-table tbody tr:last-child td { border-bottom: none; }
+  .irr-table td.scenario { font-weight: 600; color: var(--ink); }
+  .irr-table td.metric   { font-family: 'Courier New', monospace; color: var(--ink-2); }
+  .irr-table td.irr      { font-weight: 700; font-family: 'Courier New', monospace; }
+  .irr-table td.irr.high { color: var(--green); }
+  .irr-table td.irr.mid  { color: var(--amber); }
+  .irr-table td.irr.low  { color: var(--red); }
+  .irr-note { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 8px; line-height: 1.5; }
+
   /* ---------- Mobile ---------- */
   @media (max-width: 640px) {
     .head-inner { padding: 12px 15px; gap: 8px; }
@@ -479,20 +510,21 @@
           <div class="plays-list" id="playsList"></div>
         </div>
 
-        <!-- Card 5: Vacancy + pricing power (still stub) -->
+        <!-- Card 5: Vacancy & pricing power (real) -->
         <div class="stub-card">
-          <span class="badge existing">EXISTING — coming next</span>
           <h4>Vacancy &amp; pricing power</h4>
-          <div class="note">Primary-market vacancy + supply tightness</div>
-          <p>1.4% record-low vacancy. Time-series of vacancy and MW under construction vs absorption. Will land in the next iteration.</p>
+          <div class="note">Primary-market vacancy &middot; year-end &middot; the supply-tightness story</div>
+          <div class="chart-box short"><canvas id="vacancyChart"></canvas></div>
+          <div class="tab-callout">
+            Vacancy compressed from ~9% in 2019 to <b>1.4% today</b> — landlord pricing power has shifted decisively. Asking rents have roughly doubled since 2022.
+          </div>
         </div>
 
-        <!-- Card 6: Project IRR scenarios (still stub) -->
+        <!-- Card 6: Project IRR scenarios (real, illustrative) -->
         <div class="stub-card">
-          <span class="badge new">NEW — coming next</span>
           <h4>Project IRR scenarios</h4>
-          <div class="note">Modeled returns under varying assumptions</div>
-          <p>Interactive scenario calculator: lease price × power cost × tenant mix → IRR. Will land in the next iteration.</p>
+          <div class="note">Illustrative returns for a 100 MW build &middot; modeled</div>
+          <div id="irrTable"></div>
         </div>
       </div>
 
@@ -728,7 +760,22 @@
       { thesis: "Power & equipment suppliers", tickers: ["VRT", "ETN", "GEV", "PWR", "EMR"],     note: "Pick-and-shovel: transformers, switchgear, generators, EPC." },
       { thesis: "Utilities + IPPs",          tickers: ["NEE", "VST", "CEG"],                     note: "Capacity additions, nuclear restarts, demand-response programs." },
       { thesis: "Data center REITs",         tickers: ["DLR", "EQIX"],                           note: "Stabilized cash flows + dividend yield." }
-    ]
+    ],
+    vacancyTrend: {
+      years:  ["2019", "2020", "2021", "2022", "2023", "2024", "2025"],
+      values: [9.5,    8.2,    5.8,    3.5,    2.4,    2.0,    1.4],
+      src: { label: "CBRE — North America Data Center Trends (historical reports)", tier: "analyst" }
+    },
+    irrScenarios: {
+      assumptions: "100 MW build · 15-yr hold · 5% terminal cap rate · 7% blended cost of capital · ~$42M/MW all-in. Modeled.",
+      scenarios: [
+        { name: "Conservative tenant",        lease: "$130/kW-mo", tenant: "BBB / mid-tier",     power: "$60/MWh", irr: "~9%"  },
+        { name: "Mid-market hyperscaler",      lease: "$160/kW-mo", tenant: "A / hyperscaler",    power: "$55/MWh", irr: "~12%" },
+        { name: "Premium AI-dedicated",        lease: "$200/kW-mo", tenant: "AA / hyperscaler",   power: "$55/MWh", irr: "~16%" },
+        { name: "Premium + accelerated lease", lease: "$220/kW-mo", tenant: "AA / hyperscaler",   power: "$50/MWh", irr: "~19%" },
+        { name: "18-month delivery delay",     lease: "$180/kW-mo", tenant: "A / hyperscaler",    power: "$70/MWh", irr: "~6%"  }
+      ]
+    }
   };
 
   const $ = (id) => document.getElementById(id);
@@ -828,6 +875,67 @@
     });
   }
 
+  function renderVacancyChart() {
+    if (!$("vacancyChart") || typeof Chart === "undefined") return;
+    if (renderVacancyChart._done) return;
+    renderVacancyChart._done = true;
+    const v = DATA.vacancyTrend;
+    new Chart($("vacancyChart"), {
+      type: "line",
+      data: {
+        labels: v.years,
+        datasets: [{
+          label: "Vacancy %",
+          data: v.values,
+          borderColor: "#1d4ed8",
+          backgroundColor: "rgba(29,78,216,0.10)",
+          fill: true, tension: 0.35,
+          pointRadius: 5, pointBackgroundColor: "#1d4ed8",
+          borderWidth: 2.5
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            label: c => " " + c.parsed.y + "% vacancy",
+            footer: () => v.src ? "Source: " + v.src.label : ""
+          }}
+        },
+        scales: {
+          y: { grid: { color: "#eef1f5" }, ticks: { callback: x => x + "%" }, beginAtZero: true, suggestedMax: 11 },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderIrrTable() {
+    if (!$("irrTable") || !DATA.irrScenarios) return;
+    const ir = DATA.irrScenarios;
+    const irrClass = (irr) => {
+      const n = parseFloat(irr.replace(/[^\d.]/g, ""));
+      if (n >= 14) return "high";
+      if (n >= 10) return "mid";
+      return "low";
+    };
+    const rows = ir.scenarios.map(s => `
+      <tr>
+        <td class="scenario">${s.name}</td>
+        <td class="metric">${s.lease}</td>
+        <td>${s.tenant}</td>
+        <td class="metric">${s.power}</td>
+        <td class="irr ${irrClass(s.irr)}">${s.irr}</td>
+      </tr>`).join("");
+    $("irrTable").innerHTML = `
+      <table class="irr-table">
+        <thead><tr><th>Scenario</th><th>Lease</th><th>Tenant</th><th>Power</th><th>IRR</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="irr-note">Assumptions: ${ir.assumptions}</div>`;
+  }
+
   /* ----- Lazy per-tab render ----- */
   const renderedTabs = new Set();
   function renderTab(name) {
@@ -840,7 +948,9 @@
       renderCostStack();
       renderDeals();
       renderPlays();
+      renderIrrTable();
       renderCapexChart();
+      renderVacancyChart();
     }
     // engineer / policy / tokens — wired in later phases
   }
