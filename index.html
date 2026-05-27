@@ -614,10 +614,32 @@
     color: var(--ink-2);
     border-bottom: 1px solid var(--line);
     font-size: 12px; font-weight: 500;
-    padding: 8px 0; text-align: center;
+    padding: 8px 0;
     line-height: 1.45;
   }
-  .top-banner .wrap { padding: 0 22px; }
+  .top-banner .tb-wrap {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+    max-width: 1180px; padding: 0 22px; margin: 0 auto;
+  }
+  .top-banner .tb-left,
+  .top-banner .tb-right {
+    display: flex; align-items: center; gap: 6px;
+    white-space: nowrap; flex: 0 0 auto;
+  }
+  .top-banner .tb-center { flex: 1; text-align: center; }
+  .top-banner .tb-right a { color: var(--ink-2); text-decoration: none; font-weight: 600; }
+  .top-banner .tb-right a:hover { color: var(--accent); }
+  .top-banner .tb-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(21,128,61,.45); animation: pulse 2.4s infinite;
+    display: inline-block;
+  }
+  @media (max-width: 720px) {
+    .top-banner .tb-wrap { flex-direction: column; gap: 3px; }
+    .top-banner .tb-center { order: -1; }
+  }
 
   @media (max-width: 480px) {
     .cost-row { grid-template-columns: 112px 1fr 62px; gap: 8px; }
@@ -1379,7 +1401,9 @@ const DATA = {
   const $ = (id) => document.getElementById(id);
 
   const d = new Date(DATA.lastUpdated + "T00:00:00");
-  $("updated-date").textContent = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const formattedDate = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  $("updated-date").textContent = formattedDate;
+  document.querySelectorAll(".tb-date").forEach(function (el) { el.textContent = formattedDate; });
 
   if ($("topStory") && DATA.topStory) {
     const ts = DATA.topStory;

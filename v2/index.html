@@ -46,7 +46,30 @@
     background: #f8fafc; color: var(--ink-2);
     border-bottom: 1px solid var(--line);
     font-size: 12px; font-weight: 500;
-    padding: 8px 0; text-align: center; line-height: 1.45;
+    padding: 8px 0; line-height: 1.45;
+  }
+  .top-banner .tb-wrap {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+    max-width: 1180px; padding: 0 22px; margin: 0 auto;
+  }
+  .top-banner .tb-left,
+  .top-banner .tb-right {
+    display: flex; align-items: center; gap: 6px;
+    white-space: nowrap; flex: 0 0 auto;
+  }
+  .top-banner .tb-center { flex: 1; text-align: center; }
+  .top-banner .tb-right a { color: var(--ink-2); text-decoration: none; font-weight: 600; }
+  .top-banner .tb-right a:hover { color: var(--accent); }
+  .top-banner .tb-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(21,128,61,.45); animation: pulse 2.4s infinite;
+    display: inline-block;
+  }
+  @media (max-width: 720px) {
+    .top-banner .tb-wrap { flex-direction: column; gap: 3px; }
+    .top-banner .tb-center { order: -1; }
   }
   .wip-banner {
     background: linear-gradient(135deg, #fffbeb, #fef3c7);
@@ -892,7 +915,13 @@
 <body>
 
 <!-- ================= BANNERS ================= -->
-<div class="top-banner">All insights are derived from publicly available information.</div>
+<div class="top-banner">
+  <div class="tb-wrap">
+    <span class="tb-left"><span class="tb-dot"></span> Updated <span class="tb-date">—</span></span>
+    <span class="tb-center">All insights are derived from publicly available information.</span>
+    <span class="tb-right">Contact <a href="mailto:vijaysachdeva@gmail.com">vijaysachdeva@gmail.com</a></span>
+  </div>
+</div>
 <div class="wip-banner">
   🚧 Version 2 — work in progress.
   Production dashboard: <a href="../">us-ai-infra/</a>
@@ -1486,6 +1515,14 @@
   };
 
   const $ = (id) => document.getElementById(id);
+
+  // Populate "Updated" date in the top banner from DATA.lastUpdated
+  (function () {
+    if (!DATA || !DATA.lastUpdated) return;
+    const d = new Date(DATA.lastUpdated + "T00:00:00");
+    const formatted = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    document.querySelectorAll(".tb-date").forEach(el => el.textContent = formatted);
+  })();
 
   function renderTopStory() {
     if (!$("topStory") || !DATA.topStory) return;
