@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>v2 (WIP) — US AI Infrastructure Monitor</title>
+<meta name="description" content="Version 2 of the US AI Infrastructure Monitor. Work in progress." />
+<link rel="icon" type="image/png" href="../favicon.png" />
+<link rel="apple-touch-icon" href="../favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #0f1b2d;
+    --ink-2: #475569;
+    --muted: #8a97a8;
+    --line: #e6e9ee;
+    --accent: #1d4ed8;
+    --accent-soft: #eef3ff;
+    --amber: #c2710c;
+    --amber-soft: #fdf3e6;
+    --green: #15803d;
+    --green-soft: #ecf7ef;
+    --red: #c0322b;
+    --red-soft: #fbeceb;
+    --shadow: 0 1px 2px rgba(15,27,45,.04), 0 6px 20px rgba(15,27,45,.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+
+  /* ---------- Banners ---------- */
+  .top-banner {
+    background: #f8fafc; color: var(--ink-2);
+    border-bottom: 1px solid var(--line);
+    font-size: 12px; font-weight: 500;
+    padding: 8px 0; text-align: center; line-height: 1.45;
+  }
+  .wip-banner {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-bottom: 1px solid #fde68a;
+    color: #78350f;
+    font-size: 12.5px; font-weight: 600;
+    padding: 9px 0; text-align: center;
+  }
+  .wip-banner a { color: #78350f; text-decoration: underline; }
+  .wip-banner a:hover { color: #92400e; }
+
+  /* ---------- Header ---------- */
+  header.site { background: #fff; border-bottom: 1px solid var(--line); }
+  .head-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 22px; max-width: 1180px; margin: 0 auto; gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .glyph {
+    width: 38px; height: 38px; border-radius: 9px;
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+    display: flex; align-items: center; justify-content: center; flex: none;
+  }
+  .brand .glyph svg { width: 21px; height: 21px; }
+  .brand h1 { font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+  .brand p { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .head-meta { display: flex; align-items: center; gap: 14px; }
+  .v2-badge {
+    background: var(--amber); color: #fff;
+    font-size: 11px; font-weight: 700;
+    padding: 5px 10px; border-radius: 4px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .head-meta a.proto-back {
+    color: var(--muted); font-size: 12px; font-weight: 500;
+    text-decoration: none; white-space: nowrap;
+  }
+  .head-meta a.proto-back:hover { color: var(--accent); }
+
+  /* ---------- Tab nav ---------- */
+  nav.tabs {
+    background: #fff; border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 10;
+    box-shadow: 0 1px 0 rgba(15,27,45,0.02);
+  }
+  nav.tabs ul {
+    list-style: none; display: flex; gap: 4px;
+    margin: 0 auto; padding: 0 22px;
+    max-width: 1180px; overflow-x: auto;
+  }
+  nav.tabs a {
+    display: block; padding: 14px 14px 12px;
+    color: var(--ink-2); text-decoration: none;
+    font-size: 14px; font-weight: 600;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: color .12s, border-color .12s;
+  }
+  nav.tabs a:hover { color: var(--ink); }
+  nav.tabs a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ---------- Tab content ---------- */
+  main { padding: 26px 0 60px; }
+  section.tab-content { display: none; }
+  section.tab-content.active { display: block; animation: fadeIn .15s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(2px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  h2.tab-title { font-size: 26px; letter-spacing: -0.01em; margin-bottom: 4px; }
+  p.tab-sub { font-size: 14px; color: var(--ink-2); margin-bottom: 18px; }
+
+  .so-what {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px; border-radius: 8px;
+    margin: 16px 0 24px;
+  }
+  .so-what label {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .so-what h3 {
+    font-size: 17.5px; font-weight: 600; margin-top: 4px; line-height: 1.4;
+  }
+
+  /* ---------- Stub cards ---------- */
+  .stub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .stub-grid { grid-template-columns: 1fr; } }
+  .stub-card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 22px;
+    box-shadow: var(--shadow);
+  }
+  .stub-card h4 { font-size: 15.5px; font-weight: 700; margin-bottom: 6px; }
+  .stub-card .note { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .stub-card p { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+  .stub-card .badge {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 3px 7px; border-radius: 4px; margin-bottom: 8px;
+  }
+  .stub-card .badge.existing { background: var(--green-soft); color: var(--green); }
+  .stub-card .badge.new { background: var(--amber-soft); color: var(--amber); }
+  .stub-card .badge.reuse { background: var(--accent-soft); color: var(--accent); }
+
+  .cross-ref {
+    background: linear-gradient(135deg, #fff, #fef3c7);
+    border-left: 4px solid var(--amber);
+    padding: 14px 18px; border-radius: 8px;
+    margin: 18px 0 0;
+    font-size: 13px;
+  }
+  .cross-ref strong { color: #78350f; }
+  .cross-ref a { color: var(--amber); font-weight: 600; text-decoration: none; }
+  .cross-ref a:hover { text-decoration: underline; }
+
+  /* ---------- Overview-specific ---------- */
+  .hero-headline {
+    background: linear-gradient(135deg, #f8fafc, #eef3ff);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 28px;
+    margin-bottom: 20px;
+  }
+  .hero-headline .eyebrow {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .hero-headline h2 { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3; margin-bottom: 10px; }
+  .hero-headline p { font-size: 14.5px; color: var(--ink-2); }
+
+  .persona-picker {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin: 22px 0;
+  }
+  @media (max-width: 900px) { .persona-picker { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 500px) { .persona-picker { grid-template-columns: 1fr; } }
+  .persona-picker a {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px; text-decoration: none; color: var(--ink);
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+    display: block;
+  }
+  .persona-picker a:hover {
+    border-color: var(--accent); transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(29,78,216,0.08);
+  }
+  .persona-picker .icon { font-size: 22px; margin-bottom: 6px; }
+  .persona-picker .pname { font-size: 14.5px; font-weight: 700; margin-bottom: 4px; }
+  .persona-picker .pdesc { font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 640px) {
+    .head-inner { padding: 12px 15px; gap: 8px; }
+    .brand h1 { font-size: 14px; }
+    .brand p { display: none; }
+    .head-meta a.proto-back { display: none; }
+    h2.tab-title { font-size: 22px; }
+    .hero-headline { padding: 22px 18px; }
+    .hero-headline h2 { font-size: 21px; }
+    nav.tabs a { padding: 12px 10px 10px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= BANNERS ================= -->
+<div class="top-banner">All insights are derived from publicly available information.</div>
+<div class="wip-banner">
+  🚧 Version 2 — work in progress.
+  Production dashboard: <a href="../">us-ai-infra/</a>
+</div>
+
+<!-- ================= HEADER ================= -->
+<header class="site">
+  <div class="head-inner">
+    <div class="brand">
+      <div class="glyph">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="5" rx="1.5" stroke="#fff" stroke-width="1.8"/>
+          <rect x="3" y="11.5" width="18" height="5" rx="1.5" stroke="#fff" stroke-width="1.8"/>
+          <circle cx="7" cy="6.5" r="1" fill="#fff"/>
+          <circle cx="7" cy="14" r="1" fill="#fff"/>
+          <path d="M14 20v-3M10 20v-3M18 20v-3" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>US AI Infrastructure Monitor</h1>
+        <p>Hyperscale capacity &middot; power &middot; capex &middot; bottlenecks</p>
+      </div>
+    </div>
+    <div class="head-meta">
+      <span class="v2-badge">v2</span>
+      <a class="proto-back" href="../">← back to production</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= TAB NAV ================= -->
+<nav class="tabs">
+  <ul>
+    <li><a href="#overview" data-tab="overview">🌐 Overview</a></li>
+    <li><a href="#investor" data-tab="investor">💰 Investor</a></li>
+    <li><a href="#engineer" data-tab="engineer">⚙️ Engineer</a></li>
+    <li><a href="#policy" data-tab="policy">🏛️ Energy &amp; Policy</a></li>
+    <li><a href="#tokens" data-tab="tokens">🪙 Token Economics</a></li>
+  </ul>
+</nav>
+
+<!-- ================= TAB CONTENT ================= -->
+<main>
+  <div class="wrap">
+
+    <!-- ============ OVERVIEW ============ -->
+    <section class="tab-content" data-tab="overview">
+      <h2 class="tab-title">🌐 Overview</h2>
+      <p class="tab-sub">The 30-second pitch. Pick a persona below for the deep dive.</p>
+
+      <div class="hero-headline">
+        <div class="eyebrow">State of the Industry</div>
+        <h2>The US data center buildout has hit a power wall — demand is racing ahead of the grid.</h2>
+        <p>Hyperscalers are committing record capital to AI infrastructure, but electricity, transformers and interconnection queues now set the pace. This monitor tracks where capacity is going, what it costs, and what is holding it back.</p>
+      </div>
+
+      <p class="tab-sub" style="margin-top:24px"><b>Dive deeper — pick a persona view:</b></p>
+      <div class="persona-picker">
+        <a href="#investor">
+          <div class="icon">💰</div>
+          <div class="pname">Investor</div>
+          <div class="pdesc">Capex magnitudes, vacancy + supply, $/MW returns, M&amp;A heatmap.</div>
+        </a>
+        <a href="#engineer">
+          <div class="icon">⚙️</div>
+          <div class="pname">Engineer</div>
+          <div class="pdesc">Power availability, interconnection queues, transformer lead times, bottlenecks.</div>
+        </a>
+        <a href="#policy">
+          <div class="icon">🏛️</div>
+          <div class="pname">Energy &amp; Policy</div>
+          <div class="pdesc">Grid expansion, rate impact, transmission constraints, regulatory tracker.</div>
+        </a>
+        <a href="#tokens">
+          <div class="icon">🪙</div>
+          <div class="pname">Token Economics</div>
+          <div class="pdesc">Industry token volume, $/token compression, tokens × energy bridge.</div>
+        </a>
+      </div>
+
+      <div class="stub-card" style="margin-top:18px">
+        <span class="badge existing">EXISTING — will lift in Phase 2a-finish</span>
+        <h4>KPI strip</h4>
+        <p>41 GW US power demand &middot; $808B operator capex &middot; 6.0 GW under construction &middot; 1.4% primary-market vacancy &middot; up to 5-year transformer lead times &middot; 30-50% of 2026 builds facing delays.</p>
+      </div>
+      <div class="stub-card" style="margin-top:14px">
+        <span class="badge existing">EXISTING — will lift</span>
+        <h4>Top news / This week banner</h4>
+        <p>The current "THIS WEEK" topStory card from production. Auto-refreshed daily by the GitHub Actions workflow.</p>
+      </div>
+    </section>
+
+    <!-- ============ INVESTOR ============ -->
+    <section class="tab-content" data-tab="investor">
+      <h2 class="tab-title">💰 Investor</h2>
+      <p class="tab-sub">For capital allocators — VCs, public-market investors, corp dev, strategic capital.</p>
+
+      <div class="so-what">
+        <label>So what</label>
+        <h3>~$808B of capex is chasing a supply-constrained market. The bottleneck is power, not demand — winners will own the megawatts.</h3>
+      </div>
+
+      <div class="stub-grid">
+        <div class="stub-card">
+          <span class="badge existing">EXISTING</span>
+          <h4>Capex by operator</h4>
+          <div class="note">2026 capex stack across the six largest AI infra operators.</div>
+          <p>Existing capexChart and coCapexChart, reframed for capital allocators. AWS / Microsoft / Google / Meta / Oracle / CoreWeave with AI-attributable split.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge existing">EXISTING</span>
+          <h4>Vacancy &amp; pricing power</h4>
+          <div class="note">Primary-market vacancy + supply tightness.</div>
+          <p>Existing CBRE 1.4% vacancy data. New visualization: vacancy trend over time, MW under construction vs absorption.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>M&amp;A heatmap</h4>
+          <div class="note">Recent deals × deal size × strategic theme.</div>
+          <p>NextEra/Dominion ($67B) · Blackstone/Google TPU ($5B) · Aligned 540 MW lease · Hut 8 $9.8B AI lease · CoreWeave contracted pipeline.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>Public-market plays</h4>
+          <div class="note">Listed pure-plays, suppliers, utilities exposed to the buildout.</div>
+          <p>Tickers grouped by thesis: hyperscalers, AI-native (CoreWeave, Nebius, Applied Digital), suppliers (Vertiv, Eaton, GE Vernova), power &amp; utilities, REITs (DLR, EQIX).</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge existing">EXISTING</span>
+          <h4>$/MW cost build-up</h4>
+          <div class="note">Where every dollar of build cost goes.</div>
+          <p>Existing costStack, framed for capital allocators: GPU vs facility vs power vs cooling.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>Project IRR scenarios</h4>
+          <div class="note">Modeled returns under varying lease, power and tenant assumptions.</div>
+          <p>What does a 100 MW project return at $200/kW month lease vs $150 vs $120? Sensitivity to power cost and tenant mix.</p>
+        </div>
+      </div>
+
+      <div class="cross-ref">
+        <strong>🪙 Token economics →</strong>
+        $/token compression compresses inference revenue per token. <a href="#tokens">Open the unit-economics deep dive →</a>
+      </div>
+    </section>
+
+    <!-- ============ ENGINEER ============ -->
+    <section class="tab-content" data-tab="engineer">
+      <h2 class="tab-title">⚙️ Engineer</h2>
+      <p class="tab-sub">For infra leaders — site selection, capacity planning, supply chain risk.</p>
+
+      <div class="so-what">
+        <label>So what</label>
+        <h3>The binding constraint isn't compute — it's transformers, queues and lead times. Where you build matters more than how big you build.</h3>
+      </div>
+
+      <div class="stub-grid">
+        <div class="stub-card">
+          <span class="badge existing">EXISTING</span>
+          <h4>Interconnection queue dynamics</h4>
+          <div class="note">~97 GW in the queue · ~6 GW under construction · 41 GW operational.</div>
+          <p>Existing funnel chart, plus queue churn rate, average time-in-queue, withdrawal rate. Sourced from LBNL Queued Up.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge existing">EXISTING</span>
+          <h4>Time to deployment by region</h4>
+          <div class="note">Energization timeline by major market.</div>
+          <p>Existing deployment timeline + new visualization: bar chart of average lead time by US market (NoVA, Phoenix, Columbus, etc.).</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge existing">EXISTING</span>
+          <h4>Transformer &amp; equipment lead times</h4>
+          <div class="note">Up to 5 years for high-voltage transformers.</div>
+          <p>Existing bottleneck data, expanded: switchgear, generators, chillers, GPU lead times. Trends.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge existing">EXISTING</span>
+          <h4>Cost stack per MW (engineering breakdown)</h4>
+          <div class="note">Labor, equipment, soft costs.</div>
+          <p>Existing costStack, engineering framing. Where does the marginal $1M go in a typical 50 MW build?</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge existing">EXISTING</span>
+          <h4>Buildout cadence by operator</h4>
+          <div class="note">When does capacity actually come online?</div>
+          <p>Existing mwOperationalPipeline data, rolled forward by year. AWS / MSFT / Google / Meta / Oracle / CoreWeave / Nebius.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>Site-selection scorecard</h4>
+          <div class="note">Power availability × land × fiber × labor by market.</div>
+          <p>Composite score across top 12 US markets. Useful for "where should we build next?" conversations.</p>
+        </div>
+      </div>
+
+      <div class="cross-ref">
+        <strong>🪙 Token economics →</strong>
+        Tokens per MW-hour. Energy efficiency curves for inference. <a href="#tokens">Open the energy bridge →</a>
+      </div>
+    </section>
+
+    <!-- ============ ENERGY & POLICY ============ -->
+    <section class="tab-content" data-tab="policy">
+      <h2 class="tab-title">🏛️ Energy &amp; Policy</h2>
+      <p class="tab-sub">For utility planners, regulators, energy desk reporters, policy analysts.</p>
+
+      <div class="so-what">
+        <label>So what</label>
+        <h3>If demand rises another 60 GW by 2030 without commensurate grid expansion, six states face &gt;25% retail rate hikes — and AI buildout becomes politically untenable.</h3>
+      </div>
+
+      <div class="stub-grid">
+        <div class="stub-card">
+          <span class="badge existing">EXISTING</span>
+          <h4>Demand vs generation gap</h4>
+          <div class="note">Projected GW gap by year.</div>
+          <p>Existing powerDemand chart + new generation/transmission capacity layer. The gap is the policy story.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>Retail rate impact by state</h4>
+          <div class="note">Modeled rate trajectories.</div>
+          <p>Fortune reporting: Virginia generation costs up 57% by 2030 under high-demand scenarios. Extend to other top-10 states.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge existing">EXISTING</span>
+          <h4>Transmission constraint hotspots</h4>
+          <div class="note">Where the grid physically can't move power.</div>
+          <p>Map view (existing geography) layered with PJM / MISO / ERCOT congestion data.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>Regulatory tracker</h4>
+          <div class="note">State + federal actions affecting data centers.</div>
+          <p>VA moratorium debates · GA fast-track permitting · FERC rules on demand response · IRA / tax credits affecting AI builds.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>Utility M&amp;A and capacity additions</h4>
+          <div class="note">Who's adding generation, and what kind.</div>
+          <p>NextEra/Dominion, utility-side deals, new natural gas / nuclear / battery announcements specifically tied to data-center load.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>Demand response &amp; flex load</h4>
+          <div class="note">How much demand can actually flex?</div>
+          <p>Google's 1 GW demand-response disclosure, Microsoft's Carbon Aware compute, others. The pressure release valve for the grid.</p>
+        </div>
+      </div>
+
+      <div class="cross-ref">
+        <strong>🪙 Token economics →</strong>
+        Tokens &times; energy: how much grid load does AI inference actually create per unit of usage? <a href="#tokens">Open the adoption-vs-energy curve →</a>
+      </div>
+    </section>
+
+    <!-- ============ TOKEN ECONOMICS ============ -->
+    <section class="tab-content" data-tab="tokens">
+      <h2 class="tab-title">🪙 Token Economics</h2>
+      <p class="tab-sub">The hidden story behind the buildout. How much AI is actually being run, what it costs, and what it consumes.</p>
+
+      <div class="so-what">
+        <label>The hidden story</label>
+        <h3>Token volume is ~10× higher than two years ago, and $/token is ~100× lower. The AI economy runs on this curve.</h3>
+      </div>
+
+      <div class="stub-grid">
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>Industry token volume</h4>
+          <div class="note">Trillions of tokens / quarter, stacked by provider.</div>
+          <p>OpenAI · Anthropic · Google · Meta · OSS-hosted (Together, Fireworks, OpenRouter aggregate). Sources: Epoch AI, provider disclosures, SemiAnalysis modeled estimates.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>$/token compression (log y)</h4>
+          <div class="note">The 100× price drop, model by model.</div>
+          <p>GPT-4 launch price ($0.06/1K) → GPT-4o ($0.005/1K) → GPT-4.1 ($0.002/1K). Same curve for Claude. OSS hosted comparison at the bottom.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>Tokens × energy bridge</h4>
+          <div class="note">The link from AI economy → power story.</div>
+          <p>Joules per million tokens. Tokens per MW-hour. Provider revenue per MW. This is the unique angle that ties this tab to the rest of the dashboard.</p>
+        </div>
+        <div class="stub-card">
+          <span class="badge new">NEW</span>
+          <h4>Inference vs training token split</h4>
+          <div class="note">Where the compute is going.</div>
+          <p>Industry split: training is the upfront cost, inference is the recurring cost. Inference now dominates compute-hours by ~10×.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ================= JS — tab switcher ================= -->
+<script>
+  function showTab(name) {
+    if (!name) name = 'overview';
+    document.querySelectorAll('section.tab-content').forEach(function (s) {
+      s.classList.toggle('active', s.dataset.tab === name);
+    });
+    document.querySelectorAll('nav.tabs a').forEach(function (a) {
+      a.classList.toggle('active', a.dataset.tab === name);
+    });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    document.title = 'v2 (WIP) — US AI Infrastructure Monitor · ' + name;
+  }
+  function fromHash() { return (location.hash || '#overview').slice(1); }
+  showTab(fromHash());
+  window.addEventListener('hashchange', function () { showTab(fromHash()); });
+</script>
+
+</body>
+</html>
