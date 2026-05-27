@@ -555,6 +555,128 @@
     }
   }
 
+  /* ---------- Brand monograms (operator logos) ---------- */
+  .brand-mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 3px;
+    font-size: 9px; font-weight: 800; color: #fff;
+    flex: none; line-height: 1; letter-spacing: -0.02em;
+    margin-right: 6px; vertical-align: middle;
+  }
+  .brand-mark.b-aws       { background: #ff9900; color: #232f3e; }
+  .brand-mark.b-microsoft { background: #0078d4; }
+  .brand-mark.b-google    { background: #4285f4; }
+  .brand-mark.b-meta      { background: #0866ff; }
+  .brand-mark.b-oracle    { background: #c74634; }
+  .brand-mark.b-coreweave { background: #7c3aed; }
+  .brand-mark.b-nebius    { background: #0ea5e9; }
+  .brand-mark.b-applied   { background: #1e3a8a; }
+  .brand-mark.b-nvidia    { background: #76b900; }
+  .brand-mark.b-amd       { background: #ed1c24; }
+  .brand-mark.b-anthropic { background: #d97706; }
+  .brand-mark.b-openai    { background: #10a37f; }
+  .brand-mark.b-tesla     { background: #cc0000; }
+  .brand-mark.b-other     { background: #64748b; }
+  .ticker-chip .brand-mark { width: 12px; height: 12px; font-size: 7px; margin-right: 4px; }
+
+  /* ---------- Per-tab accent colors ---------- */
+  section[data-tab="capital"]  .so-what       { border-left-color: #15803d; background: #ecfdf5; }
+  section[data-tab="capital"]  .so-what label { color: #15803d; }
+  section[data-tab="buildout"] .so-what       { border-left-color: #c2710c; background: #fff8eb; }
+  section[data-tab="buildout"] .so-what label { color: #c2710c; }
+  section[data-tab="grid"]     .so-what       { border-left-color: #c0322b; background: #fef2f2; }
+  section[data-tab="grid"]     .so-what label { color: #c0322b; }
+  section[data-tab="tokens"]   .so-what       { border-left-color: #7c3aed; background: #f5f3ff; }
+  section[data-tab="tokens"]   .so-what label { color: #7c3aed; }
+  nav.tabs a[data-tab="capital"].active   { color: #15803d; border-bottom-color: #15803d; }
+  nav.tabs a[data-tab="buildout"].active  { color: #c2710c; border-bottom-color: #c2710c; }
+  nav.tabs a[data-tab="grid"].active      { color: #c0322b; border-bottom-color: #c0322b; }
+  nav.tabs a[data-tab="tokens"].active    { color: #7c3aed; border-bottom-color: #7c3aed; }
+
+  /* ---------- Theme toggle button ---------- */
+  .theme-toggle {
+    background: none; border: 1px solid var(--line);
+    border-radius: 7px; padding: 6px 8px;
+    cursor: pointer; color: var(--ink-2);
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+  }
+  .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+  .theme-toggle svg { width: 16px; height: 16px; display: block; }
+  .theme-toggle .sun-icon { display: none; }
+  [data-theme="dark"] .theme-toggle .moon-icon { display: none; }
+  [data-theme="dark"] .theme-toggle .sun-icon  { display: block; }
+
+  /* ---------- Dark mode ---------- */
+  [data-theme="dark"] {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --ink: #f1f5f9;
+    --ink-2: #cbd5e1;
+    --muted: #94a3b8;
+    --line: #334155;
+    --accent: #60a5fa;
+    --accent-soft: #1e3a8a;
+    --amber: #fbbf24;
+    --amber-soft: #422006;
+    --green: #4ade80;
+    --green-soft: #052e1c;
+    --red: #f87171;
+    --red-soft: #3f1212;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.3);
+  }
+  [data-theme="dark"] .top-banner { background: #1e293b; border-bottom-color: #334155; }
+  [data-theme="dark"] .wip-banner {
+    background: linear-gradient(135deg, #422006, #78350f);
+    color: #fde68a; border-bottom-color: #92400e;
+  }
+  [data-theme="dark"] .wip-banner a { color: #fde68a; }
+  [data-theme="dark"] header.site { background: #1e293b; border-bottom-color: #334155; }
+  [data-theme="dark"] nav.tabs { background: #1e293b; border-bottom-color: #334155; box-shadow: none; }
+  [data-theme="dark"] .hero-headline {
+    background: linear-gradient(135deg, #1e293b, #1e3a8a);
+    border-color: #334155;
+  }
+  [data-theme="dark"] .so-what { background: #1e3a8a; }
+  [data-theme="dark"] section[data-tab="capital"]  .so-what { background: #052e1c; }
+  [data-theme="dark"] section[data-tab="buildout"] .so-what { background: #422006; }
+  [data-theme="dark"] section[data-tab="grid"]     .so-what { background: #3f1212; }
+  [data-theme="dark"] section[data-tab="tokens"]   .so-what { background: #2e1065; }
+  [data-theme="dark"] .stub-card { background: #1e293b; }
+  [data-theme="dark"] .stub-card:hover { box-shadow: 0 8px 22px rgba(0,0,0,.4); }
+  [data-theme="dark"] .kpi { background: #1e293b; }
+  [data-theme="dark"] .kpi:hover { box-shadow: 0 8px 22px rgba(0,0,0,.5); }
+  [data-theme="dark"] .deal-card { background: #0f172a; }
+  [data-theme="dark"] .funnel-stage { background: #0f172a; }
+  [data-theme="dark"] .ticker-chip { background: #0f172a; color: var(--ink); }
+  [data-theme="dark"] .topstory { background: #1e3a8a; border-color: #1e40af; }
+  [data-theme="dark"] .topstory .ts-text { color: #f1f5f9; }
+  [data-theme="dark"] .topstory .ts-tag  { color: #93c5fd; }
+  [data-theme="dark"] .topstory .ts-src  { color: #94a3b8; }
+  [data-theme="dark"] .tab-callout { background: linear-gradient(135deg, #1e293b, #422006); color: #fde68a; }
+  [data-theme="dark"] .cross-ref { background: linear-gradient(135deg, #1e293b, #422006); }
+  [data-theme="dark"] .irr-table th { background: #0f172a; }
+  [data-theme="dark"] .irr-table td.scenario { color: #f1f5f9; }
+  [data-theme="dark"] .irr-table td.irr.high { color: #4ade80; }
+  [data-theme="dark"] .irr-table td.irr.mid  { color: #fbbf24; }
+  [data-theme="dark"] .irr-table td.irr.low  { color: #f87171; }
+  [data-theme="dark"] .iso-table th { background: #0f172a; }
+  [data-theme="dark"] .scorecard th { background: #0f172a; }
+  [data-theme="dark"] .scorecard td.s-low  { background: #3f1212; color: #fca5a5; }
+  [data-theme="dark"] .scorecard td.s-mid  { background: #422006; color: #fcd34d; }
+  [data-theme="dark"] .scorecard td.s-high { background: #052e1c; color: #86efac; }
+  [data-theme="dark"] .ticker-chip { border-color: #334155; }
+  [data-theme="dark"] .leadtime-bar-wrap { background: #0f172a; }
+  [data-theme="dark"] .bridge-cell { background: #0f172a; }
+  [data-theme="dark"] .split-bar { background: #0f172a; border-color: #334155; }
+  [data-theme="dark"] .url-bar { background: #422006; color: #fde68a; border-color: #92400e; }
+  [data-theme="dark"] .chat-fab { box-shadow: 0 4px 14px rgba(96,165,250,.4); }
+  [data-theme="dark"] .chat-panel { background: #1e293b; border-color: #334155; }
+  [data-theme="dark"] .chat-head { border-bottom-color: #334155; }
+  [data-theme="dark"] .chat-foot { border-top-color: #334155; }
+  [data-theme="dark"] .chat-msg.bot { background: #0f172a; color: var(--ink); }
+  [data-theme="dark"] .chat-input { background: #0f172a; color: var(--ink); border-color: #334155; }
+
   /* ---------- Chat assistant (FAB + slide-in panel) ---------- */
   .chat-fab {
     position: fixed; right: 22px; bottom: 22px; z-index: 200;
@@ -699,6 +821,10 @@
       </div>
     </div>
     <div class="head-meta">
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="sun-icon"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
       <span class="v2-badge">v2</span>
       <a class="proto-back" href="../">← back to production</a>
     </div>
@@ -1300,7 +1426,7 @@
     $("playsList").innerHTML = DATA.publicMarketPlays.map(p => `
       <div class="play-block">
         <div class="play-thesis">${p.thesis}</div>
-        <div class="ticker-row">${p.tickers.map(t => `<span class="ticker-chip">${t}</span>`).join("")}</div>
+        <div class="ticker-row">${p.tickers.map(t => `<span class="ticker-chip">${brandMark(t)}${t}</span>`).join("")}</div>
         <div class="play-note">${p.note}</div>
       </div>`).join("");
   }
@@ -1627,6 +1753,7 @@
     renderActionList("drList", DATA.demandResponse, d => `
       <div class="action-row">
         <div class="action-head">
+          ${brandMark(d.company)}
           <span class="action-title">${d.company}</span>
           <span class="action-tag">${d.mw}</span>
         </div>
@@ -1824,6 +1951,49 @@
     let h = (location.hash || '#overview').slice(1);
     if (HASH_ALIASES[h]) h = HASH_ALIASES[h];
     return h;
+  }
+
+  /* ----- Theme (dark/light) ----- */
+  const THEME_KEY = "us-dc-theme";
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+  function toggleTheme() {
+    const current = localStorage.getItem(THEME_KEY) || "light";
+    const next = current === "light" ? "dark" : "light";
+    localStorage.setItem(THEME_KEY, next);
+    applyTheme(next);
+  }
+  applyTheme(localStorage.getItem(THEME_KEY) || "light");
+  (function () {
+    const btn = document.getElementById("themeToggle");
+    if (btn) btn.addEventListener("click", toggleTheme);
+  })();
+
+  /* ----- Brand monograms (operator logos) ----- */
+  const BRAND_DEFS = {
+    // Tickers
+    AMZN: { brand: "aws",       letter: "a" },
+    MSFT: { brand: "microsoft", letter: "M" },
+    GOOGL:{ brand: "google",    letter: "G" },
+    META: { brand: "meta",      letter: "M" },
+    ORCL: { brand: "oracle",    letter: "O" },
+    CRWV: { brand: "coreweave", letter: "C" },
+    NBIS: { brand: "nebius",    letter: "N" },
+    APLD: { brand: "applied",   letter: "A" },
+    NVDA: { brand: "nvidia",    letter: "N" },
+    // Company-name keys
+    "Google":    { brand: "google",    letter: "G" },
+    "Microsoft": { brand: "microsoft", letter: "M" },
+    "Meta":      { brand: "meta",      letter: "M" },
+    "Crusoe":    { brand: "other",     letter: "C" }
+  };
+  function brandFor(key) {
+    return BRAND_DEFS[key] || { brand: "other", letter: String(key).charAt(0) };
+  }
+  function brandMark(key) {
+    const b = brandFor(key);
+    return '<span class="brand-mark b-' + b.brand + '">' + b.letter + '</span>';
   }
 
   /* ----- Motion: scroll-triggered fade-in + animated number counters ----- */
