@@ -12,7 +12,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -633,6 +632,11 @@
     .kpis { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .kpi { padding: 13px 13px 11px; }
     .kpi .value { font-size: 21px; }
+    /* Wide tables overflow horizontally on phones instead of getting crushed */
+    #irrTable, #isoTable, #scorecardWrap {
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .irr-table, .iso-table, .scorecard { min-width: 480px; }
   }
   @media (min-width: 641px) and (max-width: 940px) {
     .kpis { grid-template-columns: repeat(3, 1fr); }

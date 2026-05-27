@@ -1,0 +1,68 @@
+# US AI Infrastructure Monitor
+
+A persona-targeted dashboard tracking the US AI infrastructure buildout — power demand, capex, deployment geography, the bottlenecks holding it back, and the token economics underneath it all.
+
+**Live**: https://vijay-sachdeva.github.io/us-ai-infra/
+**v2 (in development)**: https://vijay-sachdeva.github.io/us-ai-infra/v2/
+
+## What it answers
+
+Five persona-targeted tabs, each with a distinct "so what":
+
+| Tab | Audience | Key question |
+|---|---|---|
+| 🌐 Overview | Everyone | What's happening at a glance? |
+| 💰 Investor | Capital allocators | Where do I deploy capital? |
+| ⚙️ Engineer | Infra leaders | What constraints do I plan around? |
+| 🏛️ Energy & Policy | Utility / regulator | What does this mean for the grid? |
+| 🪙 Token Economics | Cross-cutting | What does the AI economy actually run on? |
+
+Plus a live AI chatbot (Cloudflare Worker → Anthropic Claude with prompt caching) that answers free-form questions across the dashboard's data.
+
+## What's tracked
+
+**Investor**: capex by operator, M&A heatmap, public-market plays, vacancy & pricing-power trend, project IRR scenarios.
+
+**Engineer**: interconnection funnel (97 → 6 → 41 GW), time-to-deployment by region, equipment lead times by component, hyperscaler buildout cadence, site-selection scorecard across top US markets.
+
+**Energy & Policy**: annual DC demand vs. new firm generation, retail rate impact by state, ISO/RTO constraints, regulatory tracker (FERC, IRA, state laws), utility actions (M&A, nuclear restarts, peakers), demand-response commitments.
+
+**Token Economics**: industry token volume by provider (stacked area), $/token compression on log Y (100× drop), tokens × energy bridge tying inference to MW, inference vs. training compute/spend split.
+
+## How it stays current
+
+A GitHub Actions workflow runs daily at 11:00 UTC. Each run:
+
+1. Calls Anthropic Claude with the `web_search` tool to find significant US AI data-center news from the past 24-72 hours.
+2. Updates `DATA.lastUpdated`, `DATA.topStory`, and `DATA.feed` in `index.html`.
+3. Validates the change is small (size delta < ±10%, diff < 30 lines) — aborts and reverts otherwise.
+4. Commits and pushes.
+
+A local Claude Code scheduled task provides a backup. The cutover happens automatically; no human in the loop on update days.
+
+## Tech
+
+- **Frontend**: vanilla HTML + Chart.js (+ D3 / topojson on production for the map). No build step.
+- **Chatbot backend**: a Cloudflare Worker (free tier) proxying to the Anthropic Messages API. The system prompt is cache-controlled, so repeat queries cost ~10% of fresh ones.
+- **Daily refresh**: GitHub Actions cron + a Python driver script that calls Anthropic with web search, validates the edit, commits.
+- **Hosting**: GitHub Pages from `main`.
+
+## Data discipline
+
+Every figure carries a tier label:
+
+- **Primary** — directly from a company filing, SEC document, or official release.
+- **Analyst** — credible third-party research (CBRE, JLL, Goldman Sachs, Morgan Stanley, SemiAnalysis, Wood Mackenzie, Epoch AI, LBNL).
+- **Modeled** — derived from multiple sources; explicitly flagged.
+
+All insights derive from publicly available information — disclosed prominently in the top banner.
+
+## Sources (selected)
+
+CBRE & JLL data-center reports, Goldman Sachs research, SemiAnalysis, Epoch AI, LBNL Queued Up, EIA, company IR pages, FERC filings, Bloomberg, Reuters, WSJ, CNBC, Fortune, Data Center Knowledge, Data Center Dynamics, Data Center Frontier, S&P Global.
+
+## License & disclaimer
+
+Portfolio project. Figures are best-available estimates carrying meaningful uncertainty; not investment advice.
+
+Contact: Vijay Sachdeva · vijaysachdeva@gmail.com
