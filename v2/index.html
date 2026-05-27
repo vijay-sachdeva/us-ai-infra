@@ -195,6 +195,60 @@
   .persona-picker .pname { font-size: 14.5px; font-weight: 700; margin-bottom: 4px; }
   .persona-picker .pdesc { font-size: 12px; color: var(--ink-2); line-height: 1.45; }
 
+  /* ---------- KPI strip (lifted from production) ---------- */
+  .kpis {
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 14px; margin: 22px 0 4px;
+  }
+  .kpi {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 13px; padding: 16px 16px 13px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column;
+  }
+  .kpi .label {
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .04em; margin-bottom: 9px;
+  }
+  .kpi .value { font-size: 25px; font-weight: 800; letter-spacing: -.02em; }
+  .kpi .value span { font-size: 15px; font-weight: 700; color: var(--ink-2); }
+  .kpi .delta { font-size: 12px; font-weight: 500; color: var(--ink-2); margin-top: 5px; flex: 1; }
+  .kpi .delta b { font-weight: 700; }
+  .kpi-sub {
+    font-size: 10px; color: var(--muted); font-weight: 500;
+    margin-top: 4px; line-height: 1.4;
+  }
+  .kpi-src { margin-top: 9px; padding-top: 8px; border-top: 1px solid #f0f2f5; }
+  .kpi-srclabel { font-size: 10px; font-weight: 600; color: var(--muted); }
+  .up { color: var(--green); }
+  .warn { color: var(--amber); }
+  .crit { color: var(--red); }
+
+  /* ---------- topStory banner (lifted from production) ---------- */
+  .topstory {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: var(--accent-soft); border: 1px solid #dbe6ff;
+    border-radius: 12px; padding: 11px 16px;
+    text-decoration: none; transition: border-color .15s;
+    margin: 16px 0 0;
+  }
+  a.topstory:hover { border-color: var(--accent); }
+  .topstory .ts-tag {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--accent); white-space: nowrap;
+  }
+  .topstory .ts-text { font-size: 13.5px; font-weight: 600; color: var(--ink); flex: 1; min-width: 220px; }
+  .topstory .ts-src { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 0 0 rgba(21,128,61,.5); animation: pulse 2.4s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(21,128,61,.45); }
+    70% { box-shadow: 0 0 0 7px rgba(21,128,61,0); }
+    100% { box-shadow: 0 0 0 0 rgba(21,128,61,0); }
+  }
+
   /* ---------- Mobile ---------- */
   @media (max-width: 640px) {
     .head-inner { padding: 12px 15px; gap: 8px; }
@@ -205,6 +259,12 @@
     .hero-headline { padding: 22px 18px; }
     .hero-headline h2 { font-size: 21px; }
     nav.tabs a { padding: 12px 10px 10px; font-size: 13px; }
+    .kpis { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .kpi { padding: 13px 13px 11px; }
+    .kpi .value { font-size: 21px; }
+  }
+  @media (min-width: 641px) and (max-width: 940px) {
+    .kpis { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
 </head>
@@ -268,7 +328,13 @@
         <p>Hyperscalers are committing record capital to AI infrastructure, but electricity, transformers and interconnection queues now set the pace. This monitor tracks where capacity is going, what it costs, and what is holding it back.</p>
       </div>
 
-      <p class="tab-sub" style="margin-top:24px"><b>Dive deeper — pick a persona view:</b></p>
+      <!-- topStory banner (lifted from production) -->
+      <div id="topStory"></div>
+
+      <!-- KPI strip (lifted from production) -->
+      <div class="kpis" id="kpis"></div>
+
+      <p class="tab-sub" style="margin-top:32px"><b>Dive deeper — pick a persona view:</b></p>
       <div class="persona-picker">
         <a href="#investor">
           <div class="icon">💰</div>
@@ -290,17 +356,6 @@
           <div class="pname">Token Economics</div>
           <div class="pdesc">Industry token volume, $/token compression, tokens × energy bridge.</div>
         </a>
-      </div>
-
-      <div class="stub-card" style="margin-top:18px">
-        <span class="badge existing">EXISTING — will lift in Phase 2a-finish</span>
-        <h4>KPI strip</h4>
-        <p>41 GW US power demand &middot; $808B operator capex &middot; 6.0 GW under construction &middot; 1.4% primary-market vacancy &middot; up to 5-year transformer lead times &middot; 30-50% of 2026 builds facing delays.</p>
-      </div>
-      <div class="stub-card" style="margin-top:14px">
-        <span class="badge existing">EXISTING — will lift</span>
-        <h4>Top news / This week banner</h4>
-        <p>The current "THIS WEEK" topStory card from production. Auto-refreshed daily by the GitHub Actions workflow.</p>
       </div>
     </section>
 
@@ -510,8 +565,69 @@
   </div>
 </main>
 
-<!-- ================= JS — tab switcher ================= -->
+<!-- ================= JS — tab switcher + Overview data render ================= -->
 <script>
+  // Snapshot of DATA.kpis and DATA.topStory from production index.html.
+  // At cutover (Phase 2g), v2 takes over as the canonical index.html and the
+  // daily-refresh workflow resumes editing this same content. Until then,
+  // this is a snapshot that may lag production by a day or two.
+  const DATA = {
+    topStory: {
+      date: "May 18, 2026",
+      text: "NextEra Energy agreed to acquire Virginia utility Dominion for about $67B — the largest US utility merger, aimed at meeting surging AI data center power demand.",
+      src: "CNBC",
+      url: "https://www.cnbc.com/2026/05/18/nextera-nee-dominion-energy-d-data-center-ai.html"
+    },
+    kpis: [
+      { label: "US power demand 2026", value: "41", unit: "GW",
+        sub: "All US data centers · facility-level load",
+        delta: "<b class='up'>+32%</b> vs. 31 GW in 2025",
+        src: { label: "Goldman Sachs Research", tier: "analyst" } },
+      { label: "Major operators capex", value: "$808", unit: "B",
+        sub: "Six largest operators · projected 2026 spend",
+        delta: "<b class='up'>~75% AI-related</b> · up sharply on the AI buildout",
+        src: { label: "Company 2026 guidance", tier: "analyst" } },
+      { label: "Under construction", value: "6.0", unit: "GW",
+        delta: "US primary markets, end-2025",
+        src: { label: "CBRE North America Trends", tier: "analyst" } },
+      { label: "Primary-market vacancy", value: "1.4", unit: "%",
+        delta: "<b class='warn'>Record low</b> — supply-starved",
+        src: { label: "CBRE North America Trends", tier: "analyst" } },
+      { label: "Transformer lead time", value: "Up to 5", unit: "yrs",
+        delta: "<b class='crit'>Was ~2 yrs</b> pre-2020",
+        src: { label: "Industry reporting", tier: "analyst" } },
+      { label: "2026 builds facing delays", value: "30–50", unit: "%",
+        delta: "<b class='warn'>Analyst estimate</b> · power-equipment constraints",
+        src: { label: "Secondary industry reporting", tier: "analyst" } }
+    ]
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  function renderTopStory() {
+    if (!$("topStory") || !DATA.topStory) return;
+    const ts = DATA.topStory;
+    const inner =
+      '<span class="ts-tag"><span class="dot"></span> This week</span>' +
+      '<span class="ts-text">' + ts.text + '</span>' +
+      '<span class="ts-src">' + ts.date + ' · ' + ts.src + (ts.url ? ' ↗' : '') + '</span>';
+    $("topStory").innerHTML = ts.url
+      ? '<a class="topstory" href="' + ts.url + '" target="_blank" rel="noopener">' + inner + '</a>'
+      : '<div class="topstory">' + inner + '</div>';
+  }
+
+  function renderKpis() {
+    if (!$("kpis")) return;
+    $("kpis").innerHTML = DATA.kpis.map(k => `
+      <div class="kpi">
+        <div class="label">${k.label}</div>
+        <div class="value">${k.value}<span> ${k.unit}</span></div>
+        ${k.sub ? `<div class="kpi-sub">${k.sub}</div>` : ""}
+        <div class="delta">${k.delta}</div>
+        <div class="kpi-src"><span class="kpi-srclabel">Source: ${k.src.label}</span></div>
+      </div>`).join("");
+  }
+
   function showTab(name) {
     if (!name) name = 'overview';
     document.querySelectorAll('section.tab-content').forEach(function (s) {
@@ -524,6 +640,9 @@
     document.title = 'v2 (WIP) — US AI Infrastructure Monitor · ' + name;
   }
   function fromHash() { return (location.hash || '#overview').slice(1); }
+
+  renderTopStory();
+  renderKpis();
   showTab(fromHash());
   window.addEventListener('hashchange', function () { showTab(fromHash()); });
 </script>
