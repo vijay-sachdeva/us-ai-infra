@@ -93,10 +93,21 @@ Identify significant US AI data-center news from roughly the past 24-72 hours an
   - feed:          array of ~8 {{ date, text, src }} entries — the "Recent developments" section
 
 CONSTRAINTS
-- Be conservative. A day with no major news is normal — set lastUpdated to today's date, leave topStory and feed unchanged.
-- Use the web_search tool to find fresh news. Prefer primary sources (company press releases, SEC filings) and credible industry outlets (Data Center Dynamics, Data Center Knowledge, Data Center Frontier, Bloomberg, Reuters, WSJ, CNBC, Fortune, S&P Global, Utility Dive).
-- Avoid speculation, opinion, paywalled sources, and generic AI-hype coverage with no concrete US data-center hook.
-- Look specifically for: hyperscaler announcements (AWS, MSFT, Google, Meta, Oracle, CoreWeave, Nebius, Lambda, Crusoe), material data-center projects (new sites, expansions, capex revisions), power/grid news (interconnection, transformers, utility deals), new analyst reports (Goldman Sachs, CBRE, JLL, Morgan Stanley, SemiAnalysis), major M&A or regulation.
+- Use the web_search tool to find fresh news. Prefer primary sources (company press releases, SEC filings, earnings calls) and credible industry outlets (Data Center Dynamics, Data Center Knowledge, Data Center Frontier, Bloomberg, Reuters, WSJ, CNBC, Fortune, S&P Global, Utility Dive).
+- Avoid speculation, opinion, paywalled sources you cannot read, and generic AI-hype coverage with no concrete US data-center hook.
+
+ALWAYS-SIGNIFICANT SUBJECTS — any material announcement from these counts as a TOP STORY candidate (worth swapping the current topStory unless the existing topStory is the same or larger event):
+- Hyperscalers: Amazon/AWS, Microsoft, Google/Alphabet, Meta, Oracle
+- AI chip makers: NVIDIA, AMD
+- AI-native clouds: CoreWeave, Nebius, Lambda, Crusoe, Applied Digital
+- AI labs: OpenAI, Anthropic, xAI
+- Other AI-infra adjacent: Tesla (Dojo), Broadcom
+
+BIAS TOWARD FRESHNESS — if the current topStory is more than ~5 days old and any of the above subjects has a real material announcement in the past week (capex, lease, deal, restart, partnership, major regulatory action affecting them), prefer to swap, even if the dollar amount is smaller than the current topStory. Recency matters because the banner reads as "current."
+
+Other valid topics: material data-center projects (new sites >100 MW, capacity expansions, capex revisions), power/grid news (interconnection, transformers, utility deals), new analyst reports (Goldman Sachs, CBRE, JLL, Morgan Stanley, SemiAnalysis), major M&A or regulation.
+
+A day with no major news is normal — set lastUpdated to today's date, leave topStory and feed unchanged. But don't be so conservative that the topStory ages out for weeks.
 
 TODAY (UTC): {today_iso}
 CURRENT lastUpdated: {last_updated}
