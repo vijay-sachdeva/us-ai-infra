@@ -965,6 +965,7 @@
     });
     window.scrollTo({ top: 0, behavior: 'instant' });
     document.title = 'v2 (WIP) — US AI Infrastructure Monitor · ' + name;
+    renderTab(name);
   }
   function fromHash() { return (location.hash || '#overview').slice(1); }
 
