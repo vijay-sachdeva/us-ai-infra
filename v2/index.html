@@ -481,6 +481,53 @@
   }
   .action-note { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
 
+  /* ---------- Tokens: energy bridge stat blocks ---------- */
+  .bridge-row {
+    display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    gap: 6px; align-items: stretch; margin-top: 14px;
+  }
+  @media (max-width: 800px) {
+    .bridge-row { grid-template-columns: 1fr; }
+    .bridge-arrow { display: none; }
+  }
+  .bridge-cell {
+    background: #fcfdff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 12px;
+    text-align: center;
+  }
+  .bridge-cell .bv { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); }
+  .bridge-cell .bl { font-size: 11px; font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 5px; }
+  .bridge-cell .bn { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+  .bridge-arrow {
+    font-size: 18px; color: var(--muted); display: flex; align-items: center;
+  }
+
+  /* ---------- Tokens: split chart comparison ---------- */
+  .split-block { margin-top: 8px; }
+  .split-label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 11.5px; font-weight: 700; color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: 0.04em; margin: 8px 0 4px;
+  }
+  .split-bar {
+    display: flex; height: 22px; border-radius: 5px; overflow: hidden;
+    background: var(--bg); border: 1px solid var(--line);
+  }
+  .split-seg {
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; font-weight: 700;
+  }
+  .split-seg.inference { background: #1d4ed8; }
+  .split-seg.training  { background: #c2710c; }
+  .split-legend {
+    display: flex; gap: 14px; margin-top: 12px;
+    font-size: 11.5px; color: var(--ink-2);
+  }
+  .split-legend .lg-dot {
+    display: inline-block; width: 9px; height: 9px; border-radius: 2px;
+    vertical-align: middle; margin-right: 6px;
+  }
+
   /* ---------- Mobile ---------- */
   @media (max-width: 640px) {
     .head-inner { padding: 12px 15px; gap: 8px; }
@@ -785,30 +832,33 @@
         <h3>Token volume is ~10× higher than two years ago, and $/token is ~100× lower. The AI economy runs on this curve.</h3>
       </div>
 
-      <div class="stub-grid">
-        <div class="stub-card">
-          <span class="badge new">NEW</span>
-          <h4>Industry token volume</h4>
-          <div class="note">Trillions of tokens / quarter, stacked by provider.</div>
-          <p>OpenAI · Anthropic · Google · Meta · OSS-hosted (Together, Fireworks, OpenRouter aggregate). Sources: Epoch AI, provider disclosures, SemiAnalysis modeled estimates.</p>
+      <!-- Card 1: Industry token volume (full-width) -->
+      <div class="stub-card">
+        <h4>Industry token volume by provider</h4>
+        <div class="note">Trillions of tokens served per quarter &middot; stacked area &middot; modeled from provider disclosures + Epoch AI + SemiAnalysis</div>
+        <div class="chart-box" style="height:320px"><canvas id="tokenVolumeChart"></canvas></div>
+      </div>
+
+      <!-- Card 2: $/token compression (full-width, log y) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>$/token compression — the 100× price drop</h4>
+        <div class="note">Output price per 1M tokens at launch &middot; log Y axis &middot; lower-right = newer + cheaper</div>
+        <div class="chart-box" style="height:320px"><canvas id="priceCompressionChart"></canvas></div>
+      </div>
+
+      <div class="stub-grid" style="margin-top:14px">
+        <!-- Card 3: Tokens × energy bridge (full-width within grid? no, half) -->
+        <div class="stub-card" style="grid-column: 1 / -1">
+          <h4>Tokens × energy bridge — from AI economy to grid load</h4>
+          <div class="note">The link that ties this tab to the rest of the dashboard</div>
+          <div class="bridge-row" id="energyBridge"></div>
         </div>
-        <div class="stub-card">
-          <span class="badge new">NEW</span>
-          <h4>$/token compression (log y)</h4>
-          <div class="note">The 100× price drop, model by model.</div>
-          <p>GPT-4 launch price ($0.06/1K) → GPT-4o ($0.005/1K) → GPT-4.1 ($0.002/1K). Same curve for Claude. OSS hosted comparison at the bottom.</p>
-        </div>
-        <div class="stub-card">
-          <span class="badge new">NEW</span>
-          <h4>Tokens × energy bridge</h4>
-          <div class="note">The link from AI economy → power story.</div>
-          <p>Joules per million tokens. Tokens per MW-hour. Provider revenue per MW. This is the unique angle that ties this tab to the rest of the dashboard.</p>
-        </div>
-        <div class="stub-card">
-          <span class="badge new">NEW</span>
-          <h4>Inference vs training token split</h4>
-          <div class="note">Where the compute is going.</div>
-          <p>Industry split: training is the upfront cost, inference is the recurring cost. Inference now dominates compute-hours by ~10×.</p>
+
+        <!-- Card 4: Inference vs training (regular card) -->
+        <div class="stub-card" style="grid-column: 1 / -1">
+          <h4>Inference vs training split</h4>
+          <div class="note">Where the compute actually goes &middot; late-2025 industry estimates</div>
+          <div id="splitChart"></div>
         </div>
       </div>
     </section>
@@ -1013,7 +1063,51 @@
       { company: "Microsoft",  mw: "~100 MW",   type: "Carbon-aware compute",    note: "Workload time-shifting tied to grid carbon intensity." },
       { company: "Meta",       mw: "modeled",   type: "Load-shifting at Hyperion",note: "Louisiana campus designed for flex during peak grid hours." },
       { company: "Crusoe",     mw: "~500 MW",   type: "Off-grid gas-direct",     note: "Stargate-related sites run on direct gas turbines; reduces grid dependence." }
-    ]
+    ],
+
+    /* ----- Token Economics tab ----- */
+    tokenVolume: {
+      quarters: ["Q1 24","Q2 24","Q3 24","Q4 24","Q1 25","Q2 25","Q3 25","Q4 25","Q1 26","Q2 26"],
+      providers: [
+        { name: "OpenAI",        color: "#10a37f", values: [40,  60,  90,  130, 180, 250, 340, 450, 600, 800] },
+        { name: "Google",        color: "#34a853", values: [25,  38,  56,  82,  115, 160, 220, 295, 395, 530] },
+        { name: "Anthropic",     color: "#d97706", values: [10,  15,  25,  40,  60,  85,  120, 165, 220, 295] },
+        { name: "Meta (Llama)",  color: "#0866ff", values: [15,  22,  33,  49,  70,  100, 135, 180, 240, 320] },
+        { name: "OSS hosted",    color: "#7c3aed", values: [10,  15,  23,  35,  50,  70,  95,  130, 175, 235] }
+      ],
+      src: { label: "Epoch AI, SemiAnalysis, provider revenue disclosures (modeled)", tier: "modeled" }
+    },
+    priceCompression: {
+      models: [
+        { name: "GPT-4 (launch)",         year: 2023.2, price: 60,   family: "openai" },
+        { name: "GPT-4 Turbo",            year: 2023.9, price: 30,   family: "openai" },
+        { name: "GPT-4o",                  year: 2024.4, price: 15,   family: "openai" },
+        { name: "GPT-4o-mini",             year: 2024.6, price: 0.6,  family: "openai" },
+        { name: "GPT-4.1",                 year: 2025.3, price: 8,    family: "openai" },
+        { name: "Claude 3 Opus",           year: 2024.2, price: 75,   family: "anthropic" },
+        { name: "Claude 3.5 Sonnet",       year: 2024.5, price: 15,   family: "anthropic" },
+        { name: "Claude Sonnet 4.5",       year: 2025.7, price: 15,   family: "anthropic" },
+        { name: "Gemini 1.5 Pro",          year: 2024.2, price: 21,   family: "google" },
+        { name: "Gemini 2.5 Pro",          year: 2025.5, price: 10,   family: "google" },
+        { name: "Llama 3.1 70B (hosted)",  year: 2024.6, price: 1,    family: "oss" },
+        { name: "Llama 3.3 70B (hosted)",  year: 2024.9, price: 0.6,  family: "oss" }
+      ],
+      familyColors: { openai: "#10a37f", anthropic: "#d97706", google: "#34a853", oss: "#7c3aed" },
+      familyLabels: { openai: "OpenAI", anthropic: "Anthropic", google: "Google", oss: "OSS-hosted" },
+      src: { label: "Provider pricing pages, OpenRouter, Together AI", tier: "primary" }
+    },
+    tokenEnergyBridge: [
+      { value: "1M tokens",   label: "Input unit",            note: "One million tokens of inference output." },
+      { value: "~5 Wh",       label: "Electricity",           note: "Energy consumed on a frontier model at typical batch size." },
+      { value: "~200M",       label: "Tokens per MW-hr",      note: "Inverse: a 1-MW server can serve ~200M tokens in an hour." },
+      { value: "~$1 → $200K", label: "Revenue per MW-hr",    note: "At ~$1/1M-token output price, that's ~$200K of API revenue per MW-hr — vs. ~$50/MW-hr industrial power cost." }
+    ],
+    inferenceTrainingSplit: {
+      computeHours: { inference: 92, training: 8 },
+      spend:        { inference: 65, training: 35 },
+      note: "Inference dominates compute-hours; training is a smaller share but more cost-concentrated per launch. Late-2025 estimates.",
+      src: { label: "SemiAnalysis, Epoch AI", tier: "analyst" }
+    }
   };
 
   const $ = (id) => document.getElementById(id);
@@ -1414,6 +1508,135 @@
       </div>`);
   }
 
+  /* ----- Token Economics tab renders ----- */
+  function renderTokenVolumeChart() {
+    if (!$("tokenVolumeChart") || typeof Chart === "undefined") return;
+    if (renderTokenVolumeChart._done) return;
+    renderTokenVolumeChart._done = true;
+    const tv = DATA.tokenVolume;
+    const datasets = tv.providers.map(p => ({
+      label: p.name,
+      data: p.values,
+      backgroundColor: p.color + "cc",
+      borderColor: p.color,
+      borderWidth: 1.5,
+      fill: true,
+      tension: 0.32,
+      pointRadius: 0
+    }));
+    new Chart($("tokenVolumeChart"), {
+      type: "line",
+      data: { labels: tv.quarters, datasets: datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.y.toLocaleString() + "T",
+            footer: () => "Source: " + tv.src.label
+          }}
+        },
+        scales: {
+          y: { stacked: true, grid: { color: "#eef1f5" }, ticks: { callback: v => v.toLocaleString() + "T" }, beginAtZero: true },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderPriceCompressionChart() {
+    if (!$("priceCompressionChart") || typeof Chart === "undefined") return;
+    if (renderPriceCompressionChart._done) return;
+    renderPriceCompressionChart._done = true;
+    const pc = DATA.priceCompression;
+    // Group models by family for color-coded scatter datasets
+    const byFamily = {};
+    pc.models.forEach(m => {
+      if (!byFamily[m.family]) byFamily[m.family] = [];
+      byFamily[m.family].push({ x: m.year, y: m.price, label: m.name });
+    });
+    const datasets = Object.keys(byFamily).map(fam => ({
+      label: pc.familyLabels[fam],
+      data: byFamily[fam],
+      backgroundColor: pc.familyColors[fam],
+      borderColor: pc.familyColors[fam],
+      borderWidth: 2,
+      showLine: true,
+      tension: 0,
+      pointRadius: 6,
+      pointHoverRadius: 8
+    }));
+    new Chart($("priceCompressionChart"), {
+      type: "scatter",
+      data: { datasets: datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          tooltip: { callbacks: {
+            label: c => " " + c.raw.label + ": $" + c.raw.y + " / 1M output tokens"
+          }}
+        },
+        scales: {
+          y: { type: "logarithmic", grid: { color: "#eef1f5" },
+            ticks: { callback: v => "$" + v },
+            title: { display: true, text: "$/1M output tokens (log)" }
+          },
+          x: { type: "linear", min: 2023, max: 2026,
+            grid: { display: false },
+            ticks: { stepSize: 0.5, callback: v => {
+              const y = Math.floor(v); const q = Math.round((v - y) * 4);
+              return q === 0 ? y : y + "." + (q * 25 / 100).toFixed(2).slice(2);
+            }},
+            title: { display: true, text: "Launch date" }
+          }
+        }
+      }
+    });
+  }
+
+  function renderEnergyBridge() {
+    if (!$("energyBridge") || !DATA.tokenEnergyBridge) return;
+    const cells = DATA.tokenEnergyBridge;
+    const parts = [];
+    cells.forEach((c, i) => {
+      parts.push(`<div class="bridge-cell">
+        <div class="bv">${c.value}</div>
+        <div class="bl">${c.label}</div>
+        <div class="bn">${c.note}</div>
+      </div>`);
+      if (i < cells.length - 1) parts.push('<div class="bridge-arrow">→</div>');
+    });
+    $("energyBridge").innerHTML = parts.join("");
+  }
+
+  function renderSplitChart() {
+    if (!$("splitChart") || !DATA.inferenceTrainingSplit) return;
+    const s = DATA.inferenceTrainingSplit;
+    $("splitChart").innerHTML = `
+      <div class="split-block">
+        <div class="split-label"><span>Compute hours</span><span>${s.computeHours.inference}% inference · ${s.computeHours.training}% training</span></div>
+        <div class="split-bar">
+          <div class="split-seg inference" style="width:${s.computeHours.inference}%">Inference ${s.computeHours.inference}%</div>
+          <div class="split-seg training"  style="width:${s.computeHours.training}%">Train ${s.computeHours.training}%</div>
+        </div>
+      </div>
+      <div class="split-block">
+        <div class="split-label"><span>Dollar spend</span><span>${s.spend.inference}% inference · ${s.spend.training}% training</span></div>
+        <div class="split-bar">
+          <div class="split-seg inference" style="width:${s.spend.inference}%">Inference ${s.spend.inference}%</div>
+          <div class="split-seg training"  style="width:${s.spend.training}%">Train ${s.spend.training}%</div>
+        </div>
+      </div>
+      <div class="split-legend">
+        <span><span class="lg-dot" style="background:#1d4ed8"></span>Inference (continuous, scales with users)</span>
+        <span><span class="lg-dot" style="background:#c2710c"></span>Training (concentrated, periodic)</span>
+      </div>
+      <div class="sc-note" style="margin-top:10px">${s.note} Source: ${s.src.label}.</div>
+    `;
+  }
+
   /* ----- Lazy per-tab render ----- */
   const renderedTabs = new Set();
   function renderTab(name) {
@@ -1443,8 +1666,12 @@
       renderDrList();
       renderDemandGapChart();
       renderRateImpactChart();
+    } else if (name === "tokens") {
+      renderEnergyBridge();
+      renderSplitChart();
+      renderTokenVolumeChart();
+      renderPriceCompressionChart();
     }
-    // tokens — wired in later phase
   }
 
   function showTab(name) {
