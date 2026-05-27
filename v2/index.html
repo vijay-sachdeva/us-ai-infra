@@ -528,6 +528,98 @@
     vertical-align: middle; margin-right: 6px;
   }
 
+  /* ---------- Chat assistant (FAB + slide-in panel) ---------- */
+  .chat-fab {
+    position: fixed; right: 22px; bottom: 22px; z-index: 200;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #fff; border: none;
+    font-family: inherit; font-size: 13.5px; font-weight: 600;
+    padding: 12px 18px; border-radius: 999px; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(29,78,216,.32);
+  }
+  .chat-fab svg { width: 18px; height: 18px; flex: none; }
+  .chat-fab:hover { background: #1a44bf; }
+  .chat-panel {
+    position: fixed; right: 22px; bottom: 22px; z-index: 201;
+    width: 374px; max-width: calc(100vw - 32px);
+    height: 540px; max-height: calc(100vh - 44px);
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: 0 14px 44px rgba(15,27,45,.24);
+    display: none; flex-direction: column; overflow: hidden;
+  }
+  .chat-panel.open { display: flex; }
+  .chat-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 15px; border-bottom: 1px solid var(--line);
+  }
+  .chat-head .ic {
+    width: 30px; height: 30px; border-radius: 8px; flex: none;
+    background: var(--accent-soft);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .chat-head .ic svg { width: 16px; height: 16px; }
+  .chat-head h4 { font-size: 14px; font-weight: 700; }
+  .chat-head p { font-size: 11.5px; color: var(--muted); font-weight: 500; }
+  .chat-close {
+    margin-left: auto; background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 22px; line-height: 1; padding: 2px 6px;
+  }
+  .chat-close:hover { color: var(--ink); }
+  .chat-body {
+    flex: 1; overflow-y: auto; padding: 15px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .chat-msg {
+    font-size: 13px; line-height: 1.55; padding: 9px 12px;
+    border-radius: 12px; max-width: 86%; white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .chat-msg.bot {
+    background: var(--bg); color: var(--ink);
+    align-self: flex-start; border-bottom-left-radius: 4px;
+  }
+  .chat-msg.user {
+    background: var(--accent); color: #fff;
+    align-self: flex-end; border-bottom-right-radius: 4px;
+  }
+  .chat-msg.note {
+    background: var(--amber-soft); color: var(--amber);
+    font-size: 11.5px; align-self: stretch; max-width: 100%;
+  }
+  .chat-foot { border-top: 1px solid var(--line); padding: 10px 12px; }
+  .chat-input-row { display: flex; gap: 8px; align-items: flex-end; }
+  .chat-input {
+    flex: 1; font-family: inherit; font-size: 13px; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 9px 11px; resize: none; max-height: 92px; line-height: 1.5;
+  }
+  .chat-input:focus { outline: none; border-color: var(--accent); }
+  .chat-send {
+    background: var(--accent); color: #fff; border: none; cursor: pointer;
+    width: 36px; height: 36px; border-radius: 10px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .chat-send:disabled { opacity: .45; cursor: default; }
+  .chat-send svg { width: 16px; height: 16px; }
+  .chat-disclaim {
+    font-size: 10px; color: var(--muted); margin-top: 7px; text-align: center;
+  }
+  .chat-dots span {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted); margin: 0 1.5px;
+    animation: chatblink 1.4s infinite both;
+  }
+  .chat-dots span:nth-child(2) { animation-delay: .2s; }
+  .chat-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes chatblink { 0%,80%,100% { opacity:.25 } 40% { opacity:1 } }
+  @media (max-width: 640px) {
+    .chat-panel {
+      right: 10px; left: 10px; bottom: 10px; top: 10px;
+      width: auto; max-width: none; height: auto; max-height: none;
+    }
+    .chat-fab { right: 14px; bottom: 14px; padding: 11px 16px; }
+  }
+
   /* ---------- Mobile ---------- */
   @media (max-width: 640px) {
     .head-inner { padding: 12px 15px; gap: 8px; }
@@ -1692,6 +1784,223 @@
 
   showTab(fromHash());          // initial activation also renders the active tab
   window.addEventListener('hashchange', function () { showTab(fromHash()); });
+</script>
+
+<!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
+<button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  Ask agent
+</button>
+<div class="chat-panel" id="chatPanel" role="dialog" aria-label="Dashboard assistant">
+  <div class="chat-head">
+    <div class="ic">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <div>
+      <h4>Agent</h4>
+      <p>Ask about the data on this dashboard</p>
+    </div>
+    <button class="chat-close" id="chatClose" aria-label="Close assistant">&times;</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-foot">
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask a question&hellip;"></textarea>
+      <button class="chat-send" id="chatSend" aria-label="Send message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>
+      </button>
+    </div>
+    <div class="chat-disclaim">Answers are generated and may be imprecise &mdash; verify against the dashboard.</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CHAT ASSISTANT — v2
+   When CHAT_CONFIG.apiEndpoint is set to a deployed Cloudflare
+   Worker URL (chatbot-worker.js), the panel sends each question
+   to Anthropic Claude with the dashboard's DATA as context.
+   Until then, the panel shows a setup notice and a few canned
+   scripted answers for common questions.
+   ============================================================ */
+(function () {
+  const CHAT_CONFIG = {
+    apiEndpoint: ""   /* paste your Worker URL here after deploying, e.g.
+                         "https://datacenter-monitor-chat.<your-subdomain>.workers.dev" */
+  };
+
+  const el = (id) => document.getElementById(id);
+  const fab = el("chatFab"), panel = el("chatPanel"), bodyEl = el("chatBody");
+  const input = el("chatInput"), sendBtn = el("chatSend"), closeBtn = el("chatClose");
+  if (!fab || !panel || typeof DATA === "undefined") return;
+
+  const history = [];
+  let busy = false;
+
+  /* Compact, structured summary of all 5 tabs — fed to Claude as context. */
+  function dataContext() {
+    const L = [];
+    L.push("US AI Infrastructure Monitor — data as of " + DATA.lastUpdated + ".");
+
+    L.push(""); L.push("=== OVERVIEW (headline KPIs) ===");
+    DATA.kpis.forEach(k => L.push("- " + k.label + ": " + k.value + " " + k.unit + (k.sub ? " (" + k.sub + ")" : "")));
+    if (DATA.topStory) L.push("Top story (" + DATA.topStory.date + " · " + DATA.topStory.src + "): " + DATA.topStory.text);
+
+    L.push(""); L.push("=== INVESTOR ===");
+    const cc = DATA.companyCapex;
+    L.push("2026 capex by operator (USD bn): " + cc.companies.map((c, i) => c + " $" + cc.values[i]).join(", ") + ". Total ~$" + cc.values.reduce((a,b)=>a+b,0) + "B.");
+    const cs = DATA.costStack;
+    L.push("Cost to build 1 MW of AI capacity (USD M, illustrative): " + cs.layers.map(l => l.name + " $" + l.value).join(", ") + ". Facility subtotal $" + cs.facilitySubtotal + "M, all-in $" + cs.allInTotal + "M.");
+    L.push("Recent deals: " + DATA.deals.map(d => d.size + " " + d.parties + " (" + d.theme + ")").join("; ") + ".");
+    L.push("Public-market plays: " + DATA.publicMarketPlays.map(p => p.thesis + ": " + p.tickers.join("/")).join("; ") + ".");
+    const vt = DATA.vacancyTrend;
+    L.push("Primary-market vacancy " + vt.years[0] + " → " + vt.years[vt.years.length-1] + ": " + vt.values[0] + "% → " + vt.values[vt.values.length-1] + "% (compression).");
+    L.push("IRR scenarios (100 MW build): " + DATA.irrScenarios.scenarios.map(s => s.name + " " + s.irr + " @ " + s.lease).join("; ") + ". Assumptions: " + DATA.irrScenarios.assumptions);
+
+    L.push(""); L.push("=== ENGINEER ===");
+    const f = DATA.powerBreakdown.funnel;
+    L.push("Interconnection funnel: " + f.stages.map((s, i) => s + " " + f.values[i] + " GW").join(" → ") + ".");
+    L.push("Lead time by region (years to energization): " + DATA.markets.map(m => m.name + " " + m.lead).join(", ") + ".");
+    const eq = DATA.equipmentLeadTimes;
+    L.push("Equipment lead times: " + eq.items.map(i => i.name + " " + i.range + " [" + i.severity + "]").join("; ") + ".");
+    const hm = DATA.hyperscalerMW;
+    L.push("Self-built capacity MW (operational/pipeline): " + hm.companies.map((c, i) => c + " " + hm.operational[i] + "/" + hm.pipeline[i]).join(", ") + ".");
+    const sc = DATA.siteScorecards;
+    const ranked = sc.markets.map(m => ({ name: m.name, avg: m.scores.reduce((a,b)=>a+b,0)/m.scores.length })).sort((a,b)=>b.avg-a.avg);
+    L.push("Site scorecard ranked (avg of " + sc.factors.join(", ") + "): " + ranked.map(r => r.name + " " + r.avg.toFixed(1)).join(", ") + ".");
+
+    L.push(""); L.push("=== ENERGY & POLICY ===");
+    const dp = DATA.demandProjection;
+    L.push("Annual DC demand GW added " + dp.years.join("/") + ": " + dp.yoyDemandGrowthGW.join("/") + ". New firm gen for DC: " + dp.newFirmGenForDC.join("/") + ".");
+    L.push("Projected residential rate increase by 2030: " + DATA.rateImpacts.states.map(s => s.state + " +" + s.increase + "%").join(", ") + ".");
+    L.push("ISO constraints: " + DATA.isos.map(i => i.name + " (" + i.region + ", queue " + i.queueYears + ", " + i.severity + ")").join("; ") + ".");
+    L.push("Regulatory actions: " + DATA.regulatoryActions.map(r => r.jurisdiction + " — " + r.action + " [" + r.status + "]").join("; ") + ".");
+    L.push("Utility actions: " + DATA.utilityActions.map(u => u.utility + " — " + u.action + " (" + u.meta + ")").join("; ") + ".");
+    L.push("Demand response: " + DATA.demandResponse.map(d => d.company + " " + d.mw + " (" + d.type + ")").join("; ") + ".");
+
+    L.push(""); L.push("=== TOKEN ECONOMICS ===");
+    const tv = DATA.tokenVolume;
+    const lastIdx = tv.quarters.length - 1;
+    L.push("Token volume " + tv.quarters[lastIdx] + " (T tokens/quarter, modeled): " + tv.providers.map(p => p.name + " " + p.values[lastIdx]).join(", ") + ".");
+    const pc = DATA.priceCompression;
+    L.push("Output price points ($/1M tokens, by launch year): " + pc.models.map(m => m.name + " $" + m.price + " (" + m.year.toFixed(1) + ")").join(", ") + ".");
+    L.push("Tokens × energy bridge: " + DATA.tokenEnergyBridge.map(c => c.value + " " + c.label).join(" → ") + ".");
+    const its = DATA.inferenceTrainingSplit;
+    L.push("Inference vs training: " + its.computeHours.inference + "/" + its.computeHours.training + "% compute hours, " + its.spend.inference + "/" + its.spend.training + "% spend.");
+
+    return L.join("\n");
+  }
+
+  function addMsg(text, cls) {
+    const d = document.createElement("div");
+    d.className = "chat-msg " + cls;
+    d.textContent = text;
+    bodyEl.appendChild(d);
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+    return d;
+  }
+  function addTyping() {
+    const d = document.createElement("div");
+    d.className = "chat-msg bot chat-dots";
+    d.innerHTML = "<span></span><span></span><span></span>";
+    bodyEl.appendChild(d);
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+    return d;
+  }
+
+  /* Minimal scripted fallback so the panel still answers common questions
+     before the user has deployed the Cloudflare Worker. */
+  function scriptedAnswer(q) {
+    const s = q.toLowerCase();
+    const has = (...t) => t.some(x => s.indexOf(x) !== -1);
+    if (has("power demand", "41 gw", "how much power", "load"))
+      return "US data center power demand is ~41 GW in 2026 (vs 31 GW in 2025), projected to grow to ~100 GW by 2030. See Overview tab.";
+    if (has("capex", "spending", "808", "200b", "190b"))
+      return "Major operators' 2026 capex totals ~$808B: AWS $200B, Microsoft $190B, Google $185B, Meta $150B, Oracle $50B, CoreWeave $33B. See Investor tab.";
+    if (has("cost", "/mw", "per mw", "build cost"))
+      return "Building one MW of AI capacity costs ~$42M all-in (illustrative): $11M facility (shell, power, cooling) + $31M compute (servers + GPUs). GPUs are ~$23M — the largest single layer. See Investor or Engineer tab.";
+    if (has("vacancy"))
+      return "Primary-market vacancy is at a record-low 1.4%, down from ~9.5% in 2019. Landlord pricing power has shifted decisively. See Investor tab.";
+    if (has("transformer", "lead time", "equipment"))
+      return "High-voltage transformer lead times have stretched to 36-60 months — the most binding constraint. Switchgear 18-30 mo, generators 12-24 mo, GPUs 6-12 mo. See Engineer tab.";
+    if (has("token", "$/token", "price compression", "openai", "anthropic", "claude", "gpt"))
+      return "Token volume has grown ~5× over 18 months. Output prices have dropped ~10× (GPT-4 $60/1M → GPT-4.1 $8/1M; Llama 70B hosted at $0.60). See Token Economics tab.";
+    if (has("rate", "electricity cost", "virginia"))
+      return "Modeled retail rate increases by 2030: Virginia +57%, Texas +28%, Ohio +22%, Georgia +18%, Arizona +15%. See Energy & Policy tab.";
+    return null;
+  }
+
+  async function liveAnswer(q) {
+    const res = await fetch(CHAT_CONFIG.apiEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question: q,
+        history: history.slice(-12),
+        context: dataContext()
+      })
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const j = await res.json();
+    return ((j.answer || j.reply || "") + "").trim() || "No answer was returned.";
+  }
+
+  async function respond(q) {
+    q = (q || "").trim();
+    if (busy || !q) return;
+    busy = true; sendBtn.disabled = true;
+    addMsg(q, "user");
+    history.push({ role: "user", content: q });
+    input.value = ""; autosize();
+    const typing = addTyping();
+    try {
+      let answer;
+      if (CHAT_CONFIG.apiEndpoint) {
+        answer = await liveAnswer(q);
+      } else {
+        await new Promise(r => setTimeout(r, 280));
+        answer = scriptedAnswer(q)
+          || "I can answer common questions about this dashboard (power demand, capex, costs, vacancy, lead times, tokens, rates). For more open-ended questions, the live AI assistant kicks in once the Cloudflare Worker backend is deployed — see chatbot-worker.js for one-time setup.";
+      }
+      typing.remove();
+      addMsg(answer, "bot");
+      history.push({ role: "assistant", content: answer });
+    } catch (err) {
+      typing.remove();
+      addMsg("Sorry — I couldn't reach the assistant right now." + (CHAT_CONFIG.apiEndpoint ? " Check that the Cloudflare Worker is deployed and the API key is set." : ""), "note");
+    }
+    busy = false; sendBtn.disabled = false;
+    input.focus();
+  }
+
+  function autosize() {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 92) + "px";
+  }
+  function openPanel() {
+    panel.classList.add("open");
+    fab.style.display = "none";
+    if (!bodyEl.children.length) {
+      const greet = CHAT_CONFIG.apiEndpoint
+        ? "Hi — ask me anything about US data center power, capex, deployment, bottlenecks or token economics shown on this dashboard."
+        : "Hi — I'm running in scripted mode (Cloudflare Worker backend not deployed yet). Try asking about power demand, capex, costs, vacancy, lead times, tokens or rate impacts.";
+      addMsg(greet, "bot");
+    }
+    setTimeout(() => input.focus(), 50);
+  }
+  function closePanel() {
+    panel.classList.remove("open");
+    fab.style.display = "";
+  }
+
+  fab.addEventListener("click", openPanel);
+  closeBtn.addEventListener("click", closePanel);
+  sendBtn.addEventListener("click", () => respond(input.value));
+  input.addEventListener("input", autosize);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); respond(input.value); }
+  });
+})();
 </script>
 
 </body>
