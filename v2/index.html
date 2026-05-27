@@ -369,6 +369,69 @@
   .irr-table td.irr.low  { color: var(--red); }
   .irr-note { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 8px; line-height: 1.5; }
 
+  /* ---------- IRR calculator (interactive) ---------- */
+  .irr-presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; }
+  .irr-presets button {
+    background: var(--bg); border: 1px solid var(--line);
+    border-radius: 6px; padding: 5px 10px;
+    font-size: 11.5px; font-weight: 600; color: var(--ink-2);
+    cursor: pointer; font-family: inherit;
+    transition: border-color .15s ease, color .15s ease, background-color .15s ease;
+  }
+  .irr-presets button:hover { border-color: var(--accent); color: var(--accent); }
+  .irr-presets button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .irr-controls { margin-bottom: 14px; }
+  .irr-input { margin: 12px 0; }
+  .irr-input label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 11px; color: var(--ink-2); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    margin-bottom: 5px;
+  }
+  .irr-input label .val {
+    font-family: 'Courier New', monospace; color: var(--ink); font-weight: 800;
+    text-transform: none; letter-spacing: normal; font-size: 12px;
+  }
+  .irr-input input[type="range"] {
+    width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+    background: var(--bg); border-radius: 3px; outline: none; border: 1px solid var(--line);
+  }
+  .irr-input input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; background: var(--accent);
+    border-radius: 50%; cursor: pointer; border: 2px solid var(--card);
+    box-shadow: 0 1px 3px rgba(15,27,45,.2);
+  }
+  .irr-input input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px; background: var(--accent);
+    border-radius: 50%; cursor: pointer; border: 2px solid var(--card);
+  }
+  .irr-output {
+    margin-top: 12px; padding: 14px 16px;
+    background: var(--bg); border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+  .irr-output .irr-label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .irr-output .irr-value {
+    font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
+    margin: 2px 0 8px; line-height: 1;
+    font-family: 'Courier New', monospace;
+  }
+  .irr-output .irr-value.high { color: var(--green); }
+  .irr-output .irr-value.mid  { color: var(--amber); }
+  .irr-output .irr-value.low  { color: var(--red); }
+  .irr-meter { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+  .irr-meter-fill {
+    height: 100%; width: 0;
+    background: linear-gradient(90deg, var(--red) 0%, var(--amber) 50%, var(--green) 100%);
+    background-size: 250px 100%;
+    transition: width .25s ease;
+  }
+  .irr-meta { font-size: 11px; color: var(--muted); font-style: italic; line-height: 1.5; }
+
   /* ---------- Engineer: interconnection funnel ---------- */
   .funnel-flow {
     display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
@@ -933,11 +996,31 @@
           </div>
         </div>
 
-        <!-- Card 6: Project IRR scenarios (real, illustrative) -->
+        <!-- Card 6: Project IRR calculator (interactive) -->
         <div class="stub-card">
-          <h4>Project IRR scenarios</h4>
-          <div class="note">Illustrative returns for a 100 MW build &middot; modeled</div>
-          <div id="irrTable"></div>
+          <h4>Build your IRR scenario</h4>
+          <div class="note">100 MW build &middot; adjust assumptions &middot; IRR recomputes live</div>
+          <div id="irrPresets" class="irr-presets"></div>
+          <div class="irr-controls">
+            <div class="irr-input">
+              <label>Lease price <span class="val" id="leaseVal">$160</span>/kW-mo</label>
+              <input type="range" id="leasePrice" min="100" max="260" value="160" step="5">
+            </div>
+            <div class="irr-input">
+              <label>Power cost <span class="val" id="powerVal">$55</span>/MWh</label>
+              <input type="range" id="powerCost" min="40" max="100" value="55" step="5">
+            </div>
+            <div class="irr-input">
+              <label>Delivery delay <span class="val" id="delayVal">0</span> months</label>
+              <input type="range" id="delayMonths" min="0" max="24" value="0" step="3">
+            </div>
+          </div>
+          <div class="irr-output">
+            <div class="irr-label">Project IRR</div>
+            <div class="irr-value mid" id="irrValue">—</div>
+            <div class="irr-meter"><div class="irr-meter-fill" id="irrMeterFill"></div></div>
+            <div class="irr-meta" id="irrMeta">15-yr hold &middot; 5% terminal cap &middot; $42M/MW build</div>
+          </div>
         </div>
       </div>
 
@@ -1196,11 +1279,11 @@
     irrScenarios: {
       assumptions: "100 MW build · 15-yr hold · 5% terminal cap rate · 7% blended cost of capital · ~$42M/MW all-in. Modeled.",
       scenarios: [
-        { name: "Conservative tenant",        lease: "$130/kW-mo", tenant: "BBB / mid-tier",     power: "$60/MWh", irr: "~9%"  },
-        { name: "Mid-market hyperscaler",      lease: "$160/kW-mo", tenant: "A / hyperscaler",    power: "$55/MWh", irr: "~12%" },
-        { name: "Premium AI-dedicated",        lease: "$200/kW-mo", tenant: "AA / hyperscaler",   power: "$55/MWh", irr: "~16%" },
-        { name: "Premium + accelerated lease", lease: "$220/kW-mo", tenant: "AA / hyperscaler",   power: "$50/MWh", irr: "~19%" },
-        { name: "18-month delivery delay",     lease: "$180/kW-mo", tenant: "A / hyperscaler",    power: "$70/MWh", irr: "~6%"  }
+        { name: "Conservative",  lease: 130, power: 60, delay: 0,  tenant: "BBB" },
+        { name: "Mid-market",     lease: 160, power: 55, delay: 0,  tenant: "A" },
+        { name: "Premium AI",     lease: 200, power: 55, delay: 0,  tenant: "AA" },
+        { name: "Accelerated",    lease: 220, power: 50, delay: 0,  tenant: "AA" },
+        { name: "Delayed",        lease: 180, power: 70, delay: 18, tenant: "A" }
       ]
     },
 
@@ -1497,29 +1580,97 @@
     });
   }
 
-  function renderIrrTable() {
-    if (!$("irrTable") || !DATA.irrScenarios) return;
-    const ir = DATA.irrScenarios;
-    const irrClass = (irr) => {
-      const n = parseFloat(irr.replace(/[^\d.]/g, ""));
-      if (n >= 14) return "high";
-      if (n >= 10) return "mid";
-      return "low";
-    };
-    const rows = ir.scenarios.map(s => `
-      <tr>
-        <td class="scenario">${s.name}</td>
-        <td class="metric">${s.lease}</td>
-        <td>${s.tenant}</td>
-        <td class="metric">${s.power}</td>
-        <td class="irr ${irrClass(s.irr)}">${s.irr}</td>
-      </tr>`).join("");
-    $("irrTable").innerHTML = `
-      <table class="irr-table">
-        <thead><tr><th>Scenario</th><th>Lease</th><th>Tenant</th><th>Power</th><th>IRR</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <div class="irr-note">Assumptions: ${ir.assumptions}</div>`;
+  /* IRR via bisection. cashFlows = [-upfront, y1, y2, ..., yN]. */
+  function computeIRR(cashFlows) {
+    function npv(rate) {
+      let s = 0;
+      for (let t = 0; t < cashFlows.length; t++) s += cashFlows[t] / Math.pow(1 + rate, t);
+      return s;
+    }
+    let low = -0.5, high = 1.0;
+    for (let i = 0; i < 80; i++) {
+      const mid = (low + high) / 2;
+      if (npv(mid) > 0) low = mid; else high = mid;
+      if (high - low < 0.0001) break;
+    }
+    return (low + high) / 2;
+  }
+
+  function projectIRR(leasePerKwMo, powerPerMwh, delayMonths) {
+    const MW = 100;
+    const buildCost = 42e6 * MW;
+    const upfront = -buildCost;
+    const annualRevenue = leasePerKwMo * 12 * 1000 * MW;
+    const annualPowerCost = MW * 4380 * powerPerMwh;   // ~50% utilization equivalent
+    const annualOpex = annualRevenue * 0.05;
+    const annualNOI = annualRevenue - annualPowerCost - annualOpex;
+    const holdYears = 15;
+    const delayYears = delayMonths / 12;
+    const cf = [upfront];
+    for (let y = 1; y <= holdYears; y++) {
+      if (y <= Math.floor(delayYears)) {
+        cf.push(0);
+      } else if (y - 1 < delayYears && y > delayYears) {
+        cf.push(annualNOI * (y - delayYears));
+      } else {
+        cf.push(annualNOI);
+      }
+    }
+    cf[holdYears] += annualNOI / 0.05;
+    return computeIRR(cf);
+  }
+
+  function recalculateIRR() {
+    const lease = +$("leasePrice").value;
+    const power = +$("powerCost").value;
+    const delay = +$("delayMonths").value;
+    $("leaseVal").textContent = "$" + lease;
+    $("powerVal").textContent = "$" + power;
+    $("delayVal").textContent = delay;
+    const irr = projectIRR(lease, power, delay);
+    const irrPct = (irr * 100);
+    const cls = irrPct >= 14 ? "high" : irrPct >= 10 ? "mid" : "low";
+    $("irrValue").className = "irr-value " + cls;
+    $("irrValue").textContent = (irrPct >= 0 ? "~" : "") + irrPct.toFixed(1) + "%";
+    const meterPct = Math.max(0, Math.min(100, irrPct / 25 * 100));
+    $("irrMeterFill").style.width = meterPct + "%";
+  }
+
+  function renderIrrCalculator() {
+    if (!$("irrPresets") || !DATA.irrScenarios) return;
+    if (renderIrrCalculator._done) return;
+    renderIrrCalculator._done = true;
+
+    // Render preset buttons from DATA
+    $("irrPresets").innerHTML = DATA.irrScenarios.scenarios.map((s, i) =>
+      '<button data-i="' + i + '">' + s.name + '</button>'
+    ).join("");
+
+    // Preset click handlers
+    $("irrPresets").querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const s = DATA.irrScenarios.scenarios[+btn.dataset.i];
+        if (!s) return;
+        $("leasePrice").value = s.lease;
+        $("powerCost").value = s.power;
+        $("delayMonths").value = s.delay;
+        $("irrPresets").querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        recalculateIRR();
+      });
+    });
+
+    // Slider input → clear preset highlight, recalc
+    ["leasePrice", "powerCost", "delayMonths"].forEach(id => {
+      $(id).addEventListener("input", () => {
+        $("irrPresets").querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        recalculateIRR();
+      });
+    });
+
+    // Initial: snap to mid-market preset
+    const midBtn = $("irrPresets").querySelector('button[data-i="1"]');
+    if (midBtn) midBtn.click(); else recalculateIRR();
   }
 
   /* ----- Engineer tab renders ----- */
@@ -1906,7 +2057,7 @@
       renderCostStack("costStack");
       renderDeals();
       renderPlays();
-      renderIrrTable();
+      renderIrrCalculator();
       renderCapexChart();
       renderVacancyChart();
     } else if (name === "buildout") {
