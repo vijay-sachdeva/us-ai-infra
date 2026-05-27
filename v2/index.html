@@ -11,6 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -249,6 +251,85 @@
     100% { box-shadow: 0 0 0 0 rgba(21,128,61,0); }
   }
 
+  /* ---------- Chart wrapper ---------- */
+  .chart-box { position: relative; height: 290px; margin-top: 14px; }
+  .chart-box.short { height: 240px; }
+  .chart-box.tall  { height: 320px; }
+
+  /* ---------- Cost stack (lifted from production) ---------- */
+  .cost-group-label {
+    font-size: 11.5px; font-weight: 700; color: var(--ink-2);
+    margin: 12px 0 5px; display: flex; align-items: center; gap: 6px;
+  }
+  .cost-group-label i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .cost-row {
+    display: grid; grid-template-columns: 150px 1fr 70px;
+    align-items: center; gap: 10px; padding: 4px 0;
+  }
+  .cost-row .cn { font-size: 12.5px; color: var(--ink); }
+  .cost-row .cb { height: 16px; border-radius: 4px; }
+  .cost-row .cv { font-size: 12.5px; text-align: right; font-weight: 700; }
+  .cost-sub {
+    display: flex; justify-content: space-between; padding: 7px 0 0;
+    margin-top: 4px; border-top: 1px solid var(--line);
+    font-size: 12.5px; font-weight: 700; color: var(--ink-2);
+  }
+  .cost-total {
+    display: flex; justify-content: space-between; padding: 9px 0 0;
+    margin-top: 4px; border-top: 2px solid var(--ink);
+    font-size: 15px; font-weight: 800;
+  }
+
+  /* ---------- M&A and major lease deals ---------- */
+  .deals-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-top: 12px;
+  }
+  @media (max-width: 700px) { .deals-grid { grid-template-columns: 1fr; } }
+  .deal-card {
+    background: #fcfdff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 13px 15px;
+  }
+  .deal-head {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .deal-date {
+    font-size: 10.5px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .deal-theme {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .deal-theme.t-cap   { background: var(--accent-soft); color: var(--accent); }
+  .deal-theme.t-lease { background: #f5edff; color: #7c3aed; }
+  .deal-theme.t-build { background: var(--green-soft); color: var(--green); }
+  .deal-theme.t-util  { background: var(--amber-soft); color: var(--amber); }
+  .deal-size { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 3px; }
+  .deal-parties { font-size: 12.5px; color: var(--ink-2); font-weight: 600; margin-bottom: 8px; }
+  .deal-note { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+  .deal-src { font-size: 10.5px; color: var(--muted); margin-top: 7px; font-weight: 500; }
+
+  /* ---------- Public-market plays ---------- */
+  .plays-list { margin-top: 10px; }
+  .play-block { padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .play-block:first-child { padding-top: 4px; }
+  .play-block:last-child { border-bottom: none; padding-bottom: 4px; }
+  .play-thesis {
+    font-size: 13.5px; font-weight: 700; color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .ticker-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+  .ticker-chip {
+    display: inline-block;
+    background: var(--bg); border: 1px solid var(--line);
+    font-family: 'Courier New', monospace;
+    font-size: 11.5px; font-weight: 700; color: var(--ink);
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .play-note { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+
   /* ---------- Mobile ---------- */
   @media (max-width: 640px) {
     .head-inner { padding: 12px 15px; gap: 8px; }
@@ -370,41 +451,48 @@
       </div>
 
       <div class="stub-grid">
+        <!-- Card 1: Capex by operator (real chart) -->
         <div class="stub-card">
-          <span class="badge existing">EXISTING</span>
-          <h4>Capex by operator</h4>
-          <div class="note">2026 capex stack across the six largest AI infra operators.</div>
-          <p>Existing capexChart and coCapexChart, reframed for capital allocators. AWS / Microsoft / Google / Meta / Oracle / CoreWeave with AI-attributable split.</p>
+          <h4>2026 capex by operator</h4>
+          <div class="note">Six largest AI infrastructure operators &middot; USD billions &middot; ~75% AI-attributable</div>
+          <div class="chart-box short"><canvas id="coCapexChart"></canvas></div>
         </div>
+
+        <!-- Card 2: Cost stack per MW (real) -->
         <div class="stub-card">
-          <span class="badge existing">EXISTING</span>
-          <h4>Vacancy &amp; pricing power</h4>
-          <div class="note">Primary-market vacancy + supply tightness.</div>
-          <p>Existing CBRE 1.4% vacancy data. New visualization: vacancy trend over time, MW under construction vs absorption.</p>
+          <h4>What a megawatt costs</h4>
+          <div class="note">Illustrative $M to build one MW of AI capacity &middot; GPUs dominate</div>
+          <div id="costStack" style="margin-top:6px"></div>
         </div>
+
+        <!-- Card 3: M&A heatmap (NEW) -->
         <div class="stub-card">
-          <span class="badge new">NEW</span>
-          <h4>M&amp;A heatmap</h4>
-          <div class="note">Recent deals × deal size × strategic theme.</div>
-          <p>NextEra/Dominion ($67B) · Blackstone/Google TPU ($5B) · Aligned 540 MW lease · Hut 8 $9.8B AI lease · CoreWeave contracted pipeline.</p>
+          <h4>M&amp;A and major deals</h4>
+          <div class="note">Deals shaping the buildout &middot; past 30-60 days</div>
+          <div class="deals-grid" id="dealsGrid"></div>
         </div>
+
+        <!-- Card 4: Public-market plays (NEW) -->
         <div class="stub-card">
-          <span class="badge new">NEW</span>
           <h4>Public-market plays</h4>
-          <div class="note">Listed pure-plays, suppliers, utilities exposed to the buildout.</div>
-          <p>Tickers grouped by thesis: hyperscalers, AI-native (CoreWeave, Nebius, Applied Digital), suppliers (Vertiv, Eaton, GE Vernova), power &amp; utilities, REITs (DLR, EQIX).</p>
+          <div class="note">Listed companies grouped by thesis &middot; not investment advice</div>
+          <div class="plays-list" id="playsList"></div>
         </div>
+
+        <!-- Card 5: Vacancy + pricing power (still stub) -->
         <div class="stub-card">
-          <span class="badge existing">EXISTING</span>
-          <h4>$/MW cost build-up</h4>
-          <div class="note">Where every dollar of build cost goes.</div>
-          <p>Existing costStack, framed for capital allocators: GPU vs facility vs power vs cooling.</p>
+          <span class="badge existing">EXISTING — coming next</span>
+          <h4>Vacancy &amp; pricing power</h4>
+          <div class="note">Primary-market vacancy + supply tightness</div>
+          <p>1.4% record-low vacancy. Time-series of vacancy and MW under construction vs absorption. Will land in the next iteration.</p>
         </div>
+
+        <!-- Card 6: Project IRR scenarios (still stub) -->
         <div class="stub-card">
-          <span class="badge new">NEW</span>
+          <span class="badge new">NEW — coming next</span>
           <h4>Project IRR scenarios</h4>
-          <div class="note">Modeled returns under varying lease, power and tenant assumptions.</div>
-          <p>What does a 100 MW project return at $200/kW month lease vs $150 vs $120? Sensitivity to power cost and tenant mix.</p>
+          <div class="note">Modeled returns under varying assumptions</div>
+          <p>Interactive scenario calculator: lease price × power cost × tenant mix → IRR. Will land in the next iteration.</p>
         </div>
       </div>
 
@@ -599,6 +687,47 @@
       { label: "2026 builds facing delays", value: "30–50", unit: "%",
         delta: "<b class='warn'>Analyst estimate</b> · power-equipment constraints",
         src: { label: "Secondary industry reporting", tier: "analyst" } }
+    ],
+
+    /* ----- Investor tab ----- */
+    companyCapex: {
+      companies: ["Amazon", "Microsoft", "Google", "Meta", "Oracle", "CoreWeave"],
+      values:    [200, 190, 185, 150, 50, 33],
+      colors:    ["#ff9900", "#0078d4", "#34a853", "#0866ff", "#c74634", "#7c3aed"],
+      srcs: [
+        { label: "Amazon 2026 guidance" },
+        { label: "Microsoft 2026 guidance" },
+        { label: "Alphabet 2026 guidance" },
+        { label: "Meta 2026 guidance" },
+        { label: "Oracle FY2026 guidance" },
+        { label: "CoreWeave 2026 guidance" }
+      ]
+    },
+    costStack: {
+      layers: [
+        { name: "Site & shell",          value: 5,  group: "facility", detail: "Land, building shell, structural & mechanical." },
+        { name: "Power equipment",       value: 4,  group: "facility", detail: "Transformers, switchgear, generators, UPS." },
+        { name: "Cooling",               value: 2,  group: "facility", detail: "Chillers, liquid loops, air handlers." },
+        { name: "Servers & networking",  value: 8,  group: "compute",  detail: "Servers, storage, networking fabric." },
+        { name: "GPUs / accelerators",   value: 23, group: "compute",  detail: "AI accelerator chips — the largest single layer." }
+      ],
+      facilitySubtotal: 11,
+      allInTotal: 42
+    },
+    deals: [
+      { date: "May 2026", size: "$67B",            parties: "NextEra Energy + Dominion Energy",         theme: "Utility consolidation", themeKey: "t-util",  note: "Largest US utility merger; aimed at serving surging AI data center power demand.", src: "CNBC" },
+      { date: "May 2026", size: "$5B equity",      parties: "Blackstone + Google (TPU platform)",       theme: "Capital deployment",    themeKey: "t-cap",   note: "New AI infrastructure platform; targeting 500 MW initial compute online by 2027.", src: "Industry reporting" },
+      { date: "May 2026", size: "$7.5B → $18.5B",  parties: "Applied Digital + investment-grade tenant", theme: "Hyperscaler lease",     themeKey: "t-lease", note: "300 MW Polaris Forge 3 lease in ND. Options can lift deal value to ~$18.5B.",        src: "Data Center Dynamics" },
+      { date: "May 2026", size: "$9.8B",            parties: "Hut 8 + AI customer",                      theme: "AI mega-lease",         themeKey: "t-lease", note: "Long-term AI infrastructure lease announcement.",                                  src: "Industry reporting" },
+      { date: "May 2026", size: "~$5B regional",    parties: "Aligned Data Centers",                     theme: "New build",             themeKey: "t-build", note: "540 MW, 6-building hyperscale campus in Hale County TX. Self-funded electrical infrastructure with Xcel; Q1 2027 first building.", src: "Data Center Knowledge" },
+      { date: "Apr 2026", size: "1.2 GW long-term", parties: "Crusoe (Abilene campus)",                  theme: "New build",             themeKey: "t-build", note: "Key Stargate infrastructure partner. Phase 1 (~200 MW) operational. 4.5 GW natural-gas pact for fuel.", src: "Data Center Frontier" }
+    ],
+    publicMarketPlays: [
+      { thesis: "Hyperscalers",              tickers: ["MSFT", "GOOGL", "AMZN", "META", "ORCL"], note: "The AI-capex drivers. Cloud + AI revenue lines disclose differently by company." },
+      { thesis: "AI-native cloud",           tickers: ["CRWV", "NBIS", "APLD"],                  note: "Pure-play GPU compute. Highest beta to AI demand growth." },
+      { thesis: "Power & equipment suppliers", tickers: ["VRT", "ETN", "GEV", "PWR", "EMR"],     note: "Pick-and-shovel: transformers, switchgear, generators, EPC." },
+      { thesis: "Utilities + IPPs",          tickers: ["NEE", "VST", "CEG"],                     note: "Capacity additions, nuclear restarts, demand-response programs." },
+      { thesis: "Data center REITs",         tickers: ["DLR", "EQIX"],                           note: "Stabilized cash flows + dividend yield." }
     ]
   };
 
@@ -628,6 +757,94 @@
       </div>`).join("");
   }
 
+  /* ----- Investor tab renders ----- */
+  function renderCostStack() {
+    if (!$("costStack") || !DATA.costStack) return;
+    const cs = DATA.costStack;
+    const max = Math.max.apply(null, cs.layers.map(l => l.value));
+    const facColor = "#1d9e75", compColor = "#1d4ed8";
+    const rowHtml = (l, color) => `<div class="cost-row" title="${l.name}: ${l.detail}"><span class="cn">${l.name}</span><div class="cb" style="width:${(l.value / max * 100).toFixed(1)}%;background:${color}"></div><span class="cv">$${l.value}M</span></div>`;
+    let html = `<div class="cost-group-label"><i style="background:${facColor}"></i>Facility — paid by developer</div>`;
+    cs.layers.filter(l => l.group === "facility").forEach(l => { html += rowHtml(l, facColor); });
+    html += `<div class="cost-sub"><span>Facility subtotal</span><span>$${cs.facilitySubtotal}M / MW</span></div>`;
+    html += `<div class="cost-group-label"><i style="background:${compColor}"></i>Compute — paid by consumer</div>`;
+    cs.layers.filter(l => l.group === "compute").forEach(l => { html += rowHtml(l, compColor); });
+    html += `<div class="cost-total"><span>All-in total</span><span>$${cs.allInTotal}M / MW</span></div>`;
+    $("costStack").innerHTML = html;
+  }
+
+  function renderDeals() {
+    if (!$("dealsGrid") || !DATA.deals) return;
+    $("dealsGrid").innerHTML = DATA.deals.map(d => `
+      <div class="deal-card">
+        <div class="deal-head">
+          <span class="deal-date">${d.date}</span>
+          <span class="deal-theme ${d.themeKey}">${d.theme}</span>
+        </div>
+        <div class="deal-size">${d.size}</div>
+        <div class="deal-parties">${d.parties}</div>
+        <div class="deal-note">${d.note}</div>
+        <div class="deal-src">Source: ${d.src}</div>
+      </div>`).join("");
+  }
+
+  function renderPlays() {
+    if (!$("playsList") || !DATA.publicMarketPlays) return;
+    $("playsList").innerHTML = DATA.publicMarketPlays.map(p => `
+      <div class="play-block">
+        <div class="play-thesis">${p.thesis}</div>
+        <div class="ticker-row">${p.tickers.map(t => `<span class="ticker-chip">${t}</span>`).join("")}</div>
+        <div class="play-note">${p.note}</div>
+      </div>`).join("");
+  }
+
+  function renderCapexChart() {
+    if (!$("coCapexChart") || typeof Chart === "undefined") return;
+    if (renderCapexChart._done) return;
+    renderCapexChart._done = true;
+    const cc = DATA.companyCapex;
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = "#0f1b2d";
+    new Chart($("coCapexChart"), {
+      type: "bar",
+      data: { labels: cc.companies, datasets: [{
+        label: "2026 capex", data: cc.values,
+        backgroundColor: cc.colors, borderRadius: 6, maxBarThickness: 70
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            label: c => " $" + c.parsed.y + "B planned capex",
+            footer: items => { const s = cc.srcs[items[0].dataIndex]; return s ? "Source: " + s.label : ""; }
+          }}
+        },
+        scales: {
+          y: { grid: { color: "#eef1f5" }, ticks: { callback: v => "$" + v + "B" }, beginAtZero: true },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  /* ----- Lazy per-tab render ----- */
+  const renderedTabs = new Set();
+  function renderTab(name) {
+    if (renderedTabs.has(name)) return;
+    renderedTabs.add(name);
+    if (name === "overview") {
+      renderTopStory();
+      renderKpis();
+    } else if (name === "investor") {
+      renderCostStack();
+      renderDeals();
+      renderPlays();
+      renderCapexChart();
+    }
+    // engineer / policy / tokens — wired in later phases
+  }
+
   function showTab(name) {
     if (!name) name = 'overview';
     document.querySelectorAll('section.tab-content').forEach(function (s) {
@@ -641,9 +858,7 @@
   }
   function fromHash() { return (location.hash || '#overview').slice(1); }
 
-  renderTopStory();
-  renderKpis();
-  showTab(fromHash());
+  showTab(fromHash());          // initial activation also renders the active tab
   window.addEventListener('hashchange', function () { showTab(fromHash()); });
 </script>
 
