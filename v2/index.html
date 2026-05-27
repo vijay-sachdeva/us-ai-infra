@@ -361,6 +361,79 @@
   .irr-table td.irr.low  { color: var(--red); }
   .irr-note { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 8px; line-height: 1.5; }
 
+  /* ---------- Engineer: interconnection funnel ---------- */
+  .funnel-flow {
+    display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: stretch; gap: 8px; margin: 14px 0 6px;
+  }
+  @media (max-width: 700px) {
+    .funnel-flow { grid-template-columns: 1fr; gap: 8px; }
+    .funnel-arrow { display: none; }
+  }
+  .funnel-stage {
+    text-align: center; padding: 14px 10px;
+    background: #fcfdff; border: 1px solid var(--line); border-radius: 10px;
+  }
+  .funnel-stage .fs-num { font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
+  .funnel-stage .fs-unit { font-size: 14px; font-weight: 700; color: var(--ink-2); margin-left: 3px; }
+  .funnel-stage .fs-label {
+    font-size: 10.5px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;
+  }
+  .funnel-stage.queue { border-left: 4px solid #60a5fa; }
+  .funnel-stage.build { border-left: 4px solid #f59e0b; }
+  .funnel-stage.op    { border-left: 4px solid #10b981; }
+  .funnel-arrow {
+    font-size: 22px; color: var(--muted); font-weight: 300;
+    display: flex; align-items: center;
+  }
+  .funnel-conv {
+    text-align: center; font-size: 11px; color: var(--muted);
+    margin-top: 10px;
+  }
+
+  /* ---------- Engineer: equipment lead times ---------- */
+  .leadtime-row {
+    display: grid; grid-template-columns: 180px 1fr 90px;
+    align-items: center; gap: 10px; padding: 7px 0;
+    border-bottom: 1px solid #f3f5f8;
+  }
+  .leadtime-row:last-child { border-bottom: none; }
+  .leadtime-name { font-size: 12.5px; color: var(--ink); font-weight: 600; }
+  .leadtime-bar-wrap { background: var(--bg); border-radius: 4px; height: 16px; position: relative; overflow: hidden; }
+  .leadtime-bar { height: 100%; border-radius: 4px; }
+  .leadtime-bar.crit { background: linear-gradient(90deg, #f5b3ae, var(--red)); }
+  .leadtime-bar.warn { background: linear-gradient(90deg, #f9d49a, var(--amber)); }
+  .leadtime-bar.ok   { background: linear-gradient(90deg, #b8e1c4, var(--green)); }
+  .leadtime-val { font-size: 12.5px; font-weight: 700; text-align: right; font-family: 'Courier New', monospace; }
+  .leadtime-val.crit { color: var(--red); }
+  .leadtime-val.warn { color: var(--amber); }
+  .leadtime-val.ok   { color: var(--green); }
+  @media (max-width: 700px) {
+    .leadtime-row { grid-template-columns: 130px 1fr 70px; gap: 6px; }
+    .leadtime-name { font-size: 11.5px; }
+  }
+
+  /* ---------- Engineer: site-selection scorecard ---------- */
+  .scorecard { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .scorecard th, .scorecard td {
+    padding: 7px 6px; text-align: center; font-size: 11.5px;
+    border: 1px solid var(--line);
+  }
+  .scorecard th {
+    font-weight: 700; font-size: 10px; color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: 0.04em; background: #f8fafc;
+  }
+  .scorecard td.market {
+    text-align: left; font-weight: 600; color: var(--ink);
+    padding-left: 10px; min-width: 140px;
+  }
+  .scorecard td.score { font-family: 'Courier New', monospace; font-weight: 800; }
+  .scorecard td.s-low  { background: #fff1f0; color: var(--red); }
+  .scorecard td.s-mid  { background: #fff8eb; color: var(--amber); }
+  .scorecard td.s-high { background: #f0faf4; color: var(--green); }
+  .sc-note { font-size: 11px; color: var(--muted); margin-top: 8px; font-style: italic; line-height: 1.5; }
+
   /* ---------- Mobile ---------- */
   @media (max-width: 640px) {
     .head-inner { padding: 12px 15px; gap: 8px; }
@@ -544,43 +617,49 @@
         <h3>The binding constraint isn't compute — it's transformers, queues and lead times. Where you build matters more than how big you build.</h3>
       </div>
 
-      <div class="stub-grid">
+      <!-- Full-width: interconnection funnel -->
+      <div class="stub-card">
+        <h4>Interconnection queue → construction → operational</h4>
+        <div class="note">US data center grid pipeline · GW · LBNL Queued Up 2025 + CBRE + Goldman Sachs</div>
+        <div class="funnel-flow" id="funnelFlow"></div>
+        <div class="funnel-conv" id="funnelConv"></div>
+      </div>
+
+      <div class="stub-grid" style="margin-top:14px">
+        <!-- Card 2: Lead time by region (chart) -->
         <div class="stub-card">
-          <span class="badge existing">EXISTING</span>
-          <h4>Interconnection queue dynamics</h4>
-          <div class="note">~97 GW in the queue · ~6 GW under construction · 41 GW operational.</div>
-          <p>Existing funnel chart, plus queue churn rate, average time-in-queue, withdrawal rate. Sourced from LBNL Queued Up.</p>
-        </div>
-        <div class="stub-card">
-          <span class="badge existing">EXISTING</span>
           <h4>Time to deployment by region</h4>
-          <div class="note">Energization timeline by major market.</div>
-          <p>Existing deployment timeline + new visualization: bar chart of average lead time by US market (NoVA, Phoenix, Columbus, etc.).</p>
+          <div class="note">Years from greenfield to energized · ranked by lead time</div>
+          <div class="chart-box short"><canvas id="leadTimeChart"></canvas></div>
         </div>
+
+        <!-- Card 3: Equipment lead times (HTML list) -->
         <div class="stub-card">
-          <span class="badge existing">EXISTING</span>
-          <h4>Transformer &amp; equipment lead times</h4>
-          <div class="note">Up to 5 years for high-voltage transformers.</div>
-          <p>Existing bottleneck data, expanded: switchgear, generators, chillers, GPU lead times. Trends.</p>
+          <h4>Equipment lead times</h4>
+          <div class="note">Months from order to delivery · 2026 industry estimates</div>
+          <div id="equipmentLeadTimes" style="margin-top:8px"></div>
         </div>
+
+        <!-- Card 4: Cost stack (engineer framing, reused render) -->
         <div class="stub-card">
-          <span class="badge existing">EXISTING</span>
-          <h4>Cost stack per MW (engineering breakdown)</h4>
-          <div class="note">Labor, equipment, soft costs.</div>
-          <p>Existing costStack, engineering framing. Where does the marginal $1M go in a typical 50 MW build?</p>
+          <h4>Where every $1M goes</h4>
+          <div class="note">Build cost breakdown per MW · facility vs compute layers</div>
+          <div id="costStackEngineer" style="margin-top:6px"></div>
         </div>
+
+        <!-- Card 5: Buildout cadence by hyperscaler (chart) -->
         <div class="stub-card">
-          <span class="badge existing">EXISTING</span>
-          <h4>Buildout cadence by operator</h4>
-          <div class="note">When does capacity actually come online?</div>
-          <p>Existing mwOperationalPipeline data, rolled forward by year. AWS / MSFT / Google / Meta / Oracle / CoreWeave / Nebius.</p>
+          <h4>Self-built capacity: operational vs pipeline</h4>
+          <div class="note">Top 5 hyperscalers · MW · modeled from IR + analyst sources</div>
+          <div class="chart-box short"><canvas id="buildoutChart"></canvas></div>
         </div>
-        <div class="stub-card">
-          <span class="badge new">NEW</span>
-          <h4>Site-selection scorecard</h4>
-          <div class="note">Power availability × land × fiber × labor by market.</div>
-          <p>Composite score across top 12 US markets. Useful for "where should we build next?" conversations.</p>
-        </div>
+      </div>
+
+      <!-- Full-width: site-selection scorecard -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Site-selection scorecard</h4>
+        <div class="note">Composite scores across top US markets · 1-10 scale (higher = better for builds)</div>
+        <div id="scorecardWrap"></div>
       </div>
 
       <div class="cross-ref">
@@ -775,6 +854,60 @@
         { name: "Premium + accelerated lease", lease: "$220/kW-mo", tenant: "AA / hyperscaler",   power: "$50/MWh", irr: "~19%" },
         { name: "18-month delivery delay",     lease: "$180/kW-mo", tenant: "A / hyperscaler",    power: "$70/MWh", irr: "~6%"  }
       ]
+    },
+
+    /* ----- Engineer tab ----- */
+    powerBreakdown: {
+      funnel: {
+        stages: ["Interconnect queue", "Under construction", "Operational"],
+        values: [97, 6, 41],
+        srcs: [
+          { label: "LBNL Queued Up 2025", tier: "analyst" },
+          { label: "CBRE North America Trends H2 2025", tier: "analyst" },
+          { label: "Goldman Sachs Research", tier: "analyst" }
+        ]
+      }
+    },
+    markets: [
+      { name: "Northern Virginia", operational: 12, pipeline: 1100, lead: 7, note: "PJM-gated. 1,102 MW absorption." },
+      { name: "Phoenix, AZ",       operational: 4,  pipeline: 1300, lead: 4, note: "Major growth. Water + grid pressure." },
+      { name: "Chicago, IL",       operational: 3,  pipeline: 1180, lead: 4, note: "ComEd queue." },
+      { name: "Atlanta, GA",       operational: 3,  pipeline: 1110, lead: 4, note: "Fast-rising hub." },
+      { name: "Dallas, TX",        operational: 7,  pipeline: 950,  lead: 3, note: "ERCOT advantage." },
+      { name: "Central Ohio",      operational: 4,  pipeline: 700,  lead: 3, note: "Gigawatt campuses." },
+      { name: "Louisiana",         operational: 1,  pipeline: 600,  lead: 3, note: "Meta Hyperion site." },
+      { name: "Silicon Valley",    operational: 2,  pipeline: 380,  lead: 6, note: "Land + power both scarce." }
+    ],
+    hyperscalerMW: {
+      companies:   ["Amazon (AWS)", "Meta", "Microsoft", "Google", "Oracle"],
+      operational: [2300, 1500, 1200, 510, 470],
+      pipeline:    [2600, 3100, 2300, 1900, 1600],
+      srcLabel: "Operator IR + analyst estimates (modeled)"
+    },
+    equipmentLeadTimes: {
+      items: [
+        { name: "HV transformers",     range: "36–60 mo", maxVal: 60, severity: "crit", note: "Most binding constraint. Pre-2020: ~24 mo." },
+        { name: "MV switchgear",       range: "18–30 mo", maxVal: 30, severity: "warn", note: "Doubled since 2020." },
+        { name: "Standby generators",  range: "12–24 mo", maxVal: 24, severity: "warn", note: "Capacity-tight at major OEMs." },
+        { name: "Chillers / cooling",  range: "12–18 mo", maxVal: 18, severity: "ok",   note: "Stretching but available." },
+        { name: "Liquid-cooling racks", range: "9–15 mo",  maxVal: 15, severity: "ok",   note: "New supply chain maturing." },
+        { name: "Frontier-gen GPUs",   range: "6–12 mo",  maxVal: 12, severity: "ok",   note: "Allocation, not lead time, is the issue." }
+      ],
+      maxScale: 60
+    },
+    siteScorecards: {
+      factors: ["Power", "Speed", "Cost", "Talent", "Vacancy"],
+      markets: [
+        { name: "Louisiana",          scores: [8, 7, 9, 4, 8] },
+        { name: "Central Ohio",       scores: [7, 7, 7, 5, 6] },
+        { name: "Dallas, TX",         scores: [6, 7, 7, 7, 4] },
+        { name: "Atlanta, GA",        scores: [6, 6, 7, 6, 4] },
+        { name: "Phoenix, AZ",        scores: [5, 6, 6, 7, 3] },
+        { name: "Chicago, IL",        scores: [4, 5, 5, 6, 3] },
+        { name: "Northern Virginia",  scores: [3, 2, 4, 9, 1] },
+        { name: "Silicon Valley",     scores: [2, 2, 2, 9, 1] }
+      ],
+      note: "Scores 1-10 (higher = more favorable for new builds). Composite from CBRE, JLL, modeled. Weight by your build profile."
     }
   };
 
@@ -805,8 +938,9 @@
   }
 
   /* ----- Investor tab renders ----- */
-  function renderCostStack() {
-    if (!$("costStack") || !DATA.costStack) return;
+  function renderCostStack(targetId) {
+    targetId = targetId || "costStack";
+    if (!$(targetId) || !DATA.costStack) return;
     const cs = DATA.costStack;
     const max = Math.max.apply(null, cs.layers.map(l => l.value));
     const facColor = "#1d9e75", compColor = "#1d4ed8";
@@ -817,7 +951,7 @@
     html += `<div class="cost-group-label"><i style="background:${compColor}"></i>Compute — paid by consumer</div>`;
     cs.layers.filter(l => l.group === "compute").forEach(l => { html += rowHtml(l, compColor); });
     html += `<div class="cost-total"><span>All-in total</span><span>$${cs.allInTotal}M / MW</span></div>`;
-    $("costStack").innerHTML = html;
+    $(targetId).innerHTML = html;
   }
 
   function renderDeals() {
@@ -936,6 +1070,121 @@
       <div class="irr-note">Assumptions: ${ir.assumptions}</div>`;
   }
 
+  /* ----- Engineer tab renders ----- */
+  function renderFunnel() {
+    if (!$("funnelFlow") || !DATA.powerBreakdown) return;
+    const f = DATA.powerBreakdown.funnel;
+    const classes = ["queue", "build", "op"];
+    $("funnelFlow").innerHTML = f.stages.map((stage, i) => {
+      const stageHtml = `
+        <div class="funnel-stage ${classes[i]}">
+          <div><span class="fs-num">${f.values[i]}</span><span class="fs-unit">GW</span></div>
+          <div class="fs-label">${stage}</div>
+        </div>`;
+      return i < f.stages.length - 1 ? stageHtml + '<div class="funnel-arrow">→</div>' : stageHtml;
+    }).join("");
+    const queue = f.values[0], underCon = f.values[1], op = f.values[2];
+    const convInQueue = (underCon / queue * 100).toFixed(1);
+    if ($("funnelConv")) {
+      $("funnelConv").innerHTML =
+        'Only <b>' + convInQueue + '%</b> of the ' + queue + ' GW in the queue is actively under construction — the rest is gated by power, transmission and permitting.';
+    }
+  }
+
+  function renderLeadTimeChart() {
+    if (!$("leadTimeChart") || typeof Chart === "undefined") return;
+    if (renderLeadTimeChart._done) return;
+    renderLeadTimeChart._done = true;
+    const sorted = [...DATA.markets].sort((a, b) => b.lead - a.lead);
+    const colorFor = (l) => l >= 6 ? "#c0322b" : l >= 4 ? "#c2710c" : "#15803d";
+    new Chart($("leadTimeChart"), {
+      type: "bar",
+      data: {
+        labels: sorted.map(m => m.name),
+        datasets: [{
+          label: "Lead time (years)",
+          data: sorted.map(m => m.lead),
+          backgroundColor: sorted.map(m => colorFor(m.lead)),
+          borderRadius: 5, maxBarThickness: 22
+        }]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            label: c => " " + c.parsed.x + " years",
+            footer: items => { const m = sorted[items[0].dataIndex]; return m ? m.note : ""; }
+          }}
+        },
+        scales: {
+          x: { grid: { color: "#eef1f5" }, ticks: { callback: v => v + " yr" }, beginAtZero: true, suggestedMax: 8 },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderEquipmentLeadTimes() {
+    if (!$("equipmentLeadTimes") || !DATA.equipmentLeadTimes) return;
+    const el = DATA.equipmentLeadTimes;
+    const max = el.maxScale;
+    $("equipmentLeadTimes").innerHTML = el.items.map(it => `
+      <div class="leadtime-row" title="${it.note}">
+        <div class="leadtime-name">${it.name}</div>
+        <div class="leadtime-bar-wrap"><div class="leadtime-bar ${it.severity}" style="width:${(it.maxVal / max * 100).toFixed(1)}%"></div></div>
+        <div class="leadtime-val ${it.severity}">${it.range}</div>
+      </div>`).join("");
+  }
+
+  function renderBuildoutChart() {
+    if (!$("buildoutChart") || typeof Chart === "undefined") return;
+    if (renderBuildoutChart._done) return;
+    renderBuildoutChart._done = true;
+    const hm = DATA.hyperscalerMW;
+    new Chart($("buildoutChart"), {
+      type: "bar",
+      data: {
+        labels: hm.companies,
+        datasets: [
+          { label: "Operational", data: hm.operational, backgroundColor: "#1d4ed8", borderRadius: 5, maxBarThickness: 22 },
+          { label: "Pipeline",    data: hm.pipeline,    backgroundColor: "#c2710c", borderRadius: 5, maxBarThickness: 22 }
+        ]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.x.toLocaleString() + " MW",
+            footer: () => "Source: " + hm.srcLabel
+          }}
+        },
+        scales: {
+          x: { grid: { color: "#eef1f5" }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(1) + " GW" : v + " MW" }, beginAtZero: true },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderScorecard() {
+    if (!$("scorecardWrap") || !DATA.siteScorecards) return;
+    const sc = DATA.siteScorecards;
+    const classFor = (n) => n >= 7 ? "s-high" : n >= 4 ? "s-mid" : "s-low";
+    const head = `<tr><th style="text-align:left;padding-left:10px">Market</th>${sc.factors.map(f => `<th>${f}</th>`).join("")}<th>Avg</th></tr>`;
+    const rows = sc.markets.map(m => {
+      const avg = (m.scores.reduce((a, b) => a + b, 0) / m.scores.length).toFixed(1);
+      return `<tr><td class="market">${m.name}</td>${m.scores.map(s => `<td class="score ${classFor(s)}">${s}</td>`).join("")}<td class="score ${classFor(parseFloat(avg))}">${avg}</td></tr>`;
+    }).join("");
+    $("scorecardWrap").innerHTML = `
+      <table class="scorecard">
+        <thead>${head}</thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="sc-note">${sc.note}</div>`;
+  }
+
   /* ----- Lazy per-tab render ----- */
   const renderedTabs = new Set();
   function renderTab(name) {
@@ -945,14 +1194,21 @@
       renderTopStory();
       renderKpis();
     } else if (name === "investor") {
-      renderCostStack();
+      renderCostStack("costStack");
       renderDeals();
       renderPlays();
       renderIrrTable();
       renderCapexChart();
       renderVacancyChart();
+    } else if (name === "engineer") {
+      renderFunnel();
+      renderEquipmentLeadTimes();
+      renderCostStack("costStackEngineer");
+      renderScorecard();
+      renderLeadTimeChart();
+      renderBuildoutChart();
     }
-    // engineer / policy / tokens — wired in later phases
+    // policy / tokens — wired in later phases
   }
 
   function showTab(name) {
