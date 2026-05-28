@@ -2,11 +2,12 @@
 """Daily refresh for the US AI Infrastructure Monitor dashboard.
 
 Asks Claude (via Anthropic API, with web search) to identify fresh US AI
-data-center news, applies surgical edits to three fields inside the
+data-center news, applies surgical edits to two fields inside the
 `const DATA = {...}` object in index.html, and writes the file back.
 
 Safety guards:
-  * Only touches three fields: lastUpdated, topStory, feed.
+  * Only touches two fields: lastUpdated and topStory. (Other "news-shaped"
+    fields like `deals` are curated on a quarterly cadence, not daily.)
   * Aborts (does not write) if the post-edit file size moves outside
     [95%, 110%] of the pre-edit size.
   * Aborts and reverts if `git diff --stat index.html` shows more than
@@ -57,40 +58,32 @@ TOP_STORY_RE = re.compile(
     r'(?ms)^(\s*)topStory:\s*\{(.*?)\n\s*\},'
 )
 
-# feed: [ ... ],  — followed by a blank line and `transparency:` (next field).
-FEED_RE = re.compile(
-    r'(?ms)^(\s*)feed:\s*\[\n(.*?)\n\s*\],'
-)
 
-
-def extract_current_state(html: str) -> tuple[str | None, str, str]:
-    """Return (lastUpdated, topStory_raw_block, feed_raw_body)."""
+def extract_current_state(html: str) -> tuple[str | None, str]:
+    """Return (lastUpdated, topStory_raw_block)."""
     m_last = LAST_UPDATED_RE.search(html)
     last_updated = m_last.group(1) if m_last else None
 
     m_top = TOP_STORY_RE.search(html)
     top_story = m_top.group(0) if m_top else ""
 
-    m_feed = FEED_RE.search(html)
-    feed_body = m_feed.group(2) if m_feed else ""
-
-    return last_updated, top_story, feed_body
+    return last_updated, top_story
 
 
 # -------------------- prompt --------------------
 
 def build_prompt(last_updated: str | None,
                  top_story_block: str,
-                 feed_body: str,
                  today_iso: str) -> str:
     return f"""You are doing the daily news refresh for the US AI Infrastructure Monitor dashboard
 at https://vijay-sachdeva.github.io/us-ai-infra/.
 
 GOAL
-Identify significant US AI data-center news from roughly the past 24-72 hours and decide whether to update three fields in the dashboard's DATA object:
+Identify significant US AI data-center news from roughly the past 24-72 hours and decide whether to update two fields in the dashboard's DATA object:
   - lastUpdated:   YYYY-MM-DD date
   - topStory:      {{ date, text, src, url }} — the prominent news banner near the top
-  - feed:          array of ~8 {{ date, text, src }} entries — the "Recent developments" section
+
+Other "news-shaped" fields on the dashboard (e.g. `deals`) are curated on a quarterly cadence with richer metadata and are OUT OF SCOPE for this daily refresh — do not propose changes to them.
 
 CONSTRAINTS
 - Use the web_search tool to find fresh news. Prefer primary sources (company press releases, SEC filings, earnings calls) and credible industry outlets (Data Center Dynamics, Data Center Knowledge, Data Center Frontier, Bloomberg, Reuters, WSJ, CNBC, Fortune, S&P Global, Utility Dive).
@@ -107,7 +100,7 @@ BIAS TOWARD FRESHNESS — if the current topStory is more than ~5 days old and a
 
 Other valid topics: material data-center projects (new sites >100 MW, capacity expansions, capex revisions), power/grid news (interconnection, transformers, utility deals), new analyst reports (Goldman Sachs, CBRE, JLL, Morgan Stanley, SemiAnalysis), major M&A or regulation.
 
-A day with no major news is normal — set lastUpdated to today's date, leave topStory and feed unchanged. But don't be so conservative that the topStory ages out for weeks.
+A day with no major news is normal — set lastUpdated to today's date and leave topStory unchanged. But don't be so conservative that the topStory ages out for weeks.
 
 TODAY (UTC): {today_iso}
 CURRENT lastUpdated: {last_updated}
@@ -117,27 +110,18 @@ CURRENT topStory block:
 {top_story_block}
 ```
 
-CURRENT feed body (each line is one entry):
-```
-{feed_body}
-```
-
 OUTPUT
 Return STRICTLY a single JSON object (no markdown fences, no commentary before or after) with EXACTLY this shape:
 
 {{
   "lastUpdated": "{today_iso}",
   "topStory": null,
-  "feedPrepend": [],
-  "feedDropFromEnd": 0,
   "summary": "Date bump only — no fresh news"
 }}
 
 Field semantics:
   - "lastUpdated": always set to today's date in YYYY-MM-DD.
   - "topStory":  null to keep current; otherwise {{ "date": "Mon DD, YYYY", "text": "1-2 factual sentences, no opinion", "src": "Publication", "url": "https://..." }}.
-  - "feedPrepend": list of 0-3 NEW items to prepend to the feed. Each is {{ "date": "MMM YYYY", "text": "1-2 factual sentences", "src": "Publication" }}.
-  - "feedDropFromEnd": integer >= 0. How many entries to drop from the END of the feed array. Typically equals len(feedPrepend) so the array stays around 8 entries. Set to 0 if feedPrepend is empty.
   - "summary": short one-line description of what changed today.
 
 Hard rules:
@@ -153,12 +137,10 @@ Begin.
 # -------------------- Anthropic call --------------------
 
 def _date_bump_only(today_iso: str, reason: str) -> dict:
-    """Fallback edit that only updates lastUpdated and leaves topStory/feed alone."""
+    """Fallback edit that only updates lastUpdated and leaves topStory alone."""
     return {
         "lastUpdated": today_iso,
         "topStory": None,
-        "feedPrepend": [],
-        "feedDropFromEnd": 0,
         "summary": f"Date bump only ({reason})",
     }
 
@@ -293,15 +275,6 @@ def render_top_story_block(indent: str, top: dict) -> str:
     )
 
 
-def render_feed_item(indent: str, item: dict) -> str:
-    """Render one feed item in the existing one-line-per-item style."""
-    return (
-        f"{indent}{{ date: {js_string(item['date'])}, "
-        f"text: {js_string(item['text'])}, "
-        f"src: {js_string(item['src'])} }},"
-    )
-
-
 def apply_edits(html: str, edits: dict) -> str:
     """Apply the JSON-described edits to the HTML text. Returns new html."""
     new_html = html
@@ -325,32 +298,6 @@ def apply_edits(html: str, edits: dict) -> str:
             raise RuntimeError("Could not locate topStory block")
         indent = m.group(1)
         new_block = render_top_story_block(indent, top)
-        new_html = new_html[: m.start()] + new_block + new_html[m.end():]
-
-    # 3. feed: prepend new items, drop from end
-    prepend = edits.get("feedPrepend") or []
-    drop_n = int(edits.get("feedDropFromEnd") or 0)
-
-    if prepend or drop_n > 0:
-        m = FEED_RE.search(new_html)
-        if not m:
-            raise RuntimeError("Could not locate feed array")
-        indent = m.group(1)
-        item_indent = indent + "  "
-        existing_lines = m.group(2).split("\n")
-        # Keep only lines that look like items (start with `{` after indent).
-        items = [ln for ln in existing_lines if ln.strip().startswith("{")]
-
-        # Drop from end.
-        if drop_n > 0:
-            items = items[:-drop_n] if drop_n < len(items) else []
-
-        # Prepend new items.
-        new_items = [render_feed_item(item_indent, it) for it in prepend]
-        all_items = new_items + items
-        new_body = "\n".join(all_items)
-
-        new_block = f"{indent}feed: [\n{new_body}\n{indent}],"
         new_html = new_html[: m.start()] + new_block + new_html[m.end():]
 
     return new_html
@@ -382,14 +329,14 @@ def main() -> int:
     size_before = len(html_before.encode("utf-8"))
     print(f"[refresh] file size before: {size_before} bytes")
 
-    last_updated, top_block, feed_body = extract_current_state(html_before)
+    last_updated, top_block = extract_current_state(html_before)
     print(f"[refresh] current lastUpdated: {last_updated}")
 
     if last_updated == today_iso:
         print("[refresh] already updated today — exiting cleanly with no change")
         return 0
 
-    prompt = build_prompt(last_updated, top_block, feed_body, today_iso)
+    prompt = build_prompt(last_updated, top_block, today_iso)
     print("[refresh] calling Anthropic API ...")
 
     try:
