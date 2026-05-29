@@ -1272,12 +1272,12 @@
   // daily-refresh workflow resumes editing this same content. Until then,
   // this is a snapshot that may lag production by a day or two.
   const DATA = {
-    lastUpdated: "2026-05-28",
+    lastUpdated: "2026-05-29",
     topStory: {
-      date: "May 18, 2026",
-      text: "NextEra Energy agreed to acquire Virginia utility Dominion for about $67B — the largest US utility merger, aimed at meeting surging AI data center power demand.",
-      src: "CNBC",
-      url: "https://www.cnbc.com/2026/05/18/nextera-nee-dominion-energy-d-data-center-ai.html"
+      date: "May 20, 2026",
+      text: "Anthropic agreed to pay xAI ~$1.25B/month through May 2029 (≈$40B+ total) for full use of the 300 MW Colossus 1 site in Memphis — one of the largest single AI compute commitments on record.",
+      src: "TechCrunch",
+      url: "https://techcrunch.com/2026/05/20/anthropic-will-pay-xai-1-25-billion-per-month-for-compute/"
     },
     kpis: [
       { label: "US power demand 2026", value: "41", unit: "GW",
@@ -1328,7 +1328,9 @@
       allInTotal: 42
     },
     deals: [
-      { date: "May 2026", size: "$67B",            parties: "NextEra Energy + Dominion Energy",         theme: "Utility consolidation", themeKey: "t-util",  note: "Largest US utility merger; aimed at serving surging AI data center power demand.", src: "CNBC" },
+      { date: "May 2026", size: "~$40B / $1.25B mo", parties: "Anthropic + xAI (Colossus 1, Memphis)",    theme: "AI mega-lease",         themeKey: "t-lease", note: "Anthropic taps full 300 MW of xAI's Colossus 1 (≈220K GPUs) through May 2029 — one of the largest single AI compute commitments on record.", src: "TechCrunch" },
+      { date: "May 2026", size: "1.2 GW campus",     parties: "Nebius (Pennsylvania)",                    theme: "New build",             themeKey: "t-build", note: "Second US gigawatt-scale Nebius site; company targets ~4 GW contracted power by year-end 2026.", src: "Data Center Dynamics" },
+      { date: "May 2026", size: "$67B",            parties: "NextEra Energy + Dominion Energy",         theme: "Utility consolidation", themeKey: "t-util",  note: "Largest US utility merger; combined ~130 GW backlog aimed at serving surging AI data center power demand.", src: "CNBC" },
       { date: "May 2026", size: "$5B equity",      parties: "Blackstone + Google (TPU platform)",       theme: "Capital deployment",    themeKey: "t-cap",   note: "New AI infrastructure platform; targeting 500 MW initial compute online by 2027.", src: "Industry reporting" },
       { date: "May 2026", size: "$7.5B → $18.5B",  parties: "Applied Digital + investment-grade tenant", theme: "Hyperscaler lease",     themeKey: "t-lease", note: "300 MW Polaris Forge 3 lease in ND. Options can lift deal value to ~$18.5B.",        src: "Data Center Dynamics" },
       { date: "May 2026", size: "$9.8B",            parties: "Hut 8 + AI customer",                      theme: "AI mega-lease",         themeKey: "t-lease", note: "Long-term AI infrastructure lease announcement.",                                  src: "Industry reporting" },
