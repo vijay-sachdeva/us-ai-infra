@@ -911,6 +911,18 @@
     .kpis { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
+<script>
+  // Set theme before body renders to avoid a light-mode flash.
+  // Defaults to dark; respects any saved user choice in localStorage.
+  (function () {
+    try {
+      var t = localStorage.getItem("us-dc-theme") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (_) {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  })();
+</script>
 </head>
 <body>
 
@@ -2401,7 +2413,7 @@
     document.documentElement.setAttribute("data-theme", theme);
   }
   function toggleTheme() {
-    const current = localStorage.getItem(THEME_KEY) || "light";
+    const current = localStorage.getItem(THEME_KEY) || "dark";
     const next = current === "light" ? "dark" : "light";
     localStorage.setItem(THEME_KEY, next);
     applyTheme(next);
@@ -2423,7 +2435,7 @@
       if (typeof showTab === "function") showTab(cur);
     }
   }
-  applyTheme(localStorage.getItem(THEME_KEY) || "light");
+  applyTheme(localStorage.getItem(THEME_KEY) || "dark");
   (function () {
     const btn = document.getElementById("themeToggle");
     if (btn) btn.addEventListener("click", toggleTheme);
