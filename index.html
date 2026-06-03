@@ -536,6 +536,54 @@
   .leadtime-val.crit { color: var(--red); }
   .leadtime-val.warn { color: var(--amber); }
   .leadtime-val.ok   { color: var(--green); }
+
+  /* ---------- Stack layers / substrate bottlenecks (Buildout tab) ---------- */
+  .stack-row { padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .stack-row:first-child { padding-top: 4px; }
+  .stack-row:last-child  { border-bottom: none; padding-bottom: 4px; }
+  .stack-head {
+    display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap;
+    justify-content: space-between; margin-bottom: 4px;
+  }
+  .stack-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .stack-num {
+    font-size: 10.5px; font-weight: 800; color: var(--accent);
+    background: var(--accent-soft);
+    padding: 2px 6px; border-radius: 3px;
+    font-family: 'Courier New', monospace; margin-right: 4px;
+  }
+  .stack-what { font-weight: 500; color: var(--ink-2); }
+  .stack-evidence { font-size: 11.5px; color: var(--ink-2); line-height: 1.45; }
+  .stack-src { font-style: italic; color: var(--muted); }
+  .stack-pill {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em;
+    white-space: nowrap;
+  }
+  .stack-pill.crit { background: var(--red-soft);   color: var(--red); }
+  .stack-pill.warn { background: var(--amber-soft); color: var(--amber); }
+  .stack-pill.ok   { background: var(--green-soft); color: var(--green); }
+
+  /* ---------- Optical interconnect roadmap ---------- */
+  .optical-section-title {
+    font-size: 11px; font-weight: 700; color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px;
+  }
+  .optical-gen-row {
+    display: grid; grid-template-columns: 60px 90px 1fr; gap: 8px;
+    padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 12.5px;
+  }
+  .optical-gen-row:last-of-type { border-bottom: none; }
+  .optical-gen-name  { font-weight: 800; color: var(--ink); font-family: 'Courier New', monospace; }
+  .optical-gen-years { color: var(--ink-2); font-weight: 600; }
+  .optical-gen-note  { color: var(--ink-2); }
+  .optical-milestone {
+    display: grid; grid-template-columns: 90px 1fr; gap: 8px;
+    padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 12.5px;
+  }
+  .optical-milestone:last-of-type { border-bottom: none; }
+  .optical-milestone-date  { font-weight: 700; color: var(--accent); }
+  .optical-milestone-event { color: var(--ink-2); line-height: 1.4; }
   @media (max-width: 700px) {
     .leadtime-row { grid-template-columns: 130px 1fr 70px; gap: 6px; }
     .leadtime-name { font-size: 11.5px; }
@@ -1116,6 +1164,27 @@
         <div class="funnel-conv" id="funnelConv"></div>
       </div>
 
+      <!-- Full-width: AI infrastructure stack — where the binding constraint sits -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>AI infrastructure stack — where the binding constraint sits</h4>
+        <div class="note">Each layer of the buildout has its own choke point. As one loosens the constraint cascades upstream. Status reflects current public commentary; every row carries a citation.</div>
+        <div id="stackLayers" style="margin-top:10px"></div>
+      </div>
+
+      <!-- Two-column: substrate bottlenecks + optical roadmap -->
+      <div class="stub-grid" style="margin-top:14px">
+        <div class="stub-card">
+          <h4>Upstream substrate bottlenecks</h4>
+          <div class="note">Supply concentration beneath the transceiver layer</div>
+          <div id="substrateBottlenecks" style="margin-top:8px"></div>
+        </div>
+        <div class="stub-card">
+          <h4>Optical interconnect roadmap</h4>
+          <div class="note">Bandwidth generations + CPO transition</div>
+          <div id="opticalRoadmap" style="margin-top:8px"></div>
+        </div>
+      </div>
+
       <!-- Full-width: US data center map -->
       <div class="stub-card" style="margin-top:14px">
         <h4>Where the capacity sits — primary US markets</h4>
@@ -1410,6 +1479,69 @@
         { name: "Frontier-gen GPUs",   range: "6–12 mo",  maxVal: 12, severity: "ok",   note: "Allocation, not lead time, is the issue." }
       ],
       maxScale: 60
+    },
+
+    /* ----- Stack layers (Buildout) — where the binding constraint sits ----- */
+    stackLayers: {
+      layers: [
+        { n: 0, name: "Site & power",         what: "Real estate, transformers, interconnect",
+          status: "structural", statusLabel: "Structural",
+          evidence: "Up to 5-year HV transformer lead times; 97 GW interconnect queue; 30–50% of 2026 builds facing power-equipment delays.",
+          src: { label: "CBRE H2 2025 + LBNL Queued Up 2025", tier: "analyst" } },
+        { n: 1, name: "Compute silicon",      what: "GPUs (Blackwell, Rubin), custom ASICs",
+          status: "resolving", statusLabel: "Resolving",
+          evidence: "GB200 NVL racks now generally available; manufacturing yields improved; hyperscalers each deploying ~72,000 Blackwell GPUs/week.",
+          src: { label: "NVIDIA Q1 FY27 CFO commentary (May 2026)", tier: "primary" } },
+        { n: 2, name: "Substrates",           what: "Photonics-SOI & InP wafers",
+          status: "structural", statusLabel: "Structural",
+          evidence: "Soitec holds ~95%+ Photonics-SOI share — sole qualified volume supplier of Smart Cut wafers used by NVIDIA CPO switches, Broadcom data-center ASICs, and 800G/1.6T transceivers.",
+          src: { label: "Soitec H1'26 results + BofA analyst note", tier: "primary" } },
+        { n: 3, name: "Laser & epitaxy",      what: "CW + EML lasers on InP",
+          status: "tight", statusLabel: "Tight",
+          evidence: "InP epitaxial capacity stretched to its limits; Coherent expanding InP fab capacity ~5× by 2026 to ease 800G/1.6T transceiver demand.",
+          src: { label: "TrendForce + Coherent press / optics.org", tier: "analyst" } },
+        { n: 4, name: "Optical interconnect", what: "800G → 1.6T pluggables → CPO",
+          status: "emerging", statusLabel: "Emerging",
+          evidence: "800G shipments forecast ~49M units in 2026 (≈2× YoY); >800G total ~2.6× to 63M units (2025 → 2026); 1.6T chipset sales >$2B in 2026.",
+          src: { label: "LightCounting April 2026 forecast", tier: "analyst" } },
+        { n: 5, name: "Memory / HBM",         what: "HBM3e → HBM4",
+          status: "tight", statusLabel: "Tight",
+          evidence: "HBM3e supply lags demand; SK hynix + Samsung raised HBM3e prices ~20% for 2026; HBM4 ramps for NVIDIA Vera Rubin platform.",
+          src: { label: "TrendForce HBM Industry Analysis 1Q26", tier: "analyst" } }
+      ]
+    },
+
+    /* ----- Substrate bottlenecks (Buildout) — upstream concentration ----- */
+    substrateBottlenecks: {
+      items: [
+        { name: "Photonics-SOI wafers", vendor: "Soitec (Smart Cut process)",
+          status: "crit", statusLabel: "Single source",
+          detail: "Sole qualified volume supplier (~95%+ share). Substrate for NVIDIA CPO switches, Broadcom data-center ASICs, and 800G/1.6T transceivers.",
+          src: { label: "Soitec H1'26 + BofA", tier: "primary" } },
+        { name: "Indium phosphide (InP) wafers", vendor: "AXT, Sumitomo Electric",
+          status: "warn", statusLabel: "Tight",
+          detail: "AXT InP backlog >$60M; capacity planned to double from Q4 2025 by end-2026 to support $35M/qtr InP run-rate. Underpins all CW/EML lasers.",
+          src: { label: "AXT Q1 2026 results + 10-K", tier: "primary" } },
+        { name: "CoWoS advanced packaging", vendor: "TSMC + OSAT partners",
+          status: "warn", statusLabel: "Tight",
+          detail: "TSMC guided to ~130k CoWoS wafers/mo by end-2026 vs ~75k/mo end-2025 — roughly doubling to meet AI packaging demand.",
+          src: { label: "TSMC Q1 2026 earnings call", tier: "primary" } }
+      ]
+    },
+
+    /* ----- Optical interconnect roadmap (Buildout) ----- */
+    opticalRoadmap: {
+      generations: [
+        { gen: "400G", years: "2023–25", note: "Mature; declining mix as 800G ramps." },
+        { gen: "800G", years: "2025–27", note: "Forecast ~49M units in 2026 (≈2× YoY); the AI scale-up workhorse." },
+        { gen: "1.6T", years: "2026–28", note: "Chipset sales forecast >$2B in 2026; production ramp through 2027." }
+      ],
+      cpoMilestones: [
+        { date: "2025",     event: "Broadcom Tomahawk 5-Bailly becomes the first volume-production CPO; 50,000+ switches shipped." },
+        { date: "2026",     event: "Broadcom 3rd-gen 200G/lane CPO sampling; customer qualification phase." },
+        { date: "2026–27",  event: "Hyperscaler CPO coexists with pluggables in early production; AWS/Microsoft/Google/Meta evaluating." }
+      ],
+      src: { label: "Broadcom investor releases + LightCounting", tier: "primary" }
     },
     siteScorecards: {
       factors: ["Power", "Speed", "Cost", "Talent", "Vacancy"],
@@ -1881,6 +2013,57 @@
         <div class="leadtime-bar-wrap"><div class="leadtime-bar ${it.severity}" style="width:${(it.maxVal / max * 100).toFixed(1)}%"></div></div>
         <div class="leadtime-val ${it.severity}">${it.range}</div>
       </div>`).join("");
+  }
+
+  const STACK_SEV = { structural: "crit", tight: "warn", emerging: "warn", resolving: "ok" };
+
+  function renderStackLayers() {
+    if (!$("stackLayers") || !DATA.stackLayers) return;
+    $("stackLayers").innerHTML = DATA.stackLayers.layers.map(l => `
+      <div class="stack-row" title="${l.evidence.replace(/"/g, '&quot;')}">
+        <div class="stack-head">
+          <div class="stack-name">
+            <span class="stack-num">L${l.n}</span>${l.name}
+            <span class="stack-what">— ${l.what}</span>
+          </div>
+          <span class="stack-pill ${STACK_SEV[l.status] || 'ok'}">${l.statusLabel}</span>
+        </div>
+        <div class="stack-evidence">${l.evidence} <span class="stack-src">— ${l.src.label}</span></div>
+      </div>`).join("");
+  }
+
+  function renderSubstrateBottlenecks() {
+    if (!$("substrateBottlenecks") || !DATA.substrateBottlenecks) return;
+    $("substrateBottlenecks").innerHTML = DATA.substrateBottlenecks.items.map(it => `
+      <div class="stack-row" title="${it.detail.replace(/"/g, '&quot;')}">
+        <div class="stack-head">
+          <div class="stack-name">${it.name} <span class="stack-what">— ${it.vendor}</span></div>
+          <span class="stack-pill ${it.status}">${it.statusLabel}</span>
+        </div>
+        <div class="stack-evidence">${it.detail} <span class="stack-src">— ${it.src.label}</span></div>
+      </div>`).join("");
+  }
+
+  function renderOpticalRoadmap() {
+    if (!$("opticalRoadmap") || !DATA.opticalRoadmap) return;
+    const r = DATA.opticalRoadmap;
+    const gens = r.generations.map(g => `
+      <div class="optical-gen-row">
+        <div class="optical-gen-name">${g.gen}</div>
+        <div class="optical-gen-years">${g.years}</div>
+        <div class="optical-gen-note">${g.note}</div>
+      </div>`).join("");
+    const milestones = r.cpoMilestones.map(m => `
+      <div class="optical-milestone">
+        <div class="optical-milestone-date">${m.date}</div>
+        <div class="optical-milestone-event">${m.event}</div>
+      </div>`).join("");
+    $("opticalRoadmap").innerHTML = `
+      <div class="optical-section-title">Bandwidth generations</div>
+      ${gens}
+      <div class="optical-section-title" style="margin-top:14px">Co-Packaged Optics (CPO) timeline</div>
+      ${milestones}
+      <div class="note" style="margin-top:10px;font-style:italic">— ${r.src.label}</div>`;
   }
 
   function renderBuildoutChart() {
@@ -2364,6 +2547,9 @@
       renderVacancyChart();
     } else if (name === "buildout") {
       renderFunnel();
+      renderStackLayers();
+      renderSubstrateBottlenecks();
+      renderOpticalRoadmap();
       renderEquipmentLeadTimes();
       renderCostStack("costStackEngineer");
       renderScorecard();
