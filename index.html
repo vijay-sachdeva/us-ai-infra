@@ -1309,14 +1309,21 @@
 
       <div class="so-what">
         <label>The hidden story</label>
-        <h3>Token volume is ~10× higher than two years ago, and $/token is ~100× lower. The AI economy runs on this curve.</h3>
+        <h3>At the largest platforms, total tokens processed have scaled <b>~330× in 24 months</b> (Google: 9.7 T → 3,200 T per month, May 2024 → May 2026), while $/token has fallen ~100×. The AI economy runs on this curve.</h3>
       </div>
 
       <!-- Card 1: Industry token volume (full-width) -->
       <div class="stub-card">
         <h4>Industry token volume by provider</h4>
-        <div class="note">Trillions of tokens served per quarter &middot; stacked area &middot; modeled from provider disclosures + Epoch AI + SemiAnalysis</div>
+        <div class="note">Trillions of <b>externally-billed API tokens</b> per quarter &middot; stacked area &middot; modeled from provider revenue + Epoch AI + SemiAnalysis. <b>Does not include in-product AI inference</b> (Search AI Overviews, YouTube, Workspace) — see Disclosed totals below for the bigger picture.</div>
         <div class="chart-box" style="height:320px"><canvas id="tokenVolumeChart"></canvas></div>
+      </div>
+
+      <!-- Card 1b: Disclosed totals — reconciles API-modeled vs total inference -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Disclosed total tokens processed — the bigger picture</h4>
+        <div class="note">When platforms disclose total inference across all surfaces (API + in-product), the numbers are materially larger than monetized API volume alone.</div>
+        <div id="disclosedTokenTotals" style="margin-top:8px"></div>
       </div>
 
       <!-- Card 2: $/token compression (full-width, log y) -->
@@ -1622,6 +1629,17 @@
         { name: "OSS hosted",    color: "#7c3aed", values: [10,  15,  23,  35,  50,  70,  95,  130, 175, 235] }
       ],
       src: { label: "Epoch AI, SemiAnalysis, provider revenue disclosures (modeled)", tier: "modeled" }
+    },
+    disclosedTokenTotals: {
+      rows: [
+        { provider: "Google (all surfaces)", asOf: "May 2024", monthly: "9.7 T",
+          src: { label: "Google I/O 2024 keynote", tier: "primary" } },
+        { provider: "Google (all surfaces)", asOf: "May 2025", monthly: "~480 T",
+          src: { label: "Google I/O 2025 keynote", tier: "primary" } },
+        { provider: "Google (all surfaces)", asOf: "May 2026", monthly: "3.2 Q",
+          src: { label: "Sundar Pichai I/O 2026 keynote", tier: "primary" } }
+      ],
+      soWhat: "Total Google AI inference (3.2 quadrillion tokens/mo, May 2026) is ~18× the externally-billed API volume modeled in the chart above for Google in the same period. The gap is in-product inference — Search AI Overviews, YouTube features, Workspace AI — that doesn't show up in API revenue but does land on the data center floor. The same delta likely applies to other hyperscalers: total infrastructure load far exceeds monetized API tokens."
     },
     priceCompression: {
       models: [
@@ -2395,6 +2413,23 @@
   }
 
   /* ----- Token Economics tab renders ----- */
+  function renderDisclosedTokens() {
+    if (!$("disclosedTokenTotals") || !DATA.disclosedTokenTotals) return;
+    const dt = DATA.disclosedTokenTotals;
+    const rows = dt.rows.map(r => `
+      <div class="stack-row">
+        <div class="stack-head">
+          <div class="stack-name">${r.provider} <span class="stack-what">— ${r.asOf}</span></div>
+          <span class="stack-pill" style="background:var(--accent-soft);color:var(--accent)">${r.monthly}/mo</span>
+        </div>
+        <div class="stack-evidence stack-src">— ${r.src.label}</div>
+      </div>`).join("");
+    $("disclosedTokenTotals").innerHTML = rows + `
+      <div style="margin-top:14px;padding:11px 13px;background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 5px 5px 0;font-size:12.5px;line-height:1.5;color:var(--ink)">
+        <strong>So what:</strong> ${dt.soWhat}
+      </div>`;
+  }
+
   function renderTokenVolumeChart() {
     if (!$("tokenVolumeChart") || typeof Chart === "undefined") return;
     if (renderTokenVolumeChart._done) return;
@@ -2567,6 +2602,7 @@
       renderEnergyBridge();
       renderSplitChart();
       renderTokenVolumeChart();
+      renderDisclosedTokens();
       renderPriceCompressionChart();
     }
   }
