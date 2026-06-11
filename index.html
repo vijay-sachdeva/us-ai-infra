@@ -507,8 +507,32 @@
   [data-theme="dark"] .map-view-toggle { background: #0f172a; }
   [data-theme="dark"] .map-view-btn.active { background: #1e293b; }
 
-  /* Named mega-project status legend dots */
-  .map-legend .lg-mega { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #fff; }
+  /* Named pipeline projects table */
+  .mp-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
+  .mp-table th {
+    text-align: left; padding: 8px 10px; background: var(--bg);
+    font-size: 10.5px; font-weight: 700; color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: .04em;
+    border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  .mp-table td {
+    padding: 10px; border-bottom: 1px solid var(--line); color: var(--ink-2);
+    vertical-align: top;
+  }
+  .mp-table tr:last-child td { border-bottom: none; }
+  .mp-table .mp-name { font-weight: 700; color: var(--ink); }
+  .mp-table .mp-op   { font-weight: 600; }
+  .mp-table .mp-mw   { font-family: 'Courier New', monospace; font-weight: 800; color: var(--ink); text-align: right; white-space: nowrap; }
+  .mp-table .mp-status {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+  }
+  .mp-table .mp-status.construction { background: var(--amber-soft); color: var(--amber); }
+  .mp-table .mp-status.planned      { background: var(--accent-soft); color: var(--accent); }
+  .mp-table .mp-status.operational  { background: var(--green-soft); color: var(--green); }
+  .mp-table .mp-src  { font-size: 10.5px; font-style: italic; color: var(--muted); display: block; margin-top: 2px; }
+  .mp-table tfoot td { background: var(--bg); font-weight: 700; color: var(--ink); }
 
   /* ---------- Engineer: interconnection funnel ---------- */
   .funnel-flow {
@@ -1188,23 +1212,27 @@
 
       <!-- Full-width: US data center map -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Where the capacity sits — markets + named pipeline projects</h4>
-        <div class="note" id="mapNote">Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · small dots = named projects · hover for detail</div>
+        <h4>Where the capacity sits — primary US markets</h4>
+        <div class="note" id="mapNote">Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · hover for detail</div>
         <div class="map-view-toggle" id="mapViewToggle" role="tablist">
           <button class="map-view-btn active" data-view="pipeline" type="button">Pipeline</button>
           <button class="map-view-btn"        data-view="operational" type="button">Operational</button>
         </div>
         <div class="map-shell" id="map">
-          <span class="map-label">US Markets &amp; Pipeline Projects</span>
+          <span class="map-label">US Markets</span>
         </div>
         <div class="map-legend">
           <span><span class="lg-dot" style="background:#d4452f"></span>Power-constrained</span>
           <span><span class="lg-dot" style="background:#1d4ed8"></span>Major growth</span>
           <span><span class="lg-dot" style="background:#15803d"></span>Emerging</span>
-          <span id="mapLegendMega"><span class="lg-mega" style="background:#c2710c"></span>Named project · construction</span>
-          <span id="mapLegendMegaPlanned"><span class="lg-mega" style="background:#1d4ed8"></span>planned</span>
-          <span id="mapLegendMegaOps"><span class="lg-mega" style="background:#15803d"></span>operational</span>
         </div>
+      </div>
+
+      <!-- Full-width: Named pipeline projects (companion to the map) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Named pipeline projects</h4>
+        <div class="note">Specific announced builds inside the 97 GW queue · sorted by announced MW · each row cited to operator filings / press releases</div>
+        <div id="megaProjectsList" style="margin-top:6px"></div>
       </div>
 
       <div class="stub-grid" style="margin-top:14px">
@@ -1503,29 +1531,29 @@
       { name: "Silicon Valley",    operational: 2,  pipeline: 3000,  lead: 6, type: "constrained", lon: -122.0, lat: 37.4, status: "Power-constrained", note: "CAISO; land + power scarce." }
     ],
 
-    /* ----- Named mega-projects overlaid in Pipeline view -----
-       Each: name, operator, mw (announced), lon/lat, status, citation. */
+    /* ----- Named pipeline projects -----
+       Each: name, operator, state, mw (announced), status, citation. */
     megaProjects: [
-      { name: "Hyperion",          operator: "Meta",              mw: 5000, lon: -91.5,  lat: 32.4, status: "construction",
-        src: { label: "Meta + Entergy Louisiana 5 GW agreement", tier: "primary" } },
-      { name: "Prometheus",        operator: "Meta",              mw: 1000, lon: -83.0,  lat: 39.5, status: "construction",
-        src: { label: "Meta Ohio campus disclosures",             tier: "primary" } },
-      { name: "Lebanon",           operator: "Meta",              mw: 1000, lon: -86.5,  lat: 40.0, status: "construction",
-        src: { label: "Meta Lebanon IN $10B+ build",              tier: "primary" } },
-      { name: "Fairwater",         operator: "Microsoft",         mw:  500, lon: -87.9,  lat: 42.7, status: "operational",
-        src: { label: "MSFT Mount Pleasant WI press release",     tier: "primary" } },
-      { name: "Stargate Abilene",  operator: "OpenAI / Oracle / Crusoe", mw: 1200, lon: -99.7, lat: 32.4, status: "construction",
-        src: { label: "Crusoe Abilene + OpenAI Stargate site",    tier: "primary" } },
-      { name: "Polaris Forge",     operator: "Applied Digital",   mw:  500, lon: -98.5,  lat: 47.9, status: "construction",
-        src: { label: "Applied Digital IR — Ellendale ND",        tier: "primary" } },
-      { name: "Delta Forge",       operator: "Applied Digital",   mw:  640, lon: -96.5,  lat: 33.0, status: "construction",
-        src: { label: "Applied Digital IR — Delta Forge 1+2",     tier: "primary" } },
-      { name: "Hale County",       operator: "Aligned Data Centers", mw: 540, lon: -101.9, lat: 34.0, status: "construction",
-        src: { label: "Aligned Hale County TX 540 MW campus",     tier: "primary" } },
-      { name: "Pennsylvania",      operator: "Nebius",            mw: 1200, lon: -77.0,  lat: 41.0, status: "planned",
-        src: { label: "Nebius Q1 2026 earnings",                  tier: "primary" } },
-      { name: "Childress",         operator: "IREN",              mw:  750, lon: -100.2, lat: 34.4, status: "operational",
-        src: { label: "IREN 10-Q",                                tier: "primary" } }
+      { name: "Hyperion",         operator: "Meta",                     state: "LA", mw: 5000, status: "construction",
+        src: { label: "Meta + Entergy Louisiana 5 GW agreement",     tier: "primary" } },
+      { name: "Stargate Abilene", operator: "OpenAI / Oracle / Crusoe", state: "TX", mw: 1200, status: "construction",
+        src: { label: "Crusoe Abilene + OpenAI Stargate site",       tier: "primary" } },
+      { name: "Pennsylvania",     operator: "Nebius",                   state: "PA", mw: 1200, status: "planned",
+        src: { label: "Nebius Q1 2026 earnings",                     tier: "primary" } },
+      { name: "Prometheus",       operator: "Meta",                     state: "OH", mw: 1000, status: "construction",
+        src: { label: "Meta Ohio campus disclosures",                tier: "primary" } },
+      { name: "Lebanon",          operator: "Meta",                     state: "IN", mw: 1000, status: "construction",
+        src: { label: "Meta Lebanon IN $10B+ build",                 tier: "primary" } },
+      { name: "Childress",        operator: "IREN",                     state: "TX", mw:  750, status: "operational",
+        src: { label: "IREN 10-Q",                                   tier: "primary" } },
+      { name: "Delta Forge",      operator: "Applied Digital",          state: "TX", mw:  640, status: "construction",
+        src: { label: "Applied Digital IR — Delta Forge 1+2",        tier: "primary" } },
+      { name: "Hale County",      operator: "Aligned Data Centers",     state: "TX", mw:  540, status: "construction",
+        src: { label: "Aligned Hale County TX 540 MW campus",        tier: "primary" } },
+      { name: "Fairwater",        operator: "Microsoft",                state: "WI", mw:  500, status: "operational",
+        src: { label: "MSFT Mount Pleasant WI press release",        tier: "primary" } },
+      { name: "Polaris Forge",    operator: "Applied Digital",          state: "ND", mw:  500, status: "construction",
+        src: { label: "Applied Digital IR — Ellendale ND",           tier: "primary" } }
     ],
     hyperscalerMW: {
       companies:   ["Amazon (AWS)", "Meta", "Microsoft", "Google", "Oracle"],
@@ -2192,7 +2220,6 @@
     renderMap._view = renderMap._view || "pipeline";  // default view
 
     const typeColor   = { constrained: "#d4452f", growth: "#1d4ed8", emerging: "#15803d" };
-    const statusColor = { construction: "#c2710c", planned: "#1d4ed8", operational: "#15803d" };
     const isPipeline  = renderMap._view === "pipeline";
     const sizeField   = isPipeline ? "pipeline" : "operational";
     // pipeline values are MW (large); operational are GW (small). Normalize for max.
@@ -2307,39 +2334,6 @@
             .on("mouseleave", () => { tip.style.display = "none"; });
         });
 
-        // Named mega-project markers (pipeline view only)
-        if (isPipeline && Array.isArray(DATA.megaProjects)) {
-          const megaMax = Math.max.apply(null, DATA.megaProjects.map(p => p.mw || 0));
-          DATA.megaProjects.forEach(p => {
-            const xy = proj([p.lon, p.lat]);
-            if (!xy) return;
-            const [x, y] = xy;
-            const r = 6 + (p.mw / megaMax) * 8;
-            const col = statusColor[p.status] || "#475569";
-
-            const g = svg.append("g").style("cursor", "default");
-            g.append("circle")
-              .attr("cx", x).attr("cy", y).attr("r", r)
-              .attr("fill", col).attr("fill-opacity", 0.92)
-              .attr("stroke", "#fff").attr("stroke-width", 1.5);
-
-            g.on("mouseenter", function (event) {
-                tip.innerHTML = "<b>" + p.name + " — " + p.operator + "</b>" +
-                  (p.mw / 1000).toFixed(p.mw >= 1000 ? 1 : 2) + " GW announced · " + p.status +
-                  '<br><span class="tip-muted">' + p.src.label + '</span>';
-                tip.style.display = "block";
-                moveTip(event);
-              })
-              .on("mousemove", moveTip)
-              .on("mouseleave", () => { tip.style.display = "none"; });
-          });
-        }
-
-        // Show/hide the named-project legend rows based on view
-        ["mapLegendMega","mapLegendMegaPlanned","mapLegendMegaOps"].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.style.display = isPipeline ? "" : "none";
-        });
       }).catch(() => {
         svg.append("text")
           .attr("x", W / 2).attr("y", H / 2)
@@ -2373,13 +2367,47 @@
           toggle.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
           const note = document.getElementById("mapNote");
           if (note) note.innerHTML = view === "pipeline"
-            ? "Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · small dots = named projects · hover for detail"
+            ? "Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · hover for detail"
             : "Operational view · bubbles sum to ≈ 36 GW operational at primary markets · color = market status · hover for detail";
           renderMap._done = false;  // allow rebuild
           renderMap();
         });
       });
     }
+  }
+
+  function renderMegaProjects() {
+    if (!$("megaProjectsList") || !Array.isArray(DATA.megaProjects)) return;
+    const sorted  = [...DATA.megaProjects].sort((a, b) => (b.mw || 0) - (a.mw || 0));
+    const totalMW = sorted.reduce((s, p) => s + (p.mw || 0), 0);
+    const rows = sorted.map(p => `
+      <tr>
+        <td><span class="mp-name">${p.name}</span><span class="mp-src">— ${p.src.label}</span></td>
+        <td class="mp-op">${p.operator}</td>
+        <td>${p.state}</td>
+        <td class="mp-mw">${p.mw.toLocaleString()}</td>
+        <td><span class="mp-status ${p.status}">${p.status}</span></td>
+      </tr>`).join("");
+    $("megaProjectsList").innerHTML = `
+      <table class="mp-table">
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>Operator</th>
+            <th>State</th>
+            <th style="text-align:right">MW</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3">${sorted.length} named projects</td>
+            <td class="mp-mw">${totalMW.toLocaleString()}</td>
+            <td>≈ ${(totalMW / 1000).toFixed(1)} GW</td>
+          </tr>
+        </tfoot>
+      </table>`;
   }
 
   function renderScorecard() {
@@ -2711,6 +2739,7 @@
       renderLeadTimeChart();
       renderBuildoutChart();
       renderMap();
+      renderMegaProjects();
     } else if (name === "grid") {
       renderIsoTable();
       renderRegList();
