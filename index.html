@@ -488,6 +488,28 @@
     border-color: var(--line);
   }
 
+  /* Map view toggle (Pipeline / Operational) */
+  .map-view-toggle {
+    display: inline-flex; gap: 4px; margin: 4px 0 12px;
+    padding: 3px; background: var(--bg);
+    border-radius: 6px; border: 1px solid var(--line);
+  }
+  .map-view-btn {
+    padding: 5px 12px; font-size: 12px; font-weight: 700;
+    background: transparent; border: none; color: var(--ink-2);
+    cursor: pointer; border-radius: 4px; font-family: inherit;
+  }
+  .map-view-btn.active {
+    background: var(--card); color: var(--accent);
+    box-shadow: 0 1px 2px rgba(15,27,45,.06);
+  }
+  .map-view-btn:hover:not(.active) { color: var(--ink); }
+  [data-theme="dark"] .map-view-toggle { background: #0f172a; }
+  [data-theme="dark"] .map-view-btn.active { background: #1e293b; }
+
+  /* Named mega-project status legend dots */
+  .map-legend .lg-mega { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #fff; }
+
   /* ---------- Engineer: interconnection funnel ---------- */
   .funnel-flow {
     display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
@@ -1166,15 +1188,22 @@
 
       <!-- Full-width: US data center map -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Where the capacity sits — primary US markets</h4>
-        <div class="note">Bubble size = operational GW &middot; color by status &middot; hover for detail</div>
+        <h4>Where the capacity sits — markets + named pipeline projects</h4>
+        <div class="note" id="mapNote">Pipeline view · bubble size = pipeline MW · color = market status · small dots = named pipeline projects · hover for detail</div>
+        <div class="map-view-toggle" id="mapViewToggle" role="tablist">
+          <button class="map-view-btn active" data-view="pipeline" type="button">Pipeline</button>
+          <button class="map-view-btn"        data-view="operational" type="button">Operational</button>
+        </div>
         <div class="map-shell" id="map">
-          <span class="map-label">US Primary Markets</span>
+          <span class="map-label">US Markets &amp; Pipeline Projects</span>
         </div>
         <div class="map-legend">
           <span><span class="lg-dot" style="background:#d4452f"></span>Power-constrained</span>
           <span><span class="lg-dot" style="background:#1d4ed8"></span>Major growth</span>
           <span><span class="lg-dot" style="background:#15803d"></span>Emerging</span>
+          <span id="mapLegendMega"><span class="lg-mega" style="background:#c2710c"></span>Named project · construction</span>
+          <span id="mapLegendMegaPlanned"><span class="lg-mega" style="background:#1d4ed8"></span>planned</span>
+          <span id="mapLegendMegaOps"><span class="lg-mega" style="background:#15803d"></span>operational</span>
         </div>
       </div>
 
@@ -1470,6 +1499,31 @@
       { name: "Central Ohio",      operational: 4,  pipeline: 700,  lead: 3, type: "emerging",    lon: -82.9,  lat: 40.0, status: "Emerging",           note: "Gigawatt campuses." },
       { name: "Louisiana",         operational: 1,  pipeline: 600,  lead: 3, type: "emerging",    lon: -91.8,  lat: 32.1, status: "Emerging",           note: "Meta Hyperion site." },
       { name: "Silicon Valley",    operational: 2,  pipeline: 380,  lead: 6, type: "constrained", lon: -122.0, lat: 37.4, status: "Power-constrained", note: "Land + power both scarce." }
+    ],
+
+    /* ----- Named mega-projects overlaid in Pipeline view -----
+       Each: name, operator, mw (announced), lon/lat, status, citation. */
+    megaProjects: [
+      { name: "Hyperion",          operator: "Meta",              mw: 5000, lon: -91.5,  lat: 32.4, status: "construction",
+        src: { label: "Meta + Entergy Louisiana 5 GW agreement", tier: "primary" } },
+      { name: "Prometheus",        operator: "Meta",              mw: 1000, lon: -83.0,  lat: 39.5, status: "construction",
+        src: { label: "Meta Ohio campus disclosures",             tier: "primary" } },
+      { name: "Lebanon",           operator: "Meta",              mw: 1000, lon: -86.5,  lat: 40.0, status: "construction",
+        src: { label: "Meta Lebanon IN $10B+ build",              tier: "primary" } },
+      { name: "Fairwater",         operator: "Microsoft",         mw:  500, lon: -87.9,  lat: 42.7, status: "operational",
+        src: { label: "MSFT Mount Pleasant WI press release",     tier: "primary" } },
+      { name: "Stargate Abilene",  operator: "OpenAI / Oracle / Crusoe", mw: 1200, lon: -99.7, lat: 32.4, status: "construction",
+        src: { label: "Crusoe Abilene + OpenAI Stargate site",    tier: "primary" } },
+      { name: "Polaris Forge",     operator: "Applied Digital",   mw:  500, lon: -98.5,  lat: 47.9, status: "construction",
+        src: { label: "Applied Digital IR — Ellendale ND",        tier: "primary" } },
+      { name: "Delta Forge",       operator: "Applied Digital",   mw:  640, lon: -96.5,  lat: 33.0, status: "construction",
+        src: { label: "Applied Digital IR — Delta Forge 1+2",     tier: "primary" } },
+      { name: "Hale County",       operator: "Aligned Data Centers", mw: 540, lon: -101.9, lat: 34.0, status: "construction",
+        src: { label: "Aligned Hale County TX 540 MW campus",     tier: "primary" } },
+      { name: "Pennsylvania",      operator: "Nebius",            mw: 1200, lon: -77.0,  lat: 41.0, status: "planned",
+        src: { label: "Nebius Q1 2026 earnings",                  tier: "primary" } },
+      { name: "Childress",         operator: "IREN",              mw:  750, lon: -100.2, lat: 34.4, status: "operational",
+        src: { label: "IREN 10-Q",                                tier: "primary" } }
     ],
     hyperscalerMW: {
       companies:   ["Amazon (AWS)", "Meta", "Microsoft", "Google", "Oracle"],
@@ -2133,9 +2187,17 @@
       return;
     }
     renderMap._done = true;
+    renderMap._view = renderMap._view || "pipeline";  // default view
 
-    const typeColor = { constrained: "#d4452f", growth: "#1d4ed8", emerging: "#15803d" };
-    const maxOp = Math.max.apply(null, DATA.markets.map(m => m.operational));
+    const typeColor   = { constrained: "#d4452f", growth: "#1d4ed8", emerging: "#15803d" };
+    const statusColor = { construction: "#c2710c", planned: "#1d4ed8", operational: "#15803d" };
+    const isPipeline  = renderMap._view === "pipeline";
+    const sizeField   = isPipeline ? "pipeline" : "operational";
+    // pipeline values are MW (large); operational are GW (small). Normalize for max.
+    const maxSize     = Math.max.apply(null, DATA.markets.map(m => m[sizeField]));
+    const fmtGW       = isPipeline
+      ? (v) => (v / 1000).toFixed(v >= 1000 ? 1 : 2)  // MW → GW
+      : (v) => String(v);                              // already GW
 
     // Tooltip element (singleton)
     let tip = container.querySelector(".map-tip");
@@ -2195,12 +2257,13 @@
           .attr("dx", 0).attr("dy", 2).attr("stdDeviation", 3)
           .attr("flood-color", "rgba(15,27,45,.25)");
 
-        // Market bubbles
+        // Market bubbles (sized by current view: operational GW or pipeline MW)
         DATA.markets.forEach(m => {
           const xy = proj([m.lon, m.lat]);
           if (!xy) return;
           const [x, y] = xy;
-          const r = 16 + (m.operational / maxOp) * 22;
+          const v = m[sizeField];
+          const r = 16 + (v / maxSize) * 22;
           const col = typeColor[m.type] || "#475569";
 
           const g = svg.append("g").style("cursor", "default");
@@ -2216,10 +2279,10 @@
             .attr("text-anchor", "middle").attr("dominant-baseline", "central")
             .attr("fill", "#fff")
             .attr("font-family", "Inter, sans-serif")
-            .attr("font-size", Math.max(12, Math.round(r * 0.64)) + "px")
+            .attr("font-size", Math.max(11, Math.round(r * 0.6)) + "px")
             .attr("font-weight", "800")
             .attr("pointer-events", "none")
-            .text(m.operational);
+            .text(fmtGW(v));
 
           g.append("text")
             .attr("x", x).attr("y", y + r + 11)
@@ -2241,6 +2304,40 @@
             .on("mousemove", moveTip)
             .on("mouseleave", () => { tip.style.display = "none"; });
         });
+
+        // Named mega-project markers (pipeline view only)
+        if (isPipeline && Array.isArray(DATA.megaProjects)) {
+          const megaMax = Math.max.apply(null, DATA.megaProjects.map(p => p.mw || 0));
+          DATA.megaProjects.forEach(p => {
+            const xy = proj([p.lon, p.lat]);
+            if (!xy) return;
+            const [x, y] = xy;
+            const r = 6 + (p.mw / megaMax) * 8;
+            const col = statusColor[p.status] || "#475569";
+
+            const g = svg.append("g").style("cursor", "default");
+            g.append("circle")
+              .attr("cx", x).attr("cy", y).attr("r", r)
+              .attr("fill", col).attr("fill-opacity", 0.92)
+              .attr("stroke", "#fff").attr("stroke-width", 1.5);
+
+            g.on("mouseenter", function (event) {
+                tip.innerHTML = "<b>" + p.name + " — " + p.operator + "</b>" +
+                  (p.mw / 1000).toFixed(p.mw >= 1000 ? 1 : 2) + " GW announced · " + p.status +
+                  '<br><span class="tip-muted">' + p.src.label + '</span>';
+                tip.style.display = "block";
+                moveTip(event);
+              })
+              .on("mousemove", moveTip)
+              .on("mouseleave", () => { tip.style.display = "none"; });
+          });
+        }
+
+        // Show/hide the named-project legend rows based on view
+        ["mapLegendMega","mapLegendMegaPlanned","mapLegendMegaOps"].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = isPipeline ? "" : "none";
+        });
       }).catch(() => {
         svg.append("text")
           .attr("x", W / 2).attr("y", H / 2)
@@ -2261,6 +2358,26 @@
         renderMap();
       }, 200);
     });
+
+    // Wire view toggle once
+    const toggle = document.getElementById("mapViewToggle");
+    if (toggle && !toggle._wired) {
+      toggle._wired = true;
+      toggle.querySelectorAll(".map-view-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const view = btn.dataset.view;
+          if (view === renderMap._view) return;
+          renderMap._view = view;
+          toggle.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
+          const note = document.getElementById("mapNote");
+          if (note) note.innerHTML = view === "pipeline"
+            ? "Pipeline view · bubble size = pipeline MW · color = market status · small dots = named pipeline projects · hover for detail"
+            : "Operational view · bubble size = operational GW · color = market status · hover for detail";
+          renderMap._done = false;  // allow rebuild
+          renderMap();
+        });
+      });
+    }
   }
 
   function renderScorecard() {
