@@ -1189,7 +1189,7 @@
       <!-- Full-width: US data center map -->
       <div class="stub-card" style="margin-top:14px">
         <h4>Where the capacity sits — markets + named pipeline projects</h4>
-        <div class="note" id="mapNote">Pipeline view · bubble size = pipeline MW · color = market status · small dots = named pipeline projects · hover for detail</div>
+        <div class="note" id="mapNote">Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · small dots = named projects · hover for detail</div>
         <div class="map-view-toggle" id="mapViewToggle" role="tablist">
           <button class="map-view-btn active" data-view="pipeline" type="button">Pipeline</button>
           <button class="map-view-btn"        data-view="operational" type="button">Operational</button>
@@ -1491,14 +1491,16 @@
       }
     },
     markets: [
-      { name: "Northern Virginia", operational: 12, pipeline: 1100, lead: 7, type: "constrained", lon: -77.2,  lat: 38.9, status: "Power-constrained", note: "PJM-gated. 1,102 MW absorption." },
-      { name: "Phoenix, AZ",       operational: 4,  pipeline: 1300, lead: 4, type: "growth",      lon: -112.1, lat: 33.4, status: "Major growth",      note: "Water + grid pressure." },
-      { name: "Chicago, IL",       operational: 3,  pipeline: 1180, lead: 4, type: "growth",      lon: -87.6,  lat: 41.8, status: "Major growth",      note: "ComEd queue." },
-      { name: "Atlanta, GA",       operational: 3,  pipeline: 1110, lead: 4, type: "growth",      lon: -84.4,  lat: 33.7, status: "Major growth",      note: "Fast-rising hub." },
-      { name: "Dallas, TX",        operational: 7,  pipeline: 950,  lead: 3, type: "growth",      lon: -96.8,  lat: 32.8, status: "Major growth",      note: "ERCOT advantage." },
-      { name: "Central Ohio",      operational: 4,  pipeline: 700,  lead: 3, type: "emerging",    lon: -82.9,  lat: 40.0, status: "Emerging",           note: "Gigawatt campuses." },
-      { name: "Louisiana",         operational: 1,  pipeline: 600,  lead: 3, type: "emerging",    lon: -91.8,  lat: 32.1, status: "Emerging",           note: "Meta Hyperion site." },
-      { name: "Silicon Valley",    operational: 2,  pipeline: 380,  lead: 6, type: "constrained", lon: -122.0, lat: 37.4, status: "Power-constrained", note: "Land + power both scarce." }
+      // `pipeline` is allocated from the LBNL Queued Up 2025 total (~97 GW)
+      // across primary US data-center markets by ISO concentration. Sum = 97 GW.
+      { name: "Northern Virginia", operational: 12, pipeline: 30000, lead: 7, type: "constrained", lon: -77.2,  lat: 38.9, status: "Power-constrained", note: "PJM / Dominion concentration." },
+      { name: "Dallas, TX",        operational: 7,  pipeline: 18000, lead: 3, type: "growth",      lon: -96.8,  lat: 32.8, status: "Major growth",      note: "ERCOT advantage." },
+      { name: "Louisiana",         operational: 1,  pipeline: 12000, lead: 3, type: "emerging",    lon: -91.8,  lat: 32.1, status: "Emerging",           note: "MISO + Entergy growth; Meta Hyperion." },
+      { name: "Atlanta, GA",       operational: 3,  pipeline: 10000, lead: 4, type: "growth",      lon: -84.4,  lat: 33.7, status: "Major growth",      note: "SERC; fast-rising hub." },
+      { name: "Phoenix, AZ",       operational: 4,  pipeline: 8000,  lead: 4, type: "growth",      lon: -112.1, lat: 33.4, status: "Major growth",      note: "WECC; water + grid pressure." },
+      { name: "Chicago, IL",       operational: 3,  pipeline: 8000,  lead: 4, type: "growth",      lon: -87.6,  lat: 41.8, status: "Major growth",      note: "PJM / ComEd queue." },
+      { name: "Central Ohio",      operational: 4,  pipeline: 8000,  lead: 3, type: "emerging",    lon: -82.9,  lat: 40.0, status: "Emerging",           note: "PJM / AEP; gigawatt campuses." },
+      { name: "Silicon Valley",    operational: 2,  pipeline: 3000,  lead: 6, type: "constrained", lon: -122.0, lat: 37.4, status: "Power-constrained", note: "CAISO; land + power scarce." }
     ],
 
     /* ----- Named mega-projects overlaid in Pipeline view -----
@@ -2371,8 +2373,8 @@
           toggle.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
           const note = document.getElementById("mapNote");
           if (note) note.innerHTML = view === "pipeline"
-            ? "Pipeline view · bubble size = pipeline MW · color = market status · small dots = named pipeline projects · hover for detail"
-            : "Operational view · bubble size = operational GW · color = market status · hover for detail";
+            ? "Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · small dots = named projects · hover for detail"
+            : "Operational view · bubbles sum to ≈ 36 GW operational at primary markets · color = market status · hover for detail";
           renderMap._done = false;  // allow rebuild
           renderMap();
         });
