@@ -654,6 +654,25 @@
   .scorecard td.s-mid  { background: #fff8eb; color: var(--amber); }
   .scorecard td.s-high { background: #f0faf4; color: var(--green); }
   .sc-note { font-size: 11px; color: var(--muted); margin-top: 8px; font-style: italic; line-height: 1.5; }
+  .rd-mod {
+    display: inline-block; font-size: 8px; font-weight: 800; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .04em; margin-left: 5px; vertical-align: middle;
+  }
+  .sc-method {
+    font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 8px;
+    padding-top: 8px; border-top: 1px dashed var(--line);
+  }
+  .mp-table .mp-risk {
+    display: block; font-size: 11px; color: var(--ink-2); margin-top: 4px; font-weight: 500; line-height: 1.4;
+  }
+  .mp-table .mp-gate {
+    display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .03em; color: var(--accent); background: var(--accent-soft);
+    padding: 1px 6px; border-radius: 3px; margin-right: 6px;
+  }
+  .mp-table .mp-upd {
+    display: block; font-size: 10.5px; color: var(--muted); margin-top: 3px; line-height: 1.45;
+  }
 
   /* ---------- Energy & Policy: ISO table ---------- */
   .iso-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -1268,8 +1287,15 @@
       <!-- Full-width: site-selection scorecard -->
       <div class="stub-card" style="margin-top:14px">
         <h4>Site-selection scorecard</h4>
-        <div class="note">Composite scores across top US markets · 1-10 scale (higher = better for builds)</div>
+        <div class="note">Per-factor cited scores across top US markets · 1-10 (higher = better for builds) · Readiness = modeled weighted composite</div>
         <div id="scorecardWrap"></div>
+      </div>
+
+      <!-- Full-width: Buildability — what's moving (dated, cited movements ledger) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Buildability — what's moving</h4>
+        <div class="note">Dated, individually-cited regulatory / queue / generation events that move a market's path to the next gigawatt. Direction (easing / tightening / stalled) is an editorial read of travel vs. the prior event — not a metric. Curated monthly · trend dots also annotate the map above.</div>
+        <div id="buildabilityMovements" style="margin-top:8px"></div>
       </div>
 
       <!-- Full-width: AI infrastructure stack — where the binding constraint sits -->
@@ -1536,24 +1562,35 @@
        Each: name, operator, state, mw (announced), status, citation. */
     megaProjects: [
       { name: "Hyperion",         operator: "Meta",                     state: "LA", mw: 5000, status: "construction",
+        keyRisk: { text: "Entergy gas-unit build timing — CCGT capacity phased online 2028–29", gate: "generation" },
+        latestUpdate: { date: "2026-04", text: "LPSC fast-tracked Entergy's 7 added gas units (10 plants, ~7.5 GW); final vote Dec 2026.", src: { label: "Entergy / LPSC", tier: "primary" } },
         src: { label: "Meta + Entergy Louisiana 5 GW agreement",     tier: "primary" } },
       { name: "Stargate Abilene", operator: "OpenAI / Oracle / Crusoe", state: "TX", mw: 1200, status: "construction",
+        keyRisk: { text: "On-site gas + ERCOT large-load interconnection ramp", gate: "interconnection" },
         src: { label: "Crusoe Abilene + OpenAI Stargate site",       tier: "primary" } },
       { name: "Pennsylvania",     operator: "Nebius",                   state: "PA", mw: 1200, status: "planned",
+        keyRisk: { text: "PJM interconnection + FERC-ordered co-location rules", gate: "interconnection" },
         src: { label: "Nebius Q1 2026 earnings",                     tier: "primary" } },
       { name: "Prometheus",       operator: "Meta",                     state: "OH", mw: 1000, status: "construction",
+        keyRisk: { text: "AEP Ohio large-load tariff — 85% take-or-pay for >25 MW", gate: "rate" },
         src: { label: "Meta Ohio campus disclosures",                tier: "primary" } },
       { name: "Lebanon",          operator: "Meta",                     state: "IN", mw: 1000, status: "construction",
+        keyRisk: { text: "MISO interconnection + new generation timing", gate: "generation" },
         src: { label: "Meta Lebanon IN $10B+ build",                 tier: "primary" } },
       { name: "Childress",        operator: "IREN",                     state: "TX", mw:  750, status: "operational",
+        keyRisk: { text: "Energized — expansion power procurement in ERCOT", gate: "power" },
         src: { label: "IREN 10-Q",                                   tier: "primary" } },
       { name: "Delta Forge",      operator: "Applied Digital",          state: "TX", mw:  640, status: "construction",
+        keyRisk: { text: "ERCOT interconnection + power-contract timing", gate: "interconnection" },
         src: { label: "Applied Digital IR — Delta Forge 1+2",        tier: "primary" } },
       { name: "Hale County",      operator: "Aligned Data Centers",     state: "TX", mw:  540, status: "construction",
+        keyRisk: { text: "ERCOT interconnection ramp", gate: "interconnection" },
         src: { label: "Aligned Hale County TX 540 MW campus",        tier: "primary" } },
       { name: "Fairwater",        operator: "Microsoft",                state: "WI", mw:  500, status: "operational",
+        keyRisk: { text: "Energized — MISO / ATC transmission for expansion", gate: "power" },
         src: { label: "MSFT Mount Pleasant WI press release",        tier: "primary" } },
       { name: "Polaris Forge",    operator: "Applied Digital",          state: "ND", mw:  500, status: "construction",
+        keyRisk: { text: "Ellendale ND on-site power ramp", gate: "power" },
         src: { label: "Applied Digital IR — Ellendale ND",           tier: "primary" } }
     ],
     hyperscalerMW: {
@@ -1637,19 +1674,60 @@
       src: { label: "Broadcom investor releases + LightCounting", tier: "primary" }
     },
     siteScorecards: {
-      factors: ["Power", "Speed", "Cost", "Talent", "Vacancy"],
-      markets: [
-        { name: "Louisiana",          scores: [8, 7, 9, 4, 8] },
-        { name: "Central Ohio",       scores: [7, 7, 7, 5, 6] },
-        { name: "Dallas, TX",         scores: [6, 7, 7, 7, 4] },
-        { name: "Atlanta, GA",        scores: [6, 6, 7, 6, 4] },
-        { name: "Phoenix, AZ",        scores: [5, 6, 6, 7, 3] },
-        { name: "Chicago, IL",        scores: [4, 5, 5, 6, 3] },
-        { name: "Northern Virginia",  scores: [3, 2, 4, 9, 1] },
-        { name: "Silicon Valley",     scores: [2, 2, 2, 9, 1] }
+      // Each factor carries a weight (sums to 1.0) + the cited basis for that column.
+      // proxy:true = source is basin/state-level, labeled as a market-level proxy.
+      factors: [
+        { key: "power",      label: "Power",      weight: 0.30, src: { label: "CBRE / JLL data-center market reports",            tier: "analyst" } },
+        { key: "speed",      label: "Speed",      weight: 0.25, src: { label: "LBNL Queued Up 2025 + ISO interconnection queues", tier: "analyst" } },
+        { key: "cost",       label: "Cost",       weight: 0.15, src: { label: "CBRE / JLL data-center market reports",            tier: "analyst" } },
+        { key: "water",      label: "Water",      weight: 0.10, proxy: true, src: { label: "WRI Aqueduct water-stress (basin-level proxy)", tier: "analyst" } },
+        { key: "permitting", label: "Permitting", weight: 0.10, src: { label: "State large-load actions — see Grid → regulation", tier: "analyst" } },
+        { key: "vacancy",    label: "Vacancy",    weight: 0.10, src: { label: "CBRE / JLL vacancy data",                          tier: "analyst" } }
       ],
-      note: "Scores 1-10 (higher = more favorable for new builds). Composite from CBRE, JLL, modeled. Weight by your build profile."
+      // scores 1-10 (higher = more favorable for a new build); order matches factors:
+      // [Power, Speed, Cost, Water, Permitting, Vacancy]
+      markets: [
+        { name: "Louisiana",          scores: [8, 7, 9, 8, 8, 8] },
+        { name: "Central Ohio",       scores: [7, 7, 7, 7, 6, 6] },
+        { name: "Dallas, TX",         scores: [6, 7, 7, 4, 7, 4] },
+        { name: "Atlanta, GA",        scores: [6, 6, 7, 6, 7, 4] },
+        { name: "Phoenix, AZ",        scores: [5, 6, 6, 2, 6, 3] },
+        { name: "Chicago, IL",        scores: [4, 5, 5, 9, 4, 3] },
+        { name: "Northern Virginia",  scores: [3, 2, 4, 6, 4, 1] },
+        { name: "Silicon Valley",     scores: [2, 2, 2, 3, 2, 1] }
+      ],
+      note: "Scores 1-10 (higher = more favorable for new builds), each column cited to the basis below. Readiness = weighted sum of the cited factors — a modeled composite, not an asserted score. Re-weight by your build profile."
     },
+
+    /* ----- Buildability movements (Buildout) — dated, individually-cited events moving each
+       market's path to the next GW. `direction` is an editorial read of travel (easing / tightening /
+       stalled), NOT a metric. Sorted date-desc; cap ~12; curated on a monthly pass. ----- */
+    buildabilityMovements: [
+      { date: "2026-06", market: "Central Ohio",     gate: "permitting",      direction: "tightening",
+        headline: "Ohio lawmakers introduce sweeping data-center siting + cost-allocation bill",
+        src: { label: "Ohio Capital Journal, Jun 2026", tier: "analyst" } },
+      { date: "2026-04", market: "Louisiana",         gate: "generation",      direction: "easing",
+        headline: "LPSC fast-tracks Entergy's 7 added gas units for Meta Hyperion (10 plants, ~7.5 GW); final vote Dec 2026",
+        src: { label: "Entergy / LPSC", tier: "primary" } },
+      { date: "2026-04", market: "Phoenix, AZ",       gate: "rate",            direction: "tightening",
+        headline: "ACC opens large-load docket; APS proposes ~45% rate increase for XL loads, SRP E-67 80% min-billing",
+        src: { label: "Arizona Corporation Commission", tier: "primary" } },
+      { date: "2026-03", market: "Dallas, TX",        gate: "interconnection", direction: "tightening",
+        headline: "PUCT publishes draft SB6 rule: interconnection standards for loads ≥75 MW (final by Dec 2026)",
+        src: { label: "PUCT / Greenberg Traurig", tier: "analyst" } },
+      { date: "2026-03", market: "Chicago, IL",       gate: "interconnection", direction: "tightening",
+        headline: "ICC approves higher ComEd interconnection deposits for ≥50 MW loads; consumer-cost probe opened",
+        src: { label: "Illinois Commerce Commission", tier: "primary" } },
+      { date: "2026-01", market: "Northern Virginia", gate: "rate",            direction: "tightening",
+        headline: "Virginia SCC's new >25 MW large-load rate class takes effect — 14-yr contracts assign costs to data centers",
+        src: { label: "Virginia SCC", tier: "primary" } },
+      { date: "2025-12", market: "Atlanta, GA",       gate: "generation",      direction: "easing",
+        headline: "Georgia PSC approves Georgia Power ~9.9 GW generation expansion for data-center load",
+        src: { label: "Georgia PSC / Perkins Coie", tier: "analyst" } },
+      { date: "2025-12", market: "PJM (multi-state)", gate: "interconnection", direction: "stalled",
+        headline: "FERC orders PJM to write co-location rules for data centers (PJM to file Feb 2026)",
+        src: { label: "FERC", tier: "primary" } }
+    ],
 
     /* ----- Energy & Policy tab ----- */
     demandProjection: {
@@ -2221,6 +2299,11 @@
     renderMap._view = renderMap._view || "pipeline";  // default view
 
     const typeColor   = { constrained: "#d4452f", growth: "#1d4ed8", emerging: "#15803d" };
+    // Latest buildability-movement direction per market → trend dot on the bubble
+    const dirColor    = { easing: "#15803d", tightening: "#d4452f", stalled: "#d4892f" };
+    const moveDir     = {};
+    [...(DATA.buildabilityMovements || [])].sort((a, b) => a.date < b.date ? 1 : -1)
+      .forEach(e => { if (!(e.market in moveDir)) moveDir[e.market] = e.direction; });
     const isPipeline  = renderMap._view === "pipeline";
     const sizeField   = isPipeline ? "pipeline" : "operational";
     // pipeline values are MW (large); operational are GW (small). Normalize for max.
@@ -2324,10 +2407,19 @@
             .attr("class", "map-city-label")
             .text(m.name.replace(", AZ", "").replace(", IL", "").replace(", GA", "").replace(", TX", ""));
 
+          const dir = moveDir[m.name];
+          if (dir) {
+            g.append("circle")
+              .attr("cx", x + r * 0.74).attr("cy", y - r * 0.74).attr("r", 5)
+              .attr("fill", dirColor[dir] || "#64748b")
+              .attr("stroke", "#fff").attr("stroke-width", 1.6);
+          }
+
           g.on("mouseenter", function (event) {
               tip.innerHTML = "<b>" + m.name + "</b>" +
                 m.operational + " GW operational · " + m.pipeline.toLocaleString() + " MW pipeline" +
-                '<br><span class="tip-muted">~' + m.lead + ' yr to power · ' + m.status + '</span>';
+                '<br><span class="tip-muted">~' + m.lead + ' yr to power · ' + m.status + '</span>' +
+                (dir ? '<br><span class="tip-muted">buildability trend: ' + dir + '</span>' : '');
               tip.style.display = "block";
               moveTip(event);
             })
@@ -2381,14 +2473,18 @@
     if (!$("megaProjectsList") || !Array.isArray(DATA.megaProjects)) return;
     const sorted  = [...DATA.megaProjects].sort((a, b) => (b.mw || 0) - (a.mw || 0));
     const totalMW = sorted.reduce((s, p) => s + (p.mw || 0), 0);
-    const rows = sorted.map(p => `
+    const rows = sorted.map(p => {
+      const risk = p.keyRisk ? `<span class="mp-risk"><span class="mp-gate">${p.keyRisk.gate}</span>${p.keyRisk.text}</span>` : "";
+      const upd  = p.latestUpdate ? `<span class="mp-upd"><b>${p.latestUpdate.date}</b> · ${p.latestUpdate.text}<span class="mp-src" style="display:inline"> — ${p.latestUpdate.src.label}</span></span>` : "";
+      return `
       <tr>
-        <td><span class="mp-name">${p.name}</span><span class="mp-src">— ${p.src.label}</span></td>
+        <td><span class="mp-name">${p.name}</span><span class="mp-src">— ${p.src.label}</span>${risk}${upd}</td>
         <td class="mp-op">${p.operator}</td>
         <td>${p.state}</td>
         <td class="mp-mw">${p.mw.toLocaleString()}</td>
         <td><span class="mp-status ${p.status}">${p.status}</span></td>
-      </tr>`).join("");
+      </tr>`;
+    }).join("");
     $("megaProjectsList").innerHTML = `
       <table class="mp-table">
         <thead>
@@ -2411,21 +2507,41 @@
       </table>`;
   }
 
+  function renderBuildabilityMovements() {
+    if (!$("buildabilityMovements") || !Array.isArray(DATA.buildabilityMovements)) return;
+    const dirClass = { easing: "ok", tightening: "crit", stalled: "warn" };
+    const moves = [...DATA.buildabilityMovements].sort((a, b) => a.date < b.date ? 1 : -1);
+    $("buildabilityMovements").innerHTML = moves.map(e => `
+      <div class="stack-row">
+        <div class="stack-head">
+          <span class="stack-name"><span class="stack-num">${e.date}</span>${e.market} · ${e.gate}</span>
+          <span class="stack-pill ${dirClass[e.direction] || "warn"}">${e.direction}</span>
+        </div>
+        <div class="stack-evidence">${e.headline} <span class="stack-src">— ${e.src.label}</span></div>
+      </div>`).join("");
+  }
+
   function renderScorecard() {
     if (!$("scorecardWrap") || !DATA.siteScorecards) return;
     const sc = DATA.siteScorecards;
     const classFor = (n) => n >= 7 ? "s-high" : n >= 4 ? "s-mid" : "s-low";
-    const head = `<tr><th style="text-align:left;padding-left:10px">Market</th>${sc.factors.map(f => `<th>${f}</th>`).join("")}<th>Avg</th></tr>`;
+    const wSum = sc.factors.reduce((a, f) => a + (f.weight || 0), 0) || 1;
+    const head = `<tr><th style="text-align:left;padding-left:10px">Market</th>${
+      sc.factors.map(f => `<th title="${f.src ? f.src.label : ""}${f.proxy ? " · market-level proxy" : ""}">${f.label}${f.proxy ? "*" : ""}</th>`).join("")
+    }<th>Readiness<span class="rd-mod">modeled</span></th></tr>`;
     const rows = sc.markets.map(m => {
-      const avg = (m.scores.reduce((a, b) => a + b, 0) / m.scores.length).toFixed(1);
-      return `<tr><td class="market">${m.name}</td>${m.scores.map(s => `<td class="score ${classFor(s)}">${s}</td>`).join("")}<td class="score ${classFor(parseFloat(avg))}">${avg}</td></tr>`;
+      const readiness = (m.scores.reduce((a, s, i) => a + s * (sc.factors[i].weight || 0), 0) / wSum).toFixed(1);
+      return `<tr><td class="market">${m.name}</td>${m.scores.map(s => `<td class="score ${classFor(s)}">${s}</td>`).join("")}<td class="score ${classFor(parseFloat(readiness))}">${readiness}</td></tr>`;
     }).join("");
+    const weights = sc.factors.map(f => `${f.label} ${f.weight}`).join(" · ");
+    const bases = sc.factors.map(f => f.src ? `${f.label} → ${f.src.label}` : null).filter(Boolean).join("; ");
     $("scorecardWrap").innerHTML = `
       <table class="scorecard">
         <thead>${head}</thead>
         <tbody>${rows}</tbody>
       </table>
-      <div class="sc-note">${sc.note}</div>`;
+      <div class="sc-note">${sc.note}</div>
+      <div class="sc-method"><b>Readiness (modeled)</b> = weighted sum of the cited per-factor scores. Weights: ${weights}. Basis: ${bases}.${sc.factors.some(f => f.proxy) ? " * = market-level proxy." : ""}</div>`;
   }
 
   /* ----- Energy & Policy tab renders ----- */
@@ -2741,6 +2857,7 @@
       renderBuildoutChart();
       renderMap();
       renderMegaProjects();
+      renderBuildabilityMovements();
     } else if (name === "grid") {
       renderIsoTable();
       renderRegList();
@@ -2980,8 +3097,10 @@
     const hm = DATA.hyperscalerMW;
     L.push("Self-built capacity MW (operational/pipeline): " + hm.companies.map((c, i) => c + " " + hm.operational[i] + "/" + hm.pipeline[i]).join(", ") + ".");
     const sc = DATA.siteScorecards;
-    const ranked = sc.markets.map(m => ({ name: m.name, avg: m.scores.reduce((a,b)=>a+b,0)/m.scores.length })).sort((a,b)=>b.avg-a.avg);
-    L.push("Site scorecard ranked (avg of " + sc.factors.join(", ") + "): " + ranked.map(r => r.name + " " + r.avg.toFixed(1)).join(", ") + ".");
+    const scW = sc.factors.reduce((a, f) => a + (f.weight || 0), 0) || 1;
+    const ranked = sc.markets.map(m => ({ name: m.name, avg: m.scores.reduce((a, s, i) => a + s * (sc.factors[i].weight || 0), 0) / scW })).sort((a,b)=>b.avg-a.avg);
+    L.push("Site readiness ranked (modeled, weighted " + sc.factors.map(f => f.label).join("/") + "): " + ranked.map(r => r.name + " " + r.avg.toFixed(1)).join(", ") + ".");
+    L.push("Buildability movements: " + (DATA.buildabilityMovements || []).map(e => e.date + " " + e.market + " " + e.direction + " — " + e.headline).join("; ") + ".");
 
     L.push(""); L.push("=== ENERGY & POLICY ===");
     const dp = DATA.demandProjection;
