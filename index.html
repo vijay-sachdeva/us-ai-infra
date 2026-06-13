@@ -636,6 +636,73 @@
     .leadtime-name { font-size: 11.5px; }
   }
 
+  /* Circular-financing map: flow legend + cited edge ledger */
+  .cf-legend {
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    margin: 10px 0 4px; font-size: 12px; color: var(--ink-2);
+  }
+  .cf-leg-item { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .cf-leg-swatch { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+  .cf-leg-note { color: var(--muted); font-weight: 500; font-style: italic; }
+  .cf-ledger { margin-top: 12px; border-top: 1px solid var(--line); }
+  .cf-row {
+    display: grid;
+    grid-template-columns: minmax(150px, 1.2fr) 58px minmax(150px, 1.6fr) minmax(180px, 1.6fr);
+    gap: 10px; align-items: baseline;
+    padding: 7px 2px; border-bottom: 1px solid var(--line); font-size: 12px;
+  }
+  .cf-row-edge { color: var(--ink); display: inline-flex; align-items: center; gap: 7px; }
+  .cf-row-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+  .cf-row-amt { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .cf-row-lbl { color: var(--ink-2); }
+  .cf-row-src { color: var(--muted); font-size: 11px; }
+  .cf-tier {
+    display: inline-block; margin-left: 4px; padding: 1px 6px; border-radius: 4px;
+    font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    vertical-align: middle;
+  }
+  .cf-tier.cf-ok   { background: var(--green-soft); color: var(--green); }
+  .cf-tier.cf-warn { background: var(--amber-soft); color: var(--amber); }
+  .cf-tier.cf-crit { background: var(--red-soft);   color: var(--red); }
+  @media (max-width: 640px) {
+    .cf-row { grid-template-columns: 1fr 50px; grid-auto-flow: row; }
+    .cf-row-lbl, .cf-row-src { grid-column: 1 / -1; }
+  }
+
+  /* ---------- Time-to-power by procurement path (Buildout) ---------- */
+  .ttp-row { padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .ttp-row:last-child { border-bottom: none; }
+  .ttp-top {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 8px; margin-bottom: 5px;
+  }
+  .ttp-top .leadtime-name { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .ttp-bar { height: 16px; border-radius: 4px; min-width: 2px; }
+  .ttp-bar.crit { background: linear-gradient(90deg, #f5b3ae, var(--red)); }
+  .ttp-bar.warn { background: linear-gradient(90deg, #f9d49a, var(--amber)); }
+  .ttp-bar.ok   { background: linear-gradient(90deg, #b8e1c4, var(--green)); }
+  .ttp-tradeoff { font-size: 11.5px; color: var(--ink-2); line-height: 1.45; margin-top: 5px; }
+
+  /* ---------- Power-to-revenue yield reconciliation (Capital tab) ---------- */
+  .p2r-lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  .p2r-lane { border: 1px solid var(--line); border-radius: 6px; padding: 9px 11px; background: var(--accent-soft); }
+  .p2r-lane:last-child { background: var(--amber-soft); }
+  .p2r-lane-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 4px; }
+  .p2r-lane-name { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+  .p2r-ceil { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--amber); margin-left: 2px; }
+  .p2r-lane-sub { font-size: 11.5px; color: var(--ink-2); line-height: 1.4; }
+  .p2r-lane-src { font-size: 10.5px; font-style: italic; color: var(--muted); margin-top: 4px; }
+  .p2r-spread { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 6px; }
+  .p2r-spread-cell { text-align: center; }
+  .p2r-spread-num { font-size: 20px; font-weight: 800; font-family: 'Courier New', monospace; line-height: 1.1; }
+  .p2r-spread-num.ok { color: var(--green); }
+  .p2r-spread-num.warn { color: var(--amber); }
+  .p2r-spread-lbl { font-size: 10.5px; color: var(--ink-2); text-transform: uppercase; letter-spacing: .03em; margin-top: 3px; }
+  .p2r-spread-vs { font-size: 12px; font-weight: 700; color: var(--muted); }
+  @media (max-width: 700px) {
+    .p2r-lanes { grid-template-columns: 1fr; }
+  }
+
   /* ---------- Buildout: phantom-load haircut stages ---------- */
   .funnel-stage.cut { border-left: 4px solid var(--red); }
   .funnel-stage .fs-haircut {
@@ -1213,6 +1280,29 @@
         <div class="sc-method" id="offtakeMethod"></div>
       </div>
 
+      <!-- Full-width: circular-financing & counterparty map -->
+      <div class="stub-card">
+        <h4>The circular-financing loop — who funds, buys from, and lends to whom</h4>
+        <div class="note">A directed counterparty map of 2025-26 AI-infra commitments &middot; each edge individually cited &middot; the map is the insight &mdash; no score, not advice</div>
+        <div class="map-view-toggle" id="cfViewToggle" role="tablist">
+          <button class="map-view-btn active" data-cfview="all"    type="button">All flows</button>
+          <button class="map-view-btn"        data-cfview="equity" type="button">Equity</button>
+          <button class="map-view-btn"        data-cfview="vendor" type="button">Compute</button>
+          <button class="map-view-btn"        data-cfview="debt"   type="button">GPU-backed debt</button>
+        </div>
+        <div id="circularFinancing" style="margin-top:8px"></div>
+        <div class="cf-legend" id="cfLegend"></div>
+        <div class="cf-ledger" id="cfLedger"></div>
+        <div class="sc-method" id="cfMethod"></div>
+      </div>
+
+      <!-- Full-width: Power-to-revenue yield reconciliation (NEW) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Power-to-revenue yield — reconciling the two numbers that never meet</h4>
+        <div class="note">Same $42M/MW of capacity, two ways to monetize it: a wholesale <b>facility lease</b> vs the theoretical <b>token-monetization</b> ceiling. Inputs are cited; the payback &amp; yield spread is <b>modeled</b> arithmetic, not a return forecast.</div>
+        <div id="powerToRevenueYield" style="margin-top:10px"></div>
+      </div>
+
       <div class="stub-grid">
         <!-- Card 3: M&A heatmap (NEW) -->
         <div class="stub-card">
@@ -1359,6 +1449,22 @@
         <h4>Site-selection scorecard</h4>
         <div class="note">Per-factor cited scores across top US markets · 1-10 (higher = better for builds) · Readiness = modeled weighted composite</div>
         <div id="scorecardWrap"></div>
+      </div>
+
+      <!-- Full-width: Time-to-power by procurement path -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Time-to-power by procurement path</h4>
+        <div class="note">The binding 2026 question isn't whether power is scarce — it's which path energizes a site fastest, at what trade-off · months from decision to first power · firmness tag + one-line trade-off · grid duration cited (LBNL); on-site gas / recip bands modeled (labeled)</div>
+        <div id="timeToPower" style="margin-top:10px"></div>
+        <div class="sc-method" id="timeToPowerMethod"></div>
+      </div>
+
+      <!-- Full-width: Compute-per-watt trend — efficiency counterweight to the demand-gap forecasts -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Compute-per-watt trend — the efficiency offset the demand forecasts assume away</h4>
+        <div class="note">Every demand-gap projection implicitly assumes efficiency gains don't outrun demand. This is the only place a reader sees why those GW forecasts could run high. Bars/line = peak <b>dense FP16/BF16 TFLOPS per watt</b> by GPU generation (one pinned metric), indexed to A100 = 100. Dashed markers = a separate <b>modeled</b> "effective inference per-watt" basis (FP4/NVFP4 + NVL72 rack-scale) — shown to explain why real deployments see multi-fold gains the single-precision line does not.</div>
+        <div class="chart-box" style="margin-top:14px"><canvas id="perfPerWattChart"></canvas></div>
+        <div class="sc-method" id="perfPerWattMethod"></div>
       </div>
 
       <!-- Full-width: Buildability — what's moving (dated, cited movements ledger) -->
@@ -1511,6 +1617,14 @@
         <h4>$/token compression — the 100× price drop</h4>
         <div class="note">$ per 1M output tokens at launch &middot; <b>log Y axis</b> (data spans ~125&times; from frontier to OSS-hosted &mdash; linear would hide the cheap end) &middot; lower-right = newer + cheaper</div>
         <div class="chart-box" style="height:320px"><canvas id="priceCompressionChart"></canvas></div>
+      </div>
+
+      <!-- Card 2b: Effective cost per useful task — inverts the price-compression story -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Effective cost per useful task — the price drop you don't feel</h4>
+        <div class="note">Sticker $/token fell ~<b>100&ndash;300&times;</b> (chart above), but reasoning/agentic models burn far more tokens per task &middot; <b>cost to COMPLETE a fixed task</b> ($/task, <b>log Y</b>) for a held-constant basket &middot; 2023 frontier vs 2026 frontier &middot; <b>$/token cited, tokens-per-task &amp; $/task modeled</b></div>
+        <div class="chart-box" style="height:320px"><canvas id="costPerTaskChart"></canvas></div>
+        <div class="sc-method" id="costPerTaskMethod"></div>
       </div>
 
       <div class="stub-grid" style="margin-top:14px">
@@ -2076,6 +2190,206 @@
           src: { label: "Meta + Entergy 5 GW (megaProjects)", tier: "primary" } }
       ],
       method: "Segments are a MODELED band: numerator = sum of disclosed long-term offtake (cloud RPO/backlog + named take-or-pay leases above); denominator = the modeled ~$808B major-operator 2026 capex plus the named GW pipeline. RPO/backlog and lease terms are PRIMARY (filings/IR). The contracted SHARE is an estimate — shown as a band, not a precise %. Self-built hyperscaler GW (e.g. Meta Hyperion) is demand-pulled by internal need but carries no external offtake, so it sits in 'speculative/merchant' for offtake-coverage purposes."
+    },
+
+    /* ----- Circular-financing & counterparty map (Capital) -----
+       A directed map of the ~2025-26 AI-infra money loop: who invests equity into
+       whom, who commits to buy whose compute, and who lends against the chips. The
+       MAP is the insight — there is deliberately NO aggregate "circularity score".
+       Each edge is individually cited to a filing / press release. Edge $ is the
+       DISCLOSED headline figure where one exists, else qualitative. Edge "kind":
+         equity   = investment / equity stake / warrant
+         vendor   = compute / chip purchase commitment (demand)
+         debt     = asset-backed lending against GPUs/chips
+       Node "role" drives color: vendor(chip), lab(frontier AI), cloud(hyperscaler),
+       neocloud, credit(private credit), other. ----- */
+    circularFinancing: {
+      asOf: "Jun 2026",
+      kinds: {
+        equity: { label: "Equity / investment", color: "#1d4ed8" },
+        vendor: { label: "Compute commitment",  color: "#0d9488" },
+        debt:   { label: "GPU-backed debt",      color: "#d97706" }
+      },
+      roles: {
+        vendor:   { label: "Chip / system vendor", color: "#15803d" },
+        lab:      { label: "Frontier AI lab",       color: "#1d4ed8" },
+        cloud:    { label: "Hyperscaler",           color: "#64748b" },
+        neocloud: { label: "Neocloud",              color: "#a855f7" },
+        credit:   { label: "Private credit",        color: "#d97706" }
+      },
+      nodes: [
+        { id: "NVIDIA",     role: "vendor" },
+        { id: "AMD",        role: "vendor" },
+        { id: "Broadcom",   role: "vendor" },
+        { id: "OpenAI",     role: "lab" },
+        { id: "Anthropic",  role: "lab" },
+        { id: "xAI",        role: "lab" },
+        { id: "Microsoft",  role: "cloud" },
+        { id: "Oracle",     role: "cloud" },
+        { id: "AWS",        role: "cloud" },
+        { id: "Google",     role: "cloud" },
+        { id: "CoreWeave",  role: "neocloud" },
+        { id: "Apollo",     role: "credit" },
+        { id: "Blackstone", role: "credit" }
+      ],
+      // Hand-curated, each edge individually cited. v = disclosed $B (headline);
+      // null = qualitative (no public $). label = short edge caption.
+      edges: [
+        { from: "NVIDIA",     to: "OpenAI",     kind: "equity", v: 100, label: "Up to $100B LOI (≈$30B initial tranche)", src: { label: "NVIDIA / OpenAI announcement, Sep 2025", tier: "primary" } },
+        { from: "NVIDIA",     to: "CoreWeave",  kind: "equity", v: null, label: "≈7% equity stake (24.2M sh, 13G)",       src: { label: "NVIDIA SC 13G filing", tier: "primary" } },
+        { from: "NVIDIA",     to: "Anthropic",  kind: "equity", v: 10,  label: "Up to $10B investment",                  src: { label: "Microsoft/NVIDIA/Anthropic release, Nov 2025", tier: "primary" } },
+        { from: "NVIDIA",     to: "xAI",        kind: "equity", v: 2,   label: "Up to $2B into Series E SPV",            src: { label: "xAI $20B Series E reporting", tier: "analyst" } },
+        { from: "NVIDIA",     to: "CoreWeave",  kind: "vendor", v: 6.3, label: "$6.3B take-or-pay capacity backstop",    src: { label: "CoreWeave 8-K / NVIDIA order form", tier: "primary" } },
+        { from: "OpenAI",     to: "NVIDIA",     kind: "vendor", v: 100, label: "≈$100B GPU compute (10GW)",              src: { label: "OpenAI compute-commitment disclosure", tier: "analyst" } },
+        { from: "OpenAI",     to: "Broadcom",   kind: "vendor", v: 350, label: "10GW custom accelerators (~$350B est.)", src: { label: "OpenAI/Broadcom release, Oct 2025", tier: "analyst" } },
+        { from: "OpenAI",     to: "Oracle",     kind: "vendor", v: 300, label: "$300B, 5-yr cloud (Stargate)",           src: { label: "Oracle / OpenAI reporting, Sep 2025", tier: "analyst" } },
+        { from: "OpenAI",     to: "Microsoft",  kind: "vendor", v: 250, label: "$250B Azure commitment",                 src: { label: "Microsoft / OpenAI restructuring, 2025", tier: "analyst" } },
+        { from: "OpenAI",     to: "AMD",        kind: "vendor", v: 90,  label: "6GW Instinct (~$90B potential)",          src: { label: "AMD / OpenAI release, Oct 2025", tier: "analyst" } },
+        { from: "OpenAI",     to: "AWS",        kind: "vendor", v: 38,  label: "$38B, 7-yr GPU capacity",                src: { label: "Amazon / OpenAI release, Nov 2025", tier: "primary" } },
+        { from: "OpenAI",     to: "CoreWeave",  kind: "vendor", v: 22,  label: "Up to ≈$22.4B contracts",               src: { label: "CoreWeave 8-K filings (3 tranches)", tier: "primary" } },
+        { from: "AMD",        to: "OpenAI",     kind: "equity", v: null, label: "Warrant: up to 160M sh (~10%)",         src: { label: "AMD 8-K warrant disclosure", tier: "primary" } },
+        { from: "Microsoft",  to: "OpenAI",     kind: "equity", v: 135, label: "≈27% stake (~$135B value)",             src: { label: "Microsoft / OpenAI recapitalization, 2025", tier: "primary" } },
+        { from: "Microsoft",  to: "CoreWeave",  kind: "vendor", v: null, label: "≈45-67% of CoreWeave revenue",          src: { label: "CoreWeave 10-Q customer concentration", tier: "primary" } },
+        { from: "Microsoft",  to: "Anthropic",  kind: "equity", v: 5,   label: "$5B investment",                         src: { label: "Microsoft / Anthropic release, Nov 2025", tier: "primary" } },
+        { from: "Anthropic",  to: "Microsoft",  kind: "vendor", v: 30,  label: "$30B Azure compute",                     src: { label: "Anthropic / Microsoft release, Nov 2025", tier: "primary" } },
+        { from: "Apollo",     to: "Broadcom",   kind: "debt",   v: 35,  label: "$35B AI XPV (chip-backed SPV)",          src: { label: "Apollo / Blackstone press, Jun 2026", tier: "primary" } },
+        { from: "Blackstone", to: "CoreWeave",  kind: "debt",   v: 8.5, label: "$8.5B loan vs NVIDIA chips",            src: { label: "Blackstone-anchored CoreWeave DDTL", tier: "primary" } },
+        { from: "Blackstone", to: "Google",     kind: "equity", v: 5,   label: "$5B equity, TPU JV",                     src: { label: "Blackstone / Google TPU JV reporting", tier: "analyst" } }
+      ],
+      methodology: "Directed counterparty map — edges are hand-curated and individually cited to a filing or press release. Disclosed headline $ shown where one exists; several figures (Broadcom 10GW, Oracle/Microsoft/AMD totals) are vendor/analyst estimates of multi-year commitments, not single reported line items, and are tiered accordingly. Where no public $ exists (CoreWeave 7% stake, AMD warrant, CoreWeave revenue mix) the edge is qualitative. This is descriptive — there is no aggregate circularity score and nothing here is advice."
+    },
+
+    /* ----- Time-to-power by procurement path (Buildout) -----
+       The binding 2026 operator question: which path energizes fastest, at what trade-off.
+       Months-to-energization RANGE bars per path + firmness tag + one-line tradeoff.
+       Grid duration cited (LBNL Queued Up 2025); on-site gas / fuel-cell cited to OEM where
+       available, else modeled bands (labeled); nuclear cited to operator. maxScale = 84 mo (7 yr). */
+    timeToPower: {
+      maxScale: 84,
+      items: [
+        { name: "Fuel cells (on-site)", firm: "interruptible", firmLabel: "On-site",
+          range: "3–12 mo", minVal: 3, maxVal: 12, severity: "ok",
+          tradeoff: "Fastest first-power, but fuel-cost premium and gas-supply/permit dependent.",
+          example: "Bloom–Oracle OCI: 50 MW in ~90 days where gas + permits in place.",
+          note: "Bloom Energy: ~50 MW in as little as 90 days, 100 MW in ~120 days if gas supply and permits in place.",
+          src: { label: "Bloom Energy / Oracle OCI deployment", tier: "primary" } },
+        { name: "Behind-the-meter gas", firm: "bridge", firmLabel: "Bridge",
+          range: "6–18 mo", minVal: 6, maxVal: 18, severity: "ok",
+          tradeoff: "Bridge power in months vs years; emissions/permitting and turbine-queue exposure.",
+          example: "Crusoe Abilene: aeroderivative on-site gas energizing in phases ahead of grid.",
+          note: "GE Vernova LM2500XPRESS aero units 95% factory-assembled, grid-independent 5-min fast start; site install fast but OEM order book is multi-year (Wood Mackenzie: some turbine classes ~243-week lead). Deployment band modeled.",
+          src: { label: "GE Vernova LM2500XPRESS / Crusoe (timeline modeled)", tier: "modeled" } },
+        { name: "Reciprocating engines", firm: "bridge", firmLabel: "Bridge",
+          range: "9–18 mo", minVal: 9, maxVal: 18, severity: "ok",
+          tradeoff: "Modular and fast to site, but higher emissions and O&M; usually interim.",
+          example: "Common interim path while utility substation / interconnect catches up.",
+          note: "Modeled band: recip gensets deploy faster than utility substation upgrades in many markets; positioned between fuel cells and grid.",
+          src: { label: "Enverus 'Time to Power' (band modeled)", tier: "modeled" } },
+        { name: "Full grid interconnect", firm: "firm", firmLabel: "Firm",
+          range: "48–84 mo", minVal: 48, maxVal: 84, severity: "crit",
+          tradeoff: "Firm, lowest-cost power once energized — but 4–7 yr queue is the binding wait.",
+          example: "PJM/CAISO large-load queues now 5–7 yr; ERCOT shorter but rising.",
+          note: "LBNL Queued Up 2025: typical project reaching COD in 2024 spent ~55 mo in queue; 2025 first-power projects average >2,100 days (~5.7 yr), up ~60% since 2017.",
+          src: { label: "LBNL Queued Up 2025", tier: "primary" } },
+        { name: "Nuclear restart", firm: "firm", firmLabel: "Firm",
+          range: "36–48 mo", minVal: 36, maxVal: 48, severity: "warn",
+          tradeoff: "Firm 24/7 carbon-free baseload, but only viable at existing-plant restart sites.",
+          example: "Constellation Crane (TMI Unit 1) → Microsoft PPA, restart targeted 2027–28.",
+          note: "Constellation: $1.6B restart of TMI Unit 1 (Crane Clean Energy Center) targeting 2027 (early-interconnect) to 2028; 20-yr Microsoft PPA. ~3–4 yr from 2024 announcement.",
+          src: { label: "Constellation Crane CEC / Microsoft PPA", tier: "primary" } },
+        { name: "New SMR / advanced nuclear", firm: "firm", firmLabel: "Firm",
+          range: "≥60 mo", minVal: 60, maxVal: 84, severity: "crit",
+          tradeoff: "Firm clean baseload at scale, but first units are 2030+ — not a 2026–28 answer.",
+          example: "Google–Kairos targeting first SMR ~2030; bulk of deployments 2031–35.",
+          note: "DOE / NEA: first commercial SMR units early 2030s at earliest; 2030 is the pivotal target year for pilots. Capped at scale max for charting.",
+          src: { label: "DOE / Google–Kairos SMR program", tier: "analyst" } }
+      ]
+    },
+
+    costPerTask: {
+      // "Representative task basket" — three fixed task classes held constant across eras.
+      // The point: sticker $/token fell ~100-300x (see priceCompression), but reasoning/agentic
+      // models burn far MORE tokens per task, so cost-to-COMPLETE a unit of work fell far less.
+      // $/token is CITED. tokens-per-task and the resulting $/task are MODELED for this basket.
+      noteBasket: "Basket: three fixed task classes run on the era's representative frontier model. 2023 = GPT-4-class (no reasoning tokens). 2026 = a current reasoning/agentic frontier model with thinking enabled. Output token counts per task are modeled from public benchmark behavior; cost = output tokens × that era's cited output price.",
+      tasks: [
+        {
+          name: "Simple chat",
+          tok2023: 700,  tok2026: 700,
+          price2023: 60,  price2026: 0.40,
+          tokSrc: "modeled — short Q&A, ~700 output tok both eras"
+        },
+        {
+          name: "Coding / agentic task",
+          tok2023: 2000,  tok2026: 1200000,
+          price2023: 60,  price2026: 15,
+          tokSrc: "modeled — 2026 = multi-step agent loop, SWE-bench Verified caps 2M tok/task; one instance hit 1.8M"
+        },
+        {
+          name: "Deep reasoning task",
+          tok2023: 1500,  tok2026: 120000,
+          price2023: 60,  price2026: 10,
+          tokSrc: "modeled — reasoning models emit ~10-12x more completion tokens (o3-mini = 11.7x GPT-4o-mini); full AA Intelligence Index run = 5M-140M tok"
+        }
+      ],
+      stickerDropX: 150,
+      src: { label: "Provider pricing pages; Artificial Analysis; arXiv 2504.00294 (token use); Gartner (Mar 2026, 5-30x agentic tokens)", tier: "modeled" }
+    },
+
+    powerToRevenueYield: {
+      // Reconciles two numbers ALREADY on this page that never meet:
+      //   DATA.costStack.allInTotal  = $42M/MW all-in build cost
+      //   DATA.tokenEnergyBridge[3]  = ~$200K of API revenue per MW-hr
+      // Both inputs inherit their existing citations. The payback / yield SPREAD is MODELED arithmetic.
+      costIn: {
+        allInPerMw: 42,
+        facilityPerMw: 11,
+        computePerMw: 31,
+        src: { label: "Per-MW build stack (this page, costStack) — JLL 2025 $/MW shell + analyst fit-out", tier: "analyst" }
+      },
+      leaseLane: {
+        ratePerKwMo: 196.25,
+        revPerMwYr: 2.36,
+        paybackYrs: 17.8,
+        src: { label: "CBRE — North America Data Center Trends H2 2025 ($196.25/kW-mo, 250-500 kW)", tier: "analyst" }
+      },
+      tokenLane: {
+        revPerMwHr: 200,
+        revPerMwYr: 1752,
+        paybackDays: 8.8,
+        src: { label: "Tokens x energy bridge (this page) — provider pricing pages; ~$1/1M-token output", tier: "primary" }
+      },
+      spread: {
+        ratioX: 744,
+        note: "The gap between an ~18-year facility-lease payback and an ~9-day token-monetization payback is not a real return — it is the over- vs under-build debate stated as arithmetic. The token ceiling assumes 100% sell-through at peak 2025-2026 output prices, zero opex and no price compression; the lease rate is what wholesale buyers actually sign. Real economics sit somewhere between the two lanes, and where they land decides whether today's $42M/MW is over- or under-built.",
+        tier: "modeled"
+      },
+      formula: "lease payback = $42M / ($196.25/kW-mo x 1,000 kW x 12) = 17.8 yr  -  token ceiling payback = $42M / ($200K/MW-hr x 8,760 hr) = 8.8 days  -  spread = 1,752 / 2.36 = ~744x"
+    },
+
+    /* ----- Compute-per-watt trend (Buildout) — the efficiency counterweight to the demand story -----
+       Metric pinned to ONE thing: peak DENSE FP16/BF16 Tensor-Core TFLOPS per watt (board TDP).
+       NVIDIA datasheets quote FP16 Tensor "with sparsity" (2x dense); dense = listed / 2. ----- */
+    perfPerWatt: {
+      metricLabel: "Peak dense FP16/BF16 TFLOPS per watt",
+      gens: [
+        { gen: "A100",  year: "2020", denseTflops: 312,   tdp: 400,  perfW: 0.78, idx: 100,
+          src: { label: "NVIDIA A100 datasheet (312 dense FP16 TFLOPS, 400W SXM)", tier: "primary" } },
+        { gen: "H100",  year: "2022", denseTflops: 989.5, tdp: 700,  perfW: 1.41, idx: 181,
+          src: { label: "NVIDIA H100 datasheet (1,979 FP16 w/ sparsity = 989.5 dense, 700W)", tier: "primary" } },
+        { gen: "H200",  year: "2024", denseTflops: 989.5, tdp: 700,  perfW: 1.41, idx: 181,
+          src: { label: "NVIDIA H200 datasheet (same Tensor-Core compute as H100, 700W)", tier: "primary" } },
+        { gen: "B200",  year: "2025", denseTflops: 2250,  tdp: 1000, perfW: 2.25, idx: 289,
+          src: { label: "NVIDIA Blackwell datasheet (4,500 FP16 w/ sparsity = 2,250 dense, 1,000W)", tier: "primary" } }
+      ],
+      effective: [
+        { gen: "GB200 NVL72", idx: 1000,
+          src: { label: "NVIDIA / SemiAnalysis: GB200 NVL72 >10x tokens/W vs Hopper (FP4 + rack-scale) — modeled index", tier: "modeled" } },
+        { gen: "Rubin (VR200)", idx: 3500,
+          src: { label: "NVIDIA GTC 2026: Rubin ~3.5x NVFP4 training PFLOPS/GPU vs Blackwell at ~2x power — modeled extrapolation", tier: "modeled" } }
+      ],
+      src: { label: "NVIDIA datasheets (A100/H100/H200/Blackwell) — dense FP16/BF16 per board TDP", tier: "primary" },
+      note: "Cross-gen index (A100=100) is modeled. Bars = peak DENSE FP16/BF16 TFLOPS/W from NVIDIA datasheets — an apples-to-apples silicon metric. Per-watt at fixed precision only ~3x A100->B200; the much larger real-world gains (dashed, modeled) come from lower precision (FP8->FP4/NVFP4) plus rack-scale NVL72 design, NOT FP16 FLOPS/W. H200 = H100 compute with more memory."
     },
 
     demandProjection: {
@@ -2653,6 +2967,385 @@
        ${rows}`;
 
     if ($("offtakeMethod")) $("offtakeMethod").textContent = oc.method;
+  }
+
+  function renderCircularFinancing(view) {
+    const host = $("circularFinancing");
+    if (!host || !DATA.circularFinancing) return;
+    if (typeof d3 === "undefined") {
+      host.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px">Counterparty map requires D3 — reload when online.</div>';
+      return;
+    }
+    const cf = DATA.circularFinancing;
+    if (view) renderCircularFinancing._view = view;
+    view = renderCircularFinancing._view || "all";
+
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const txt = isDark ? "#e2e8f0" : "#1e293b", muted = isDark ? "#94a3b8" : "#64748b";
+    const ringStroke = isDark ? "#334155" : "#e2e8f0";
+
+    const edges = cf.edges.filter(e => view === "all" || e.kind === view);
+
+    const order = ["NVIDIA","AMD","Broadcom","Apollo","Blackstone","Google","AWS","Oracle","Microsoft","CoreWeave","xAI","Anthropic","OpenAI"];
+    const present = cf.nodes.slice().sort((a,b) => order.indexOf(a.id) - order.indexOf(b.id));
+
+    host.querySelectorAll("svg").forEach(s => s.remove());
+    const W = host.clientWidth || 760;
+    const H = 460;
+    const cx = W / 2, cy = H / 2 + 6;
+    const R = Math.min(W, H) / 2 - 92;
+
+    const svg = d3.select(host).append("svg")
+      .attr("viewBox", "0 0 " + W + " " + H).style("width", "100%").style("height", "auto")
+      .attr("font-family", "Inter, sans-serif");
+
+    const N = present.length;
+    const pos = {};
+    present.forEach((n, i) => {
+      const ang = (i / N) * 2 * Math.PI - Math.PI / 2;
+      pos[n.id] = {
+        x: cx + R * Math.cos(ang),
+        y: cy + R * Math.sin(ang),
+        ang: ang,
+        role: n.role
+      };
+    });
+
+    svg.append("circle").attr("cx", cx).attr("cy", cy).attr("r", R)
+      .attr("fill", "none").attr("stroke", ringStroke).attr("stroke-width", 1).attr("stroke-dasharray", "2 5");
+
+    const defs = svg.append("defs");
+    Object.keys(cf.kinds).forEach(k => {
+      defs.append("marker").attr("id", "cfarrow-" + k)
+        .attr("viewBox", "0 0 10 10").attr("refX", 9).attr("refY", 5)
+        .attr("markerWidth", 7).attr("markerHeight", 7).attr("orient", "auto-start-reverse")
+        .append("path").attr("d", "M0,0 L10,5 L0,10 Z").attr("fill", cf.kinds[k].color);
+    });
+
+    const radius = 9;
+
+    const linkG = svg.append("g");
+    edges.forEach(e => {
+      const a = pos[e.from], b = pos[e.to];
+      if (!a || !b) return;
+      const col = cf.kinds[e.kind].color;
+      const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len, uy = dy / len;
+      const x1 = a.x + ux * radius, y1 = a.y + uy * radius;
+      const x2 = b.x - ux * (radius + 6), y2 = b.y - uy * (radius + 6);
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      const k = 0.28;
+      const cxp = mx + (cx - mx) * k, cyp = my + (cy - my) * k;
+      const w = e.v == null ? 1.4 : Math.max(1.6, Math.min(6, Math.sqrt(e.v) * 0.5));
+      const p = linkG.append("path")
+        .attr("d", "M" + x1 + "," + y1 + " Q" + cxp + "," + cyp + " " + x2 + "," + y2)
+        .attr("fill", "none").attr("stroke", col)
+        .attr("stroke-opacity", e.v == null ? 0.42 : 0.6)
+        .attr("stroke-width", w)
+        .attr("stroke-dasharray", e.v == null ? "4 3" : null)
+        .attr("marker-end", "url(#cfarrow-" + e.kind + ")");
+      p.append("title").text(e.from + " → " + e.to + "  ·  " + e.label + "  ·  " + e.src.label);
+    });
+
+    const nodeG = svg.append("g");
+    present.forEach(n => {
+      const p = pos[n.id];
+      const col = (cf.roles[n.role] || {}).color || "#64748b";
+      const g = nodeG.append("g");
+      g.append("circle").attr("cx", p.x).attr("cy", p.y).attr("r", radius)
+        .attr("fill", col).attr("stroke", isDark ? "#0f172a" : "#ffffff").attr("stroke-width", 2)
+        .append("title").text(n.id + " — " + (cf.roles[n.role] || {}).label);
+      const right = Math.cos(p.ang) >= -0.01;
+      const lx = p.x + Math.cos(p.ang) * 16;
+      const ly = p.y + Math.sin(p.ang) * 16;
+      g.append("text").attr("x", lx).attr("y", ly).attr("dy", "0.34em")
+        .attr("text-anchor", right ? "start" : "end")
+        .attr("fill", txt).attr("font-size", "11.5px").attr("font-weight", "700")
+        .text(n.id);
+    });
+
+    const lg = $("cfLegend");
+    if (lg) {
+      lg.innerHTML = Object.keys(cf.kinds).map(k =>
+        '<span class="cf-leg-item"><span class="cf-leg-swatch" style="background:' + cf.kinds[k].color + '"></span>' + cf.kinds[k].label + '</span>'
+      ).join("") + '<span class="cf-leg-item cf-leg-note">dashed = no public $ (qualitative)</span>';
+    }
+
+    const led = $("cfLedger");
+    if (led) {
+      const tierClass = t => t === "primary" ? "ok" : (t === "analyst" ? "warn" : "crit");
+      led.innerHTML = edges.map(e => {
+        const col = cf.kinds[e.kind].color;
+        const amt = e.v == null ? "qual." : "$" + (e.v >= 100 ? e.v : e.v) + "B";
+        return '<div class="cf-row">' +
+          '<span class="cf-row-edge"><span class="cf-row-dot" style="background:' + col + '"></span>' +
+          '<b>' + e.from + '</b> → <b>' + e.to + '</b></span>' +
+          '<span class="cf-row-amt">' + amt + '</span>' +
+          '<span class="cf-row-lbl">' + e.label + '</span>' +
+          '<span class="cf-row-src">' + e.src.label +
+          ' <span class="cf-tier cf-' + tierClass(e.src.tier) + '">' + e.src.tier + '</span></span>' +
+          '</div>';
+      }).join("");
+    }
+
+    const method = $("cfMethod");
+    if (method) method.innerHTML = "<b>Descriptive map.</b> " + cf.methodology;
+
+    const toggle = $("cfViewToggle");
+    if (toggle && !toggle._wired) {
+      toggle._wired = true;
+      toggle.querySelectorAll(".map-view-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const v = btn.dataset.cfview;
+          if (v === renderCircularFinancing._view) return;
+          toggle.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
+          renderCircularFinancing(v);
+        });
+      });
+    }
+  }
+
+  function renderTimeToPower() {
+    if (!$("timeToPower") || !DATA.timeToPower) return;
+    const tp  = DATA.timeToPower;
+    const max = tp.maxScale;
+    const esc = s => String(s).replace(/"/g, "&quot;");
+    $("timeToPower").innerHTML = tp.items.map(it => {
+      const offset = (it.minVal / max * 100);
+      const width  = ((it.maxVal - it.minVal) / max * 100);
+      const pill   = it.firm === "firm" ? "ok" : (it.firm === "bridge" ? "warn" : "crit");
+      return `
+      <div class="ttp-row" title="${esc(it.note + "  Example: " + it.example)}">
+        <div class="ttp-top">
+          <div class="leadtime-name">${it.name}
+            <span class="stack-pill ${pill}">${it.firmLabel}</span>
+          </div>
+          <div class="leadtime-val ${it.severity}">${it.range}</div>
+        </div>
+        <div class="leadtime-bar-wrap">
+          <div class="ttp-bar ${it.severity}" style="margin-left:${offset.toFixed(1)}%;width:${width.toFixed(1)}%"></div>
+        </div>
+        <div class="ttp-tradeoff">${it.tradeoff} <span class="stack-src">— ${it.src.label}</span></div>
+      </div>`;
+    }).join("");
+    if ($("timeToPowerMethod")) {
+      $("timeToPowerMethod").innerHTML =
+        `<b>Firmness:</b> Firm = dispatchable 24/7 (grid / nuclear); Bridge = interim on-site gas while firm power catches up; ` +
+        `On-site = fastest but fuel-cost / supply dependent. Bar = months-to-first-power range on a 0–84 mo (7-yr) scale. ` +
+        `<b>Cited:</b> grid interconnect duration (LBNL Queued Up 2025), fuel-cell speed (Bloom/Oracle), nuclear restart (Constellation/Microsoft), SMR window (DOE / Google–Kairos). ` +
+        `<b>Modeled (labeled):</b> behind-the-meter gas and reciprocating-engine deployment bands — OEM site-install is fast but order-book lead times vary; trade-off / firmness tags are editorial.`;
+    }
+  }
+
+  function renderCostPerTaskChart() {
+    if (!$("costPerTaskChart") || typeof Chart === "undefined") return;
+    if (renderCostPerTaskChart._done) return;
+    renderCostPerTaskChart._done = true;
+    initCharts(); applyChartDefaults();
+    const cpt = DATA.costPerTask;
+    const cl = getChartColors();
+    const costOf = (tok, price) => (tok / 1e6) * price;
+    const cost2023 = cpt.tasks.map(t => costOf(t.tok2023, t.price2023));
+    const cost2026 = cpt.tasks.map(t => costOf(t.tok2026, t.price2026));
+    const fmt$ = v => v >= 1 ? "$" + v.toFixed(2) : v >= 0.01 ? "$" + v.toFixed(3) : "$" + v.toFixed(4);
+    _charts.costPerTaskChart = new Chart($("costPerTaskChart"), {
+      type: "bar",
+      data: {
+        labels: cpt.tasks.map(t => t.name),
+        datasets: [
+          { label: "2023 frontier (GPT-4-class)", data: cost2023, backgroundColor: "#94a3b8", borderRadius: 5, maxBarThickness: 38 },
+          { label: "2026 frontier (reasoning/agentic)", data: cost2026, backgroundColor: "#1d4ed8", borderRadius: 5, maxBarThickness: 38 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 24 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, font: { weight: 700, size: 10 }, formatter: v => fmt$(v) }),
+          tooltip: { callbacks: {
+            label: c => {
+              const t = cpt.tasks[c.dataIndex];
+              const isNew = c.datasetIndex === 1;
+              const tok = isNew ? t.tok2026 : t.tok2023;
+              const price = isNew ? t.price2026 : t.price2023;
+              const tokTxt = tok >= 1000 ? Math.round(tok / 1000) + "K" : tok;
+              return " " + c.dataset.label + ": " + fmt$(c.parsed.y) + "/task  (~" + tokTxt + " out tok × $" + price + "/1M)";
+            },
+            footer: () => "tokens/task modeled · $/token cited · " + cpt.src.label
+          }}
+        },
+        scales: {
+          y: { type: "logarithmic", grid: { color: cl.grid },
+            ticks: { callback: v => { const a = [0.001,0.01,0.1,1,10]; return a.indexOf(v) >= 0 ? fmt$(v) : ""; } },
+            title: { display: true, text: "$ per completed task (log)" }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+    if ($("costPerTaskMethod")) {
+      const ratios = cpt.tasks.map(t => {
+        const c23 = costOf(t.tok2023, t.price2023), c26 = costOf(t.tok2026, t.price2026);
+        const r = c26 / c23;
+        const arrow = r >= 1 ? "×" + r.toFixed(1) + " higher" : "÷" + (1 / r).toFixed(0) + " cheaper";
+        return t.name + ": " + arrow;
+      }).join(" · ");
+      $("costPerTaskMethod").innerHTML =
+        "<b>$/task (modeled)</b> = era output-tokens/task × that era's <b>cited</b> output price. " +
+        cpt.noteBasket +
+        " Net effect vs 2023, per task: " + ratios +
+        " — i.e. the ~" + cpt.stickerDropX + "× sticker drop is partly (coding/reasoning) or fully (simple chat) eaten by higher tokens-per-task.";
+    }
+  }
+
+  function renderPowerToRevenueYield() {
+    if (!$("powerToRevenueYield") || !DATA.powerToRevenueYield) return;
+    const d = DATA.powerToRevenueYield;
+    const ci = d.costIn, la = d.leaseLane, lb = d.tokenLane, sp = d.spread;
+
+    const html = `
+      <div class="stack-row">
+        <div class="stack-head">
+          <div class="stack-name"><span class="stack-num">1</span>Cost in <span class="stack-what">— what one MW of AI capacity costs to build</span></div>
+          <span class="stack-pill" style="background:var(--accent-soft);color:var(--accent)">$${ci.allInPerMw}M / MW</span>
+        </div>
+        <div class="stack-evidence">Facility shell $${ci.facilityPerMw}M (developer-paid) + compute $${ci.computePerMw}M (GPUs &amp; servers, consumer-paid) = $${ci.allInPerMw}M all-in. <span class="stack-src">— ${ci.src.label}</span></div>
+      </div>
+
+      <div class="stack-row">
+        <div class="stack-head">
+          <div class="stack-name"><span class="stack-num">2</span>Revenue out <span class="stack-what">— two ways to monetize the same megawatt</span></div>
+        </div>
+        <div class="p2r-lanes">
+          <div class="p2r-lane">
+            <div class="p2r-lane-top"><span class="p2r-lane-name">Facility lease</span><span class="stack-pill ok">$${la.revPerMwYr}M / MW-yr</span></div>
+            <div class="p2r-lane-sub">@ $${la.ratePerKwMo}/kW-mo, the rate wholesale buyers actually sign.</div>
+            <div class="p2r-lane-src">${la.src.label}</div>
+          </div>
+          <div class="p2r-lane">
+            <div class="p2r-lane-top"><span class="p2r-lane-name">Token monetization <span class="p2r-ceil">ceiling</span></span><span class="stack-pill warn">$${(lb.revPerMwYr/1000).toFixed(2)}B / MW-yr</span></div>
+            <div class="p2r-lane-sub">@ $${lb.revPerMwHr}K/MW-hr &times; 8,760 hr at 100% sell-through &mdash; theoretical, not achievable.</div>
+            <div class="p2r-lane-src">${lb.src.label}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack-row">
+        <div class="stack-head">
+          <div class="stack-name"><span class="stack-num">3</span>Implied payback spread <span class="stack-what">— gross, pre-opex</span></div>
+          <span class="stack-pill crit">${sp.ratioX}&times; gap <span class="rd-mod" style="margin-left:4px">modeled</span></span>
+        </div>
+        <div class="p2r-spread">
+          <div class="p2r-spread-cell"><div class="p2r-spread-num ok">~${la.paybackYrs} yr</div><div class="p2r-spread-lbl">facility-lease payback</div></div>
+          <div class="p2r-spread-vs">vs</div>
+          <div class="p2r-spread-cell"><div class="p2r-spread-num warn">~${lb.paybackDays} days</div><div class="p2r-spread-lbl">token-monetization payback</div></div>
+        </div>
+        <div class="stack-evidence" style="margin-top:8px">${sp.note}</div>
+      </div>
+
+      <div class="sc-method"><b>Spread (modeled)</b> &mdash; arithmetic on the two cited inputs above, not a return forecast: ${d.formula}.</div>`;
+
+    $("powerToRevenueYield").innerHTML = html;
+  }
+
+  function renderPerfPerWattChart() {
+    if (!$("perfPerWattChart") || typeof Chart === "undefined") return;
+    if (renderPerfPerWattChart._done) return;
+    renderPerfPerWattChart._done = true;
+    initCharts(); applyChartDefaults();
+    const pw = DATA.perfPerWatt;
+    const cl = getChartColors();
+
+    const baseLabels = pw.gens.map(g => g.gen + "  ·  " + g.year);
+    const effLabels  = pw.effective.map(e => e.gen);
+    const labels = baseLabels.concat(effLabels);
+
+    const idxData  = pw.gens.map(g => g.idx).concat(pw.effective.map(() => null));
+    const lineData = pw.gens.map(g => g.idx).concat(pw.effective.map(() => null));
+    const effData  = pw.gens.map(() => null).concat(pw.effective.map(e => e.idx));
+
+    const allSrcs = pw.gens.map(g => g.src).concat(pw.effective.map(e => e.src));
+
+    _charts.perfPerWattChart = new Chart($("perfPerWattChart"), {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Dense FP16/BF16 perf-per-watt (index, A100=100)",
+            type: "bar",
+            data: idxData,
+            backgroundColor: "#1d4ed8",
+            borderRadius: 5, maxBarThickness: 54,
+            order: 2
+          },
+          {
+            label: "Trend (same metric)",
+            type: "line",
+            data: lineData,
+            borderColor: "#1d4ed8",
+            backgroundColor: "rgba(29,78,216,0.10)",
+            tension: 0.3, fill: false,
+            pointRadius: 4, pointBackgroundColor: "#1d4ed8",
+            borderWidth: 2, spanGaps: false,
+            order: 1
+          },
+          {
+            label: "Effective inference perf-per-watt (MODELED — FP4 + NVL72)",
+            type: "line",
+            data: effData,
+            borderColor: "#c2710c",
+            backgroundColor: "rgba(194,113,12,0.10)",
+            borderDash: [6, 4],
+            tension: 0.2, fill: false,
+            pointRadius: 5, pointStyle: "rectRot", pointBackgroundColor: "#c2710c",
+            borderWidth: 2, spanGaps: false,
+            order: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 26 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 8, padding: 12, font: { size: 10.5 } } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), {
+            display: ctx => ctx.dataset.type === "bar" || ctx.dataset.label.indexOf("MODELED") !== -1,
+            color: ctx => ctx.dataset.label.indexOf("MODELED") !== -1 ? "#c2710c" : cl.label,
+            font: { weight: 700, size: 10 },
+            formatter: v => v == null ? "" : v + ""
+          }),
+          tooltip: { callbacks: {
+            label: c => {
+              if (c.parsed.y == null) return null;
+              if (c.dataset.label.indexOf("MODELED") !== -1)
+                return " Effective per-watt (modeled): " + c.parsed.y + " (index, A100=100)";
+              const g = pw.gens[c.dataIndex];
+              if (c.dataset.type === "bar" && g)
+                return [" " + g.idx + " (index, A100=100)", " " + g.denseTflops + " dense TFLOPS @ " + g.tdp + "W = " + g.perfW + " TFLOPS/W"];
+              return " " + c.parsed.y + " (index, A100=100)";
+            },
+            footer: items => { const s = allSrcs[items[0].dataIndex]; return s ? "Source: " + s.label : ""; }
+          }}
+        },
+        scales: {
+          y: {
+            grid: { color: cl.grid }, beginAtZero: true,
+            title: { display: true, text: "Perf-per-watt (index, A100 = 100)", color: cl.label, font: { size: 11 } },
+            ticks: { callback: v => v }
+          },
+          x: { grid: { display: false }, ticks: { font: { size: 10.5 } } }
+        }
+      }
+    });
+
+    if ($("perfPerWattMethod")) {
+      $("perfPerWattMethod").innerHTML =
+        "<b>Metric (cited):</b> " + pw.metricLabel + " — from NVIDIA datasheets, board TDP. " +
+        "<b>Modeled:</b> the cross-gen index (A100 = 100) and the dashed effective-inference markers. " +
+        pw.note;
+    }
   }
 
   function renderCapexChart() {
@@ -3541,6 +4234,8 @@
       renderCapexChart();
       renderVacancyChart();
       renderOfftakeCoverage();
+      renderCircularFinancing("all");
+      renderPowerToRevenueYield();
     } else if (name === "buildout") {
       renderFunnel();
       renderStackLayers();
@@ -3555,6 +4250,8 @@
       renderMegaProjects();
       renderBuildabilityMovements();
       renderPhantomLoad();
+      renderTimeToPower();
+      renderPerfPerWattChart();
     } else if (name === "grid") {
       renderIsoTable();
       renderRegList();
@@ -3571,6 +4268,7 @@
       renderTokenVolumeChart();
       renderDisclosedTokens();
       renderPriceCompressionChart();
+      renderCostPerTaskChart();
     }
   }
 
