@@ -14,6 +14,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1152,7 +1153,26 @@
           <div class="note">Illustrative $M to build one MW of AI capacity &middot; GPUs dominate</div>
           <div id="costStack" style="margin-top:6px"></div>
         </div>
+      </div>
 
+      <!-- Full-width: capex flow Sankey (after capex totals + cost stack) -->
+      <div class="stub-card">
+        <h4>Where the capex flows — 2026</h4>
+        <div class="note">~$808B across six operators → spend buckets · totals are each company's 2026 guidance (primary) · the bucket split is <b>modeled</b> · select a company to drill in</div>
+        <div class="map-view-toggle" id="capexViewToggle" role="tablist">
+          <button class="map-view-btn active" data-cview="all"       type="button">All</button>
+          <button class="map-view-btn"        data-cview="Amazon"    type="button">Amazon</button>
+          <button class="map-view-btn"        data-cview="Microsoft" type="button">Microsoft</button>
+          <button class="map-view-btn"        data-cview="Google"    type="button">Google</button>
+          <button class="map-view-btn"        data-cview="Meta"      type="button">Meta</button>
+          <button class="map-view-btn"        data-cview="Oracle"    type="button">Oracle</button>
+          <button class="map-view-btn"        data-cview="CoreWeave" type="button">CoreWeave</button>
+        </div>
+        <div id="capexSankey" style="margin-top:10px"></div>
+        <div class="sc-method" id="capexMethod"></div>
+      </div>
+
+      <div class="stub-grid">
         <!-- Card 3: M&A heatmap (NEW) -->
         <div class="stub-card">
           <h4>M&amp;A and major deals</h4>
@@ -1486,6 +1506,85 @@
         { label: "Oracle FY2026 guidance" },
         { label: "CoreWeave 2026 guidance" }
       ]
+    },
+
+    /* ----- Capex flow (Capital) — Sankey source. Totals = each company's 2026
+       guidance (primary, mirrors companyCapex). The split across spend buckets is
+       MODELED from disclosed signals (custom-silicon mix, merchant-GPU allocation,
+       non-core capex) — estimates, NOT reported line items. Each company's buckets
+       sum to its total. lane: "infra" (cloud/AI) vs "noncore"; cat = standard
+       category used for the aggregate ("All") rollup + color. ----- */
+    capexFlow: {
+      asOf: "2026",
+      cats: {
+        accel:      { label: "AI accelerators",            color: "#1d4ed8" },
+        server:     { label: "Server & storage",           color: "#0ea5e9" },
+        physical:   { label: "Physical infra + utilities", color: "#15803d" },
+        network:    { label: "Networking fabric",          color: "#9333ea" },
+        otherinfra: { label: "Other cloud infra",          color: "#0d9488" },
+        noncore:    { label: "Non-core / other",           color: "#64748b" }
+      },
+      lanes: [
+        { key: "infra",   label: "Cloud + AI infrastructure" },
+        { key: "noncore", label: "Non-core capex" }
+      ],
+      companies: [
+        { name: "Amazon",    color: "#ff9900", total: 200, src: { label: "Amazon 2026 guidance", tier: "primary" },
+          buckets: [
+            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 70 },
+            { label: "Server systems",             lane: "infra",   cat: "server",     value: 30 },
+            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 48 },
+            { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 8  },
+            { label: "Other AWS infra",            lane: "infra",   cat: "otherinfra", value: 4  },
+            { label: "Fulfillment / robotics",     lane: "noncore", cat: "noncore",    value: 24 },
+            { label: "Kuiper / Zoox / devices",    lane: "noncore", cat: "noncore",    value: 10 },
+            { label: "Corporate / other",          lane: "noncore", cat: "noncore",    value: 6  }
+          ] },
+        { name: "Microsoft", color: "#0078d4", total: 190, src: { label: "Microsoft 2026 guidance", tier: "primary" },
+          buckets: [
+            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 72 },
+            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 33 },
+            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 54 },
+            { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 11 },
+            { label: "Other Azure infra",          lane: "infra",   cat: "otherinfra", value: 4  },
+            { label: "Devices / gaming / other",   lane: "noncore", cat: "noncore",    value: 16 }
+          ] },
+        { name: "Google",    color: "#34a853", total: 185, src: { label: "Alphabet 2026 guidance", tier: "primary" },
+          buckets: [
+            { label: "AI accelerators (TPU + GPU)",lane: "infra",   cat: "accel",      value: 68 },
+            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 32 },
+            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 52 },
+            { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 12 },
+            { label: "Other cloud infra",          lane: "infra",   cat: "otherinfra", value: 5  },
+            { label: "Other Bets / devices",       lane: "noncore", cat: "noncore",    value: 16 }
+          ] },
+        { name: "Meta",      color: "#0866ff", total: 150, src: { label: "Meta 2026 guidance", tier: "primary" },
+          buckets: [
+            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 60 },
+            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 26 },
+            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 44 },
+            { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 8  },
+            { label: "Other infra",                lane: "infra",   cat: "otherinfra", value: 4  },
+            { label: "Reality Labs / other",       lane: "noncore", cat: "noncore",    value: 8  }
+          ] },
+        { name: "Oracle",    color: "#c74634", total: 50,  src: { label: "Oracle FY2026 guidance", tier: "primary" },
+          buckets: [
+            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 21 },
+            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 9  },
+            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 15 },
+            { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 3  },
+            { label: "Other OCI infra",            lane: "infra",   cat: "otherinfra", value: 1  },
+            { label: "Corporate / other",          lane: "noncore", cat: "noncore",    value: 1  }
+          ] },
+        { name: "CoreWeave", color: "#a855f7", total: 33,  src: { label: "CoreWeave 2026 guidance", tier: "primary" },
+          buckets: [
+            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 18 },
+            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 4  },
+            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 9  },
+            { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 2  }
+          ] }
+      ],
+      methodology: "Totals = each company's 2026 capex guidance (primary). The bucket split is modeled from disclosed signals (custom-silicon mix, merchant-GPU allocation, non-core capex) — estimates, not reported line items. Amazon calibrated to the $200B midpoint; networking trimmed for AWS's flatter RNG mesh."
     },
     costStack: {
       layers: [
@@ -1960,6 +2059,122 @@
   const LABEL_STYLE = new Proxy({}, {
     get(_, prop) { return LABEL_STYLE_FN()[prop]; }
   });
+
+  function renderCapexSankey(view) {
+    const host = $("capexSankey");
+    if (!host || !DATA.capexFlow) return;
+    if (typeof d3 === "undefined" || typeof d3.sankey !== "function") {
+      host.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px">Flow chart requires d3-sankey — reload when online.</div>';
+      return;
+    }
+    const cf = DATA.capexFlow;
+    if (view) renderCapexSankey._view = view;
+    view = renderCapexSankey._view || "all";
+
+    const nodes = [], links = [], idx = {};
+    const node = (name, color) => { if (!(name in idx)) { idx[name] = nodes.length; nodes.push({ name, color }); } return idx[name]; };
+    const catColor = k => (cf.cats[k] || {}).color || "#64748b";
+
+    if (view === "all") {
+      const t = node("Total capex", "#f59e0b");
+      cf.companies.forEach(c => {
+        const cn = node(c.name, c.color);
+        links.push({ source: t, target: cn, value: c.total, color: c.color });
+        const byCat = {};
+        c.buckets.forEach(b => { byCat[b.cat] = (byCat[b.cat] || 0) + b.value; });
+        Object.keys(byCat).forEach(k => links.push({ source: cn, target: node((cf.cats[k] || {}).label || k, catColor(k)), value: byCat[k], color: catColor(k) }));
+      });
+    } else {
+      const c = cf.companies.find(x => x.name === view) || cf.companies[0];
+      const t = node(c.name, c.color);
+      cf.lanes.forEach(lane => {
+        const lb = c.buckets.filter(b => b.lane === lane.key);
+        const lt = lb.reduce((s, b) => s + b.value, 0);
+        if (lt <= 0) return;
+        const lc = lane.key === "infra" ? c.color : "#64748b";
+        const ln = node(lane.label, lc);
+        links.push({ source: t, target: ln, value: lt, color: lc });
+        lb.forEach(b => links.push({ source: ln, target: node(b.label, catColor(b.cat)), value: b.value, color: catColor(b.cat) }));
+      });
+    }
+
+    host.querySelectorAll("svg").forEach(s => s.remove());
+    const W = host.clientWidth || 760;
+    const H = view === "all" ? 480 : 360;
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const txt = isDark ? "#e2e8f0" : "#1e293b", muted = isDark ? "#94a3b8" : "#64748b";
+    const svg = d3.select(host).append("svg")
+      .attr("viewBox", "0 0 " + W + " " + H).style("width", "100%").style("height", "auto")
+      .attr("font-family", "Inter, sans-serif");
+    const sankey = d3.sankey().nodeWidth(20).nodePadding(view === "all" ? 12 : 26)
+      .extent([[4, 46], [W - 220, H - 14]]);
+    const g = sankey({ nodes: nodes.map(d => Object.assign({}, d)), links: links.map(d => Object.assign({}, d)) });
+    const maxDepth = d3.max(g.nodes, d => d.depth);
+
+    // Gradient ribbons (source colour → target colour)
+    const defs = svg.append("defs");
+    g.links.forEach((d, i) => {
+      const lg = defs.append("linearGradient").attr("id", "cfg" + i).attr("gradientUnits", "userSpaceOnUse")
+        .attr("x1", d.source.x1).attr("x2", d.target.x0);
+      lg.append("stop").attr("offset", "0%").attr("stop-color", d.source.color || "#64748b");
+      lg.append("stop").attr("offset", "100%").attr("stop-color", d.target.color || "#64748b");
+    });
+
+    // Column headers
+    const byDepth = {};
+    g.nodes.forEach(n => { (byDepth[n.depth] = byDepth[n.depth] || []).push(n); });
+    Object.keys(byDepth).forEach(dep => {
+      const arr = byDepth[dep], d0 = +dep;
+      const label = d0 === 0 ? "TOTAL CAPEX" : (d0 === maxDepth ? "SPEND BUCKETS" : (view === "all" ? "OPERATORS" : "ALLOCATION"));
+      const hx = d0 === maxDepth ? arr[0].x1 + 8 : arr[0].x0;
+      svg.append("text").attr("x", hx).attr("y", 22).attr("text-anchor", "start")
+        .attr("fill", muted).attr("font-size", "10px").attr("font-weight", "700").attr("letter-spacing", ".07em").text(label);
+    });
+
+    // Links
+    svg.append("g").attr("fill", "none").selectAll("path").data(g.links).join("path")
+      .attr("d", d3.sankeyLinkHorizontal())
+      .attr("stroke", (d, i) => "url(#cfg" + i + ")").attr("stroke-opacity", isDark ? 0.55 : 0.48)
+      .attr("stroke-width", d => Math.max(1.5, d.width))
+      .append("title").text(d => d.source.name + " → " + d.target.name + ": $" + d.value + "B");
+
+    // Nodes + labels
+    const nn = svg.append("g").selectAll("g").data(g.nodes).join("g");
+    nn.append("rect").attr("x", d => d.x0).attr("y", d => d.y0)
+      .attr("width", d => d.x1 - d.x0).attr("height", d => Math.max(2, d.y1 - d.y0))
+      .attr("fill", d => d.color || "#64748b").attr("rx", 3)
+      .append("title").text(d => d.name + ": $" + Math.round(d.value) + "B");
+    nn.each(function (d) {
+      const rightmost = d.depth === maxDepth, leftmost = d.depth === 0;
+      const cy = (d.y0 + d.y1) / 2, val = "$" + Math.round(d.value) + "B";
+      const t = d3.select(this).append("text").attr("font-weight", "700").attr("fill", txt);
+      if (rightmost) {
+        t.attr("x", d.x1 + 9).attr("y", cy).attr("dy", "0.34em").attr("text-anchor", "start").attr("font-size", "10.5px");
+        t.append("tspan").text(d.name);
+        t.append("tspan").attr("dx", "6").attr("fill", muted).attr("font-weight", "600").text(val);
+      } else if (leftmost) {
+        t.attr("x", d.x0).attr("y", d.y0 - 8).attr("text-anchor", "start").attr("font-size", "11.5px").text(d.name + "  " + val);
+      } else {
+        t.attr("x", d.x0 - 9).attr("y", cy).attr("dy", "0.34em").attr("text-anchor", "end").attr("font-size", "11px").text(d.name + "  " + val);
+      }
+    });
+
+    const method = $("capexMethod");
+    if (method) method.innerHTML = "<b>Modeled split.</b> " + cf.methodology;
+
+    const toggle = $("capexViewToggle");
+    if (toggle && !toggle._wired) {
+      toggle._wired = true;
+      toggle.querySelectorAll(".map-view-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const v = btn.dataset.cview;
+          if (v === renderCapexSankey._view) return;
+          toggle.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
+          renderCapexSankey(v);
+        });
+      });
+    }
+  }
 
   function renderCapexChart() {
     if (!$("coCapexChart") || typeof Chart === "undefined") return;
@@ -2839,6 +3054,7 @@
       renderTopStory();
       renderKpis();
     } else if (name === "capital") {
+      renderCapexSankey("all");
       renderCostStack("costStack");
       renderDeals();
       renderPlays();
