@@ -636,6 +636,39 @@
     .leadtime-name { font-size: 11.5px; }
   }
 
+  /* ---------- Buildout: phantom-load haircut stages ---------- */
+  .funnel-stage.cut { border-left: 4px solid var(--red); }
+  .funnel-stage .fs-haircut {
+    display: inline-block; margin-top: 6px; font-size: 11px; font-weight: 800;
+    color: var(--red); background: var(--red-soft); border-radius: 999px;
+    padding: 2px 8px; letter-spacing: .01em;
+  }
+  [data-theme="dark"] .funnel-stage.cut { background: #1c1014; }
+
+  /* ---------- Offtake coverage (Capital) ---------- */
+  .oc-bar {
+    display: flex; width: 100%; height: 26px; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .oc-seg { height: 100%; transition: filter .15s; }
+  .oc-seg:hover { filter: brightness(1.08); }
+  .oc-legend { margin: 12px 0 4px; display: flex; flex-direction: column; gap: 7px; }
+  .oc-leg { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+  .oc-dot { width: 10px; height: 10px; border-radius: 2px; flex: 0 0 auto; align-self: center; }
+  .oc-leg-band { font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 56px; }
+  .oc-leg-label { font-weight: 700; color: var(--ink); }
+  .oc-leg-desc { color: var(--muted); font-size: 11.5px; }
+  .oc-ledger-title {
+    margin: 16px 0 2px; font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .04em; color: var(--muted);
+    padding-bottom: 8px; border-bottom: 1px solid var(--line);
+  }
+  .oc-flag {
+    display: inline-block; font-size: 9px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .03em; color: var(--amber); background: var(--amber-soft);
+    padding: 1px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle;
+  }
+
   /* ---------- Engineer: site-selection scorecard ---------- */
   .scorecard { width: 100%; border-collapse: collapse; margin-top: 10px; }
   .scorecard th, .scorecard td {
@@ -1172,6 +1205,14 @@
         <div class="sc-method" id="capexMethod"></div>
       </div>
 
+      <!-- Full-width: Offtake coverage — demand-pulled vs supply-pushed -->
+      <div class="stub-card">
+        <h4>Offtake coverage — is 2026 capex demand-pulled?</h4>
+        <div class="note">Share of the ~$808B capex + named GW pipeline backed by a <b>signed long-term offtake</b> (hyperscaler lease, AI-lab take-or-pay, cloud RPO) &middot; backlog/RPO is <b>primary</b>, the coverage share is a <b>modeled band</b></div>
+        <div id="offtakeCoverage" style="margin-top:12px"></div>
+        <div class="sc-method" id="offtakeMethod"></div>
+      </div>
+
       <div class="stub-grid">
         <!-- Card 3: M&A heatmap (NEW) -->
         <div class="stub-card">
@@ -1247,6 +1288,15 @@
         <div class="note">US data center grid pipeline · GW · LBNL Queued Up 2025 + CBRE + Goldman Sachs</div>
         <div class="funnel-flow" id="funnelFlow"></div>
         <div class="funnel-conv" id="funnelConv"></div>
+      </div>
+
+      <!-- Full-width: phantom-load reconciliation (after the funnel, before the map) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Phantom-load reconciliation — how much of the queue is real?</h4>
+        <div class="note">The headline ~97 GW interconnect queue, net of duplicate/multi-utility filings and speculative/unfinanced requests · GW · haircuts modeled, each cited</div>
+        <div class="funnel-flow" id="phantomLoad"></div>
+        <div class="funnel-conv" id="phantomLoadConv"></div>
+        <div class="sc-method" id="phantomLoadMethod"></div>
       </div>
 
       <!-- Full-width: US data center map -->
@@ -1396,6 +1446,33 @@
           <h4>Demand response &amp; flex load</h4>
           <div class="note">The grid's pressure-release valve</div>
           <div class="action-list" id="drList"></div>
+        </div>
+
+        <!-- Card 7: Cumulative demand-supply deficit (chart) -->
+        <div class="stub-card">
+          <h4>Cumulative demand-supply deficit</h4>
+          <div class="note">Standing GW shortfall: running DC demand added minus running firm generation for DC &middot; national &middot; 2024-2030</div>
+          <div class="chart-box short"><canvas id="cumDeficitChart"></canvas></div>
+          <div class="sc-method" id="cumDeficitMethod"></div>
+        </div>
+
+        <!-- Card 8: Gas-turbine slot reservations -->
+        <div class="stub-card">
+          <h4>Gas-turbine slot reservations by OEM</h4>
+          <div class="note">Firm equipment backlog vs. deposit-backed slot reservations &middot; GW &middot; Q1 FY2026 &middot; earliest hard signal of firm generation</div>
+          <div class="chart-box short"><canvas id="turbineSlots"></canvas></div>
+          <div class="leadtime-row" style="grid-template-columns:1fr;border-bottom:none;padding-top:10px">
+            <div id="turbineSlotsMarkers"></div>
+          </div>
+          <div class="sc-method" id="turbineSlotsMethod"></div>
+        </div>
+
+        <!-- Card 9: Powering the load — source mix (chart) -->
+        <div class="stub-card">
+          <h4>Powering the load &mdash; new generation by source</h4>
+          <div class="note">Additional annual generation committed to US DC load, by source &middot; TWh &middot; near-term vs 2030</div>
+          <div class="chart-box short"><canvas id="powerSourceMixChart"></canvas></div>
+          <div class="sc-method" id="powerSourceMixMethod"></div>
         </div>
       </div>
 
@@ -1830,6 +1907,177 @@
     ],
 
     /* ----- Energy & Policy tab ----- */
+    // Phantom-load reconciliation: how the headline ~97 GW interconnect queue
+    // shrinks once duplicate/multi-utility and speculative/unfinanced requests
+    // are stripped out. Endpoint GW and per-stage haircut %s are MODELED bands;
+    // each stage carries a named public source for the underlying claim.
+    phantomLoad: {
+      queuedGW: 97,
+      queuedSrc: { label: "LBNL Queued Up 2025 (US DC interconnect queue)", tier: "analyst" },
+      stages: [
+        {
+          key: "queued",
+          label: "Headline queued",
+          gw: 97,
+          haircutPct: null,
+          note: "Gross interconnect/large-load requests as counted in the queue — the number planners and headlines cite.",
+          src: { label: "LBNL Queued Up 2025", tier: "analyst" }
+        },
+        {
+          key: "dupes",
+          label: "− Duplicate / multi-utility shopping",
+          gw: 68,
+          haircutPct: "−25% to −35%",
+          note: "Same project filed with several utilities across several states; counted multiple times until withdrawn. One large US utility had ~30% of 2024 applications canceled.",
+          src: { label: "Utility Dive / Latitude Media — \"a fraction of proposed data centers will get built\"; GridUnity (B. Fitzsimons) ~30% 2024 cancellations", tier: "analyst" }
+        },
+        {
+          key: "speculative",
+          label: "− Speculative / unfinanced",
+          gw: 24,
+          haircutPct: "−55% to −70%",
+          note: "No signed PPA, financing or hyperscaler backing. Camus Energy (A. Atkinson): 5–10x more interconnect requests than data centers actually being built; EPRI: utilities seeing 50%+ peak-load requests expect <35% to realize.",
+          src: { label: "Utility Dive (A. Atkinson, Camus Energy: 5–10x); EPRI Sept-2024 utility survey", tier: "analyst" }
+        },
+        {
+          key: "buildable",
+          label: "Buildable near-term",
+          gw: 24,
+          haircutPct: null,
+          note: "Residual with financing/PPA/hyperscaler backing and a viable interconnection path — roughly a quarter of the headline queue. Modeled endpoint.",
+          src: { label: "Modeled — residual after cited duplicate + speculative haircuts", tier: "modeled" }
+        }
+      ],
+      validation: {
+        text: "Real-world check: after Ohio's large-load tariff forced load studies and financial commitment, AEP Ohio cut its data-center pipeline from 30 GW to 13 GW (≈57%) — consistent with the cumulative haircut here.",
+        src: { label: "DCD / Utility Dive — AEP Ohio 30→13 GW after PUCO large-load tariff", tier: "analyst" }
+      },
+      src: { label: "Modeled reconciliation of LBNL queue against cited duplicate/speculative haircuts (Utility Dive, Latitude Media, EPRI)", tier: "modeled" }
+    },
+
+    cumulativeDeficit: {
+      // Pure transform of DATA.demandProjection: cumsum(yoyDemandGrowthGW) − cumsum(newFirmGenForDC).
+      // Demand cumsum:   5, 10, 20, 37, 52, 66, 79  |  Firm-gen cumsum: 3, 8, 15, 25, 36, 48, 60
+      // Standing deficit: 2,  2,  5, 12, 16, 18, 19 (GW). Recomputed live in the render fn so it
+      // can never drift from demandProjection; values below are mirrored for the text export only.
+      values: [2, 2, 5, 12, 16, 18, 19],
+      note: "Standing cumulative GW shortfall = running total of DC demand added minus running total of new firm generation committed to DC load (2024-2030). National. Derived from DATA.demandProjection, which is itself modeled; the ~19 GW 2030 standing deficit is conservative vs. the Bloom Energy 35 GW DC power-gap estimate (different basis: firm-gen-for-DC vs. total IT capacity).",
+      crosscheck: "Bloom Energy 2025 Data Center Power Report: ~35 GW DC energy gap by 2030 (55 GW IT capacity needed vs. ~25 GW today). NERC 2025 LTRA: demand growing faster than firm generation; 13 of 23 areas at elevated/high resource-adequacy risk through 2030.",
+      src: { label: "Modeled from DATA.demandProjection (GS / Wood Mackenzie / EIA + utility IRPs); cross-checked vs. Bloom Energy 2025 DC Power Report + NERC 2025 LTRA", tier: "modeled" }
+    },
+
+    /* ----- Gas-turbine slot reservations (Grid) -----
+       Per-OEM gas-turbine order book, split into FIRM equipment backlog vs.
+       SLOT RESERVATION AGREEMENTS (deposit-backed reservations not yet firm
+       equipment orders). Core GW figures are cited to OEM earnings / 8-K
+       (primary). "firstSlot" = earliest delivery year a NEW order can target,
+       per OEM guidance / coverage. The US-data-center-attributable share of
+       these GLOBAL order books is MODELED — global backlog is not all US, and
+       not all US is data center. See methodology footnote. ----- */
+    turbineSlots: {
+      asOf: "Q1 FY2026 (reported Apr 2026)",
+      oems: [
+        { name: "GE Vernova",       backlog: 44, slots: 56, firstSlot: "2030",
+          note: "Q1 2026: equipment backlog 40→44 GW; slot reservations 43→56 GW (~100 GW combined). Slots require ~20% deposit. Sold out through ~2029, targeting sold-out through 2030 by YE2026.",
+          src: { label: "GE Vernova Q1 2026 8-K", tier: "primary" } },
+        { name: "Siemens Energy",   backlog: 60, slots: 27, firstSlot: "2029",
+          note: "60 GW firm gas-turbine orders plus ~27 GW reserved for future installation; booking delivery slots for 2029+; ~25% of turbines sold go to data centers.",
+          src: { label: "Siemens Energy order backlog (FY2026)", tier: "primary" } },
+        { name: "Mitsubishi Power",  backlog: 34, slots: 56, firstSlot: "2030",
+          note: "MHI combined-cycle order backlog >¥5T (~$34B); slot reservations 43→56 GW in one quarter as 2029 filled; scaling 55→70-80 units/yr from H2 2026 (~20 GW/yr from 2027).",
+          src: { label: "Mitsubishi Heavy Industries FY ended Mar 2026", tier: "primary" } }
+      ],
+      colors: { backlog: "#c0322b", slots: "#c2710c" },
+      attributable: "~25% of GE Vernova / Siemens Energy turbine demand is data-center-linked; the US-data-center-attributable share of these global order books is modeled, not a reported line item.",
+      methodology: "Bars = each OEM's gas-turbine order book in GW, split into firm equipment backlog vs. deposit-backed slot reservation agreements — cited to OEM earnings / 8-K (primary). Mitsubishi backlog shown in USD (~$34B) is converted from the >¥5T combined-cycle figure; its GW split is the disclosed slot-reservation figure. The US-DC-attributable share of these GLOBAL books is modeled: OEMs guide ~25% of turbine demand to data centers, but global backlog spans all regions and end-uses.",
+      src: { label: "GE Vernova / Siemens Energy / MHI earnings; Utility Dive", tier: "primary" }
+    },
+
+    powerSourceMix: {
+      // Two scenario bars, stacked by SOURCE, units = TWh of ADDITIONAL annual generation
+      // committed to US data-center load. Taxonomy footnoted below.
+      periods: ["Near-term 2026-28", "Outlook to 2030"],
+      // Source rows. Each row's `values` align to `periods`.
+      // Cited anchors: IEA "Energy and AI" US additional supply 2024-2030 — gas +130 TWh,
+      // renewables +110 TWh, nuclear ~50 TWh (US share of the "about the same as renewables"
+      // contribution across US/China/Japan); on-site gas 15-27 GW ≈ ~60 TWh at typical CF.
+      // The split of each cited TOTAL across the two periods is modeled (phasing), not cited.
+      sources: [
+        { name: "Behind-the-meter on-site gas", color: "#92400e",
+          values: [28, 60],
+          src: { label: "IEA Energy and AI (15-27 GW on-site gas by 2030, mostly US) + S&P Global (up to 33 GW BTM); TWh conversion modeled", tier: "modeled" } },
+        { name: "Grid gas (turbines + peakers)", color: "#c0322b",
+          values: [55, 130],
+          src: { label: "IEA Energy and AI — US natural gas adds 130+ TWh of annual generation to 2030 (largest US source)", tier: "primary" } },
+        { name: "Renewables + storage", color: "#15803d",
+          values: [45, 110],
+          src: { label: "IEA Energy and AI — US renewables add 110 TWh to 2030 (~22%/yr growth, ~half of demand growth)", tier: "primary" } },
+        { name: "Nuclear restart + SMR", color: "#7c3aed",
+          values: [4, 50],
+          src: { label: "IEA Energy and AI (nuclear ≈ renewables contribution across US/CN/JP; SMRs enter post-2030); near-term = TMI 835 MW + Comanche Peak ~1,200 MW restarts. US TWh modeled", tier: "modeled" } }
+      ],
+      note: "Stacked by primary generation source, TWh of additional annual generation committed to US data-center load. Near-term 2026-28 vs outlook to 2030. Gas — grid plus behind-the-meter on-site — carries the load this decade; nuclear is overwhelmingly a 2030+ SMR story, with only the TMI and Comanche Peak restarts firm before then.",
+      taxonomyNote: "Taxonomy: grid-connected (grid gas, renewables+storage, nuclear) vs behind-the-meter (on-site gas at the campus, bypassing the interconnection queue). A site is counted behind-the-meter only when on-site generation is the primary power source, per S&P Global 451 Research (38% of facilities use some on-site generation by 2030; 27% fully on-site).",
+      method: "Cited totals (IEA: US gas +130 TWh, renewables +110 TWh to 2030; on-site gas 15-27 GW) anchor the 'Outlook to 2030' bar. The split into a 'Near-term 2026-28' bar is modeled phasing — gas and on-site gas front-load (fastest to deploy), nuclear back-loads (SMRs post-2030; only TMI + Comanche Peak restarts firm near-term). Behind-the-meter GW converted to TWh at typical on-site capacity factors (modeled).",
+      src: { label: "IEA Energy and AI; EIA STEO; S&P Global Commodity Insights — period split modeled", tier: "modeled" }
+    },
+
+    /* ----- Offtake coverage (Capital) — is 2026 capex demand-pulled or supply-pushed? -----
+       Of the headline ~$808B major-operator capex + named GW pipeline, what share is
+       backed by a SIGNED long-term offtake (hyperscaler lease, AI-lab take-or-pay, cloud
+       RPO/backlog) vs partially-disclosed vs speculative/merchant build?
+       Backlog/RPO + lease terms = PRIMARY (company filings/IR press). The coverage SHARE
+       (segments below) is MODELED — the denominator is the modeled pipeline GW + capex
+       universe, so it is presented as a BAND, never a falsely-precise %. Many AI-lab
+       leases disclose term but not $ — flagged per row via `dollars`. */
+    offtakeCoverage: {
+      asOf: "2026",
+      // Segmented coverage bar — shares are MODELED bands; midpoints used for the bar widths.
+      segments: [
+        { key: "contracted", label: "Signed long-term offtake", band: "55–65%", mid: 60,
+          color: "var(--green)", soft: "var(--green-soft)",
+          desc: "Backed by disclosed multi-year leases / take-or-pay / cloud RPO." },
+        { key: "partial",     label: "Partially-disclosed / framework", band: "15–25%", mid: 20,
+          color: "var(--amber)", soft: "var(--amber-soft)",
+          desc: "Term or counterparty named, $ undisclosed; LOIs and capacity frameworks." },
+        { key: "spec",        label: "Speculative / merchant", band: "15–25%", mid: 20,
+          color: "var(--muted)", soft: "var(--line)",
+          desc: "Self-funded or built ahead of a named tenant — supply-pushed risk." }
+      ],
+      // Banded ledger — each row is a real signed commitment. `cover`: contracted | partial.
+      // `dollars`: true = $ disclosed (primary), false = term/MW disclosed but $ not.
+      ledger: [
+        { party: "Oracle (OCI)",         metric: "$638B RPO", term: "+363% YoY backlog", cover: "contracted", dollars: true,
+          note: "FY26 Q4 remaining performance obligations; ~$300B+ tied to OpenAI/Stargate (analyst-estimated concentration).",
+          src: { label: "Oracle Q4 FY2026 results", tier: "primary" } },
+        { party: "Microsoft (commercial)", metric: "$627B RPO", term: "~2.5-yr WAD", cover: "contracted", dollars: true,
+          note: "FY26 Q3 commercial remaining performance obligations, +99% YoY including the OpenAI agreement.",
+          src: { label: "Microsoft FY2026 Q3 10-Q", tier: "primary" } },
+        { party: "Amazon (AWS)",         metric: "$364B backlog", term: "excl. ~$100B+ Anthropic", cover: "contracted", dollars: true,
+          note: "Q1 2026 backlog; CEO flagged 'reasonable breadth' — not one or two customers. With Anthropic adds to ~$464B+.",
+          src: { label: "Amazon Q1 2026 earnings", tier: "primary" } },
+        { party: "CoreWeave",            metric: "$99.4B backlog", term: "~3.5 GW contracted", cover: "contracted", dollars: true,
+          note: "Q1 2026 revenue backlog after >$40B of new contracts signed in the quarter.",
+          src: { label: "CoreWeave Q1 2026 results", tier: "primary" } },
+        { party: "Nebius",               metric: "$19.4B + $12–15B", term: ">4 GW target", cover: "contracted", dollars: true,
+          note: "Microsoft GB300 deal ($19.4B) + Meta 5-yr capacity ($12B, up to $15B); ~$50B total backlog, >75% owned.",
+          src: { label: "Nebius IR / DCD", tier: "primary" } },
+        { party: "Applied Digital",      metric: "$7.5B base", term: "15-yr take-or-pay", cover: "contracted", dollars: true,
+          note: "Polaris Forge 3, 300 MW, U.S. high-investment-grade hyperscaler; ~$18.2B with options. Surpassed 1 GW contracted.",
+          src: { label: "Applied Digital IR (May 2026)", tier: "primary" } },
+        { party: "Hut 8",                metric: "$9.8B base", term: "15-yr take-or-pay", cover: "contracted", dollars: true,
+          note: "Beacon Point, 352 MW triple-net, high-investment-grade counterparty, no termination-for-convenience; ~$25.1B w/ renewals.",
+          src: { label: "Hut 8 Q1 2026 8-K", tier: "primary" } },
+        { party: "Anthropic + xAI",      metric: "300 MW", term: "through May 2029", cover: "partial", dollars: false,
+          note: "Full Colossus 1 capacity committed; term and MW disclosed, contract $ value not formally filed.",
+          src: { label: "TechCrunch (deals[])", tier: "analyst" } },
+        { party: "Meta (Hyperion etc.)", metric: "5+ GW self-built", term: "no offtake", cover: "spec", dollars: false,
+          note: "Hyperscaler builds for OWN demand — no external offtake; demand is internal, not a signed third-party lease.",
+          src: { label: "Meta + Entergy 5 GW (megaProjects)", tier: "primary" } }
+      ],
+      method: "Segments are a MODELED band: numerator = sum of disclosed long-term offtake (cloud RPO/backlog + named take-or-pay leases above); denominator = the modeled ~$808B major-operator 2026 capex plus the named GW pipeline. RPO/backlog and lease terms are PRIMARY (filings/IR). The contracted SHARE is an estimate — shown as a band, not a precise %. Self-built hyperscaler GW (e.g. Meta Hyperion) is demand-pulled by internal need but carries no external offtake, so it sits in 'speculative/merchant' for offtake-coverage purposes."
+    },
+
     demandProjection: {
       years:              ["2024","2025","2026","2027","2028","2029","2030"],
       yoyDemandGrowthGW:  [5,     5,     10,    17,    15,    14,    13   ],
@@ -2175,6 +2423,236 @@
         });
       });
     }
+  }
+
+  function renderPhantomLoad() {
+    if (!$("phantomLoad") || !DATA.phantomLoad) return;
+    const p = DATA.phantomLoad;
+    const classFor = (k) => k === "buildable" ? "op" : (k === "queued" ? "queue" : "cut");
+    $("phantomLoad").innerHTML = p.stages.map((s, i) => {
+      const hc = s.haircutPct
+        ? `<div class="fs-haircut">${s.haircutPct}</div>`
+        : "";
+      const stageHtml = `
+        <div class="funnel-stage ${classFor(s.key)}" title="${s.note} — ${s.src.label}">
+          <div><span class="fs-num">${s.gw}</span><span class="fs-unit">GW</span></div>
+          <div class="fs-label">${s.label}</div>
+          ${hc}
+        </div>`;
+      return i < p.stages.length - 1 ? stageHtml + '<div class="funnel-arrow">→</div>' : stageHtml;
+    }).join("");
+
+    const queued = p.stages[0].gw;
+    const buildable = p.stages[p.stages.length - 1].gw;
+    const survivePct = (buildable / queued * 100).toFixed(0);
+    const inflationX = (queued / buildable).toFixed(1);
+    if ($("phantomLoadConv")) {
+      $("phantomLoadConv").innerHTML =
+        'Roughly <b>' + survivePct + '%</b> of the ' + queued + ' GW queue (~' + buildable +
+        ' GW) is plausibly buildable near-term — the headline number is inflated ~<b>' +
+        inflationX + 'x</b> by duplicate and speculative requests.';
+    }
+    if ($("phantomLoadMethod")) {
+      const bases = p.stages.map(s => `${s.label.replace(/^− /, "")} → ${s.src.label}`).join("; ");
+      $("phantomLoadMethod").innerHTML =
+        '<b>Per-stage haircuts (modeled bands)</b>: duplicate/multi-utility ' +
+        p.stages[1].haircutPct + ', speculative/unfinanced ' + p.stages[2].haircutPct +
+        '; buildable endpoint (' + buildable + ' GW) is modeled. Queue base: ' +
+        p.queuedSrc.label + '. ' + p.validation.text + ' <span class="stack-src">— ' +
+        p.validation.src.label + '.</span><br>Bases: ' + bases + '.';
+    }
+  }
+
+  function renderCumDeficitChart() {
+    if (!$("cumDeficitChart") || typeof Chart === "undefined") return;
+    if (renderCumDeficitChart._done) return;
+    renderCumDeficitChart._done = true;
+    initCharts(); applyChartDefaults();
+    const dp = DATA.demandProjection;
+    const cd = DATA.cumulativeDeficit;
+    const cl = getChartColors();
+    // Cumulative running deficit, computed live so it can never drift from demandProjection.
+    let cumDemand = 0, cumGen = 0;
+    const deficit = dp.years.map((_, i) => {
+      cumDemand += dp.yoyDemandGrowthGW[i];
+      cumGen    += dp.newFirmGenForDC[i];
+      return cumDemand - cumGen;
+    });
+    _charts.cumDeficitChart = new Chart($("cumDeficitChart"), {
+      type: "line",
+      data: {
+        labels: dp.years,
+        datasets: [{
+          label: "Standing cumulative deficit",
+          data: deficit,
+          borderColor: "#c0322b",
+          backgroundColor: "rgba(192,50,43,0.12)",
+          fill: true, tension: 0.3,
+          pointRadius: 5, pointBackgroundColor: "#c0322b",
+          borderWidth: 2.5
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 22 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: { display: true, color: cl.label, font: { weight: 700, size: 11 }, align: "top", offset: 6, formatter: v => v + " GW" },
+          tooltip: { callbacks: {
+            label: c => " " + c.parsed.y + " GW standing shortfall",
+            footer: () => "Source: " + cd.src.label
+          }}
+        },
+        scales: {
+          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true, suggestedMax: 22, title: { display: true, text: "Cumulative shortfall (GW)" } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+    if ($("cumDeficitMethod")) {
+      $("cumDeficitMethod").innerHTML = "<b>Cumulative deficit (modeled)</b> = &Sigma; DC demand added &minus; &Sigma; new firm generation for DC, from the demand-vs-generation series above. Widens to ~" + deficit[deficit.length - 1] + " GW standing shortfall by 2030. " + cd.crosscheck;
+    }
+  }
+
+  function renderTurbineSlots() {
+    if (!$("turbineSlots") || typeof Chart === "undefined" || !DATA.turbineSlots) return;
+    if (renderTurbineSlots._done) return;
+    renderTurbineSlots._done = true;
+    initCharts(); applyChartDefaults();
+    const ts = DATA.turbineSlots;
+    const cl = getChartColors();
+    _charts.turbineSlots = new Chart($("turbineSlots"), {
+      type: "bar",
+      data: {
+        labels: ts.oems.map(o => o.name),
+        datasets: [
+          { label: "Firm equipment backlog", data: ts.oems.map(o => o.backlog),
+            backgroundColor: ts.colors.backlog, borderRadius: 4, maxBarThickness: 26, stack: "s" },
+          { label: "Slot reservation agreements", data: ts.oems.map(o => o.slots),
+            backgroundColor: ts.colors.slots, borderRadius: 4, maxBarThickness: 26, stack: "s" }
+        ]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 40 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), {
+            display: c => c.dataset.data[c.dataIndex] >= 18,
+            formatter: v => v + " GW"
+          }),
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.x + " GW",
+            footer: items => {
+              const o = ts.oems[items[0].dataIndex];
+              return o.note + "\nSource: " + o.src.label;
+            }
+          }}
+        },
+        scales: {
+          x: { stacked: true, grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true },
+          y: { stacked: true, grid: { display: false } }
+        }
+      }
+    });
+    const mk = $("turbineSlotsMarkers");
+    if (mk) {
+      mk.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:8px;font-size:11px">' +
+        ts.oems.map(o =>
+          '<span style="background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:3px 8px">' +
+          '<b>' + o.name + '</b> earliest new slot: <b style="color:var(--red)">' + o.firstSlot + '</b></span>'
+        ).join("") + '</div>';
+    }
+    const m = $("turbineSlotsMethod");
+    if (m) m.innerHTML = "<b>Cited to OEM earnings / 8-K (primary).</b> " + ts.methodology +
+      " <b>US-DC share is modeled:</b> " + ts.attributable;
+  }
+
+  function renderPowerSourceMixChart() {
+    if (!$("powerSourceMixChart") || typeof Chart === "undefined") return;
+    if (renderPowerSourceMixChart._done) return;
+    renderPowerSourceMixChart._done = true;
+    initCharts(); applyChartDefaults();
+    const pm = DATA.powerSourceMix;
+    const cl = getChartColors();
+    _charts.powerSourceMixChart = new Chart($("powerSourceMixChart"), {
+      type: "bar",
+      data: {
+        labels: pm.periods,
+        datasets: pm.sources.map(s => ({
+          label: s.name,
+          data: s.values,
+          backgroundColor: s.color,
+          borderRadius: 4,
+          maxBarThickness: 70,
+          _src: s.src
+        }))
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 12 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 12 } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), {
+            display: ctx => ctx.dataset.data[ctx.dataIndex] >= 20,
+            color: "#fff", font: { weight: 700, size: 10 },
+            formatter: v => v + " TWh"
+          }),
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.y + " TWh",
+            footer: items => { const s = items[0].dataset._src; return s ? "Source: " + s.label : ""; }
+          }}
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, grid: { color: cl.grid }, ticks: { callback: v => v + " TWh" }, beginAtZero: true }
+        }
+      }
+    });
+    const method = $("powerSourceMixMethod");
+    if (method) method.innerHTML = "<b>Modeled split.</b> " + pm.method + " " + pm.taxonomyNote;
+  }
+
+  function renderOfftakeCoverage() {
+    if (!$("offtakeCoverage") || !DATA.offtakeCoverage) return;
+    const oc = DATA.offtakeCoverage;
+
+    // Segmented coverage bar (widths = modeled midpoints; labels show the band)
+    const total = oc.segments.reduce((a, s) => a + s.mid, 0) || 1;
+    const barSegs = oc.segments.map(s =>
+      `<div class="oc-seg" title="${s.label}: ${s.band} — ${s.desc}" style="width:${(s.mid / total * 100).toFixed(1)}%;background:${s.color}"></div>`
+    ).join("");
+    const legend = oc.segments.map(s => `
+      <div class="oc-leg">
+        <span class="oc-dot" style="background:${s.color}"></span>
+        <span class="oc-leg-band">${s.band}</span>
+        <span class="oc-leg-label">${s.label}</span>
+        <span class="oc-leg-desc">${s.desc}</span>
+      </div>`).join("");
+
+    // Banded ledger — reuse the .stack-row family
+    const coverPill = { contracted: "ok", partial: "warn", spec: "crit" };
+    const coverText = { contracted: "Offtake", partial: "Partial", spec: "No offtake" };
+    const rows = oc.ledger.map(r => `
+      <div class="stack-row" title="${r.note.replace(/"/g, '&quot;')}">
+        <div class="stack-head">
+          <div class="stack-name">
+            ${r.party}
+            <span class="stack-what">— ${r.metric} &middot; ${r.term}</span>
+            ${r.dollars ? '' : '<span class="oc-flag">$ undisclosed</span>'}
+          </div>
+          <span class="stack-pill ${coverPill[r.cover] || 'ok'}">${coverText[r.cover] || r.cover}</span>
+        </div>
+        <div class="stack-evidence">${r.note} <span class="stack-src">— ${r.src.label}</span></div>
+      </div>`).join("");
+
+    $("offtakeCoverage").innerHTML =
+      `<div class="oc-bar">${barSegs}</div>
+       <div class="oc-legend">${legend}</div>
+       <div class="oc-ledger-title">Signed-commitment ledger — backlog/RPO &amp; named leases</div>
+       ${rows}`;
+
+    if ($("offtakeMethod")) $("offtakeMethod").textContent = oc.method;
   }
 
   function renderCapexChart() {
@@ -3062,6 +3540,7 @@
       renderIrrCalculator();
       renderCapexChart();
       renderVacancyChart();
+      renderOfftakeCoverage();
     } else if (name === "buildout") {
       renderFunnel();
       renderStackLayers();
@@ -3075,6 +3554,7 @@
       renderMap();
       renderMegaProjects();
       renderBuildabilityMovements();
+      renderPhantomLoad();
     } else if (name === "grid") {
       renderIsoTable();
       renderRegList();
@@ -3082,6 +3562,9 @@
       renderDrList();
       renderDemandGapChart();
       renderRateImpactChart();
+      renderCumDeficitChart();
+      renderTurbineSlots();
+      renderPowerSourceMixChart();
     } else if (name === "tokens") {
       renderEnergyBridge();
       renderSplitChart();
