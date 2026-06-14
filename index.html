@@ -1243,7 +1243,7 @@
         <!-- Card 1: Capex by operator (real chart) -->
         <div class="stub-card">
           <h4>2026 capex by operator</h4>
-          <div class="note">Six largest AI infrastructure operators &middot; USD billions &middot; ~75% AI-attributable</div>
+          <div class="note">Largest US AI-infra operators &middot; hyperscalers (~75% AI) + AI-native challengers (xAI, Nebius — est.) &middot; USD billions</div>
           <div class="chart-box short"><canvas id="coCapexChart"></canvas></div>
         </div>
 
@@ -1686,16 +1686,18 @@
 
     /* ----- Investor tab ----- */
     companyCapex: {
-      companies: ["Amazon", "Microsoft", "Google", "Meta", "Oracle", "CoreWeave"],
-      values:    [200, 190, 185, 150, 50, 33],
-      colors:    ["#ff9900", "#0078d4", "#34a853", "#0866ff", "#c74634", "#7c3aed"],
+      companies: ["Amazon", "Microsoft", "Google", "Meta", "Oracle", "CoreWeave", "Nebius", "xAI"],
+      values:    [200, 190, 185, 150, 50, 33, 22, 18],
+      colors:    ["#ff9900", "#0078d4", "#34a853", "#0866ff", "#c74634", "#7c3aed", "#84cc16", "#64748b"],
       srcs: [
         { label: "Amazon 2026 guidance" },
         { label: "Microsoft 2026 guidance" },
         { label: "Alphabet 2026 guidance" },
         { label: "Meta 2026 guidance" },
         { label: "Oracle FY2026 guidance" },
-        { label: "CoreWeave 2026 guidance" }
+        { label: "CoreWeave 2026 guidance" },
+        { label: "Nebius FY2026 capex guidance ($20–25B range)" },
+        { label: "xAI 2026 est. — private (Colossus ~$18B GPUs; $20B Series E)" }
       ]
     },
 
