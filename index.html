@@ -3732,13 +3732,21 @@
             topojson.feature(us, us.objects.nation));
         const path = d3.geoPath().projection(proj);
 
+        // Theme-aware palette — blend the map into the dark card instead of a white blob
+        const _mDark = document.documentElement.getAttribute("data-theme") === "dark";
+        const mFill = _mDark ? "#243246" : "#eaeff5";
+        const mState = _mDark ? "#0f172a" : "#fff";
+        const mBorder = _mDark ? "#3a4a60" : "#d0d9e4";
+        const mCity = _mDark ? "#cbd5e1" : "#3a4a5c";
+        const mBubbleStroke = _mDark ? "#0b1220" : "#fff";
+
         // States
         svg.append("g").selectAll("path")
           .data(topojson.feature(us, us.objects.states).features)
           .join("path")
           .attr("d", path)
-          .attr("fill", "#eaeff5")
-          .attr("stroke", "#fff")
+          .attr("fill", mFill)
+          .attr("stroke", mState)
           .attr("stroke-width", 1.2);
 
         // Internal borders
@@ -3746,7 +3754,7 @@
           .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
           .attr("d", path)
           .attr("fill", "none")
-          .attr("stroke", "#d0d9e4")
+          .attr("stroke", mBorder)
           .attr("stroke-width", 0.5);
 
         // Bubble drop shadow
@@ -3771,7 +3779,7 @@
           g.append("circle")
             .attr("cx", x).attr("cy", y).attr("r", r)
             .attr("fill", col).attr("fill-opacity", 0.88)
-            .attr("stroke", "#fff").attr("stroke-width", 2.5)
+            .attr("stroke", mBubbleStroke).attr("stroke-width", 2.5)
             .attr("filter", "url(#mapShadow)");
 
           g.append("text")
@@ -3787,7 +3795,7 @@
           g.append("text")
             .attr("x", x).attr("y", y + r + 11)
             .attr("text-anchor", "middle")
-            .attr("fill", "#3a4a5c")
+            .attr("fill", mCity)
             .attr("font-family", "Inter, sans-serif")
             .attr("font-size", "9.5px").attr("font-weight", "700")
             .attr("pointer-events", "none")
@@ -4484,7 +4492,11 @@
     L.push("Public-market plays: " + DATA.publicMarketPlays.map(p => p.thesis + ": " + p.tickers.join("/")).join("; ") + ".");
     const vt = DATA.vacancyTrend;
     L.push("Primary-market vacancy " + vt.years[0] + " → " + vt.years[vt.years.length-1] + ": " + vt.values[0] + "% → " + vt.values[vt.values.length-1] + "% (compression).");
-    L.push("IRR scenarios (100 MW build): " + DATA.irrScenarios.scenarios.map(s => s.name + " " + s.irr + " @ " + s.lease).join("; ") + ". Assumptions: " + DATA.irrScenarios.assumptions);
+    L.push("IRR scenarios (100 MW build): " + DATA.irrScenarios.scenarios.map(s => s.name + " (lease $" + s.lease + "/kW-mo, " + s.tenant + " tenant)").join("; ") + ". Assumptions: " + DATA.irrScenarios.assumptions);
+    if (DATA.capexFlow) L.push("Capex flow (Sankey) — modeled split of cited 2026 guidance, summed across the 6 operators: " + Object.keys(DATA.capexFlow.cats).map(k => DATA.capexFlow.cats[k].label + " $" + DATA.capexFlow.companies.reduce((s,co)=>s+co.buckets.filter(b=>b.cat===k).reduce((x,b)=>x+b.value,0),0) + "B").join(", ") + ".");
+    if (DATA.offtakeCoverage) L.push("Offtake coverage (modeled band — is capex demand-pulled?): " + DATA.offtakeCoverage.segments.map(s => s.label + " " + s.band).join(", ") + ". Signed-commitment ledger (primary RPO/leases): " + DATA.offtakeCoverage.ledger.map(r => r.party + " " + r.metric).join("; ") + ".");
+    if (DATA.circularFinancing) L.push("Circular-financing loop (each edge cited): " + DATA.circularFinancing.edges.map(e => e.from + "->" + e.to + " " + (e.v==null?"(qual)":"$"+e.v+"B") + " " + e.kind).join("; ") + ".");
+    if (DATA.powerToRevenueYield) { const y = DATA.powerToRevenueYield; L.push("Power-to-revenue yield (modeled): $" + y.costIn.allInPerMw + "M/MW build; facility-lease payback ~" + y.leaseLane.paybackYrs + " yr vs token-monetization ceiling ~" + y.tokenLane.paybackDays + " days (~" + y.spread.ratioX + "x gap)."); }
 
     L.push(""); L.push("=== ENGINEER ===");
     const f = DATA.powerBreakdown.funnel;
@@ -4518,6 +4530,15 @@
     L.push("Tokens × energy bridge: " + DATA.tokenEnergyBridge.map(c => c.value + " " + c.label).join(" → ") + ".");
     const its = DATA.inferenceTrainingSplit;
     L.push("Inference vs training: " + its.computeHours.inference + "/" + its.computeHours.training + "% compute hours, " + its.spend.inference + "/" + its.spend.training + "% spend.");
+    if (DATA.costPerTask) L.push("Effective cost per task (modeled basket): sticker $/token fell ~" + DATA.costPerTask.stickerDropX + "x, but reasoning/agentic models burn far more tokens per task — so cost-to-COMPLETE coding/reasoning tasks fell far less (or rose) while simple chat got much cheaper.");
+
+    L.push(""); L.push("=== BUILDABILITY & POWER PATHS (Buildout) ===");
+    if (DATA.phantomLoad) L.push("Phantom-load reconciliation: " + DATA.phantomLoad.stages.map(s => s.label + " " + s.gw + "GW").join(" -> ") + " (modeled haircuts; ~" + DATA.phantomLoad.stages[DATA.phantomLoad.stages.length-1].gw + " GW buildable of the " + DATA.phantomLoad.queuedGW + " GW headline queue).");
+    if (DATA.timeToPower) L.push("Time-to-power by procurement path (months to first power): " + DATA.timeToPower.items.map(i => i.name + " " + i.range + " [" + i.firmLabel + "]").join("; ") + ".");
+    if (DATA.perfPerWatt) L.push("Compute-per-watt (dense FP16/W index, A100=100; modeled cross-gen): " + DATA.perfPerWatt.gens.map(g => g.gen + " " + g.idx).join(", ") + ".");
+    if (DATA.cumulativeDeficit) L.push("Cumulative demand-supply deficit (GW, modeled from demandProjection): " + DATA.cumulativeDeficit.values.join("/") + " -> ~" + DATA.cumulativeDeficit.values[DATA.cumulativeDeficit.values.length-1] + " GW standing shortfall by 2030.");
+    if (DATA.turbineSlots) L.push("Gas-turbine order books (GW, primary OEM earnings): " + DATA.turbineSlots.oems.map(o => o.name + " backlog " + o.backlog + " + slots " + o.slots + " (earliest new slot " + o.firstSlot + ")").join("; ") + ". US-DC share modeled.");
+    if (DATA.powerSourceMix) L.push("New generation for DC by source (TWh to 2030, gas-led; nuclear mostly 2030+): " + DATA.powerSourceMix.sources.map(s => s.name + " " + s.values[1]).join(", ") + ".");
 
     return L.join("\n");
   }
