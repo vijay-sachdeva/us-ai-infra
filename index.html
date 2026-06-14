@@ -916,10 +916,18 @@
   .tj-ml { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; margin-top: 3px; }
   .tj-scaleup-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 18px 0 8px; padding-top: 14px; border-top: 1px dashed var(--line); }
   .tj-sowhat { margin-top: 10px; font-size: 13px; line-height: 1.55; color: var(--ink-2); border-left: 3px solid var(--green); padding: 4px 0 4px 12px; }
+  /* Multi-stage bridges keep ONE row — the base grid templates only fit 3 stages / 4 cells,
+     but phantom-load has 4 stages and the scale-up has 5 cells. Scoped so the energy bridge
+     and interconnection funnel (which fit their templates) are untouched. */
+  #phantomLoad, #tjScaleup .bridge-row { display: flex; flex-wrap: nowrap; align-items: stretch; gap: 8px; overflow-x: auto; }
+  #phantomLoad > .funnel-stage, #tjScaleup .bridge-row > .bridge-cell { flex: 1 1 0; min-width: 120px; }
+  #phantomLoad > .funnel-arrow, #tjScaleup .bridge-row > .bridge-arrow { flex: 0 0 auto; align-self: center; }
   @media (max-width: 700px) {
     #tjMeter { grid-template-columns: 1fr; }
     .tj-rail-seg { display: none; }
     .tj-rail { gap: 8px 6px; }
+    #phantomLoad, #tjScaleup .bridge-row { flex-direction: column; overflow-x: visible; }
+    #phantomLoad > .funnel-arrow, #tjScaleup .bridge-row > .bridge-arrow { display: none; }
   }
 
   /* ---------- Motion: subtle hover lifts on accent cards ---------- */
