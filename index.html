@@ -877,6 +877,51 @@
     vertical-align: middle; margin-right: 6px;
   }
 
+  /* ---------- Tokens: Journey of a token (interactive) ---------- */
+  #tjStage { margin-top: 12px; }
+  .tj-rail { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 2px; }
+  .tj-rail-seg { flex: 1 1 8px; height: 2px; background: var(--line); align-self: flex-start; min-width: 6px; margin-top: 28px; }
+  .tj-stop { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; padding: 2px; min-width: 66px; }
+  .tj-stop .tj-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--line); box-shadow: 0 0 0 2px var(--line); transition: background .2s, box-shadow .2s, transform .2s; }
+  .tj-stop.done .tj-dot { background: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .tj-stop.active .tj-dot { background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); transform: scale(1.3); }
+  .tj-layer { font-size: 9px; font-weight: 800; letter-spacing: .03em; color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 1px 5px; font-family: 'Courier New', monospace; min-height: 13px; }
+  .tj-layer-blank { background: none; }
+  .tj-slabel { font-size: 10px; color: var(--muted); font-weight: 600; text-align: center; line-height: 1.2; max-width: 78px; }
+  .tj-stop.active .tj-slabel { color: var(--ink); }
+  .tj-step-title { font-size: 15px; font-weight: 800; color: var(--ink); margin: 16px 0 5px; }
+  .tj-step-plain { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+  .tj-deep { margin-top: 8px; font-size: 12.5px; color: var(--ink-2); line-height: 1.5; background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 8px 10px; border-radius: 0 6px 6px 0; }
+  .tj-deep b { color: var(--ink); }
+  .tj-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: flex-start; }
+  .tj-chip { font-family: 'Courier New', monospace; font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 4px 7px; color: var(--ink); text-align: center; }
+  .tj-chip-id { display: block; font-size: 9px; color: var(--muted); margin-top: 1px; }
+  .tj-illus { width: 100%; font-size: 10.5px; font-style: italic; color: var(--muted); margin-top: 5px; }
+  .tj-cands { margin-top: 10px; display: grid; gap: 5px; max-width: 440px; }
+  .tj-cand { display: grid; grid-template-columns: 78px 1fr 38px; gap: 8px; align-items: center; font-size: 12px; }
+  .tj-cand-tok { color: var(--ink); font-weight: 600; }
+  .tj-cand-bar { background: var(--bg); border-radius: 999px; height: 9px; overflow: hidden; }
+  .tj-cand-bar i { display: block; height: 100%; border-radius: 999px; }
+  .tj-cand-p { text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .tj-receipt { margin-top: 10px; font-family: 'Courier New', monospace; font-size: 12.5px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 9px 11px; }
+  #tjControls { display: flex; align-items: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .tj-btn { font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--ink-2); cursor: pointer; }
+  .tj-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .tj-btn:disabled { opacity: .4; cursor: default; }
+  .tj-play { border-color: var(--accent); color: var(--accent); }
+  .tj-count { font-size: 11.5px; color: var(--muted); margin-left: auto; }
+  #tjMeter { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .tj-mcell { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .tj-mv { display: block; font-size: 20px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .tj-ml { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; margin-top: 3px; }
+  .tj-scaleup-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 18px 0 8px; padding-top: 14px; border-top: 1px dashed var(--line); }
+  .tj-sowhat { margin-top: 10px; font-size: 13px; line-height: 1.55; color: var(--ink-2); border-left: 3px solid var(--green); padding: 4px 0 4px 12px; }
+  @media (max-width: 700px) {
+    #tjMeter { grid-template-columns: 1fr; }
+    .tj-rail-seg { display: none; }
+    .tj-rail { gap: 8px 6px; }
+  }
+
   /* ---------- Motion: subtle hover lifts on accent cards ---------- */
   .deal-card { transition: border-color .15s ease, transform .15s ease; }
   .deal-card:hover { border-color: var(--accent); transform: translateY(-1px); }
@@ -1609,6 +1654,22 @@
       <div class="so-what">
         <label>The hidden story</label>
         <h3>At the largest platforms, total tokens processed have scaled <b>~330× in 24 months</b> (Google: 9.7 T → 3,200 T per month, May 2024 → May 2026), while $/token has fallen ~100×. The AI economy runs on this curve.</h3>
+      </div>
+
+      <!-- Card 0: Journey of a token (interactive, full-width) -->
+      <div class="stub-card">
+        <h4>Journey of a token — from one prompt to the gigawatt buildout</h4>
+        <div class="note">Step a single prompt through the real constraint stack, watch the <b>tokens → energy → dollars</b> meter accrue, then scale one token up to the whole buildout. <b>The example prompt, token IDs and probabilities are illustrative;</b> every energy, price, GW and capex figure is cited.</div>
+        <div class="map-view-toggle" id="tjDepthToggle" role="tablist" aria-label="Detail level">
+          <button class="map-view-btn active" data-tjdepth="plain" type="button">Plain language</button>
+          <button class="map-view-btn"        data-tjdepth="deep"  type="button">Go deeper</button>
+        </div>
+        <div id="tjStage"></div>
+        <div id="tjStepPanel"></div>
+        <div id="tjControls"></div>
+        <div id="tjMeter"></div>
+        <div id="tjScaleup"></div>
+        <div class="sc-method" id="tjMethod"></div>
       </div>
 
       <!-- Card 1: Industry token volume (full-width) -->
@@ -2511,6 +2572,49 @@
       spend:        { inference: 65, training: 35 },
       note: "Inference dominates compute-hours; training is a smaller share but more cost-concentrated per launch. Late-2025 estimates.",
       src: { label: "SemiAnalysis, Epoch AI", tier: "analyst" }
+    },
+
+    /* ----- Journey of a token (Tokens tab) — interactive explainer. The example prompt,
+       token IDs and candidate probabilities are ILLUSTRATIVE (a teaching example, not a
+       measurement). Energy / price / GW / capex are cited (tokenEnergyBridge,
+       priceCompression, powerBreakdown, companyCapex). Energy basis: ~0.005 Wh/token =
+       ~5 kWh / 1M tokens, consistent with the corrected energy bridge. ----- */
+    tokenJourney: {
+      example: {
+        prompt: "Why does AI need so much power?",
+        inputTokens: 8,
+        outputTokens: 400,
+        whPerToken: 0.005,        // = ~5 kWh / 1M tokens (energy bridge)
+        usdPerMtokOut: 1,         // ~$1 / 1M output tokens (commodity frontier)
+        illustrative: "Illustrative — example prompt, token IDs and probabilities teach the pipeline; they don't measure a specific model.",
+        chips: [
+          { t: "Why", id: 10445 }, { t: " does", id: 1587 }, { t: " AI", id: 9552 }, { t: " need", id: 1397 },
+          { t: " so", id: 779 }, { t: " much", id: 1199 }, { t: " power", id: 2400 }, { t: "?", id: 30 }
+        ],
+        candidates: [
+          { tok: "Because", p: 0.58 }, { tok: "AI", p: 0.16 }, { tok: "Training", p: 0.11 },
+          { tok: "Data", p: 0.08 }, { tok: "The", p: 0.07 }
+        ],
+        picked: "Because"
+      },
+      steps: [
+        { key: "text", label: "Text", plain: "You type a question. To the model it's still just characters — no meaning, nothing numeric yet.", deep: "Raw UTF-8 text. Nothing is on a GPU yet." },
+        { key: "tokenize", label: "Tokenize", showChips: true, plain: "The text is split into tokens — sub-word chunks the model counts in. This prompt ≈ 8 tokens.", deep: "Byte-pair encoding maps text to integer IDs from a fixed ~100k–200k vocabulary. Each chip shows a token with an illustrative ID." },
+        { key: "context", label: "Context", plain: "Your tokens are packed with a system prompt and history into one sequence the model reads at once.", deep: "The context window concatenates system + prior turns + your prompt; its length drives memory use and compute per step." },
+        { key: "datacenter", label: "Data center", layer: "DC", plain: "The sequence is routed to an accelerator inside a data center — the thing this whole dashboard tracks. Power draw starts here.", deep: "It lands on a GPU/accelerator with the model weights already resident in HBM. The data center, its power and cooling are now in the loop." },
+        { key: "forward", label: "Forward pass", layer: "GPU", plain: "The model runs the heavy math — attention across every token — to 'read' the sequence.", deep: "Matrix multiplies + attention over the context run on tensor cores; HBM memory bandwidth is usually the binding limit, not raw FLOPs." },
+        { key: "score", label: "Score", layer: "GPU", showCandidates: true, plain: "The model scores every possible next token and gives each a probability.", deep: "The final layer emits a logit per vocabulary entry; softmax turns logits into a probability distribution. Bars show an illustrative top-5." },
+        { key: "decode", label: "Decode", plain: "One token is picked (here, 'Because') and added to the answer — then the whole loop repeats for the next token.", deep: "Sampling (greedy / temperature / top-p) selects a token, appends it and feeds it back. Autoregressive: N output tokens = N forward passes." },
+        { key: "power", label: "Power", layer: "grid", plain: "Every token costs real electricity. This answer ≈ 2 Wh; ~1M tokens ≈ 5 kWh.", deep: "Energy ≈ tokens × model size ÷ accelerator efficiency. Perf/watt is only ~3× A100→B200 at fixed precision — the bigger real gains come from lower precision (FP4) + rack-scale design." },
+        { key: "cost", label: "Cost", plain: "That compute becomes a price. Sticker $/token has fallen ~100× since 2023 — but a token's value rides on which model sells it.", deep: "At ~$1 per 1M output tokens this answer costs ~$0.0004. Frontier/reasoning tokens cost 15–60× more and burn more tokens per task — see cost-per-task below." },
+        { key: "stream", label: "Streamed back", isReceipt: true, plain: "Tokens stream back one at a time. The receipt: tokens used, energy, cost.", deep: "Output tokens stream as they're decoded; the usage object reports prompt + completion (and sometimes cached/reasoning) counts that determine billing." }
+      ],
+      scaleUp: {
+        aggregate: { value: "3.2 quadrillion", unit: "tokens / month", who: "Google, all surfaces, May 2026", tokens: 3.2e15, src: { label: "Sundar Pichai, Google I/O 2026 keynote", tier: "primary" } },
+        soWhat: "One prompt is a couple of watt-hours and a fraction of a cent. Multiply by the token volume the largest platforms now run and you arrive at the gigawatts and hundreds of billions of capex the rest of this dashboard tracks. That multiplication is the whole story.",
+        note: "This traces the real layers a token's work touches and the real per-token economics, decomposed for teaching — not a claim that one prompt physically travels these layers in this exact sequence. Energy, price, GW and capex are cited; the volume → GWh step is modeled arithmetic; ~22 GW is one company's inference, while the ~97 GW queue spans all operators plus training and headroom."
+      },
+      src: { label: "Pipeline framing original; all energy, price, GW and capex figures cited per step / rung", tier: "modeled" }
     }
   };
 
@@ -4186,6 +4290,108 @@
     });
   }
 
+  function renderTokenJourney() {
+    if (!$("tjStage") || !DATA.tokenJourney) return;
+    const tj = DATA.tokenJourney, steps = tj.steps, ex = tj.example, R = renderTokenJourney;
+    const reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    if (R._step == null) R._step = 0;
+    if (R._depth == null) R._depth = "plain";
+    if (R._timer) { clearInterval(R._timer); R._timer = null; }
+
+    const N = steps.length;
+    const totalWh  = (ex.inputTokens + ex.outputTokens) * ex.whPerToken;     // ~2.04 Wh
+    const totalUsd = ex.outputTokens / 1e6 * ex.usdPerMtokOut;               // ~$0.0004
+    const fmtWh  = w => w === 0 ? "—" : (w < 1 ? Math.round(w * 1000) + " mWh" : w.toFixed(1) + " Wh");
+    const fmtUsd = u => u === 0 ? "—" : (u < 0.01 ? "$" + u.toFixed(4) : "$" + u.toFixed(2));
+    // step order: 0 text,1 tokenize,2 context,3 datacenter,4 forward,5 score,6 decode,7 power,8 cost,9 stream
+    const meterAt = i => ({
+      tokens: i >= 6 ? ex.inputTokens + ex.outputTokens : (i >= 1 ? ex.inputTokens : 0),
+      wh:     i >= 7 ? totalWh  : 0,
+      usd:    i >= 8 ? totalUsd : 0
+    });
+
+    function paintStage() {
+      const stops = steps.map((s, i) => {
+        const cls = i === R._step ? "tj-stop active" : (i < R._step ? "tj-stop done" : "tj-stop");
+        return `<button type="button" class="${cls}" data-i="${i}">` +
+          `<span class="tj-layer${s.layer ? '' : ' tj-layer-blank'}">${s.layer || ''}</span>` +
+          `<span class="tj-dot"></span>` +
+          `<span class="tj-slabel">${i + 1}. ${s.label}</span></button>`;
+      }).join('<span class="tj-rail-seg"></span>');
+      $("tjStage").innerHTML = `<div class="tj-rail">${stops}</div>`;
+      $("tjStage").querySelectorAll(".tj-stop").forEach(b => b.addEventListener("click", () => { stopAuto(); go(+b.dataset.i); }));
+    }
+    function paintPanel() {
+      const s = steps[R._step];
+      let extra = "";
+      if (s.showChips) extra += `<div class="tj-chips">${ex.chips.map(c => `<span class="tj-chip">${c.t.replace(/ /g, '·')}<span class="tj-chip-id">${c.id}</span></span>`).join("")}<div class="tj-illus">${ex.illustrative}</div></div>`;
+      if (s.showCandidates) extra += `<div class="tj-cands">${ex.candidates.map(c => `<div class="tj-cand"><span class="tj-cand-tok">${c.tok}${c.tok === ex.picked ? ' ✓' : ''}</span><span class="tj-cand-bar"><i style="width:${(c.p * 100).toFixed(0)}%;background:${c.tok === ex.picked ? 'var(--green)' : 'var(--accent)'}"></i></span><span class="tj-cand-p">${(c.p * 100).toFixed(0)}%</span></div>`).join("")}<div class="tj-illus">Illustrative probabilities.</div></div>`;
+      if (s.isReceipt) { const m = meterAt(R._step); extra += `<div class="tj-receipt">Input ${ex.inputTokens} · Output ${ex.outputTokens} tokens &nbsp;·&nbsp; Energy ${fmtWh(m.wh)} &nbsp;·&nbsp; Cost ${fmtUsd(m.usd)}</div>`; }
+      const deep = (R._depth === "deep" && s.deep) ? `<div class="tj-deep"><b>Deeper:</b> ${s.deep}</div>` : "";
+      $("tjStepPanel").innerHTML = `<div class="tj-step-title">${R._step + 1}. ${s.label}</div><div class="tj-step-plain">${s.plain}</div>${deep}${extra}`;
+    }
+    function paintMeter() {
+      const m = meterAt(R._step);
+      $("tjMeter").innerHTML =
+        `<div class="tj-mcell"><span class="tj-mv">${m.tokens}</span><span class="tj-ml">tokens</span></div>` +
+        `<div class="tj-mcell"><span class="tj-mv">${fmtWh(m.wh)}</span><span class="tj-ml">energy</span></div>` +
+        `<div class="tj-mcell"><span class="tj-mv">${fmtUsd(m.usd)}</span><span class="tj-ml">cost</span></div>`;
+    }
+    function paintControls() {
+      $("tjControls").innerHTML =
+        `<button type="button" class="tj-btn" data-act="prev" ${R._step === 0 ? "disabled" : ""}>‹ Prev</button>` +
+        `<button type="button" class="tj-btn tj-play" data-act="play"${reduce ? ' style="display:none"' : ''}>${R._timer ? "❚❚ Pause" : "▶ Play"}</button>` +
+        `<button type="button" class="tj-btn" data-act="next" ${R._step === N - 1 ? "disabled" : ""}>Next ›</button>` +
+        `<span class="tj-count">Step ${R._step + 1} / ${N}</span>`;
+      $("tjControls").querySelectorAll(".tj-btn").forEach(b => b.addEventListener("click", () => {
+        const a = b.dataset.act;
+        if (a === "prev") { stopAuto(); go(R._step - 1); }
+        else if (a === "next") { stopAuto(); go(R._step + 1); }
+        else if (a === "play") { R._timer ? stopAuto() : startAuto(); }
+      }));
+    }
+    function paintScaleup() {
+      const su = tj.scaleUp, whMo = su.aggregate.tokens * ex.whPerToken;
+      const twhMo = whMo / 1e12, gw = whMo / 730 / 1e9;
+      const queueGW = (DATA.powerBreakdown && DATA.powerBreakdown.funnel) ? DATA.powerBreakdown.funnel.values[0] : 97;
+      const capexB = DATA.companyCapex ? DATA.companyCapex.values.reduce((a, b) => a + b, 0) : 848;
+      const cell = (v, l, n) => `<div class="bridge-cell"><div class="bv">${v}</div><div class="bl">${l}</div><div class="bn">${n}</div></div>`;
+      const arrow = `<div class="bridge-arrow">→</div>`;
+      $("tjScaleup").innerHTML =
+        `<div class="tj-scaleup-title">Scale one token up to the buildout</div>` +
+        `<div class="bridge-row">` +
+        cell("~" + totalWh.toFixed(0) + " Wh", "One answer", "≈ " + (ex.inputTokens + ex.outputTokens) + " tokens at ~0.005 Wh/token (cited bridge).") + arrow +
+        cell(su.aggregate.value, su.aggregate.unit, su.aggregate.who + " — " + su.aggregate.src.label + ".") + arrow +
+        cell("~" + Math.round(twhMo) + " TWh/mo", "≈ " + gw.toFixed(0) + " GW continuous", "Modeled: that volume × ~5 kWh/1M ÷ 730 h. One company's inference alone.") + arrow +
+        cell("~" + queueGW + " GW", "US interconnect queue", "All operators, training + inference + headroom (LBNL Queued Up 2025).") + arrow +
+        cell("~$" + capexB + "B", "2026 operator capex", "What it costs to build (company 2026 guidance).") +
+        `</div><div class="tj-sowhat">${su.soWhat}</div>`;
+    }
+    function go(i) {
+      R._step = Math.max(0, Math.min(N - 1, i));
+      paintStage(); paintPanel(); paintMeter(); paintControls();
+    }
+    function startAuto() {
+      if (reduce) return;
+      R._timer = setInterval(() => { if (R._step >= N - 1) { stopAuto(); paintControls(); } else go(R._step + 1); }, 1700);
+      paintControls();
+    }
+    function stopAuto() { if (R._timer) { clearInterval(R._timer); R._timer = null; } }
+
+    const toggle = $("tjDepthToggle");
+    if (toggle && !R._wired) {
+      R._wired = true;
+      toggle.querySelectorAll(".map-view-btn").forEach(b => b.addEventListener("click", () => {
+        R._depth = b.dataset.tjdepth;
+        toggle.querySelectorAll(".map-view-btn").forEach(x => x.classList.toggle("active", x === b));
+        paintPanel();
+      }));
+    }
+
+    paintStage(); paintPanel(); paintMeter(); paintControls(); paintScaleup();
+    if ($("tjMethod")) $("tjMethod").innerHTML = `<b>How to read this.</b> ${tj.scaleUp.note}`;
+  }
+
   function renderEnergyBridge() {
     if (!$("energyBridge") || !DATA.tokenEnergyBridge) return;
     const cells = DATA.tokenEnergyBridge;
@@ -4273,6 +4479,7 @@
       renderTurbineSlots();
       renderPowerSourceMixChart();
     } else if (name === "tokens") {
+      renderTokenJourney();
       renderEnergyBridge();
       renderSplitChart();
       renderTokenVolumeChart();
