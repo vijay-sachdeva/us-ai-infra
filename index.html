@@ -2833,4 +2833,2045 @@
     const nn = svg.append("g").selectAll("g").data(g.nodes).join("g");
     nn.append("rect").attr("x", d => d.x0).attr("y", d => d.y0)
       .attr("width", d => d.x1 - d.x0).attr("height", d => Math.max(2, d.y1 - d.y0))
-      .attr("fill", d => d.color || "#64748b").attr("rx", 
+      .attr("fill", d => d.color || "#64748b").attr("rx", 3)
+      .append("title").text(d => d.name + ": $" + Math.round(d.value) + "B");
+    nn.each(function (d) {
+      const rightmost = d.depth === maxDepth, leftmost = d.depth === 0;
+      const cy = (d.y0 + d.y1) / 2, val = "$" + Math.round(d.value) + "B";
+      const t = d3.select(this).append("text").attr("font-weight", "700").attr("fill", txt);
+      if (rightmost) {
+        t.attr("x", d.x1 + 9).attr("y", cy).attr("dy", "0.34em").attr("text-anchor", "start").attr("font-size", "10.5px");
+        t.append("tspan").text(d.name);
+        t.append("tspan").attr("dx", "6").attr("fill", muted).attr("font-weight", "600").text(val);
+      } else if (leftmost) {
+        t.attr("x", d.x0).attr("y", d.y0 - 8).attr("text-anchor", "start").attr("font-size", "11.5px").text(d.name + "  " + val);
+      } else {
+        t.attr("x", d.x0 - 9).attr("y", cy).attr("dy", "0.34em").attr("text-anchor", "end").attr("font-size", "11px").text(d.name + "  " + val);
+      }
+    });
+
+    const method = $("capexMethod");
+    if (method) method.innerHTML = "<b>Modeled split.</b> " + cf.methodology;
+
+    const toggle = $("capexViewToggle");
+    if (toggle && !toggle._wired) {
+      toggle._wired = true;
+      toggle.querySelectorAll(".map-view-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const v = btn.dataset.cview;
+          if (v === renderCapexSankey._view) return;
+          toggle.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
+          renderCapexSankey(v);
+        });
+      });
+    }
+  }
+
+  function renderPhantomLoad() {
+    if (!$("phantomLoad") || !DATA.phantomLoad) return;
+    const p = DATA.phantomLoad;
+    const classFor = (k) => k === "buildable" ? "op" : (k === "queued" ? "queue" : "cut");
+    $("phantomLoad").innerHTML = p.stages.map((s, i) => {
+      const hc = s.haircutPct
+        ? `<div class="fs-haircut">${s.haircutPct}</div>`
+        : "";
+      const stageHtml = `
+        <div class="funnel-stage ${classFor(s.key)}" title="${s.note} — ${s.src.label}">
+          <div><span class="fs-num">${s.gw}</span><span class="fs-unit">GW</span></div>
+          <div class="fs-label">${s.label}</div>
+          ${hc}
+        </div>`;
+      return i < p.stages.length - 1 ? stageHtml + '<div class="funnel-arrow">→</div>' : stageHtml;
+    }).join("");
+
+    const queued = p.stages[0].gw;
+    const buildable = p.stages[p.stages.length - 1].gw;
+    const survivePct = (buildable / queued * 100).toFixed(0);
+    const inflationX = (queued / buildable).toFixed(1);
+    if ($("phantomLoadConv")) {
+      $("phantomLoadConv").innerHTML =
+        'Roughly <b>' + survivePct + '%</b> of the ' + queued + ' GW queue (~' + buildable +
+        ' GW) is plausibly buildable near-term — the headline number is inflated ~<b>' +
+        inflationX + 'x</b> by duplicate and speculative requests.';
+    }
+    if ($("phantomLoadMethod")) {
+      const bases = p.stages.map(s => `${s.label.replace(/^− /, "")} → ${s.src.label}`).join("; ");
+      $("phantomLoadMethod").innerHTML =
+        '<b>Per-stage haircuts (modeled bands)</b>: duplicate/multi-utility ' +
+        p.stages[1].haircutPct + ', speculative/unfinanced ' + p.stages[2].haircutPct +
+        '; buildable endpoint (' + buildable + ' GW) is modeled. Queue base: ' +
+        p.queuedSrc.label + '. ' + p.validation.text + ' <span class="stack-src">— ' +
+        p.validation.src.label + '.</span><br>Bases: ' + bases + '.';
+    }
+  }
+
+  function renderCumDeficitChart() {
+    if (!$("cumDeficitChart") || typeof Chart === "undefined") return;
+    if (renderCumDeficitChart._done) return;
+    renderCumDeficitChart._done = true;
+    initCharts(); applyChartDefaults();
+    const dp = DATA.demandProjection;
+    const cd = DATA.cumulativeDeficit;
+    const cl = getChartColors();
+    // Cumulative running deficit, computed live so it can never drift from demandProjection.
+    let cumDemand = 0, cumGen = 0;
+    const deficit = dp.years.map((_, i) => {
+      cumDemand += dp.yoyDemandGrowthGW[i];
+      cumGen    += dp.newFirmGenForDC[i];
+      return cumDemand - cumGen;
+    });
+    _charts.cumDeficitChart = new Chart($("cumDeficitChart"), {
+      type: "line",
+      data: {
+        labels: dp.years,
+        datasets: [{
+          label: "Standing cumulative deficit",
+          data: deficit,
+          borderColor: "#c0322b",
+          backgroundColor: "rgba(192,50,43,0.12)",
+          fill: true, tension: 0.3,
+          pointRadius: 5, pointBackgroundColor: "#c0322b",
+          borderWidth: 2.5
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 22 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: { display: true, color: cl.label, font: { weight: 700, size: 11 }, align: "top", offset: 6, formatter: v => v + " GW" },
+          tooltip: { callbacks: {
+            label: c => " " + c.parsed.y + " GW standing shortfall",
+            footer: () => "Source: " + cd.src.label
+          }}
+        },
+        scales: {
+          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true, suggestedMax: 22, title: { display: true, text: "Cumulative shortfall (GW)" } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+    if ($("cumDeficitMethod")) {
+      $("cumDeficitMethod").innerHTML = "<b>Cumulative deficit (modeled)</b> = &Sigma; DC demand added &minus; &Sigma; new firm generation for DC, from the demand-vs-generation series above. Widens to ~" + deficit[deficit.length - 1] + " GW standing shortfall by 2030. " + cd.crosscheck;
+    }
+  }
+
+  function renderTurbineSlots() {
+    if (!$("turbineSlots") || typeof Chart === "undefined" || !DATA.turbineSlots) return;
+    if (renderTurbineSlots._done) return;
+    renderTurbineSlots._done = true;
+    initCharts(); applyChartDefaults();
+    const ts = DATA.turbineSlots;
+    const cl = getChartColors();
+    _charts.turbineSlots = new Chart($("turbineSlots"), {
+      type: "bar",
+      data: {
+        labels: ts.oems.map(o => o.name),
+        datasets: [
+          { label: "Firm equipment backlog", data: ts.oems.map(o => o.backlog),
+            backgroundColor: ts.colors.backlog, borderRadius: 4, maxBarThickness: 26, stack: "s" },
+          { label: "Slot reservation agreements", data: ts.oems.map(o => o.slots),
+            backgroundColor: ts.colors.slots, borderRadius: 4, maxBarThickness: 26, stack: "s" }
+        ]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 40 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), {
+            display: c => c.dataset.data[c.dataIndex] >= 18,
+            formatter: v => v + " GW"
+          }),
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.x + " GW",
+            footer: items => {
+              const o = ts.oems[items[0].dataIndex];
+              return o.note + "\nSource: " + o.src.label;
+            }
+          }}
+        },
+        scales: {
+          x: { stacked: true, grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true },
+          y: { stacked: true, grid: { display: false } }
+        }
+      }
+    });
+    const mk = $("turbineSlotsMarkers");
+    if (mk) {
+      mk.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:8px;font-size:11px">' +
+        ts.oems.map(o =>
+          '<span style="background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:3px 8px">' +
+          '<b>' + o.name + '</b> earliest new slot: <b style="color:var(--red)">' + o.firstSlot + '</b></span>'
+        ).join("") + '</div>';
+    }
+    const m = $("turbineSlotsMethod");
+    if (m) m.innerHTML = "<b>Cited to OEM earnings / 8-K (primary).</b> " + ts.methodology +
+      " <b>US-DC share is modeled:</b> " + ts.attributable;
+  }
+
+  function renderPowerSourceMixChart() {
+    if (!$("powerSourceMixChart") || typeof Chart === "undefined") return;
+    if (renderPowerSourceMixChart._done) return;
+    renderPowerSourceMixChart._done = true;
+    initCharts(); applyChartDefaults();
+    const pm = DATA.powerSourceMix;
+    const cl = getChartColors();
+    _charts.powerSourceMixChart = new Chart($("powerSourceMixChart"), {
+      type: "bar",
+      data: {
+        labels: pm.periods,
+        datasets: pm.sources.map(s => ({
+          label: s.name,
+          data: s.values,
+          backgroundColor: s.color,
+          borderRadius: 4,
+          maxBarThickness: 70,
+          _src: s.src
+        }))
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 12 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 12 } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), {
+            display: ctx => ctx.dataset.data[ctx.dataIndex] >= 20,
+            color: "#fff", font: { weight: 700, size: 10 },
+            formatter: v => v + " TWh"
+          }),
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.y + " TWh",
+            footer: items => { const s = items[0].dataset._src; return s ? "Source: " + s.label : ""; }
+          }}
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, grid: { color: cl.grid }, ticks: { callback: v => v + " TWh" }, beginAtZero: true }
+        }
+      }
+    });
+    const method = $("powerSourceMixMethod");
+    if (method) method.innerHTML = "<b>Modeled split.</b> " + pm.method + " " + pm.taxonomyNote;
+  }
+
+  function renderOfftakeCoverage() {
+    if (!$("offtakeCoverage") || !DATA.offtakeCoverage) return;
+    const oc = DATA.offtakeCoverage;
+
+    // Segmented coverage bar (widths = modeled midpoints; labels show the band)
+    const total = oc.segments.reduce((a, s) => a + s.mid, 0) || 1;
+    const barSegs = oc.segments.map(s =>
+      `<div class="oc-seg" title="${s.label}: ${s.band} — ${s.desc}" style="width:${(s.mid / total * 100).toFixed(1)}%;background:${s.color}"></div>`
+    ).join("");
+    const legend = oc.segments.map(s => `
+      <div class="oc-leg">
+        <span class="oc-dot" style="background:${s.color}"></span>
+        <span class="oc-leg-band">${s.band}</span>
+        <span class="oc-leg-label">${s.label}</span>
+        <span class="oc-leg-desc">${s.desc}</span>
+      </div>`).join("");
+
+    // Banded ledger — reuse the .stack-row family
+    const coverPill = { contracted: "ok", partial: "warn", spec: "crit" };
+    const coverText = { contracted: "Offtake", partial: "Partial", spec: "No offtake" };
+    const rows = oc.ledger.map(r => `
+      <div class="stack-row" title="${r.note.replace(/"/g, '&quot;')}">
+        <div class="stack-head">
+          <div class="stack-name">
+            ${r.party}
+            <span class="stack-what">— ${r.metric} &middot; ${r.term}</span>
+            ${r.dollars ? '' : '<span class="oc-flag">$ undisclosed</span>'}
+          </div>
+          <span class="stack-pill ${coverPill[r.cover] || 'ok'}">${coverText[r.cover] || r.cover}</span>
+        </div>
+        <div class="stack-evidence">${r.note} <span class="stack-src">— ${r.src.label}</span></div>
+      </div>`).join("");
+
+    $("offtakeCoverage").innerHTML =
+      `<div class="oc-bar">${barSegs}</div>
+       <div class="oc-legend">${legend}</div>
+       <div class="oc-ledger-title">Signed-commitment ledger — backlog/RPO &amp; named leases</div>
+       ${rows}`;
+
+    if ($("offtakeMethod")) $("offtakeMethod").textContent = oc.method;
+  }
+
+  function renderCircularFinancing(view) {
+    const host = $("circularFinancing");
+    if (!host || !DATA.circularFinancing) return;
+    if (typeof d3 === "undefined") {
+      host.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px">Counterparty map requires D3 — reload when online.</div>';
+      return;
+    }
+    const cf = DATA.circularFinancing;
+    if (view) renderCircularFinancing._view = view;
+    view = renderCircularFinancing._view || "all";
+
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const txt = isDark ? "#e2e8f0" : "#1e293b", muted = isDark ? "#94a3b8" : "#64748b";
+    const ringStroke = isDark ? "#334155" : "#e2e8f0";
+
+    const edges = cf.edges.filter(e => view === "all" || e.kind === view);
+
+    const order = ["NVIDIA","AMD","Broadcom","Apollo","Blackstone","Google","AWS","Oracle","Microsoft","CoreWeave","xAI","Anthropic","OpenAI"];
+    const present = cf.nodes.slice().sort((a,b) => order.indexOf(a.id) - order.indexOf(b.id));
+
+    host.querySelectorAll("svg").forEach(s => s.remove());
+    const W = host.clientWidth || 760;
+    const H = 460;
+    const cx = W / 2, cy = H / 2 + 6;
+    const R = Math.min(W, H) / 2 - 92;
+
+    const svg = d3.select(host).append("svg")
+      .attr("viewBox", "0 0 " + W + " " + H).style("width", "100%").style("height", "auto")
+      .attr("font-family", "Inter, sans-serif");
+
+    const N = present.length;
+    const pos = {};
+    present.forEach((n, i) => {
+      const ang = (i / N) * 2 * Math.PI - Math.PI / 2;
+      pos[n.id] = {
+        x: cx + R * Math.cos(ang),
+        y: cy + R * Math.sin(ang),
+        ang: ang,
+        role: n.role
+      };
+    });
+
+    svg.append("circle").attr("cx", cx).attr("cy", cy).attr("r", R)
+      .attr("fill", "none").attr("stroke", ringStroke).attr("stroke-width", 1).attr("stroke-dasharray", "2 5");
+
+    const defs = svg.append("defs");
+    Object.keys(cf.kinds).forEach(k => {
+      defs.append("marker").attr("id", "cfarrow-" + k)
+        .attr("viewBox", "0 0 10 10").attr("refX", 9).attr("refY", 5)
+        .attr("markerWidth", 7).attr("markerHeight", 7).attr("orient", "auto-start-reverse")
+        .append("path").attr("d", "M0,0 L10,5 L0,10 Z").attr("fill", cf.kinds[k].color);
+    });
+
+    const radius = 9;
+
+    const linkG = svg.append("g");
+    edges.forEach(e => {
+      const a = pos[e.from], b = pos[e.to];
+      if (!a || !b) return;
+      const col = cf.kinds[e.kind].color;
+      const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len, uy = dy / len;
+      const x1 = a.x + ux * radius, y1 = a.y + uy * radius;
+      const x2 = b.x - ux * (radius + 6), y2 = b.y - uy * (radius + 6);
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      const k = 0.28;
+      const cxp = mx + (cx - mx) * k, cyp = my + (cy - my) * k;
+      const w = e.v == null ? 1.4 : Math.max(1.6, Math.min(6, Math.sqrt(e.v) * 0.5));
+      const p = linkG.append("path")
+        .attr("d", "M" + x1 + "," + y1 + " Q" + cxp + "," + cyp + " " + x2 + "," + y2)
+        .attr("fill", "none").attr("stroke", col)
+        .attr("stroke-opacity", e.v == null ? 0.42 : 0.6)
+        .attr("stroke-width", w)
+        .attr("stroke-dasharray", e.v == null ? "4 3" : null)
+        .attr("marker-end", "url(#cfarrow-" + e.kind + ")");
+      p.append("title").text(e.from + " → " + e.to + "  ·  " + e.label + "  ·  " + e.src.label);
+    });
+
+    const nodeG = svg.append("g");
+    present.forEach(n => {
+      const p = pos[n.id];
+      const col = (cf.roles[n.role] || {}).color || "#64748b";
+      const g = nodeG.append("g");
+      g.append("circle").attr("cx", p.x).attr("cy", p.y).attr("r", radius)
+        .attr("fill", col).attr("stroke", isDark ? "#0f172a" : "#ffffff").attr("stroke-width", 2)
+        .append("title").text(n.id + " — " + (cf.roles[n.role] || {}).label);
+      const right = Math.cos(p.ang) >= -0.01;
+      const lx = p.x + Math.cos(p.ang) * 16;
+      const ly = p.y + Math.sin(p.ang) * 16;
+      g.append("text").attr("x", lx).attr("y", ly).attr("dy", "0.34em")
+        .attr("text-anchor", right ? "start" : "end")
+        .attr("fill", txt).attr("font-size", "11.5px").attr("font-weight", "700")
+        .text(n.id);
+    });
+
+    const lg = $("cfLegend");
+    if (lg) {
+      lg.innerHTML = Object.keys(cf.kinds).map(k =>
+        '<span class="cf-leg-item"><span class="cf-leg-swatch" style="background:' + cf.kinds[k].color + '"></span>' + cf.kinds[k].label + '</span>'
+      ).join("") + '<span class="cf-leg-item cf-leg-note">dashed = no public $ (qualitative)</span>';
+    }
+
+    const led = $("cfLedger");
+    if (led) {
+      const tierClass = t => t === "primary" ? "ok" : (t === "analyst" ? "warn" : "crit");
+      led.innerHTML = edges.map(e => {
+        const col = cf.kinds[e.kind].color;
+        const amt = e.v == null ? "qual." : "$" + (e.v >= 100 ? e.v : e.v) + "B";
+        return '<div class="cf-row">' +
+          '<span class="cf-row-edge"><span class="cf-row-dot" style="background:' + col + '"></span>' +
+          '<b>' + e.from + '</b> → <b>' + e.to + '</b></span>' +
+          '<span class="cf-row-amt">' + amt + '</span>' +
+          '<span class="cf-row-lbl">' + e.label + '</span>' +
+          '<span class="cf-row-src">' + e.src.label +
+          ' <span class="cf-tier cf-' + tierClass(e.src.tier) + '">' + e.src.tier + '</span></span>' +
+          '</div>';
+      }).join("");
+    }
+
+    const method = $("cfMethod");
+    if (method) method.innerHTML = "<b>Descriptive map.</b> " + cf.methodology;
+
+    const toggle = $("cfViewToggle");
+    if (toggle && !toggle._wired) {
+      toggle._wired = true;
+      toggle.querySelectorAll(".map-view-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const v = btn.dataset.cfview;
+          if (v === renderCircularFinancing._view) return;
+          toggle.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
+          renderCircularFinancing(v);
+        });
+      });
+    }
+  }
+
+  function renderTimeToPower() {
+    if (!$("timeToPower") || !DATA.timeToPower) return;
+    const tp  = DATA.timeToPower;
+    const max = tp.maxScale;
+    const esc = s => String(s).replace(/"/g, "&quot;");
+    $("timeToPower").innerHTML = tp.items.map(it => {
+      const offset = (it.minVal / max * 100);
+      const width  = ((it.maxVal - it.minVal) / max * 100);
+      const pill   = it.firm === "firm" ? "ok" : (it.firm === "bridge" ? "warn" : "crit");
+      return `
+      <div class="ttp-row" title="${esc(it.note + "  Example: " + it.example)}">
+        <div class="ttp-top">
+          <div class="leadtime-name">${it.name}
+            <span class="stack-pill ${pill}">${it.firmLabel}</span>
+          </div>
+          <div class="leadtime-val ${it.severity}">${it.range}</div>
+        </div>
+        <div class="leadtime-bar-wrap">
+          <div class="ttp-bar ${it.severity}" style="margin-left:${offset.toFixed(1)}%;width:${width.toFixed(1)}%"></div>
+        </div>
+        <div class="ttp-tradeoff">${it.tradeoff} <span class="stack-src">— ${it.src.label}</span></div>
+      </div>`;
+    }).join("");
+    if ($("timeToPowerMethod")) {
+      $("timeToPowerMethod").innerHTML =
+        `<b>Firmness:</b> Firm = dispatchable 24/7 (grid / nuclear); Bridge = interim on-site gas while firm power catches up; ` +
+        `On-site = fastest but fuel-cost / supply dependent. Bar = months-to-first-power range on a 0–84 mo (7-yr) scale. ` +
+        `<b>Cited:</b> grid interconnect duration (LBNL Queued Up 2025), fuel-cell speed (Bloom/Oracle), nuclear restart (Constellation/Microsoft), SMR window (DOE / Google–Kairos). ` +
+        `<b>Modeled (labeled):</b> behind-the-meter gas and reciprocating-engine deployment bands — OEM site-install is fast but order-book lead times vary; trade-off / firmness tags are editorial.`;
+    }
+  }
+
+  function renderCostPerTaskChart() {
+    if (!$("costPerTaskChart") || typeof Chart === "undefined") return;
+    if (renderCostPerTaskChart._done) return;
+    renderCostPerTaskChart._done = true;
+    initCharts(); applyChartDefaults();
+    const cpt = DATA.costPerTask;
+    const cl = getChartColors();
+    const costOf = (tok, price) => (tok / 1e6) * price;
+    const cost2023 = cpt.tasks.map(t => costOf(t.tok2023, t.price2023));
+    const cost2026 = cpt.tasks.map(t => costOf(t.tok2026, t.price2026));
+    const fmt$ = v => v >= 1 ? "$" + v.toFixed(2) : v >= 0.01 ? "$" + v.toFixed(3) : "$" + v.toFixed(4);
+    _charts.costPerTaskChart = new Chart($("costPerTaskChart"), {
+      type: "bar",
+      data: {
+        labels: cpt.tasks.map(t => t.name),
+        datasets: [
+          { label: "2023 frontier (GPT-4-class)", data: cost2023, backgroundColor: "#94a3b8", borderRadius: 5, maxBarThickness: 38 },
+          { label: "2026 frontier (reasoning/agentic)", data: cost2026, backgroundColor: "#1d4ed8", borderRadius: 5, maxBarThickness: 38 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 24 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, font: { weight: 700, size: 10 }, formatter: v => fmt$(v) }),
+          tooltip: { callbacks: {
+            label: c => {
+              const t = cpt.tasks[c.dataIndex];
+              const isNew = c.datasetIndex === 1;
+              const tok = isNew ? t.tok2026 : t.tok2023;
+              const price = isNew ? t.price2026 : t.price2023;
+              const tokTxt = tok >= 1000 ? Math.round(tok / 1000) + "K" : tok;
+              return " " + c.dataset.label + ": " + fmt$(c.parsed.y) + "/task  (~" + tokTxt + " out tok × $" + price + "/1M)";
+            },
+            footer: () => "tokens/task modeled · $/token cited · " + cpt.src.label
+          }}
+        },
+        scales: {
+          y: { type: "logarithmic", grid: { color: cl.grid },
+            ticks: { callback: v => { const a = [0.001,0.01,0.1,1,10]; return a.indexOf(v) >= 0 ? fmt$(v) : ""; } },
+            title: { display: true, text: "$ per completed task (log)" }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+    if ($("costPerTaskMethod")) {
+      const ratios = cpt.tasks.map(t => {
+        const c23 = costOf(t.tok2023, t.price2023), c26 = costOf(t.tok2026, t.price2026);
+        const r = c26 / c23;
+        const arrow = r >= 1 ? "×" + r.toFixed(1) + " higher" : "÷" + (1 / r).toFixed(0) + " cheaper";
+        return t.name + ": " + arrow;
+      }).join(" · ");
+      $("costPerTaskMethod").innerHTML =
+        "<b>$/task (modeled)</b> = era output-tokens/task × that era's <b>cited</b> output price. " +
+        cpt.noteBasket +
+        " Net effect vs 2023, per task: " + ratios +
+        " — i.e. the ~" + cpt.stickerDropX + "× sticker drop is partly (coding/reasoning) or fully (simple chat) eaten by higher tokens-per-task.";
+    }
+  }
+
+  function renderPowerToRevenueYield() {
+    if (!$("powerToRevenueYield") || !DATA.powerToRevenueYield) return;
+    const d = DATA.powerToRevenueYield;
+    const ci = d.costIn, la = d.leaseLane, tl = d.tokenLane;
+    const priceRows = tl.prices.map(p => `
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:12px;padding:5px 0;border-top:1px solid var(--line)">
+        <span style="color:var(--ink-2)">${p.label}</span>
+        <span style="font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap">$${p.revPerMwYr}M/MW-yr · <b style="color:${p.paybackYrs <= la.paybackYrs ? 'var(--green)' : 'var(--amber)'}">~${p.paybackYrs} yr</b></span>
+      </div>`).join("");
+
+    const html = `
+      <div class="stack-row">
+        <div class="stack-head">
+          <div class="stack-name"><span class="stack-num">1</span>Cost in <span class="stack-what">— what one MW of AI capacity costs to build</span></div>
+          <span class="stack-pill" style="background:var(--accent-soft);color:var(--accent)">$${ci.allInPerMw}M / MW</span>
+        </div>
+        <div class="stack-evidence">Facility shell $${ci.facilityPerMw}M (developer-paid) + compute $${ci.computePerMw}M (GPUs &amp; servers) = $${ci.allInPerMw}M all-in. <span class="stack-src">— ${ci.src.label}</span></div>
+      </div>
+
+      <div class="stack-row">
+        <div class="stack-head">
+          <div class="stack-name"><span class="stack-num">2</span>Revenue out <span class="stack-what">— lease the megawatt, or sell its tokens</span></div>
+        </div>
+        <div class="p2r-lanes">
+          <div class="p2r-lane">
+            <div class="p2r-lane-top"><span class="p2r-lane-name">Facility lease</span><span class="stack-pill ok">$${la.revPerMwYr}M / MW-yr</span></div>
+            <div class="p2r-lane-sub">@ $${la.ratePerKwMo}/kW-mo (what wholesale buyers sign) → ~${la.paybackYrs} yr payback on $${ci.allInPerMw}M/MW.</div>
+            <div class="p2r-lane-src">${la.src.label}</div>
+          </div>
+          <div class="p2r-lane">
+            <div class="p2r-lane-top"><span class="p2r-lane-name">Token monetization</span><span class="stack-pill warn">price-dependent</span></div>
+            <div style="margin:4px 0 2px">${priceRows}</div>
+            <div class="p2r-lane-sub">${tl.tokensPerMwHrM}M tokens/MW-hr × output price, 100% sell-through, gross.</div>
+            <div class="p2r-lane-src">${tl.src.label}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack-row">
+        <div class="stack-head">
+          <div class="stack-name"><span class="stack-num">3</span>So what <span class="stack-what">— it rides entirely on token price</span></div>
+          <span class="stack-pill" style="background:var(--accent-soft);color:var(--accent)">modeled</span>
+        </div>
+        <div class="stack-evidence">${d.takeaway}</div>
+      </div>
+
+      <div class="sc-method"><b>Modeled</b> — ${d.note}</div>`;
+
+    $("powerToRevenueYield").innerHTML = html;
+  }
+
+  function renderPerfPerWattChart() {
+    if (!$("perfPerWattChart") || typeof Chart === "undefined") return;
+    if (renderPerfPerWattChart._done) return;
+    renderPerfPerWattChart._done = true;
+    initCharts(); applyChartDefaults();
+    const pw = DATA.perfPerWatt;
+    const cl = getChartColors();
+
+    const baseLabels = pw.gens.map(g => g.gen + "  ·  " + g.year);
+    const effLabels  = pw.effective.map(e => e.gen);
+    const labels = baseLabels.concat(effLabels);
+
+    const idxData  = pw.gens.map(g => g.idx).concat(pw.effective.map(() => null));
+    const lineData = pw.gens.map(g => g.idx).concat(pw.effective.map(() => null));
+    const effData  = pw.gens.map(() => null).concat(pw.effective.map(e => e.idx));
+
+    const allSrcs = pw.gens.map(g => g.src).concat(pw.effective.map(e => e.src));
+
+    _charts.perfPerWattChart = new Chart($("perfPerWattChart"), {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Dense FP16/BF16 perf-per-watt (index, A100=100)",
+            type: "bar",
+            data: idxData,
+            backgroundColor: "#1d4ed8",
+            borderRadius: 5, maxBarThickness: 54,
+            order: 2
+          },
+          {
+            label: "Trend (same metric)",
+            type: "line",
+            data: lineData,
+            borderColor: "#1d4ed8",
+            backgroundColor: "rgba(29,78,216,0.10)",
+            tension: 0.3, fill: false,
+            pointRadius: 4, pointBackgroundColor: "#1d4ed8",
+            borderWidth: 2, spanGaps: false,
+            order: 1
+          },
+          {
+            label: "Effective inference perf-per-watt (MODELED — FP4 + NVL72)",
+            type: "line",
+            data: effData,
+            borderColor: "#c2710c",
+            backgroundColor: "rgba(194,113,12,0.10)",
+            borderDash: [6, 4],
+            tension: 0.2, fill: false,
+            pointRadius: 5, pointStyle: "rectRot", pointBackgroundColor: "#c2710c",
+            borderWidth: 2, spanGaps: false,
+            order: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 26 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 8, padding: 12, font: { size: 10.5 } } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), {
+            display: ctx => ctx.dataset.type === "bar" || ctx.dataset.label.indexOf("MODELED") !== -1,
+            color: ctx => ctx.dataset.label.indexOf("MODELED") !== -1 ? "#c2710c" : cl.label,
+            font: { weight: 700, size: 10 },
+            formatter: v => v == null ? "" : v + ""
+          }),
+          tooltip: { callbacks: {
+            label: c => {
+              if (c.parsed.y == null) return null;
+              if (c.dataset.label.indexOf("MODELED") !== -1)
+                return " Effective per-watt (modeled): " + c.parsed.y + " (index, A100=100)";
+              const g = pw.gens[c.dataIndex];
+              if (c.dataset.type === "bar" && g)
+                return [" " + g.idx + " (index, A100=100)", " " + g.denseTflops + " dense TFLOPS @ " + g.tdp + "W = " + g.perfW + " TFLOPS/W"];
+              return " " + c.parsed.y + " (index, A100=100)";
+            },
+            footer: items => { const s = allSrcs[items[0].dataIndex]; return s ? "Source: " + s.label : ""; }
+          }}
+        },
+        scales: {
+          y: {
+            grid: { color: cl.grid }, beginAtZero: true,
+            title: { display: true, text: "Perf-per-watt (index, A100 = 100)", color: cl.label, font: { size: 11 } },
+            ticks: { callback: v => v }
+          },
+          x: { grid: { display: false }, ticks: { font: { size: 10.5 } } }
+        }
+      }
+    });
+
+    if ($("perfPerWattMethod")) {
+      $("perfPerWattMethod").innerHTML =
+        "<b>Metric (cited):</b> " + pw.metricLabel + " — from NVIDIA datasheets, board TDP. " +
+        "<b>Modeled:</b> the cross-gen index (A100 = 100) and the dashed effective-inference markers. " +
+        pw.note;
+    }
+  }
+
+  function renderCapexChart() {
+    if (!$("coCapexChart") || typeof Chart === "undefined") return;
+    if (renderCapexChart._done) return;
+    renderCapexChart._done = true;
+    initCharts(); applyChartDefaults();
+    const cc = DATA.companyCapex;
+    const cl = getChartColors();
+    _charts.coCapexChart = new Chart($("coCapexChart"), {
+      type: "bar",
+      data: { labels: cc.companies, datasets: [{
+        label: "2026 capex", data: cc.values,
+        backgroundColor: cc.colors, borderRadius: 6, maxBarThickness: 70
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 24 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, formatter: v => "$" + v + "B" }),
+          tooltip: { callbacks: {
+            label: c => " $" + c.parsed.y + "B planned capex",
+            footer: items => { const s = cc.srcs[items[0].dataIndex]; return s ? "Source: " + s.label : ""; }
+          }}
+        },
+        scales: {
+          y: { grid: { color: cl.grid }, ticks: { callback: v => "$" + v + "B" }, beginAtZero: true },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderVacancyChart() {
+    if (!$("vacancyChart") || typeof Chart === "undefined") return;
+    if (renderVacancyChart._done) return;
+    renderVacancyChart._done = true;
+    initCharts(); applyChartDefaults();
+    const v = DATA.vacancyTrend;
+    const cl = getChartColors();
+    _charts.vacancyChart = new Chart($("vacancyChart"), {
+      type: "line",
+      data: {
+        labels: v.years,
+        datasets: [{
+          label: "Vacancy %",
+          data: v.values,
+          borderColor: "#1d4ed8",
+          backgroundColor: "rgba(29,78,216,0.10)",
+          fill: true, tension: 0.35,
+          pointRadius: 5, pointBackgroundColor: "#1d4ed8",
+          borderWidth: 2.5
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 18 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: { display: true, color: cl.label, font: { weight: 700, size: 11 }, align: "top", offset: 6, formatter: v => v + "%" },
+          tooltip: { callbacks: {
+            label: c => " " + c.parsed.y + "% vacancy",
+            footer: () => v.src ? "Source: " + v.src.label : ""
+          }}
+        },
+        scales: {
+          y: { grid: { color: cl.grid }, ticks: { callback: x => x + "%" }, beginAtZero: true, suggestedMax: 11 },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  /* IRR via bisection. cashFlows = [-upfront, y1, y2, ..., yN]. */
+  function computeIRR(cashFlows) {
+    function npv(rate) {
+      let s = 0;
+      for (let t = 0; t < cashFlows.length; t++) s += cashFlows[t] / Math.pow(1 + rate, t);
+      return s;
+    }
+    let low = -0.5, high = 1.0;
+    for (let i = 0; i < 80; i++) {
+      const mid = (low + high) / 2;
+      if (npv(mid) > 0) low = mid; else high = mid;
+      if (high - low < 0.0001) break;
+    }
+    return (low + high) / 2;
+  }
+
+  function projectIRR(leasePerKwMo, powerPerMwh, delayMonths) {
+    const MW = 100;
+    const buildCost = 42e6 * MW;
+    const upfront = -buildCost;
+    const annualRevenue = leasePerKwMo * 12 * 1000 * MW;
+    const annualPowerCost = MW * 4380 * powerPerMwh;   // ~50% utilization equivalent
+    const annualOpex = annualRevenue * 0.05;
+    const annualNOI = annualRevenue - annualPowerCost - annualOpex;
+    const holdYears = 15;
+    const delayYears = delayMonths / 12;
+    const cf = [upfront];
+    for (let y = 1; y <= holdYears; y++) {
+      if (y <= Math.floor(delayYears)) {
+        cf.push(0);
+      } else if (y - 1 < delayYears && y > delayYears) {
+        cf.push(annualNOI * (y - delayYears));
+      } else {
+        cf.push(annualNOI);
+      }
+    }
+    cf[holdYears] += annualNOI / 0.05;
+    return computeIRR(cf);
+  }
+
+  function recalculateIRR() {
+    const lease = +$("leasePrice").value;
+    const power = +$("powerCost").value;
+    const delay = +$("delayMonths").value;
+    $("leaseVal").textContent = "$" + lease;
+    $("powerVal").textContent = "$" + power;
+    $("delayVal").textContent = delay;
+    const irr = projectIRR(lease, power, delay);
+    const irrPct = (irr * 100);
+    const cls = irrPct >= 14 ? "high" : irrPct >= 10 ? "mid" : "low";
+    $("irrValue").className = "irr-value " + cls;
+    $("irrValue").textContent = (irrPct >= 0 ? "~" : "") + irrPct.toFixed(1) + "%";
+    const meterPct = Math.max(0, Math.min(100, irrPct / 25 * 100));
+    $("irrMeterFill").style.width = meterPct + "%";
+  }
+
+  function renderIrrCalculator() {
+    if (!$("irrPresets") || !DATA.irrScenarios) return;
+    if (renderIrrCalculator._done) return;
+    renderIrrCalculator._done = true;
+
+    // Render preset buttons from DATA
+    $("irrPresets").innerHTML = DATA.irrScenarios.scenarios.map((s, i) =>
+      '<button data-i="' + i + '">' + s.name + '</button>'
+    ).join("");
+
+    // Preset click handlers
+    $("irrPresets").querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const s = DATA.irrScenarios.scenarios[+btn.dataset.i];
+        if (!s) return;
+        $("leasePrice").value = s.lease;
+        $("powerCost").value = s.power;
+        $("delayMonths").value = s.delay;
+        $("irrPresets").querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        recalculateIRR();
+      });
+    });
+
+    // Slider input → clear preset highlight, recalc
+    ["leasePrice", "powerCost", "delayMonths"].forEach(id => {
+      $(id).addEventListener("input", () => {
+        $("irrPresets").querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        recalculateIRR();
+      });
+    });
+
+    // Initial: snap to mid-market preset
+    const midBtn = $("irrPresets").querySelector('button[data-i="1"]');
+    if (midBtn) midBtn.click(); else recalculateIRR();
+  }
+
+  /* ----- Engineer tab renders ----- */
+  function renderFunnel() {
+    if (!$("funnelFlow") || !DATA.powerBreakdown) return;
+    const f = DATA.powerBreakdown.funnel;
+    const classes = ["queue", "build", "op"];
+    $("funnelFlow").innerHTML = f.stages.map((stage, i) => {
+      const stageHtml = `
+        <div class="funnel-stage ${classes[i]}">
+          <div><span class="fs-num">${f.values[i]}</span><span class="fs-unit">GW</span></div>
+          <div class="fs-label">${stage}</div>
+        </div>`;
+      return i < f.stages.length - 1 ? stageHtml + '<div class="funnel-arrow">→</div>' : stageHtml;
+    }).join("");
+    const queue = f.values[0], underCon = f.values[1], op = f.values[2];
+    const convInQueue = (underCon / queue * 100).toFixed(1);
+    if ($("funnelConv")) {
+      $("funnelConv").innerHTML =
+        'Only <b>' + convInQueue + '%</b> of the ' + queue + ' GW in the queue is actively under construction — the rest is gated by power, transmission and permitting.';
+    }
+  }
+
+  function renderLeadTimeChart() {
+    if (!$("leadTimeChart") || typeof Chart === "undefined") return;
+    if (renderLeadTimeChart._done) return;
+    renderLeadTimeChart._done = true;
+    initCharts(); applyChartDefaults();
+    const sorted = [...DATA.markets].sort((a, b) => b.lead - a.lead);
+    const colorFor = (l) => l >= 6 ? "#c0322b" : l >= 4 ? "#c2710c" : "#15803d";
+    const cl = getChartColors();
+    _charts.leadTimeChart = new Chart($("leadTimeChart"), {
+      type: "bar",
+      data: {
+        labels: sorted.map(m => m.name),
+        datasets: [{
+          label: "Lead time (years)",
+          data: sorted.map(m => m.lead),
+          backgroundColor: sorted.map(m => colorFor(m.lead)),
+          borderRadius: 5, maxBarThickness: 22
+        }]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 28 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, formatter: v => v + " yr" }),
+          tooltip: { callbacks: {
+            label: c => " " + c.parsed.x + " years",
+            footer: items => { const m = sorted[items[0].dataIndex]; return m ? m.note : ""; }
+          }}
+        },
+        scales: {
+          x: { grid: { color: cl.grid }, ticks: { callback: v => v + " yr" }, beginAtZero: true, suggestedMax: 8 },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderEquipmentLeadTimes() {
+    if (!$("equipmentLeadTimes") || !DATA.equipmentLeadTimes) return;
+    const el = DATA.equipmentLeadTimes;
+    const max = el.maxScale;
+    $("equipmentLeadTimes").innerHTML = el.items.map(it => `
+      <div class="leadtime-row" title="${it.note}">
+        <div class="leadtime-name">${it.name}</div>
+        <div class="leadtime-bar-wrap"><div class="leadtime-bar ${it.severity}" style="width:${(it.maxVal / max * 100).toFixed(1)}%"></div></div>
+        <div class="leadtime-val ${it.severity}">${it.range}</div>
+      </div>`).join("");
+  }
+
+  const STACK_SEV = { structural: "crit", tight: "warn", emerging: "warn", resolving: "ok" };
+
+  function renderStackLayers() {
+    if (!$("stackLayers") || !DATA.stackLayers) return;
+    $("stackLayers").innerHTML = DATA.stackLayers.layers.map(l => `
+      <div class="stack-row" title="${l.evidence.replace(/"/g, '&quot;')}">
+        <div class="stack-head">
+          <div class="stack-name">
+            <span class="stack-num">L${l.n}</span>${l.name}
+            <span class="stack-what">— ${l.what}</span>
+          </div>
+          <span class="stack-pill ${STACK_SEV[l.status] || 'ok'}">${l.statusLabel}</span>
+        </div>
+        <div class="stack-evidence">${l.evidence} <span class="stack-src">— ${l.src.label}</span></div>
+      </div>`).join("");
+  }
+
+  function renderSubstrateBottlenecks() {
+    if (!$("substrateBottlenecks") || !DATA.substrateBottlenecks) return;
+    $("substrateBottlenecks").innerHTML = DATA.substrateBottlenecks.items.map(it => `
+      <div class="stack-row" title="${it.detail.replace(/"/g, '&quot;')}">
+        <div class="stack-head">
+          <div class="stack-name">${it.name} <span class="stack-what">— ${it.vendor}</span></div>
+          <span class="stack-pill ${it.status}">${it.statusLabel}</span>
+        </div>
+        <div class="stack-evidence">${it.detail} <span class="stack-src">— ${it.src.label}</span></div>
+      </div>`).join("");
+  }
+
+  function renderOpticalRoadmap() {
+    if (!$("opticalRoadmap") || !DATA.opticalRoadmap) return;
+    const r = DATA.opticalRoadmap;
+    const gens = r.generations.map(g => `
+      <div class="optical-gen-row">
+        <div class="optical-gen-name">${g.gen}</div>
+        <div class="optical-gen-years">${g.years}</div>
+        <div class="optical-gen-note">${g.note}</div>
+      </div>`).join("");
+    const milestones = r.cpoMilestones.map(m => `
+      <div class="optical-milestone">
+        <div class="optical-milestone-date">${m.date}</div>
+        <div class="optical-milestone-event">${m.event}</div>
+      </div>`).join("");
+    $("opticalRoadmap").innerHTML = `
+      <div class="optical-section-title">Bandwidth generations</div>
+      ${gens}
+      <div class="optical-section-title" style="margin-top:14px">Co-Packaged Optics (CPO) timeline</div>
+      ${milestones}
+      <div class="note" style="margin-top:10px;font-style:italic">— ${r.src.label}</div>`;
+  }
+
+  function renderBuildoutChart() {
+    if (!$("buildoutChart") || typeof Chart === "undefined") return;
+    if (renderBuildoutChart._done) return;
+    renderBuildoutChart._done = true;
+    initCharts(); applyChartDefaults();
+    const hm = DATA.hyperscalerMW;
+    const cl = getChartColors();
+    _charts.buildoutChart = new Chart($("buildoutChart"), {
+      type: "bar",
+      data: {
+        labels: hm.companies,
+        datasets: [
+          { label: "Operational", data: hm.operational, backgroundColor: "#1d4ed8", borderRadius: 5, maxBarThickness: 22 },
+          { label: "Pipeline",    data: hm.pipeline,    backgroundColor: "#c2710c", borderRadius: 5, maxBarThickness: 22 }
+        ]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 40 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), {
+            display: true,
+            font: { weight: 700, size: 10 },
+            formatter: v => v >= 1000 ? (v/1000).toFixed(1) + " GW" : v + " MW"
+          }),
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.x.toLocaleString() + " MW",
+            footer: () => "Source: " + hm.srcLabel
+          }}
+        },
+        scales: {
+          x: { grid: { color: cl.grid }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(1) + " GW" : v + " MW" }, beginAtZero: true },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderMap() {
+    const container = $("map");
+    if (!container) return;
+    if (renderMap._done) return;
+    if (typeof d3 === "undefined" || typeof topojson === "undefined") {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px">Map requires d3 + topojson — reload when online.</div>';
+      return;
+    }
+    renderMap._done = true;
+    renderMap._view = renderMap._view || "pipeline";  // default view
+
+    const typeColor   = { constrained: "#d4452f", growth: "#1d4ed8", emerging: "#15803d" };
+    const isPipeline  = renderMap._view === "pipeline";
+    const sizeField   = isPipeline ? "pipeline" : "operational";
+    // pipeline values are MW (large); operational are GW (small). Normalize for max.
+    const maxSize     = Math.max.apply(null, DATA.markets.map(m => m[sizeField]));
+    const fmtGW       = isPipeline
+      ? (v) => (v / 1000).toFixed(v >= 1000 ? 1 : 2)  // MW → GW
+      : (v) => String(v);                              // already GW
+
+    // Tooltip element (singleton)
+    let tip = container.querySelector(".map-tip");
+    if (!tip) {
+      tip = document.createElement("div");
+      tip.className = "map-tip";
+      container.appendChild(tip);
+    }
+    function moveTip(event) {
+      const rect = container.getBoundingClientRect();
+      let tx = event.clientX - rect.left + 14;
+      let ty = event.clientY - rect.top - 10;
+      if (tx + 240 > container.clientWidth) tx = event.clientX - rect.left - 244;
+      tip.style.left = tx + "px";
+      tip.style.top  = ty + "px";
+    }
+
+    function buildMap() {
+      // Remove any prior SVG (for resize redraws)
+      container.querySelectorAll("svg").forEach(s => s.remove());
+      const W = container.clientWidth || 560;
+      const H = Math.round(W * 0.58);
+      container.style.minHeight = H + "px";
+
+      const svg = d3.select(container).append("svg")
+        .attr("viewBox", "0 0 " + W + " " + H)
+        .attr("width", W).attr("height", H);
+
+      d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
+        const proj = d3.geoAlbersUsa()
+          .fitExtent([[12, 12], [W - 12, H - 12]],
+            topojson.feature(us, us.objects.nation));
+        const path = d3.geoPath().projection(proj);
+
+        // Theme-aware palette — blend the map into the dark card instead of a white blob
+        const _mDark = document.documentElement.getAttribute("data-theme") === "dark";
+        const mFill = _mDark ? "#243246" : "#eaeff5";
+        const mState = _mDark ? "#0f172a" : "#fff";
+        const mBorder = _mDark ? "#3a4a60" : "#d0d9e4";
+        const mCity = _mDark ? "#cbd5e1" : "#3a4a5c";
+        const mBubbleStroke = _mDark ? "#0b1220" : "#fff";
+
+        // States
+        svg.append("g").selectAll("path")
+          .data(topojson.feature(us, us.objects.states).features)
+          .join("path")
+          .attr("d", path)
+          .attr("fill", mFill)
+          .attr("stroke", mState)
+          .attr("stroke-width", 1.2);
+
+        // Internal borders
+        svg.append("path")
+          .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
+          .attr("d", path)
+          .attr("fill", "none")
+          .attr("stroke", mBorder)
+          .attr("stroke-width", 0.5);
+
+        // Bubble drop shadow
+        const defs = svg.append("defs");
+        const filter = defs.append("filter").attr("id", "mapShadow")
+          .attr("x", "-40%").attr("y", "-40%").attr("width", "180%").attr("height", "180%");
+        filter.append("feDropShadow")
+          .attr("dx", 0).attr("dy", 2).attr("stdDeviation", 3)
+          .attr("flood-color", "rgba(15,27,45,.25)");
+
+        // Market bubbles (sized by current view: operational GW or pipeline MW)
+        DATA.markets.forEach(m => {
+          const xy = proj([m.lon, m.lat]);
+          if (!xy) return;
+          const [x, y] = xy;
+          const v = m[sizeField];
+          const r = 16 + (v / maxSize) * 22;
+          const col = typeColor[m.type] || "#475569";
+
+          const g = svg.append("g").style("cursor", "default");
+
+          g.append("circle")
+            .attr("cx", x).attr("cy", y).attr("r", r)
+            .attr("fill", col).attr("fill-opacity", 0.88)
+            .attr("stroke", mBubbleStroke).attr("stroke-width", 2.5)
+            .attr("filter", "url(#mapShadow)");
+
+          g.append("text")
+            .attr("x", x).attr("y", y)
+            .attr("text-anchor", "middle").attr("dominant-baseline", "central")
+            .attr("fill", "#fff")
+            .attr("font-family", "Inter, sans-serif")
+            .attr("font-size", Math.max(11, Math.round(r * 0.6)) + "px")
+            .attr("font-weight", "800")
+            .attr("pointer-events", "none")
+            .text(fmtGW(v));
+
+          g.append("text")
+            .attr("x", x).attr("y", y + r + 11)
+            .attr("text-anchor", "middle")
+            .attr("fill", mCity)
+            .attr("font-family", "Inter, sans-serif")
+            .attr("font-size", "9.5px").attr("font-weight", "700")
+            .attr("pointer-events", "none")
+            .attr("class", "map-city-label")
+            .text(m.name.replace(", AZ", "").replace(", IL", "").replace(", GA", "").replace(", TX", ""));
+
+          g.on("mouseenter", function (event) {
+              tip.innerHTML = "<b>" + m.name + "</b>" +
+                m.operational + " GW operational · " + m.pipeline.toLocaleString() + " MW pipeline" +
+                '<br><span class="tip-muted">~' + m.lead + ' yr to power · ' + m.status + '</span>';
+              tip.style.display = "block";
+              moveTip(event);
+            })
+            .on("mousemove", moveTip)
+            .on("mouseleave", () => { tip.style.display = "none"; });
+        });
+
+      }).catch(() => {
+        svg.append("text")
+          .attr("x", W / 2).attr("y", H / 2)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#8a97a8").attr("font-size", "13px")
+          .attr("font-family", "Inter, sans-serif")
+          .text("Map requires network — reload when online");
+      });
+    }
+
+    buildMap();
+    // Redraw on resize (debounced)
+    let rto;
+    window.addEventListener("resize", () => {
+      clearTimeout(rto);
+      rto = setTimeout(() => {
+        renderMap._done = false;  // allow rebuild
+        renderMap();
+      }, 200);
+    });
+
+    // Wire view toggle once
+    const toggle = document.getElementById("mapViewToggle");
+    if (toggle && !toggle._wired) {
+      toggle._wired = true;
+      toggle.querySelectorAll(".map-view-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const view = btn.dataset.view;
+          if (view === renderMap._view) return;
+          renderMap._view = view;
+          toggle.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
+          const note = document.getElementById("mapNote");
+          if (note) note.innerHTML = view === "pipeline"
+            ? "Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · hover for detail"
+            : "Operational view · bubbles sum to ≈ 36 GW operational at primary markets · color = market status · hover for detail";
+          renderMap._done = false;  // allow rebuild
+          renderMap();
+        });
+      });
+    }
+  }
+
+  function renderMegaProjects() {
+    if (!$("megaProjectsList") || !Array.isArray(DATA.megaProjects)) return;
+    const sorted  = [...DATA.megaProjects].sort((a, b) => (b.mw || 0) - (a.mw || 0));
+    const totalMW = sorted.reduce((s, p) => s + (p.mw || 0), 0);
+    const rows = sorted.map(p => {
+      const risk = p.keyRisk ? `<span class="mp-risk"><span class="mp-gate">${p.keyRisk.gate}</span>${p.keyRisk.text}</span>` : "";
+      const upd  = p.latestUpdate ? `<span class="mp-upd"><b>${p.latestUpdate.date}</b> · ${p.latestUpdate.text}<span class="mp-src" style="display:inline"> — ${p.latestUpdate.src.label}</span></span>` : "";
+      return `
+      <tr>
+        <td><span class="mp-name">${p.name}</span><span class="mp-src">— ${p.src.label}</span>${risk}${upd}</td>
+        <td class="mp-op">${p.operator}</td>
+        <td>${p.state}</td>
+        <td class="mp-mw">${p.mw.toLocaleString()}</td>
+        <td><span class="mp-status ${p.status}">${p.status}</span></td>
+      </tr>`;
+    }).join("");
+    $("megaProjectsList").innerHTML = `
+      <table class="mp-table">
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>Operator</th>
+            <th>State</th>
+            <th style="text-align:right">MW</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3">${sorted.length} named projects</td>
+            <td class="mp-mw">${totalMW.toLocaleString()}</td>
+            <td>≈ ${(totalMW / 1000).toFixed(1)} GW</td>
+          </tr>
+        </tfoot>
+      </table>`;
+  }
+
+  function renderBuildabilityMovements() {
+    if (!$("buildabilityMovements") || !Array.isArray(DATA.buildabilityMovements)) return;
+    const dirClass = { easing: "ok", tightening: "crit", stalled: "warn" };
+    const moves = [...DATA.buildabilityMovements].sort((a, b) => a.date < b.date ? 1 : -1);
+    $("buildabilityMovements").innerHTML = moves.map(e => `
+      <div class="stack-row">
+        <div class="stack-head">
+          <span class="stack-name"><span class="stack-num">${e.date}</span>${e.market} · ${e.gate}</span>
+          <span class="stack-pill ${dirClass[e.direction] || "warn"}">${e.direction}</span>
+        </div>
+        <div class="stack-evidence">${e.headline} <span class="stack-src">— ${e.src.label}</span></div>
+      </div>`).join("");
+  }
+
+  function renderScorecard() {
+    if (!$("scorecardWrap") || !DATA.siteScorecards) return;
+    const sc = DATA.siteScorecards;
+    const classFor = (n) => n >= 7 ? "s-high" : n >= 4 ? "s-mid" : "s-low";
+    const wSum = sc.factors.reduce((a, f) => a + (f.weight || 0), 0) || 1;
+    const head = `<tr><th style="text-align:left;padding-left:10px">Market</th>${
+      sc.factors.map(f => `<th title="${f.src ? f.src.label : ""}${f.proxy ? " · market-level proxy" : ""}">${f.label}${f.proxy ? "*" : ""}</th>`).join("")
+    }<th>Readiness<span class="rd-mod">modeled</span></th></tr>`;
+    const rows = sc.markets.map(m => {
+      const readiness = (m.scores.reduce((a, s, i) => a + s * (sc.factors[i].weight || 0), 0) / wSum).toFixed(1);
+      return `<tr><td class="market">${m.name}</td>${m.scores.map(s => `<td class="score ${classFor(s)}">${s}</td>`).join("")}<td class="score ${classFor(parseFloat(readiness))}">${readiness}</td></tr>`;
+    }).join("");
+    const weights = sc.factors.map(f => `${f.label} ${f.weight}`).join(" · ");
+    const bases = sc.factors.map(f => f.src ? `${f.label} → ${f.src.label}` : null).filter(Boolean).join("; ");
+    $("scorecardWrap").innerHTML = `
+      <table class="scorecard">
+        <thead>${head}</thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="sc-note">${sc.note}</div>
+      <div class="sc-method"><b>Readiness (modeled)</b> = weighted sum of the cited per-factor scores. Weights: ${weights}. Basis: ${bases}.${sc.factors.some(f => f.proxy) ? " * = market-level proxy." : ""}</div>`;
+  }
+
+  /* ----- Energy & Policy tab renders ----- */
+  function renderDemandGapChart() {
+    if (!$("demandGapChart") || typeof Chart === "undefined") return;
+    if (renderDemandGapChart._done) return;
+    renderDemandGapChart._done = true;
+    initCharts(); applyChartDefaults();
+    const dp = DATA.demandProjection;
+    const cl = getChartColors();
+    _charts.demandGapChart = new Chart($("demandGapChart"), {
+      type: "bar",
+      data: {
+        labels: dp.years,
+        datasets: [
+          { label: "DC demand added", data: dp.yoyDemandGrowthGW, backgroundColor: "#c0322b", borderRadius: 5, maxBarThickness: 26 },
+          { label: "New firm gen for DC", data: dp.newFirmGenForDC, backgroundColor: "#15803d", borderRadius: 5, maxBarThickness: 26 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 22 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, font: { weight: 700, size: 10 }, formatter: v => v + " GW" }),
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.y + " GW",
+            footer: () => "Source: " + dp.src.label
+          }}
+        },
+        scales: {
+          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderRateImpactChart() {
+    if (!$("rateImpactChart") || typeof Chart === "undefined") return;
+    if (renderRateImpactChart._done) return;
+    renderRateImpactChart._done = true;
+    initCharts(); applyChartDefaults();
+    const ri = DATA.rateImpacts;
+    const colorFor = (v) => v >= 25 ? "#c0322b" : v >= 15 ? "#c2710c" : "#15803d";
+    const cl = getChartColors();
+    _charts.rateImpactChart = new Chart($("rateImpactChart"), {
+      type: "bar",
+      data: {
+        labels: ri.states.map(s => s.state),
+        datasets: [{
+          label: "Rate increase by 2030",
+          data: ri.states.map(s => s.increase),
+          backgroundColor: ri.states.map(s => colorFor(s.increase)),
+          borderRadius: 5, maxBarThickness: 22
+        }]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 36 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, formatter: v => "+" + v + "%" }),
+          tooltip: { callbacks: {
+            label: c => " +" + c.parsed.x + "% by 2030",
+            footer: () => "Source: " + ri.src.label
+          }}
+        },
+        scales: {
+          x: { grid: { color: cl.grid }, ticks: { callback: v => "+" + v + "%" }, beginAtZero: true, suggestedMax: 60 },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderIsoTable() {
+    if (!$("isoTable") || !DATA.isos) return;
+    const sevLabel = { crit: "Critical", warn: "High", ok: "Moderate" };
+    const rows = DATA.isos.map(iso => `
+      <tr title="${iso.note}">
+        <td class="iso-name">${iso.name}</td>
+        <td>${iso.region}</td>
+        <td class="iso-queue">${iso.queueYears}</td>
+        <td><span class="sev-pill ${iso.severity}">${sevLabel[iso.severity]}</span></td>
+        <td>${iso.note}</td>
+      </tr>`).join("");
+    $("isoTable").innerHTML = `
+      <table class="iso-table">
+        <thead><tr><th>ISO</th><th>Region</th><th>Queue depth</th><th>Severity</th><th>Key constraint</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  function renderActionList(targetId, items, renderItem) {
+    if (!$(targetId) || !items) return;
+    $(targetId).innerHTML = items.map(renderItem).join("");
+  }
+
+  function renderRegList() {
+    renderActionList("regList", DATA.regulatoryActions, r => `
+      <div class="action-row">
+        <div class="action-head">
+          <span class="action-tag ${r.status}">${r.status}</span>
+          <span class="action-title">${r.action}</span>
+        </div>
+        <div class="action-meta">${r.jurisdiction}</div>
+        <div class="action-note">${r.note}</div>
+      </div>`);
+  }
+
+  function renderUtilList() {
+    renderActionList("utilList", DATA.utilityActions, u => `
+      <div class="action-row">
+        <div class="action-head">
+          <span class="action-title">${u.utility}</span>
+        </div>
+        <div class="action-meta">${u.action} &middot; ${u.meta}</div>
+        <div class="action-note">${u.note}</div>
+      </div>`);
+  }
+
+  function renderDrList() {
+    renderActionList("drList", DATA.demandResponse, d => `
+      <div class="action-row">
+        <div class="action-head">
+          ${brandMark(d.company)}
+          <span class="action-title">${d.company}</span>
+          <span class="action-tag">${d.mw}</span>
+        </div>
+        <div class="action-meta">${d.type}</div>
+        <div class="action-note">${d.note}</div>
+      </div>`);
+  }
+
+  /* ----- Token Economics tab renders ----- */
+  function renderDisclosedTokens() {
+    if (!$("disclosedTokenTotals") || !DATA.disclosedTokenTotals) return;
+    const dt = DATA.disclosedTokenTotals;
+    const rows = dt.rows.map(r => `
+      <div class="stack-row">
+        <div class="stack-head">
+          <div class="stack-name">${r.provider} <span class="stack-what">— ${r.asOf}</span></div>
+          <span class="stack-pill" style="background:var(--accent-soft);color:var(--accent)">${r.monthly}/mo</span>
+        </div>
+        <div class="stack-evidence stack-src">— ${r.src.label}</div>
+      </div>`).join("");
+    $("disclosedTokenTotals").innerHTML = rows + `
+      <div style="margin-top:14px;padding:11px 13px;background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 5px 5px 0;font-size:12.5px;line-height:1.5;color:var(--ink)">
+        <strong>So what:</strong> ${dt.soWhat}
+      </div>`;
+  }
+
+  function renderTokenVolumeChart() {
+    if (!$("tokenVolumeChart") || typeof Chart === "undefined") return;
+    if (renderTokenVolumeChart._done) return;
+    renderTokenVolumeChart._done = true;
+    initCharts(); applyChartDefaults();
+    const tv = DATA.tokenVolume;
+    const cl = getChartColors();
+    const datasets = tv.providers.map(p => ({
+      label: p.name,
+      data: p.values,
+      backgroundColor: p.color + "cc",
+      borderColor: p.color,
+      borderWidth: 1.5,
+      fill: true,
+      tension: 0.32,
+      pointRadius: 0
+    }));
+    _charts.tokenVolumeChart = new Chart($("tokenVolumeChart"), {
+      type: "line",
+      data: { labels: tv.quarters, datasets: datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": " + c.parsed.y.toLocaleString() + "T",
+            footer: () => "Source: " + tv.src.label
+          }}
+        },
+        scales: {
+          y: { stacked: true, grid: { color: cl.grid }, ticks: { callback: v => v.toLocaleString() + "T" }, beginAtZero: true },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderPriceCompressionChart() {
+    if (!$("priceCompressionChart") || typeof Chart === "undefined") return;
+    if (renderPriceCompressionChart._done) return;
+    renderPriceCompressionChart._done = true;
+    initCharts(); applyChartDefaults();
+    const pc = DATA.priceCompression;
+    const cl = getChartColors();
+    // Group models by family for color-coded scatter datasets
+    const byFamily = {};
+    pc.models.forEach(m => {
+      if (!byFamily[m.family]) byFamily[m.family] = [];
+      byFamily[m.family].push({ x: m.year, y: m.price, label: m.name });
+    });
+    const datasets = Object.keys(byFamily).map(fam => ({
+      label: pc.familyLabels[fam],
+      data: byFamily[fam],
+      backgroundColor: pc.familyColors[fam],
+      borderColor: pc.familyColors[fam],
+      borderWidth: 2,
+      showLine: true,
+      tension: 0,
+      pointRadius: 6,
+      pointHoverRadius: 8
+    }));
+    _charts.priceCompressionChart = new Chart($("priceCompressionChart"), {
+      type: "scatter",
+      data: { datasets: datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
+          tooltip: { callbacks: {
+            label: c => " " + c.raw.label + ": $" + c.raw.y + " / 1M output tokens"
+          }}
+        },
+        scales: {
+          y: { type: "logarithmic", grid: { color: cl.grid },
+            ticks: { callback: v => "$" + v },
+            title: { display: true, text: "$/1M output tokens (log)" }
+          },
+          x: { type: "linear", min: 2023, max: 2026,
+            grid: { display: false },
+            ticks: { stepSize: 0.5, callback: v => {
+              const y = Math.floor(v);
+              const frac = v - y;
+              if (frac < 0.1) return y + "-H1";
+              if (frac > 0.4 && frac < 0.6) return y + "-H2";
+              return "";
+            }},
+            title: { display: true, text: "Launch date" }
+          }
+        }
+      }
+    });
+  }
+
+  function renderTokenJourney() {
+    if (!$("tjStage") || !DATA.tokenJourney) return;
+    const tj = DATA.tokenJourney, steps = tj.steps, ex = tj.example, R = renderTokenJourney;
+    const reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    if (R._step == null) R._step = 0;
+    if (R._depth == null) R._depth = "plain";
+    if (R._timer) { clearInterval(R._timer); R._timer = null; }
+
+    const N = steps.length;
+    const totalWh  = (ex.inputTokens + ex.outputTokens) * ex.whPerToken;     // ~2.04 Wh
+    const totalUsd = ex.outputTokens / 1e6 * ex.usdPerMtokOut;               // ~$0.0004
+    const fmtWh  = w => w === 0 ? "—" : (w < 1 ? Math.round(w * 1000) + " mWh" : w.toFixed(1) + " Wh");
+    const fmtUsd = u => u === 0 ? "—" : (u < 0.01 ? "$" + u.toFixed(4) : "$" + u.toFixed(2));
+    // step order: 0 text,1 tokenize,2 context,3 datacenter,4 forward,5 score,6 decode,7 power,8 cost,9 stream
+    const meterAt = i => ({
+      tokens: i >= 6 ? ex.inputTokens + ex.outputTokens : (i >= 1 ? ex.inputTokens : 0),
+      wh:     i >= 7 ? totalWh  : 0,
+      usd:    i >= 8 ? totalUsd : 0
+    });
+
+    function paintStage() {
+      const stops = steps.map((s, i) => {
+        const cls = i === R._step ? "tj-stop active" : (i < R._step ? "tj-stop done" : "tj-stop");
+        return `<button type="button" class="${cls}" data-i="${i}">` +
+          `<span class="tj-layer${s.layer ? '' : ' tj-layer-blank'}">${s.layer || ''}</span>` +
+          `<span class="tj-dot"></span>` +
+          `<span class="tj-slabel">${i + 1}. ${s.label}</span></button>`;
+      }).join('<span class="tj-rail-seg"></span>');
+      $("tjStage").innerHTML = `<div class="tj-rail">${stops}</div>`;
+      $("tjStage").querySelectorAll(".tj-stop").forEach(b => b.addEventListener("click", () => { stopAuto(); go(+b.dataset.i); }));
+    }
+    function paintPanel() {
+      const s = steps[R._step];
+      let extra = "";
+      if (s.showChips) extra += `<div class="tj-chips">${ex.chips.map(c => `<span class="tj-chip">${c.t.replace(/ /g, '·')}<span class="tj-chip-id">${c.id}</span></span>`).join("")}<div class="tj-illus">${ex.illustrative}</div></div>`;
+      if (s.showCandidates) extra += `<div class="tj-cands">${ex.candidates.map(c => `<div class="tj-cand"><span class="tj-cand-tok">${c.tok}${c.tok === ex.picked ? ' ✓' : ''}</span><span class="tj-cand-bar"><i style="width:${(c.p * 100).toFixed(0)}%;background:${c.tok === ex.picked ? 'var(--green)' : 'var(--accent)'}"></i></span><span class="tj-cand-p">${(c.p * 100).toFixed(0)}%</span></div>`).join("")}<div class="tj-illus">Illustrative probabilities.</div></div>`;
+      if (s.isReceipt) { const m = meterAt(R._step); extra += `<div class="tj-receipt">Input ${ex.inputTokens} · Output ${ex.outputTokens} tokens &nbsp;·&nbsp; Energy ${fmtWh(m.wh)} &nbsp;·&nbsp; Cost ${fmtUsd(m.usd)}</div>`; }
+      const deep = (R._depth === "deep" && s.deep) ? `<div class="tj-deep"><b>Deeper:</b> ${s.deep}</div>` : "";
+      $("tjStepPanel").innerHTML = `<div class="tj-step-title">${R._step + 1}. ${s.label}</div><div class="tj-step-plain">${s.plain}</div>${deep}${extra}`;
+    }
+    function paintMeter() {
+      const m = meterAt(R._step);
+      $("tjMeter").innerHTML =
+        `<div class="tj-mcell"><span class="tj-mv">${m.tokens}</span><span class="tj-ml">tokens</span></div>` +
+        `<div class="tj-mcell"><span class="tj-mv">${fmtWh(m.wh)}</span><span class="tj-ml">energy</span></div>` +
+        `<div class="tj-mcell"><span class="tj-mv">${fmtUsd(m.usd)}</span><span class="tj-ml">cost</span></div>`;
+    }
+    function paintControls() {
+      $("tjControls").innerHTML =
+        `<button type="button" class="tj-btn" data-act="prev" ${R._step === 0 ? "disabled" : ""}>‹ Prev</button>` +
+        `<button type="button" class="tj-btn tj-play" data-act="play"${reduce ? ' style="display:none"' : ''}>${R._timer ? "❚❚ Pause" : "▶ Play"}</button>` +
+        `<button type="button" class="tj-btn" data-act="next" ${R._step === N - 1 ? "disabled" : ""}>Next ›</button>` +
+        `<span class="tj-count">Step ${R._step + 1} / ${N}</span>`;
+      $("tjControls").querySelectorAll(".tj-btn").forEach(b => b.addEventListener("click", () => {
+        const a = b.dataset.act;
+        if (a === "prev") { stopAuto(); go(R._step - 1); }
+        else if (a === "next") { stopAuto(); go(R._step + 1); }
+        else if (a === "play") { R._timer ? stopAuto() : startAuto(); }
+      }));
+    }
+    function paintScaleup() {
+      const su = tj.scaleUp, whMo = su.aggregate.tokens * ex.whPerToken;
+      const twhMo = whMo / 1e12, gw = whMo / 730 / 1e9;
+      const queueGW = (DATA.powerBreakdown && DATA.powerBreakdown.funnel) ? DATA.powerBreakdown.funnel.values[0] : 97;
+      const capexB = DATA.companyCapex ? DATA.companyCapex.values.reduce((a, b) => a + b, 0) : 848;
+      const cell = (v, l, n) => `<div class="bridge-cell"><div class="bv">${v}</div><div class="bl">${l}</div><div class="bn">${n}</div></div>`;
+      const arrow = `<div class="bridge-arrow">→</div>`;
+      $("tjScaleup").innerHTML =
+        `<div class="tj-scaleup-title">Scale one token up to the buildout</div>` +
+        `<div class="bridge-row">` +
+        cell("~" + totalWh.toFixed(0) + " Wh", "One answer", "≈ " + (ex.inputTokens + ex.outputTokens) + " tokens at ~0.005 Wh/token (cited bridge).") + arrow +
+        cell(su.aggregate.value, su.aggregate.unit, su.aggregate.who + " — " + su.aggregate.src.label + ".") + arrow +
+        cell("~" + Math.round(twhMo) + " TWh/mo", "≈ " + gw.toFixed(0) + " GW continuous", "Modeled: that volume × ~5 kWh/1M ÷ 730 h. One company's inference alone.") + arrow +
+        cell("~" + queueGW + " GW", "US interconnect queue", "All operators, training + inference + headroom (LBNL Queued Up 2025).") + arrow +
+        cell("~$" + capexB + "B", "2026 operator capex", "What it costs to build (company 2026 guidance).") +
+        `</div><div class="tj-sowhat">${su.soWhat}</div>`;
+    }
+    function go(i) {
+      R._step = Math.max(0, Math.min(N - 1, i));
+      paintStage(); paintPanel(); paintMeter(); paintControls();
+    }
+    function startAuto() {
+      if (reduce) return;
+      R._timer = setInterval(() => { if (R._step >= N - 1) { stopAuto(); paintControls(); } else go(R._step + 1); }, 1700);
+      paintControls();
+    }
+    function stopAuto() { if (R._timer) { clearInterval(R._timer); R._timer = null; } }
+
+    const toggle = $("tjDepthToggle");
+    if (toggle && !R._wired) {
+      R._wired = true;
+      toggle.querySelectorAll(".map-view-btn").forEach(b => b.addEventListener("click", () => {
+        R._depth = b.dataset.tjdepth;
+        toggle.querySelectorAll(".map-view-btn").forEach(x => x.classList.toggle("active", x === b));
+        paintPanel();
+      }));
+    }
+
+    paintStage(); paintPanel(); paintMeter(); paintControls(); paintScaleup();
+    if ($("tjMethod")) $("tjMethod").innerHTML = `<b>How to read this.</b> ${tj.scaleUp.note}`;
+  }
+
+  function renderEnergyBridge() {
+    if (!$("energyBridge") || !DATA.tokenEnergyBridge) return;
+    const cells = DATA.tokenEnergyBridge;
+    const parts = [];
+    cells.forEach((c, i) => {
+      parts.push(`<div class="bridge-cell">
+        <div class="bv">${c.value}</div>
+        <div class="bl">${c.label}</div>
+        <div class="bn">${c.note}</div>
+      </div>`);
+      if (i < cells.length - 1) parts.push('<div class="bridge-arrow">→</div>');
+    });
+    $("energyBridge").innerHTML = parts.join("");
+  }
+
+  function renderSplitChart() {
+    if (!$("splitChart") || !DATA.inferenceTrainingSplit) return;
+    const s = DATA.inferenceTrainingSplit;
+    $("splitChart").innerHTML = `
+      <div class="split-block">
+        <div class="split-label"><span>Compute hours</span><span>${s.computeHours.inference}% inference · ${s.computeHours.training}% training</span></div>
+        <div class="split-bar">
+          <div class="split-seg inference" style="width:${s.computeHours.inference}%">Inference ${s.computeHours.inference}%</div>
+          <div class="split-seg training"  style="width:${s.computeHours.training}%">Train ${s.computeHours.training}%</div>
+        </div>
+      </div>
+      <div class="split-block">
+        <div class="split-label"><span>Dollar spend</span><span>${s.spend.inference}% inference · ${s.spend.training}% training</span></div>
+        <div class="split-bar">
+          <div class="split-seg inference" style="width:${s.spend.inference}%">Inference ${s.spend.inference}%</div>
+          <div class="split-seg training"  style="width:${s.spend.training}%">Train ${s.spend.training}%</div>
+        </div>
+      </div>
+      <div class="split-legend">
+        <span><span class="lg-dot" style="background:#1d4ed8"></span>Inference (continuous, scales with users)</span>
+        <span><span class="lg-dot" style="background:#c2710c"></span>Training (concentrated, periodic)</span>
+      </div>
+      <div class="sc-note" style="margin-top:10px">${s.note} Source: ${s.src.label}.</div>
+    `;
+  }
+
+  /* ----- Lazy per-tab render ----- */
+  const renderedTabs = new Set();
+  function renderTab(name) {
+    if (renderedTabs.has(name)) return;
+    renderedTabs.add(name);
+    if (name === "overview") {
+      renderTopStory();
+      renderKpis();
+    } else if (name === "capital") {
+      renderCapexSankey("all");
+      renderCostStack("costStack");
+      renderDeals();
+      renderPlays();
+      renderIrrCalculator();
+      renderCapexChart();
+      renderVacancyChart();
+      renderOfftakeCoverage();
+      renderCircularFinancing("all");
+      renderPowerToRevenueYield();
+    } else if (name === "buildout") {
+      renderFunnel();
+      renderStackLayers();
+      renderSubstrateBottlenecks();
+      renderOpticalRoadmap();
+      renderEquipmentLeadTimes();
+      renderCostStack("costStackEngineer");
+      renderScorecard();
+      renderLeadTimeChart();
+      renderBuildoutChart();
+      renderMap();
+      renderMegaProjects();
+      renderBuildabilityMovements();
+      renderPhantomLoad();
+      renderTimeToPower();
+      renderPerfPerWattChart();
+    } else if (name === "grid") {
+      renderIsoTable();
+      renderRegList();
+      renderUtilList();
+      renderDrList();
+      renderDemandGapChart();
+      renderRateImpactChart();
+      renderCumDeficitChart();
+      renderTurbineSlots();
+      renderPowerSourceMixChart();
+    } else if (name === "tokens") {
+      renderTokenJourney();
+      renderEnergyBridge();
+      renderSplitChart();
+      renderTokenVolumeChart();
+      renderDisclosedTokens();
+      renderPriceCompressionChart();
+      renderCostPerTaskChart();
+    }
+  }
+
+  function showTab(name) {
+    if (!name) name = 'overview';
+    document.querySelectorAll('section.tab-content').forEach(function (s) {
+      s.classList.toggle('active', s.dataset.tab === name);
+    });
+    document.querySelectorAll('nav.tabs a').forEach(function (a) {
+      a.classList.toggle('active', a.dataset.tab === name);
+    });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    document.title = 'US AI Infrastructure Monitor · ' + name;
+    renderTab(name);
+    motionObserveAll();         // catch any cards/numbers newly rendered for this tab
+  }
+  // Legacy hash aliases — anyone with a /#investor bookmark from earlier WIP
+  // gets routed to the right tab under the new name.
+  const HASH_ALIASES = { investor: "capital", engineer: "buildout", policy: "grid" };
+  function fromHash() {
+    let h = (location.hash || '#overview').slice(1);
+    if (HASH_ALIASES[h]) h = HASH_ALIASES[h];
+    return h;
+  }
+
+  /* ----- Theme (dark/light) ----- */
+  const THEME_KEY = "us-dc-theme";
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+  function toggleTheme() {
+    const current = localStorage.getItem(THEME_KEY) || "dark";
+    const next = current === "light" ? "dark" : "light";
+    localStorage.setItem(THEME_KEY, next);
+    applyTheme(next);
+    // Destroy & rebuild charts so text + grid colors pick up the new theme
+    if (typeof _charts !== "undefined") {
+      for (const id in _charts) {
+        if (_charts[id] && typeof _charts[id].destroy === "function") {
+          try { _charts[id].destroy(); } catch (_) {}
+        }
+        delete _charts[id];
+      }
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart"].forEach(fn => {
+        if (typeof window[fn] === "function") window[fn]._done = false;
+        try { eval(fn)._done = false; } catch(_) {}
+      });
+      if (typeof renderedTabs !== "undefined" && renderedTabs.clear) renderedTabs.clear();
+      // Re-trigger render for current tab
+      const cur = (location.hash || "#overview").slice(1);
+      if (typeof showTab === "function") showTab(cur);
+    }
+  }
+  applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+  (function () {
+    const btn = document.getElementById("themeToggle");
+    if (btn) btn.addEventListener("click", toggleTheme);
+  })();
+
+  /* ----- Brand monograms (operator logos) ----- */
+  const BRAND_DEFS = {
+    // Tickers
+    AMZN: { brand: "aws",       letter: "a" },
+    MSFT: { brand: "microsoft", letter: "M" },
+    GOOGL:{ brand: "google",    letter: "G" },
+    META: { brand: "meta",      letter: "M" },
+    ORCL: { brand: "oracle",    letter: "O" },
+    CRWV: { brand: "coreweave", letter: "C" },
+    NBIS: { brand: "nebius",    letter: "N" },
+    APLD: { brand: "applied",   letter: "A" },
+    NVDA: { brand: "nvidia",    letter: "N" },
+    // Company-name keys
+    "Google":    { brand: "google",    letter: "G" },
+    "Microsoft": { brand: "microsoft", letter: "M" },
+    "Meta":      { brand: "meta",      letter: "M" },
+    "Crusoe":    { brand: "other",     letter: "C" }
+  };
+  function brandFor(key) {
+    return BRAND_DEFS[key] || { brand: "other", letter: String(key).charAt(0) };
+  }
+  function brandMark(key) {
+    const b = brandFor(key);
+    return '<span class="brand-mark b-' + b.brand + '">' + b.letter + '</span>';
+  }
+
+  /* ----- Motion: scroll-triggered fade-in + animated number counters ----- */
+  function animateNumber(el) {
+    const target = el.getAttribute("data-target");
+    if (!target) return;
+    const prefix = target.startsWith("$") ? "$" : "";
+    const numericTarget = parseFloat(target.replace("$", ""));
+    const isInt = !target.includes(".");
+    const duration = 1400;
+    const t0 = performance.now();
+    function step(now) {
+      const t = Math.min((now - t0) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);  // easeOutCubic
+      const current = numericTarget * eased;
+      el.textContent = prefix + (isInt ? Math.round(current) : current.toFixed(1));
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  let _fadeObserver = null, _numObserver = null;
+  function motionObserveAll() {
+    if (!("IntersectionObserver" in window)) return;
+    if (!_fadeObserver) {
+      _fadeObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-in");
+            _fadeObserver.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.05, rootMargin: "0px 0px -20px 0px" });
+    }
+    if (!_numObserver) {
+      _numObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting && e.target.hasAttribute("data-target")) {
+            animateNumber(e.target);
+            _numObserver.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.3 });
+    }
+    // Fade-in candidates — apply class only once each, then observe
+    document.querySelectorAll(
+      ".stub-card, .so-what, .hero-headline, .persona-picker a"
+    ).forEach(function (el) {
+      if (!el.classList.contains("fade-init")) {
+        el.classList.add("fade-init");
+        _fadeObserver.observe(el);
+      }
+    });
+    // Number counters — observe any not-yet-observed targets
+    document.querySelectorAll(".num[data-target]").forEach(function (el) {
+      _numObserver.observe(el);
+    });
+  }
+
+  showTab(fromHash());          // initial activation also renders the active tab
+  motionObserveAll();           // wire up fade-ins + KPI counters
+  window.addEventListener('hashchange', function () { showTab(fromHash()); });
+</script>
+
+<!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
+<button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  Ask agent
+</button>
+<div class="chat-panel" id="chatPanel" role="dialog" aria-label="Dashboard assistant">
+  <div class="chat-head">
+    <div class="ic">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <div>
+      <h4>Agent</h4>
+      <p>Ask about the data on this dashboard</p>
+    </div>
+    <button class="chat-close" id="chatClose" aria-label="Close assistant">&times;</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-foot">
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask a question&hellip;"></textarea>
+      <button class="chat-send" id="chatSend" aria-label="Send message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>
+      </button>
+    </div>
+    <div class="chat-disclaim">Answers are generated and may be imprecise &mdash; verify against the dashboard.</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CHAT ASSISTANT — v2
+   When CHAT_CONFIG.apiEndpoint is set to a deployed Cloudflare
+   Worker URL (chatbot-worker.js), the panel sends each question
+   to Anthropic Claude with the dashboard's DATA as context.
+   Until then, the panel shows a setup notice and a few canned
+   scripted answers for common questions.
+   ============================================================ */
+(function () {
+  const CHAT_CONFIG = {
+    apiEndpoint: "https://datacenter-monitor-chat.vijaysachdeva.workers.dev"
+  };
+
+  const el = (id) => document.getElementById(id);
+  const fab = el("chatFab"), panel = el("chatPanel"), bodyEl = el("chatBody");
+  const input = el("chatInput"), sendBtn = el("chatSend"), closeBtn = el("chatClose");
+  if (!fab || !panel || typeof DATA === "undefined") return;
+
+  const history = [];
+  let busy = false;
+
+  /* Compact, structured summary of all 5 tabs — fed to Claude as context. */
+  function dataContext() {
+    const L = [];
+    L.push("US AI Infrastructure Monitor — data as of " + DATA.lastUpdated + ".");
+
+    L.push(""); L.push("=== OVERVIEW (headline KPIs) ===");
+    DATA.kpis.forEach(k => L.push("- " + k.label + ": " + k.value + " " + k.unit + (k.sub ? " (" + k.sub + ")" : "")));
+    if (DATA.topStory) L.push("Top story (" + DATA.topStory.date + " · " + DATA.topStory.src + "): " + DATA.topStory.text);
+
+    L.push(""); L.push("=== INVESTOR ===");
+    const cc = DATA.companyCapex;
+    L.push("2026 capex by operator (USD bn): " + cc.companies.map((c, i) => c + " $" + cc.values[i]).join(", ") + ". Total ~$" + cc.values.reduce((a,b)=>a+b,0) + "B.");
+    const cs = DATA.costStack;
+    L.push("Cost to build 1 MW of AI capacity (USD M, illustrative): " + cs.layers.map(l => l.name + " $" + l.value).join(", ") + ". Facility subtotal $" + cs.facilitySubtotal + "M, all-in $" + cs.allInTotal + "M.");
+    L.push("Recent deals: " + DATA.deals.map(d => d.size + " " + d.parties + " (" + d.theme + ")").join("; ") + ".");
+    L.push("Public-market plays: " + DATA.publicMarketPlays.map(p => p.thesis + ": " + p.tickers.join("/")).join("; ") + ".");
+    const vt = DATA.vacancyTrend;
+    L.push("Primary-market vacancy " + vt.years[0] + " → " + vt.years[vt.years.length-1] + ": " + vt.values[0] + "% → " + vt.values[vt.values.length-1] + "% (compression).");
+    L.push("IRR scenarios (100 MW build): " + DATA.irrScenarios.scenarios.map(s => s.name + " (lease $" + s.lease + "/kW-mo, " + s.tenant + " tenant)").join("; ") + ". Assumptions: " + DATA.irrScenarios.assumptions);
+    if (DATA.capexFlow) L.push("Capex flow (Sankey) — modeled split of cited 2026 guidance, summed across the 6 operators: " + Object.keys(DATA.capexFlow.cats).map(k => DATA.capexFlow.cats[k].label + " $" + DATA.capexFlow.companies.reduce((s,co)=>s+co.buckets.filter(b=>b.cat===k).reduce((x,b)=>x+b.value,0),0) + "B").join(", ") + ".");
+    if (DATA.offtakeCoverage) L.push("Offtake coverage (modeled band — is capex demand-pulled?): " + DATA.offtakeCoverage.segments.map(s => s.label + " " + s.band).join(", ") + ". Signed-commitment ledger (primary RPO/leases): " + DATA.offtakeCoverage.ledger.map(r => r.party + " " + r.metric).join("; ") + ".");
+    if (DATA.circularFinancing) L.push("Circular-financing loop (each edge cited): " + DATA.circularFinancing.edges.map(e => e.from + "->" + e.to + " " + (e.v==null?"(qual)":"$"+e.v+"B") + " " + e.kind).join("; ") + ".");
+    if (DATA.powerToRevenueYield) { const y = DATA.powerToRevenueYield; L.push("Power-to-revenue yield (modeled): $" + y.costIn.allInPerMw + "M/MW build; facility-lease payback ~" + y.leaseLane.paybackYrs + " yr vs token-monetization ceiling ~" + y.tokenLane.paybackDays + " days (~" + y.spread.ratioX + "x gap)."); }
+
+    L.push(""); L.push("=== ENGINEER ===");
+    const f = DATA.powerBreakdown.funnel;
+    L.push("Interconnection funnel: " + f.stages.map((s, i) => s + " " + f.values[i] + " GW").join(" → ") + ".");
+    L.push("Lead time by region (years to energization): " + DATA.markets.map(m => m.name + " " + m.lead).join(", ") + ".");
+    const eq = DATA.equipmentLeadTimes;
+    L.push("Equipment lead times: " + eq.items.map(i => i.name + " " + i.range + " [" + i.severity + "]").join("; ") + ".");
+    const hm = DATA.hyperscalerMW;
+    L.push("Self-built capacity MW (operational/pipeline): " + hm.companies.map((c, i) => c + " " + hm.operational[i] + "/" + hm.pipeline[i]).join(", ") + ".");
+    const sc = DATA.siteScorecards;
+    const scW = sc.factors.reduce((a, f) => a + (f.weight || 0), 0) || 1;
+    const ranked = sc.markets.map(m => ({ name: m.name, avg: m.scores.reduce((a, s, i) => a + s * (sc.factors[i].weight || 0), 0) / scW })).sort((a,b)=>b.avg-a.avg);
+    L.push("Site readiness ranked (modeled, weighted " + sc.factors.map(f => f.label).join("/") + "): " + ranked.map(r => r.name + " " + r.avg.toFixed(1)).join(", ") + ".");
+    L.push("Buildability movements: " + (DATA.buildabilityMovements || []).map(e => e.date + " " + e.market + " " + e.direction + " — " + e.headline).join("; ") + ".");
+
+    L.push(""); L.push("=== ENERGY & POLICY ===");
+    const dp = DATA.demandProjection;
+    L.push("Annual DC demand GW added " + dp.years.join("/") + ": " + dp.yoyDemandGrowthGW.join("/") + ". New firm gen for DC: " + dp.newFirmGenForDC.join("/") + ".");
+    L.push("Projected residential rate increase by 2030: " + DATA.rateImpacts.states.map(s => s.state + " +" + s.increase + "%").join(", ") + ".");
+    L.push("ISO constraints: " + DATA.isos.map(i => i.name + " (" + i.region + ", queue " + i.queueYears + ", " + i.severity + ")").join("; ") + ".");
+    L.push("Regulatory actions: " + DATA.regulatoryActions.map(r => r.jurisdiction + " — " + r.action + " [" + r.status + "]").join("; ") + ".");
+    L.push("Utility actions: " + DATA.utilityActions.map(u => u.utility + " — " + u.action + " (" + u.meta + ")").join("; ") + ".");
+    L.push("Demand response: " + DATA.demandResponse.map(d => d.company + " " + d.mw + " (" + d.type + ")").join("; ") + ".");
+
+    L.push(""); L.push("=== TOKEN ECONOMICS ===");
+    const tv = DATA.tokenVolume;
+    const lastIdx = tv.quarters.length - 1;
+    L.push("Token volume " + tv.quarters[lastIdx] + " (T tokens/quarter, modeled): " + tv.providers.map(p => p.name + " " + p.values[lastIdx]).join(", ") + ".");
+    const pc = DATA.priceCompression;
+    L.push("Output price points ($/1M tokens, by launch year): " + pc.models.map(m => m.name + " $" + m.price + " (" + m.year.toFixed(1) + ")").join(", ") + ".");
+    L.push("Tokens × energy bridge: " + DATA.tokenEnergyBridge.map(c => c.value + " " + c.label).join(" → ") + ".");
+    const its = DATA.inferenceTrainingSplit;
+    L.push("Inference vs training: " + its.computeHours.inference + "/" + its.computeHours.training + "% compute hours, " + its.spend.inference + "/" + its.spend.training + "% spend.");
+    if (DATA.costPerTask) L.push("Effective cost per task (modeled basket): sticker $/token fell ~" + DATA.costPerTask.stickerDropX + "x, but reasoning/agentic models burn far more tokens per task — so cost-to-COMPLETE coding/reasoning tasks fell far less (or rose) while simple chat got much cheaper.");
+
+    L.push(""); L.push("=== BUILDABILITY & POWER PATHS (Buildout) ===");
+    if (DATA.phantomLoad) L.push("Phantom-load reconciliation: " + DATA.phantomLoad.stages.map(s => s.label + " " + s.gw + "GW").join(" -> ") + " (modeled haircuts; ~" + DATA.phantomLoad.stages[DATA.phantomLoad.stages.length-1].gw + " GW buildable of the " + DATA.phantomLoad.queuedGW + " GW headline queue).");
+    if (DATA.timeToPower) L.push("Time-to-power by procurement path (months to first power): " + DATA.timeToPower.items.map(i => i.name + " " + i.range + " [" + i.firmLabel + "]").join("; ") + ".");
+    if (DATA.perfPerWatt) L.push("Compute-per-watt (dense FP16/W index, A100=100; modeled cross-gen): " + DATA.perfPerWatt.gens.map(g => g.gen + " " + g.idx).join(", ") + ".");
+    if (DATA.cumulativeDeficit) L.push("Cumulative demand-supply deficit (GW, modeled from demandProjection): " + DATA.cumulativeDeficit.values.join("/") + " -> ~" + DATA.cumulativeDeficit.values[DATA.cumulativeDeficit.values.length-1] + " GW standing shortfall by 2030.");
+    if (DATA.turbineSlots) L.push("Gas-turbine order books (GW, primary OEM earnings): " + DATA.turbineSlots.oems.map(o => o.name + " backlog " + o.backlog + " + slots " + o.slots + " (earliest new slot " + o.firstSlot + ")").join("; ") + ". US-DC share modeled.");
+    if (DATA.powerSourceMix) L.push("New generation for DC by source (TWh to 2030, gas-led; nuclear mostly 2030+): " + DATA.powerSourceMix.sources.map(s => s.name + " " + s.values[1]).join(", ") + ".");
+
+    return L.join("\n");
+  }
+
+  function addMsg(text, cls) {
+    const d = document.createElement("div");
+    d.className = "chat-msg " + cls;
+    d.textContent = text;
+    bodyEl.appendChild(d);
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+    return d;
+  }
+  function addTyping() {
+    const d = document.createElement("div");
+    d.className = "chat-msg bot chat-dots";
+    d.innerHTML = "<span></span><span></span><span></span>";
+    bodyEl.appendChild(d);
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+    return d;
+  }
+
+  /* Minimal scripted fallback so the panel still answers common questions
+     before the user has deployed the Cloudflare Worker. */
+  function scriptedAnswer(q) {
+    const s = q.toLowerCase();
+    const has = (...t) => t.some(x => s.indexOf(x) !== -1);
+    if (has("power demand", "41 gw", "how much power", "load"))
+      return "US data center power demand is ~41 GW in 2026 (vs 31 GW in 2025), projected to grow to ~100 GW by 2030. See Overview tab.";
+    if (has("capex", "spending", "808", "200b", "190b"))
+      return "Major operators' 2026 capex totals ~$808B: AWS $200B, Microsoft $190B, Google $185B, Meta $150B, Oracle $50B, CoreWeave $33B. See Investor tab.";
+    if (has("cost", "/mw", "per mw", "build cost"))
+      return "Building one MW of AI capacity costs ~$42M all-in (illustrative): $11M facility (shell, power, cooling) + $31M compute (servers + GPUs). GPUs are ~$23M — the largest single layer. See Investor or Engineer tab.";
+    if (has("vacancy"))
+      return "Primary-market vacancy is at a record-low 1.4%, down from ~9.5% in 2019. Landlord pricing power has shifted decisively. See Investor tab.";
+    if (has("transformer", "lead time", "equipment"))
+      return "High-voltage transformer lead times have stretched to 36-60 months — the most binding constraint. Switchgear 18-30 mo, generators 12-24 mo, GPUs 6-12 mo. See Engineer tab.";
+    if (has("token", "$/token", "price compression", "openai", "anthropic", "claude", "gpt"))
+      return "Token volume has grown ~5× over 18 months. Output prices have dropped ~10× (GPT-4 $60/1M → GPT-4.1 $8/1M; Llama 70B hosted at $0.60). See Token Economics tab.";
+    if (has("rate", "electricity cost", "virginia"))
+      return "Modeled retail rate increases by 2030: Virginia +57%, Texas +28%, Ohio +22%, Georgia +18%, Arizona +15%. See Energy & Policy tab.";
+    return null;
+  }
+
+  async function liveAnswer(q) {
+    const res = await fetch(CHAT_CONFIG.apiEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question: q,
+        history: history.slice(-12),
+        context: dataContext()
+      })
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const j = await res.json();
+    return ((j.answer || j.reply || "") + "").trim() || "No answer was returned.";
+  }
+
+  async function respond(q) {
+    q = (q || "").trim();
+    if (busy || !q) return;
+    busy = true; sendBtn.disabled = true;
+    addMsg(q, "user");
+    history.push({ role: "user", content: q });
+    input.value = ""; autosize();
+    const typing = addTyping();
+    try {
+      let answer;
+      if (CHAT_CONFIG.apiEndpoint) {
+        answer = await liveAnswer(q);
+      } else {
+        await new Promise(r => setTimeout(r, 280));
+        answer = scriptedAnswer(q)
+          || "I can answer common questions about this dashboard (power demand, capex, costs, vacancy, lead times, tokens, rates). For more open-ended questions, the live AI assistant kicks in once the Cloudflare Worker backend is deployed — see chatbot-worker.js for one-time setup.";
+      }
+      typing.remove();
+      addMsg(answer, "bot");
+      history.push({ role: "assistant", content: answer });
+    } catch (err) {
+      typing.remove();
+      addMsg("Sorry — I couldn't reach the assistant right now." + (CHAT_CONFIG.apiEndpoint ? " Check that the Cloudflare Worker is deployed and the API key is set." : ""), "note");
+    }
+    busy = false; sendBtn.disabled = false;
+    input.focus();
+  }
+
+  function autosize() {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 92) + "px";
+  }
+  function openPanel() {
+    panel.classList.add("open");
+    fab.style.display = "none";
+    if (!bodyEl.children.length) {
+      const greet = CHAT_CONFIG.apiEndpoint
+        ? "Hi — ask me anything about US data center power, capex, deployment, bottlenecks or token economics shown on this dashboard."
+        : "Hi — I'm running in scripted mode (Cloudflare Worker backend not deployed yet). Try asking about power demand, capex, costs, vacancy, lead times, tokens or rate impacts.";
+      addMsg(greet, "bot");
+    }
+    setTimeout(() => input.focus(), 50);
+  }
+  function closePanel() {
+    panel.classList.remove("open");
+    fab.style.display = "";
+  }
+
+  fab.addEventListener("click", openPanel);
+  closeBtn.addEventListener("click", closePanel);
+  sendBtn.addEventListener("click", () => respond(input.value));
+  input.addEventListener("input", autosize);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); respond(input.value); }
+  });
+})();
+</script>
+
+</body>
+</html>
