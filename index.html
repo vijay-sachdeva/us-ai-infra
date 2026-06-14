@@ -3701,11 +3701,6 @@
     renderMap._view = renderMap._view || "pipeline";  // default view
 
     const typeColor   = { constrained: "#d4452f", growth: "#1d4ed8", emerging: "#15803d" };
-    // Latest buildability-movement direction per market → trend dot on the bubble
-    const dirColor    = { easing: "#15803d", tightening: "#d4452f", stalled: "#d4892f" };
-    const moveDir     = {};
-    [...(DATA.buildabilityMovements || [])].sort((a, b) => a.date < b.date ? 1 : -1)
-      .forEach(e => { if (!(e.market in moveDir)) moveDir[e.market] = e.direction; });
     const isPipeline  = renderMap._view === "pipeline";
     const sizeField   = isPipeline ? "pipeline" : "operational";
     // pipeline values are MW (large); operational are GW (small). Normalize for max.
@@ -3817,19 +3812,10 @@
             .attr("class", "map-city-label")
             .text(m.name.replace(", AZ", "").replace(", IL", "").replace(", GA", "").replace(", TX", ""));
 
-          const dir = moveDir[m.name];
-          if (dir) {
-            g.append("circle")
-              .attr("cx", x + r * 0.74).attr("cy", y - r * 0.74).attr("r", 5)
-              .attr("fill", dirColor[dir] || "#64748b")
-              .attr("stroke", "#fff").attr("stroke-width", 1.6);
-          }
-
           g.on("mouseenter", function (event) {
               tip.innerHTML = "<b>" + m.name + "</b>" +
                 m.operational + " GW operational · " + m.pipeline.toLocaleString() + " MW pipeline" +
-                '<br><span class="tip-muted">~' + m.lead + ' yr to power · ' + m.status + '</span>' +
-                (dir ? '<br><span class="tip-muted">buildability trend: ' + dir + '</span>' : '');
+                '<br><span class="tip-muted">~' + m.lead + ' yr to power · ' + m.status + '</span>';
               tip.style.display = "block";
               moveTip(event);
             })
