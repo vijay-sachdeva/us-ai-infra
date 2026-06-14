@@ -636,6 +636,14 @@
     .leadtime-name { font-size: 11.5px; }
   }
 
+  /* Circular-financing takeaways (so-what callouts) */
+  .cf-takeaways { margin: 12px 0 6px; display: grid; gap: 8px; }
+  .cf-take {
+    font-size: 12.5px; line-height: 1.5; color: var(--ink-2);
+    padding: 7px 0 7px 12px; border-left: 3px solid var(--accent);
+  }
+  .cf-take b { color: var(--ink); }
+
   /* Circular-financing map: flow legend + cited edge ledger */
   .cf-legend {
     display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
@@ -1236,7 +1244,7 @@
 
       <div class="so-what">
         <label>So what</label>
-        <h3>~$808B of capex is chasing a supply-constrained market. The bottleneck is power, not demand — winners will own the megawatts.</h3>
+        <h3>~$848B of capex is chasing a supply-constrained market. The bottleneck is power, not demand — winners will own the megawatts.</h3>
       </div>
 
       <div class="stub-grid">
@@ -1275,7 +1283,7 @@
       <!-- Full-width: Offtake coverage — demand-pulled vs supply-pushed -->
       <div class="stub-card">
         <h4>Offtake coverage — is 2026 capex demand-pulled?</h4>
-        <div class="note">Share of the ~$808B capex + named GW pipeline backed by a <b>signed long-term offtake</b> (hyperscaler lease, AI-lab take-or-pay, cloud RPO) &middot; backlog/RPO is <b>primary</b>, the coverage share is a <b>modeled band</b></div>
+        <div class="note">Share of the ~$848B capex + named GW pipeline backed by a <b>signed long-term offtake</b> (hyperscaler lease, AI-lab take-or-pay, cloud RPO) &middot; backlog/RPO is <b>primary</b>, the coverage share is a <b>modeled band</b></div>
         <div id="offtakeCoverage" style="margin-top:12px"></div>
         <div class="sc-method" id="offtakeMethod"></div>
       </div>
@@ -1284,6 +1292,11 @@
       <div class="stub-card">
         <h4>The circular-financing loop — who funds, buys from, and lends to whom</h4>
         <div class="note">A directed counterparty map of 2025-26 AI-infra commitments &middot; each edge individually cited &middot; the map is the insight &mdash; no score, not advice</div>
+        <div class="cf-takeaways">
+          <div class="cf-take" style="border-left-color:#1d4ed8"><b>Demand is partly recycled.</b> NVIDIA takes equity in OpenAI (up to $100B), CoreWeave (~7%) and Anthropic ($10B) — who then commit to buy NVIDIA compute. Some of the "demand" is the vendor's own capital cycling back.</div>
+          <div class="cf-take" style="border-left-color:#0d9488"><b>One node anchors the whole loop.</b> OpenAI alone carries ~$1T+ of disclosed compute commitments (Oracle $300B, Microsoft $250B, Broadcom ~$350B, AMD ~$90B, NVIDIA ~$100B, AWS $38B) — a stumble there cascades to every supplier.</div>
+          <div class="cf-take" style="border-left-color:#d97706"><b>The chips are becoming collateral.</b> Private credit — Apollo's $35B Broadcom XPV, Blackstone's $8.5B CoreWeave loan — now lends against the GPUs themselves, a new financialization layer beneath the equity and compute deals.</div>
+        </div>
         <div class="map-view-toggle" id="cfViewToggle" role="tablist">
           <button class="map-view-btn active" data-cfview="all"    type="button">All flows</button>
           <button class="map-view-btn"        data-cfview="equity" type="button">Equity</button>
@@ -1666,8 +1679,8 @@
         sub: "All US data centers · facility-level load",
         delta: "<b class='up'>+32%</b> vs. 31 GW in 2025",
         src: { label: "Goldman Sachs Research", tier: "analyst" } },
-      { label: "Major operators capex", value: "$808", unit: "B",
-        sub: "Six largest operators · projected 2026 spend",
+      { label: "Major operators capex", value: "$848", unit: "B",
+        sub: "Eight largest operators · projected 2026 spend",
         delta: "<b class='up'>~75% AI-related</b> · up sharply on the AI buildout",
         src: { label: "Company 2026 guidance", tier: "analyst" } },
       { label: "Under construction", value: "6.0", unit: "GW",
@@ -2139,7 +2152,7 @@
     },
 
     /* ----- Offtake coverage (Capital) — is 2026 capex demand-pulled or supply-pushed? -----
-       Of the headline ~$808B major-operator capex + named GW pipeline, what share is
+       Of the headline ~$848B major-operator capex + named GW pipeline, what share is
        backed by a SIGNED long-term offtake (hyperscaler lease, AI-lab take-or-pay, cloud
        RPO/backlog) vs partially-disclosed vs speculative/merchant build?
        Backlog/RPO + lease terms = PRIMARY (company filings/IR press). The coverage SHARE
@@ -2191,7 +2204,7 @@
           note: "Hyperscaler builds for OWN demand — no external offtake; demand is internal, not a signed third-party lease.",
           src: { label: "Meta + Entergy 5 GW (megaProjects)", tier: "primary" } }
       ],
-      method: "Segments are a MODELED band: numerator = sum of disclosed long-term offtake (cloud RPO/backlog + named take-or-pay leases above); denominator = the modeled ~$808B major-operator 2026 capex plus the named GW pipeline. RPO/backlog and lease terms are PRIMARY (filings/IR). The contracted SHARE is an estimate — shown as a band, not a precise %. Self-built hyperscaler GW (e.g. Meta Hyperion) is demand-pulled by internal need but carries no external offtake, so it sits in 'speculative/merchant' for offtake-coverage purposes."
+      method: "Segments are a MODELED band: numerator = sum of disclosed long-term offtake (cloud RPO/backlog + named take-or-pay leases above); denominator = the modeled ~$848B major-operator 2026 capex plus the named GW pipeline. RPO/backlog and lease terms are PRIMARY (filings/IR). The contracted SHARE is an estimate — shown as a band, not a precise %. Self-built hyperscaler GW (e.g. Meta Hyperion) is demand-pulled by internal need but carries no external offtake, so it sits in 'speculative/merchant' for offtake-coverage purposes."
     },
 
     /* ----- Circular-financing & counterparty map (Capital) -----
