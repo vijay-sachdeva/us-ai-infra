@@ -2352,10 +2352,10 @@
     },
 
     powerToRevenueYield: {
-      // Reconciles two numbers ALREADY on this page that never meet:
-      //   DATA.costStack.allInTotal  = $42M/MW all-in build cost
-      //   DATA.tokenEnergyBridge[3]  = ~$200K of API revenue per MW-hr
-      // Both inputs inherit their existing citations. The payback / yield SPREAD is MODELED arithmetic.
+      // Reconciles cited numbers on this page: build cost ($42M/MW, costStack) vs what a MW
+      // earns. A MW monetized as tokens is worth what its tokens SELL for — 200M tokens/MW-hr
+      // (energy bridge) × output price — so payback is entirely price-dependent. Modeled
+      // arithmetic on cited inputs; not a return forecast.
       costIn: {
         allInPerMw: 42,
         facilityPerMw: 11,
@@ -2369,17 +2369,17 @@
         src: { label: "CBRE — North America Data Center Trends H2 2025 ($196.25/kW-mo, 250-500 kW)", tier: "analyst" }
       },
       tokenLane: {
-        revPerMwHr: 200,
-        revPerMwYr: 1752,
-        paybackDays: 8.8,
-        src: { label: "Tokens x energy bridge (this page) — provider pricing pages; ~$1/1M-token output", tier: "primary" }
+        tokensPerMwHrM: 200,   // 200M tokens / MW-hr (cited energy bridge)
+        prices: [
+          { label: "Commodity ~$1/1M (OSS-hosted)", price: 1,  revPerMwYr: 1.75, paybackYrs: 24.0 },
+          { label: "Mid ~$5/1M",                     price: 5,  revPerMwYr: 8.76, paybackYrs: 4.8 },
+          { label: "Frontier ~$15/1M",               price: 15, revPerMwYr: 26.3, paybackYrs: 1.6 }
+        ],
+        src: { label: "Tokens × energy bridge (200M tok/MW-hr, this page) × provider output prices", tier: "primary" }
       },
-      spread: {
-        ratioX: 744,
-        note: "The gap between an ~18-year facility-lease payback and an ~9-day token-monetization payback is not a real return — it is the over- vs under-build debate stated as arithmetic. The token ceiling assumes 100% sell-through at peak 2025-2026 output prices, zero opex and no price compression; the lease rate is what wholesale buyers actually sign. Real economics sit somewhere between the two lanes, and where they land decides whether today's $42M/MW is over- or under-built.",
-        tier: "modeled"
-      },
-      formula: "lease payback = $42M / ($196.25/kW-mo x 1,000 kW x 12) = 17.8 yr  -  token ceiling payback = $42M / ($200K/MW-hr x 8,760 hr) = 8.8 days  -  spread = 1,752 / 2.36 = ~744x"
+      takeaway: "A megawatt monetized as tokens is worth exactly what its tokens sell for. At commodity prices (~$1/1M) it pays back in ~24 years — slower than the ~18-year facility lease. At frontier/reasoning prices (~$15/1M) it pays back in ~1.6 years. Whether today's $42M/MW is over- or under-built hinges on the token price it captures, not a fixed multiple.",
+      note: "Modeled arithmetic on cited inputs: revenue/MW-yr = 200M tokens/MW-hr × (output $/1M) × 8,760 hr; payback = $42M ÷ revenue/MW-yr. Gross, pre-opex, 100% sell-through.",
+      tier: "modeled"
     },
 
     /* ----- Compute-per-watt trend (Buildout) — the efficiency counterweight to the demand story -----
@@ -2502,9 +2502,9 @@
     },
     tokenEnergyBridge: [
       { value: "1M tokens",   label: "Input unit",            note: "One million tokens of inference output." },
-      { value: "~5 Wh",       label: "Electricity",           note: "Energy consumed on a frontier model at typical batch size." },
+      { value: "~5 kWh",      label: "Electricity",           note: "Energy for ~1M tokens of inference output on a frontier model — about 0.005 Wh per token, so ~2 Wh for a typical answer." },
       { value: "~200M",       label: "Tokens per MW-hr",      note: "Inverse: a 1-MW server can serve ~200M tokens in an hour." },
-      { value: "~$1 → $200K", label: "Revenue per MW-hr",    note: "At ~$1/1M-token output price, that's ~$200K of API revenue per MW-hr — vs. ~$50/MW-hr industrial power cost." }
+      { value: "~$200",       label: "Revenue per MW-hr",     note: "At ~$1 per 1M output tokens, 200M tokens ≈ $200 of API revenue per MW-hr — vs. ~$50/MW-hr industrial power (~4× spread). Frontier-priced tokens (~$15/1M) lift this to ~$3,000/MW-hr." }
     ],
     inferenceTrainingSplit: {
       computeHours: { inference: 92, training: 8 },
@@ -3217,7 +3217,12 @@
   function renderPowerToRevenueYield() {
     if (!$("powerToRevenueYield") || !DATA.powerToRevenueYield) return;
     const d = DATA.powerToRevenueYield;
-    const ci = d.costIn, la = d.leaseLane, lb = d.tokenLane, sp = d.spread;
+    const ci = d.costIn, la = d.leaseLane, tl = d.tokenLane;
+    const priceRows = tl.prices.map(p => `
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:12px;padding:5px 0;border-top:1px solid var(--line)">
+        <span style="color:var(--ink-2)">${p.label}</span>
+        <span style="font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap">$${p.revPerMwYr}M/MW-yr · <b style="color:${p.paybackYrs <= la.paybackYrs ? 'var(--green)' : 'var(--amber)'}">~${p.paybackYrs} yr</b></span>
+      </div>`).join("");
 
     const html = `
       <div class="stack-row">
@@ -3225,41 +3230,37 @@
           <div class="stack-name"><span class="stack-num">1</span>Cost in <span class="stack-what">— what one MW of AI capacity costs to build</span></div>
           <span class="stack-pill" style="background:var(--accent-soft);color:var(--accent)">$${ci.allInPerMw}M / MW</span>
         </div>
-        <div class="stack-evidence">Facility shell $${ci.facilityPerMw}M (developer-paid) + compute $${ci.computePerMw}M (GPUs &amp; servers, consumer-paid) = $${ci.allInPerMw}M all-in. <span class="stack-src">— ${ci.src.label}</span></div>
+        <div class="stack-evidence">Facility shell $${ci.facilityPerMw}M (developer-paid) + compute $${ci.computePerMw}M (GPUs &amp; servers) = $${ci.allInPerMw}M all-in. <span class="stack-src">— ${ci.src.label}</span></div>
       </div>
 
       <div class="stack-row">
         <div class="stack-head">
-          <div class="stack-name"><span class="stack-num">2</span>Revenue out <span class="stack-what">— two ways to monetize the same megawatt</span></div>
+          <div class="stack-name"><span class="stack-num">2</span>Revenue out <span class="stack-what">— lease the megawatt, or sell its tokens</span></div>
         </div>
         <div class="p2r-lanes">
           <div class="p2r-lane">
             <div class="p2r-lane-top"><span class="p2r-lane-name">Facility lease</span><span class="stack-pill ok">$${la.revPerMwYr}M / MW-yr</span></div>
-            <div class="p2r-lane-sub">@ $${la.ratePerKwMo}/kW-mo, the rate wholesale buyers actually sign.</div>
+            <div class="p2r-lane-sub">@ $${la.ratePerKwMo}/kW-mo (what wholesale buyers sign) → ~${la.paybackYrs} yr payback on $${ci.allInPerMw}M/MW.</div>
             <div class="p2r-lane-src">${la.src.label}</div>
           </div>
           <div class="p2r-lane">
-            <div class="p2r-lane-top"><span class="p2r-lane-name">Token monetization <span class="p2r-ceil">ceiling</span></span><span class="stack-pill warn">$${(lb.revPerMwYr/1000).toFixed(2)}B / MW-yr</span></div>
-            <div class="p2r-lane-sub">@ $${lb.revPerMwHr}K/MW-hr &times; 8,760 hr at 100% sell-through &mdash; theoretical, not achievable.</div>
-            <div class="p2r-lane-src">${lb.src.label}</div>
+            <div class="p2r-lane-top"><span class="p2r-lane-name">Token monetization</span><span class="stack-pill warn">price-dependent</span></div>
+            <div style="margin:4px 0 2px">${priceRows}</div>
+            <div class="p2r-lane-sub">${tl.tokensPerMwHrM}M tokens/MW-hr × output price, 100% sell-through, gross.</div>
+            <div class="p2r-lane-src">${tl.src.label}</div>
           </div>
         </div>
       </div>
 
       <div class="stack-row">
         <div class="stack-head">
-          <div class="stack-name"><span class="stack-num">3</span>Implied payback spread <span class="stack-what">— gross, pre-opex</span></div>
-          <span class="stack-pill crit">${sp.ratioX}&times; gap <span class="rd-mod" style="margin-left:4px">modeled</span></span>
+          <div class="stack-name"><span class="stack-num">3</span>So what <span class="stack-what">— it rides entirely on token price</span></div>
+          <span class="stack-pill" style="background:var(--accent-soft);color:var(--accent)">modeled</span>
         </div>
-        <div class="p2r-spread">
-          <div class="p2r-spread-cell"><div class="p2r-spread-num ok">~${la.paybackYrs} yr</div><div class="p2r-spread-lbl">facility-lease payback</div></div>
-          <div class="p2r-spread-vs">vs</div>
-          <div class="p2r-spread-cell"><div class="p2r-spread-num warn">~${lb.paybackDays} days</div><div class="p2r-spread-lbl">token-monetization payback</div></div>
-        </div>
-        <div class="stack-evidence" style="margin-top:8px">${sp.note}</div>
+        <div class="stack-evidence">${d.takeaway}</div>
       </div>
 
-      <div class="sc-method"><b>Spread (modeled)</b> &mdash; arithmetic on the two cited inputs above, not a return forecast: ${d.formula}.</div>`;
+      <div class="sc-method"><b>Modeled</b> — ${d.note}</div>`;
 
     $("powerToRevenueYield").innerHTML = html;
   }
