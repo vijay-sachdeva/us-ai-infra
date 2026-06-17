@@ -89,18 +89,18 @@ CONSTRAINTS
 - Use the web_search tool to find fresh news. Prefer primary sources (company press releases, SEC filings, earnings calls) and credible industry outlets (Data Center Dynamics, Data Center Knowledge, Data Center Frontier, Bloomberg, Reuters, WSJ, CNBC, Fortune, S&P Global, Utility Dive).
 - Avoid speculation, opinion, paywalled sources you cannot read, and generic AI-hype coverage with no concrete US data-center hook.
 
-ALWAYS-SIGNIFICANT SUBJECTS — any material announcement from these counts as a TOP STORY candidate (worth swapping the current topStory unless the existing topStory is the same or larger event):
+ALWAYS-SIGNIFICANT SUBJECTS — a material announcement from any of these is a strong TOP STORY candidate:
 - Hyperscalers: Amazon/AWS, Microsoft, Google/Alphabet, Meta, Oracle
-- AI chip makers: NVIDIA, AMD
-- AI-native clouds: CoreWeave, Nebius, Lambda, Crusoe, Applied Digital
-- AI labs: OpenAI, Anthropic, xAI
-- Other AI-infra adjacent: Tesla (Dojo), Broadcom
+- AI chip makers: NVIDIA, AMD; AI-native clouds: CoreWeave, Nebius, Lambda, Crusoe, Applied Digital
+- AI labs: OpenAI, Anthropic, xAI; adjacent: Tesla (Dojo), Broadcom
+Other valid topics: material data-center projects (>100 MW sites, expansions, capex revisions), power/grid news (interconnection, transformers, utility deals), notable analyst reports (Goldman Sachs, CBRE, JLL, Morgan Stanley, SemiAnalysis), major M&A or regulation.
 
-BIAS TOWARD FRESHNESS — if the current topStory is more than ~5 days old and any of the above subjects has a real material announcement in the past week (capex, lease, deal, restart, partnership, major regulatory action affecting them), prefer to swap, even if the dollar amount is smaller than the current topStory. Recency matters because the banner reads as "current."
+ROTATE FOR FRESHNESS — this is the DEFAULT behavior. The banner reads as "current," so prefer a fresh headline over a stale big one:
+- If you find ANY material US AI-infra item dated MORE RECENTLY than the current topStory's date, SWAP to the freshest such item — even if its dollar figure is smaller than the current story. Recency beats magnitude.
+- If the current topStory is more than ~3 days old, you MUST swap to the best material item from the past ~7 days (do not leave it unchanged).
+- Keep the current story (topStory: null) ONLY when, after searching, you genuinely found nothing dated more recently than it — OR the current topStory is itself from the last ~2 days and is clearly the single biggest live story.
 
-Other valid topics: material data-center projects (new sites >100 MW, capacity expansions, capex revisions), power/grid news (interconnection, transformers, utility deals), new analyst reports (Goldman Sachs, CBRE, JLL, Morgan Stanley, SemiAnalysis), major M&A or regulation.
-
-A day with no major news is normal — set lastUpdated to today's date and leave topStory unchanged. But don't be so conservative that the topStory ages out for weeks.
+DO NOT FABRICATE. Every swap must be a real item you found via web_search, with a real publication date and a working source URL. On a genuinely dead news day with nothing newer than the current story, keep it (null) — never invent a headline to force a rotation.
 
 TODAY (UTC): {today_iso}
 CURRENT lastUpdated: {last_updated}
@@ -111,24 +111,33 @@ CURRENT topStory block:
 ```
 
 OUTPUT
-Return STRICTLY a single JSON object (no markdown fences, no commentary before or after) with EXACTLY this shape:
+Return STRICTLY a single JSON object (no markdown fences, no commentary before or after). The PREFERRED shape swaps in a fresh story:
 
 {{
   "lastUpdated": "{today_iso}",
-  "topStory": null,
-  "summary": "Date bump only — no fresh news"
+  "topStory": {{
+    "date": "Mon DD, YYYY",
+    "text": "1-2 factual sentences, no opinion",
+    "src": "Publication",
+    "url": "https://..."
+  }},
+  "summary": "one-line description of the swap"
 }}
 
+ONLY on a genuinely dead news day (nothing dated more recently than the current story), return the keep-current shape:
+
+{{ "lastUpdated": "{today_iso}", "topStory": null, "summary": "Date bump only — no fresher story than current" }}
+
 Field semantics:
-  - "lastUpdated": always set to today's date in YYYY-MM-DD.
-  - "topStory":  null to keep current; otherwise {{ "date": "Mon DD, YYYY", "text": "1-2 factual sentences, no opinion", "src": "Publication", "url": "https://..." }}.
+  - "lastUpdated": always today's date in YYYY-MM-DD.
+  - "topStory":  the fresh story object (preferred — see ROTATE FOR FRESHNESS), or null to keep the current one (dead-day fallback only).
   - "summary": short one-line description of what changed today.
 
 Hard rules:
 - All text strings MUST be valid JSON: escape any embedded double quotes as \\" and any embedded backslashes as \\\\.
 - Do NOT include literal newlines inside string values.
 - Do NOT include trailing commas.
-- If you cannot find any significant fresh news after web search, return the "Date bump only" template above verbatim with today's date filled in.
+- "date" must be the story's real publication date; "url" must be a real link you found via web_search.
 
 Begin.
 """
