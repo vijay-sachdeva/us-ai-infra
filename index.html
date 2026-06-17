@@ -1736,12 +1736,12 @@
   // daily-refresh workflow resumes editing this same content. Until then,
   // this is a snapshot that may lag production by a day or two.
   const DATA = {
-    lastUpdated: "2026-06-16",
+    lastUpdated: "2026-06-17",
     topStory: {
       date: "June 10, 2026",
-      text: "Dell'Oro Group raised its 2026 worldwide data center capex outlook above $1 trillion for the first time, as hyperscale AI deployments accelerated and rising memory/storage prices lifted server-system costs — the top four US clouds (Amazon, Google, Meta, Microsoft) grew data center capex 78% in 1Q 2026.",
-      src: "Dell'Oro Group",
-      url: "https://www.delloro.com/news/ai-infrastructure-buildouts-and-memory-cost-inflation-drove-data-center-capex-higher-in-1q-2026/"
+      text: "Oracle's Q4 FY2026 results showed remaining performance obligations surging to a record $638 billion — up 363% year-over-year and +$85 billion sequentially — driven overwhelmingly by large-scale AI cloud contracts, the clearest signal yet of how far committed AI data center demand now runs ahead of built capacity.",
+      src: "Oracle",
+      url: "https://www.oracle.com/news/announcement/q4fy26-earnings-release-2026-06-10/"
     },
     kpis: [
       { label: "US power demand 2026", value: "41", unit: "GW",
@@ -1873,6 +1873,7 @@
       allInTotal: 42
     },
     deals: [
+      { date: "Jun 2026", size: "$1B / 1.2 GW",       parties: "OpenAI + SoftBank + SB Energy (Milam County, TX)",            theme: "Capital deployment",    themeKey: "t-cap",   note: "OpenAI and SoftBank each invested $500M into SB Energy, which will build and operate OpenAI's previously announced 1.2 GW Stargate site in Milam County — bringing Stargate to nearly 7 GW of planned capacity.", src: "OpenAI" },
       { date: "Jun 2026", size: "~5 GW contracted",  parties: "Crusoe (multi-site; Wyoming paused)",                          theme: "Capital deployment",    themeKey: "t-cap",   note: "Crusoe disclosed contracts for nearly 5 GW of capacity while pausing its 1.8 GW Tallgrass-backed Cheyenne WY campus at a customer's request; Google had reportedly raised cost/timeline concerns and was set to take over the site.", src: "Bloomberg" },
       { date: "Jun 2026", size: "1.2 GW campus",      parties: "CloudBurst Data Centers (Texas)",                            theme: "New build",             themeKey: "t-build", note: "Broke ground on a 1.2 GW flagship hyperscale campus in Texas — among a wave of new gigawatt-scale US builds announced this month.", src: "Data Center Knowledge" },
       { date: "Jun 2026", size: "$7B+ / 1.4 GW",     parties: "OpenAI + Oracle + Related Digital (Stargate, Saline Twp MI)", theme: "New build",          themeKey: "t-build", note: "Michigan's first hyperscale campus — a 1 GW+ Stargate site on farmland in Saline Township. DTE Energy inked a deal to supply 1.4 GW of power; construction slated to begin 2026.", src: "AP / Wall Street Journal" },
@@ -4762,116 +4763,4 @@
   }
 
   function addMsg(text, cls) {
-    const d = document.createElement("div");
-    d.className = "chat-msg " + cls;
-    d.textContent = text;
-    bodyEl.appendChild(d);
-    bodyEl.scrollTop = bodyEl.scrollHeight;
-    return d;
-  }
-  function addTyping() {
-    const d = document.createElement("div");
-    d.className = "chat-msg bot chat-dots";
-    d.innerHTML = "<span></span><span></span><span></span>";
-    bodyEl.appendChild(d);
-    bodyEl.scrollTop = bodyEl.scrollHeight;
-    return d;
-  }
-
-  /* Minimal scripted fallback so the panel still answers common questions
-     before the user has deployed the Cloudflare Worker. */
-  function scriptedAnswer(q) {
-    const s = q.toLowerCase();
-    const has = (...t) => t.some(x => s.indexOf(x) !== -1);
-    if (has("power demand", "41 gw", "how much power", "load"))
-      return "US data center power demand is ~41 GW in 2026 (vs 31 GW in 2025), projected to grow to ~100 GW by 2030. See Overview tab.";
-    if (has("capex", "spending", "808", "200b", "190b"))
-      return "Major operators' 2026 capex totals ~$808B: AWS $200B, Microsoft $190B, Google $185B, Meta $150B, Oracle $50B, CoreWeave $33B. See Investor tab.";
-    if (has("cost", "/mw", "per mw", "build cost"))
-      return "Building one MW of AI capacity costs ~$42M all-in (illustrative): $11M facility (shell, power, cooling) + $31M compute (servers + GPUs). GPUs are ~$23M — the largest single layer. See Investor or Engineer tab.";
-    if (has("vacancy"))
-      return "Primary-market vacancy is at a record-low 1.4%, down from ~9.5% in 2019. Landlord pricing power has shifted decisively. See Investor tab.";
-    if (has("transformer", "lead time", "equipment"))
-      return "High-voltage transformer lead times have stretched to 36-60 months — the most binding constraint. Switchgear 18-30 mo, generators 12-24 mo, GPUs 6-12 mo. See Engineer tab.";
-    if (has("token", "$/token", "price compression", "openai", "anthropic", "claude", "gpt"))
-      return "Token volume has grown ~5× over 18 months. Output prices have dropped ~10× (GPT-4 $60/1M → GPT-4.1 $8/1M; Llama 70B hosted at $0.60). See Token Economics tab.";
-    if (has("rate", "electricity cost", "virginia"))
-      return "Modeled retail rate increases by 2030: Virginia +57%, Texas +28%, Ohio +22%, Georgia +18%, Arizona +15%. See Energy & Policy tab.";
-    return null;
-  }
-
-  async function liveAnswer(q) {
-    const res = await fetch(CHAT_CONFIG.apiEndpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question: q,
-        history: history.slice(-12),
-        context: dataContext()
-      })
-    });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const j = await res.json();
-    return ((j.answer || j.reply || "") + "").trim() || "No answer was returned.";
-  }
-
-  async function respond(q) {
-    q = (q || "").trim();
-    if (busy || !q) return;
-    busy = true; sendBtn.disabled = true;
-    addMsg(q, "user");
-    history.push({ role: "user", content: q });
-    input.value = ""; autosize();
-    const typing = addTyping();
-    try {
-      let answer;
-      if (CHAT_CONFIG.apiEndpoint) {
-        answer = await liveAnswer(q);
-      } else {
-        await new Promise(r => setTimeout(r, 280));
-        answer = scriptedAnswer(q)
-          || "I can answer common questions about this dashboard (power demand, capex, costs, vacancy, lead times, tokens, rates). For more open-ended questions, the live AI assistant kicks in once the Cloudflare Worker backend is deployed — see chatbot-worker.js for one-time setup.";
-      }
-      typing.remove();
-      addMsg(answer, "bot");
-      history.push({ role: "assistant", content: answer });
-    } catch (err) {
-      typing.remove();
-      addMsg("Sorry — I couldn't reach the assistant right now." + (CHAT_CONFIG.apiEndpoint ? " Check that the Cloudflare Worker is deployed and the API key is set." : ""), "note");
-    }
-    busy = false; sendBtn.disabled = false;
-    input.focus();
-  }
-
-  function autosize() {
-    input.style.height = "auto";
-    input.style.height = Math.min(input.scrollHeight, 92) + "px";
-  }
-  function openPanel() {
-    panel.classList.add("open");
-    fab.style.display = "none";
-    if (!bodyEl.children.length) {
-      const greet = CHAT_CONFIG.apiEndpoint
-        ? "Hi — ask me anything about US data center power, capex, deployment, bottlenecks or token economics shown on this dashboard."
-        : "Hi — I'm running in scripted mode (Cloudflare Worker backend not deployed yet). Try asking about power demand, capex, costs, vacancy, lead times, tokens or rate impacts.";
-      addMsg(greet, "bot");
-    }
-    setTimeout(() => input.focus(), 50);
-  }
-  function closePanel() {
-    panel.classList.remove("open");
-    fab.style.display = "";
-  }
-
-  fab.addEventListener("click", openPanel);
-  closeBtn.addEventListener("click", closePanel);
-  sendBtn.addEventListener("click", () => respond(input.value));
-  input.addEventListener("input", autosize);
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); respond(input.value); }
-  });
-})();
-</script>
-
-</body>
-</html>
+    const d = docum
