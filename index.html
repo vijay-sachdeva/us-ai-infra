@@ -4539,7 +4539,7 @@
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
