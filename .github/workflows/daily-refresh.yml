@@ -35,6 +35,21 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scripts/daily_refresh.py
 
+      - name: Verify index.html integrity
+        run: |
+          lines=$(wc -l < index.html)
+          echo "index.html: $lines lines"
+          if [ "$lines" -lt 4000 ]; then
+            echo "::error::index.html is only $lines lines — looks truncated. Aborting before commit."; exit 1
+          fi
+          if ! tail -2 index.html | grep -q '</html>'; then
+            echo "::error::index.html does not end with </html> — looks truncated. Aborting before commit."; exit 1
+          fi
+          for tag in '</script>' '</body>' '</html>'; do
+            grep -q "$tag" index.html || { echo "::error::index.html missing $tag — aborting before commit."; exit 1; }
+          done
+          echo "index.html integrity OK"
+
       - name: Commit and push if changed
         run: |
           if [[ -z "$(git status --porcelain index.html)" ]]; then
