@@ -317,7 +317,7 @@ def apply_edits(html: str, edits: dict) -> str:
 def git_diff_lines(path: str) -> int:
     """Return total insertions+deletions for one file vs HEAD."""
     out = subprocess.run(
-        ["git", "diff", "--numstat", path],
+        ["git", "diff", "--numstat", "--ignore-cr-at-eol", path],
         capture_output=True, text=True, check=True,
     ).stdout.strip()
     if not out:
@@ -375,7 +375,9 @@ def main() -> int:
         )
         return 1
 
-    INDEX_HTML.write_text(html_after, encoding="utf-8")
+    # newline="\n": always write LF, regardless of runner OS, so the working
+    # tree matches the LF-normalized blob (.gitattributes) and git diff stays small.
+    INDEX_HTML.write_text(html_after, encoding="utf-8", newline="\n")
 
     diff_lines = git_diff_lines(str(INDEX_HTML))
     print(f"[refresh] git diff lines: {diff_lines}")
