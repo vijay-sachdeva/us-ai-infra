@@ -2,12 +2,17 @@ name: Daily refresh
 
 on:
   schedule:
-    # 11:00 UTC = 07:00 EST / 06:00 EDT. Adjust if you want a different morning hour.
-    - cron: '0 11 * * *'
+    # GitHub Actions cron is best-effort and is most delayed/dropped at the top
+    # of an hour, so we use an off-:00 minute and run twice. The script early-exits
+    # if it already refreshed today, so the second slot is a free retry, not a
+    # double update. Times are UTC.
+    - cron: '17 10 * * *'   # ~06:17 ET — primary
+    - cron: '17 16 * * *'   # ~12:17 ET — backstop
   workflow_dispatch: {}   # Allow manual triggering from the Actions tab
 
 permissions:
   contents: write
+  issues: write   # for the failure-notification step
 
 concurrency:
   group: daily-refresh
@@ -20,10 +25,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -61,3 +66,19 @@ jobs:
           git add index.html
           git commit -m "Daily refresh ($(date -u +'%Y-%m-%d'))"
           git push
+
+      - name: Report failure as an issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          count=$(gh issue list --state open --search "Daily refresh failing in:title" --json number --jq 'length')
+          if [ "$count" -gt 0 ]; then
+            echo "An open 'Daily refresh failing' issue already exists — not creating a duplicate."
+            exit 0
+          fi
+          gh issue create \
+            --title "⚠️ Daily refresh failing" \
+            --body "The daily-refresh workflow failed on $(date -u +'%Y-%m-%d'). Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          Close this issue once the refresh is healthy again — it won't be recreated while it stays open."
