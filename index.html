@@ -1815,13 +1815,23 @@
   // daily-refresh workflow resumes editing this same content. Until then,
   // this is a snapshot that may lag production by a day or two.
   const DATA = {
-    lastUpdated: "2026-06-18",
+    lastUpdated: "2026-06-19",
     topStory: {
-      date: "June 14, 2026",
-      text: "Goldman Sachs projects AI infrastructure spending will exceed $700 billion in 2026, with forecasts ranging between $920 billion and $1.4 trillion for 2027 — a trajectory that would represent approximately 3% of U.S. GDP, underscoring the historic scale of capital deployment into AI data centers.",
-      src: "Goldman Sachs / IndexBox",
-      url: "https://www.indexbox.io/blog/ai-infrastructure-spending-surge-nvidia-and-amd-lead-the-charge/"
+      date: "June 18, 2026",
+      text: "FERC issued show-cause orders to all six US grid operators (PJM, MISO, SPP, CAISO, ISO-NE, NYISO), giving them 60 days to justify or reform how data centers and other large loads connect to the grid — the federal regulator's biggest step yet to speed AI data center interconnection while shielding existing ratepayers from cost shifts.",
+      src: "Data Center Dynamics",
+      url: "https://www.datacenterdynamics.com/en/news/ferc-orders-us-grid-operators-to-justify-or-reform-how-data-centers-connect-to-the-grid/"
     },
+    feed: [
+      { date: "Jun 2026", tag: "GRID", text: "FERC issued show-cause orders to all six US grid operators (PJM, MISO, SPP, CAISO, ISO-NE, NYISO), giving them 60 days to justify or reform how data centers connect to the grid, with large loads required to pay their interconnection costs.", src: "Data Center Dynamics" },
+      { date: "Jun 2026", tag: "BUILDOUT", text: "Power-delivery equipment — transformers, switchgear and batteries rather than chips — is now the binding constraint, with only ~5 GW of the ~12 GW of US capacity announced for 2026 under active construction.", src: "Digital Watch / pv magazine" },
+      { date: "Jun 2026", tag: "CAPITAL", text: "OpenAI and SoftBank each invested $500M into SB Energy to build and operate the 1.2 GW Stargate site in Milam County, TX, taking Stargate toward ~7 GW of planned US capacity.", src: "OpenAI" },
+      { date: "Jun 2026", tag: "BUILDOUT", text: "OpenAI, Oracle and Related Digital advanced Michigan's first hyperscale campus — a 1 GW+ Stargate site in Saline Township — with DTE Energy contracted to supply 1.4 GW of power.", src: "AP / Bridge Michigan" },
+      { date: "Jun 2026", tag: "CAPITAL", text: "Goldman Sachs projected AI infrastructure spending will exceed $700B in 2026, with 2027 forecasts ranging $920B–$1.4T — roughly 3% of US GDP.", src: "Goldman Sachs" },
+      { date: "May 2026", tag: "GRID", text: "NextEra Energy and Dominion Energy announced a ~$67B merger — the largest US utility tie-up — combining a ~130 GW backlog aimed at surging AI data center demand.", src: "CNBC" },
+      { date: "May 2026", tag: "CAPITAL", text: "Anthropic committed to the full 300 MW of xAI's Colossus 1 in Memphis (~220K GPUs) through May 2029 — one of the largest single AI compute commitments on record.", src: "TechCrunch" },
+      { date: "May 2026", tag: "TOKENS", text: "Google disclosed 3.2 quadrillion tokens/month of AI inference across its surfaces at I/O 2026, roughly 18× its modeled external API volume — underscoring in-product inference load.", src: "Google I/O 2026" }
+    ],
     kpis: [
       { label: "US power demand 2026", value: "41", unit: "GW",
         sub: "All US data centers · facility-level load",
@@ -3595,6 +3605,49 @@
     }
   }
 
+  function renderCapexAiShare() {
+    if (!$("capexAiShareChart") || typeof Chart === "undefined" || !DATA.capexFlow) return;
+    if (renderCapexAiShare._done) return;
+    renderCapexAiShare._done = true;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const rows = DATA.capexFlow.companies.map(co => {
+      const infra = co.buckets.filter(b => b.lane === "infra").reduce((s, b) => s + b.value, 0);
+      const total = co.buckets.reduce((s, b) => s + b.value, 0) || co.total;
+      return { name: co.name, color: co.color, pct: Math.round(infra / total * 100), infra, total };
+    }).sort((a, b) => b.pct - a.pct);
+    const sumInfra = rows.reduce((s, r) => s + r.infra, 0);
+    const sumTotal = rows.reduce((s, r) => s + r.total, 0);
+    const aggPct = Math.round(sumInfra / sumTotal * 100);
+    _charts.capexAiShareChart = new Chart($("capexAiShareChart"), {
+      type: "bar",
+      data: { labels: rows.map(r => r.name), datasets: [{
+        label: "AI / data-center share of capex",
+        data: rows.map(r => r.pct),
+        backgroundColor: rows.map(r => r.color), borderRadius: 6, maxBarThickness: 20
+      }]},
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 30 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, anchor: "end", align: "end", formatter: v => v + "%" }),
+          tooltip: { callbacks: { label: c => { const r = rows[c.dataIndex]; return " ~" + r.pct + "% AI-attributed · $" + r.infra + "B of $" + r.total + "B capex"; } } }
+        },
+        scales: {
+          x: { min: 0, max: 100, grid: { color: cl.grid }, ticks: { callback: v => v + "%" } },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+    if ($("capexAiShareNote")) {
+      $("capexAiShareNote").innerHTML =
+        "Aggregate: ~$" + sumTotal + "B tracked capex → <b>~" + aggPct + "% AI / data-center-attributed</b>. " +
+        "The AI/DC share is an <b>editorial Modeled estimate</b> (infra vs non-core split), not a reported line item — " +
+        "pure-plays (Oracle/CoreWeave/Nebius) ≈ 100%, diversified operators lower.";
+    }
+  }
+
   function renderCapexChart() {
     if (!$("coCapexChart") || typeof Chart === "undefined") return;
     if (renderCapexChart._done) return;
@@ -5256,60 +5309,4 @@
   async function respond(q) {
     q = (q || "").trim();
     if (busy || !q) return;
-    busy = true; sendBtn.disabled = true;
-    addMsg(q, "user");
-    history.push({ role: "user", content: q });
-    input.value = ""; autosize();
-    const typing = addTyping();
-    try {
-      let answer;
-      if (CHAT_CONFIG.apiEndpoint) {
-        answer = await liveAnswer(q);
-      } else {
-        await new Promise(r => setTimeout(r, 280));
-        answer = scriptedAnswer(q)
-          || "I can answer common questions about this dashboard (power demand, capex, costs, vacancy, lead times, tokens, rates). For more open-ended questions, the live AI assistant kicks in once the Cloudflare Worker backend is deployed — see chatbot-worker.js for one-time setup.";
-      }
-      typing.remove();
-      addMsg(answer, "bot");
-      history.push({ role: "assistant", content: answer });
-    } catch (err) {
-      typing.remove();
-      addMsg("Sorry — I couldn't reach the assistant right now." + (CHAT_CONFIG.apiEndpoint ? " Check that the Cloudflare Worker is deployed and the API key is set." : ""), "note");
-    }
-    busy = false; sendBtn.disabled = false;
-    input.focus();
-  }
-
-  function autosize() {
-    input.style.height = "auto";
-    input.style.height = Math.min(input.scrollHeight, 92) + "px";
-  }
-  function openPanel() {
-    panel.classList.add("open");
-    fab.style.display = "none";
-    if (!bodyEl.children.length) {
-      const greet = CHAT_CONFIG.apiEndpoint
-        ? "Hi — ask me anything about US data center power, capex, deployment, bottlenecks or token economics shown on this dashboard."
-        : "Hi — I'm running in scripted mode (Cloudflare Worker backend not deployed yet). Try asking about power demand, capex, costs, vacancy, lead times, tokens or rate impacts.";
-      addMsg(greet, "bot");
-    }
-    setTimeout(() => input.focus(), 50);
-  }
-  function closePanel() {
-    panel.classList.remove("open");
-    fab.style.display = "";
-  }
-
-  fab.addEventListener("click", openPanel);
-  closeBtn.addEventListener("click", closePanel);
-  sendBtn.addEventListener("click", () => respond(input.value));
-  input.addEventListener("input", autosize);
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); respond(input.value); }
-  });
-})();
-</script>
-
-</body>
-</html>
+    busy = true
