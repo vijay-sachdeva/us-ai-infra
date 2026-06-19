@@ -31,14 +31,14 @@ Plus a live AI chatbot (Cloudflare Worker → Anthropic Claude with prompt cachi
 
 ## How it stays current
 
-A GitHub Actions workflow runs daily at 11:00 UTC. Each run:
+A GitHub Actions workflow (`daily-refresh.yml`) runs twice daily — 10:17 and 16:17 UTC (a primary slot plus an idempotent backstop). Each run:
 
 1. Calls Anthropic Claude with the `web_search` tool to find significant US AI data-center news from the past 24-72 hours.
-2. Updates `DATA.lastUpdated`, `DATA.topStory`, and `DATA.feed` in `index.html`.
+2. Updates `DATA.lastUpdated` and `DATA.topStory` in `index.html`.
 3. Validates the change is small (size delta < ±10%, diff < 30 lines) — aborts and reverts otherwise.
 4. Commits and pushes.
 
-A local Claude Code scheduled task provides a backup. The cutover happens automatically; no human in the loop on update days.
+The second daily slot is an idempotent backstop if the first run is delayed or dropped (it no-ops once the day is already refreshed); GitHub Actions is the sole update path. No human in the loop on update days.
 
 ## Live public-data feeds
 
