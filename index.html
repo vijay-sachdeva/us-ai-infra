@@ -1236,6 +1236,16 @@
     background:#11161b;border:1px solid #2a3543;border-radius:8px;padding:7px 10px;font-size:12px;color:#e6edf3;white-space:nowrap;z-index:5;max-width:220px}
   .ov-tip b{color:#e6edf3;font-weight:500} .ov-tip .s{display:block;color:#8b97a3;margin-top:2px;white-space:normal}
   .ov-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .ov-statband{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:.3rem 0 0}
+  .ov-stat{display:flex;flex-direction:column;gap:4px;padding:14px 15px;border:1px solid var(--ov-line);border-radius:10px;text-decoration:none;background:rgba(255,255,255,.02);transition:border-color .15s,transform .15s}
+  .ov-stat:hover{border-color:var(--ov-demand);transform:translateY(-2px)}
+  .ov-stat-num{font-size:29px;font-weight:700;letter-spacing:-.02em;color:var(--ov-ink);line-height:1.05}
+  .ov-stat-num .unit{font-size:14px;font-weight:600;color:var(--ov-muted);margin-left:2px}
+  .ov-stat-hook{font-size:12px;color:var(--ov-muted);line-height:1.35}
+  .ov-stat .cf-tier{align-self:flex-start;margin-top:3px}
+  .ov-lens-stat{font-size:12px;color:var(--ov-ink);opacity:.82;line-height:1.35}
+  @media(max-width:880px){.ov-statband{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.ov-statband{grid-template-columns:1fr}}
   @media(max-width:640px){.ov-h1{font-size:24px}.ov-lenses{grid-template-columns:1fr}.ov-gauge .lab{width:120px}}
   @media(prefers-reduced-motion:reduce){.ov-gauge .fill{transition:none}}
 </style>
@@ -1318,15 +1328,14 @@
         <button data-h="map"  role="tab" aria-selected="false">Constraint map</button>
       </div>
       <div id="ov-stage" class="ov-chartwrap" style="position:relative"></div>
-      <div class="ov-index-head"><span>Power wall index</span>
-        <span class="ov-stress">system stress · <b id="ov-stress">elevated</b></span></div>
-      <div id="ov-index" class="ov-gauges"></div>
+      <div class="ov-lens-label">The build · by the numbers</div>
+      <div id="ov-statband" class="ov-statband"></div>
       <div class="ov-lens-label">Choose your lens</div>
       <div class="ov-lenses">
-        <a class="ov-lens" href="#capital"><b>Who owns the megawatts?</b><span>Capital</span></a>
-        <a class="ov-lens" href="#buildout"><b>Where does capacity get stuck?</b><span>Buildout</span></a>
-        <a class="ov-lens" href="#grid"><b>Who pays for the load?</b><span>Grid</span></a>
-        <a class="ov-lens" href="#tokens"><b>How does usage become power?</b><span>Tokens</span></a>
+        <a class="ov-lens" href="#capital"><b>Who owns the megawatts?</b><span class="ov-lens-stat">$848B committed · ~55–65% already contracted</span><span>Capital →</span></a>
+        <a class="ov-lens" href="#buildout"><b>Where does capacity get stuck?</b><span class="ov-lens-stat">97 GW queued · ~24 GW real · 36–60-mo transformers</span><span>Buildout →</span></a>
+        <a class="ov-lens" href="#grid"><b>Who pays for the load?</b><span class="ov-lens-stat">19 GW shortfall by 2030 · rate-hike risk</span><span>Grid →</span></a>
+        <a class="ov-lens" href="#tokens"><b>How does usage become power?</b><span class="ov-lens-stat">1M tokens ≈ 5 kWh ≈ a few cents</span><span>Tokens →</span></a>
       </div>
       <div id="ov-ticker" class="ov-ticker"></div>
     </section>
@@ -4678,28 +4687,35 @@
     svg.addEventListener('mouseleave',function(){scrub.style.opacity=0;rd.style.opacity=0;});
   }
 
-  function renderIndex(){
-    var host=document.getElementById('ov-index'); if(!host) return;
-    var G;
-    if(DATA&&DATA.powerWallIndex){ G=DATA.powerWallIndex; }
-    else {
-      G=[];
-      var dp=DATA&&DATA.demandProjection;
-      if(dp){ var cd=ovCumsum(dp.yoyDemandGrowthGW), cg=ovCumsum(dp.newFirmGenForDC);
-        G.push({lab:'Cumulative demand vs gen',val:'−'+Math.round(cd[cd.length-1]-cg[cg.length-1])+' GW',pct:88,level:'gap',src:'#grid',tier:'Analyst'}); }
-      var pb=DATA&&DATA.powerBreakdown&&DATA.powerBreakdown.funnel;
-      if(pb){ G.push({lab:'Interconnect queue',val:pb.values[0]+' GW',pct:82,level:'gap',src:'#buildout',tier:'Analyst'}); }
-      var it=DATA&&DATA.equipmentLeadTimes&&DATA.equipmentLeadTimes.items&&DATA.equipmentLeadTimes.items[0];
-      if(it){ G.push({lab:'HV transformer lead',val:it.range,pct:75,level:(it.severity==='crit'?'gap':'amber'),src:'#buildout',tier:'Analyst'}); }
-      var vt=DATA&&DATA.vacancyTrend;
-      if(vt){ G.push({lab:'Vacancy (top markets)',val:vt.values[vt.values.length-1]+'% vac',pct:91,level:'gap',src:'#capital',tier:'Analyst'}); }
-      if(!G.length){ G=[{lab:'Demand growth',val:'+33%/yr',pct:86,level:'gap',src:'#grid',tier:'Analyst'}]; }
-    }
-    var col={gap:'#e5534b',amber:'#e3b341',ok:'#39d98a'};
-    host.innerHTML=G.map(function(g){return '<div class="ov-gauge"><span class="lab">'+g.lab+'</span>'
-      +'<span class="track"><span class="fill" data-w="'+g.pct+'%" style="background:'+(col[g.level]||col.amber)+'"></span></span>'
-      +'<span class="val">'+g.val+'<a href="'+g.src+'" title="'+g.tier+' · view source">'+g.tier[0]+'</a></span></div>';}).join('');
-    setTimeout(function(){[].forEach.call(host.querySelectorAll('.fill'),function(f){f.style.width=f.dataset.w;});},300);
+  function renderStatBand(){
+    var host=document.getElementById('ov-statband'); if(!host) return;
+    function kpi(re){ return (((DATA&&DATA.kpis)||[]).filter(function(k){return re.test(k.label);})[0])||null; }
+    var capex=kpi(/capex/i), vac=kpi(/vacancy/i);
+    var pl=(DATA&&DATA.phantomLoad)||{}, queued=pl.queuedGW||97;
+    var buildable=(((pl.stages||[]).filter(function(s){return s.key==='buildable';})[0])||{}).gw||24;
+    var dt=DATA&&DATA.disclosedTokenTotals, rows=dt&&dt.rows;
+    var tok=((rows&&rows[rows.length-1].monthly)||'3.2 Q').replace(/\s+/g,'');
+    var lead=(((DATA&&DATA.equipmentLeadTimes&&DATA.equipmentLeadTimes.items)||[])[0]||{}).range||'36–60 mo';
+    var stats=[
+      {num:(capex&&capex.value)||'$848',unit:(capex&&capex.unit)||'B',hook:'2026 hyperscaler capex',tier:'analyst',href:'#capital'},
+      {num:String(queued),unit:'GW',hook:'queued · ~'+buildable+' GW truly buildable',tier:'analyst',href:'#buildout'},
+      {num:tok,unit:'',hook:'Google tokens / mo · 18× billed',tier:'primary',href:'#tokens'},
+      {num:lead,unit:'',hook:'HV transformer lead time',tier:'analyst',href:'#buildout'},
+      {num:(vac&&vac.value)||'1.4',unit:(vac&&vac.unit)||'%',hook:'primary-market vacancy · record low',tier:'analyst',href:'#capital'}
+    ];
+    var tierCls=function(t){return t==='primary'?'cf-ok':(t==='analyst'?'cf-warn':'cf-crit');};
+    var isNum=function(v){return /^\$?\d+\.?\d*$/.test(v);};
+    host.innerHTML=stats.map(function(s){
+      var numHtml;
+      if(isNum(s.num)){ var pfx=String(s.num).charAt(0)==='$'?'$':''; numHtml='<span class="num" data-target="'+s.num+'">'+pfx+'0</span>'; }
+      else { numHtml=s.num; }
+      if(s.unit) numHtml+='<span class="unit">'+s.unit+'</span>';
+      return '<a class="ov-stat" href="'+s.href+'">'
+        +'<div class="ov-stat-num">'+numHtml+'</div>'
+        +'<div class="ov-stat-hook">'+s.hook+'</div>'
+        +'<span class="cf-tier '+tierCls(s.tier)+'">'+s.tier+'</span></a>';
+    }).join('');
+    if(typeof motionObserveAll==='function') motionObserveAll();
   }
 
   function renderTicker(){
@@ -4815,7 +4831,7 @@
     }
     var saved='wall'; try{saved=localStorage.getItem('ov-hero')||'wall';}catch(e){}
     setHero(saved);
-    renderIndex(); renderTicker();
+    renderStatBand(); renderTicker();
   }
 
   function renderTab(name) {
