@@ -1,0 +1,11 @@
+iso,active_gw,vintage,source_url
+MISO,340,LBNL Queued Up 2025,https://emp.lbl.gov/queues
+PJM,290,LBNL Queued Up 2025,https://emp.lbl.gov/queues
+ERCOT,210,LBNL Queued Up 2025,https://emp.lbl.gov/queues
+CAISO,150,LBNL Queued Up 2025,https://emp.lbl.gov/queues
+SPP,140,LBNL Queued Up 2025,https://emp.lbl.gov/queues
+Southeast,120,LBNL Queued Up 2025,https://emp.lbl.gov/queues
+West,95,LBNL Queued Up 2025,https://emp.lbl.gov/queues
+Northwest,70,LBNL Queued Up 2025,https://emp.lbl.gov/queues
+ISO-NE,50,LBNL Queued Up 2025,https://emp.lbl.gov/queues
+NYISO,40,LBNL Queued Up 2025,https://emp.lbl.gov/queues
