@@ -1,0 +1,216 @@
+{
+  "lastUpdated": "2026-06-19T05:40:54Z",
+  "tier": "primary",
+  "source": "EIA retail-sales (sector IND)",
+  "period": "2026-03",
+  "states": {
+    "AK": {
+      "ind_cents_kwh": 25.32,
+      "ind_usd_mwh": 253.2
+    },
+    "AL": {
+      "ind_cents_kwh": 7.62,
+      "ind_usd_mwh": 76.2
+    },
+    "AR": {
+      "ind_cents_kwh": 6.26,
+      "ind_usd_mwh": 62.6
+    },
+    "AZ": {
+      "ind_cents_kwh": 7.17,
+      "ind_usd_mwh": 71.7
+    },
+    "CA": {
+      "ind_cents_kwh": 20.06,
+      "ind_usd_mwh": 200.6
+    },
+    "CO": {
+      "ind_cents_kwh": 9.77,
+      "ind_usd_mwh": 97.7
+    },
+    "CT": {
+      "ind_cents_kwh": 18.58,
+      "ind_usd_mwh": 185.8
+    },
+    "DC": {
+      "ind_cents_kwh": 14.38,
+      "ind_usd_mwh": 143.8
+    },
+    "DE": {
+      "ind_cents_kwh": 11.05,
+      "ind_usd_mwh": 110.5
+    },
+    "FL": {
+      "ind_cents_kwh": 9.16,
+      "ind_usd_mwh": 91.6
+    },
+    "GA": {
+      "ind_cents_kwh": 6.7,
+      "ind_usd_mwh": 67.0
+    },
+    "HI": {
+      "ind_cents_kwh": 33.17,
+      "ind_usd_mwh": 331.7
+    },
+    "IA": {
+      "ind_cents_kwh": 6.43,
+      "ind_usd_mwh": 64.3
+    },
+    "ID": {
+      "ind_cents_kwh": 7.16,
+      "ind_usd_mwh": 71.6
+    },
+    "IL": {
+      "ind_cents_kwh": 9.19,
+      "ind_usd_mwh": 91.9
+    },
+    "IN": {
+      "ind_cents_kwh": 9.0,
+      "ind_usd_mwh": 90.0
+    },
+    "KS": {
+      "ind_cents_kwh": 7.99,
+      "ind_usd_mwh": 79.9
+    },
+    "KY": {
+      "ind_cents_kwh": 7.39,
+      "ind_usd_mwh": 73.9
+    },
+    "LA": {
+      "ind_cents_kwh": 7.25,
+      "ind_usd_mwh": 72.5
+    },
+    "MA": {
+      "ind_cents_kwh": 19.17,
+      "ind_usd_mwh": 191.7
+    },
+    "MD": {
+      "ind_cents_kwh": 14.76,
+      "ind_usd_mwh": 147.6
+    },
+    "ME": {
+      "ind_cents_kwh": 15.2,
+      "ind_usd_mwh": 152.0
+    },
+    "MI": {
+      "ind_cents_kwh": 9.14,
+      "ind_usd_mwh": 91.4
+    },
+    "MN": {
+      "ind_cents_kwh": 9.29,
+      "ind_usd_mwh": 92.9
+    },
+    "MO": {
+      "ind_cents_kwh": 8.1,
+      "ind_usd_mwh": 81.0
+    },
+    "MS": {
+      "ind_cents_kwh": 7.56,
+      "ind_usd_mwh": 75.6
+    },
+    "MT": {
+      "ind_cents_kwh": 5.99,
+      "ind_usd_mwh": 59.9
+    },
+    "NC": {
+      "ind_cents_kwh": 7.05,
+      "ind_usd_mwh": 70.5
+    },
+    "ND": {
+      "ind_cents_kwh": 8.07,
+      "ind_usd_mwh": 80.7
+    },
+    "NE": {
+      "ind_cents_kwh": 7.12,
+      "ind_usd_mwh": 71.2
+    },
+    "NH": {
+      "ind_cents_kwh": 17.67,
+      "ind_usd_mwh": 176.7
+    },
+    "NJ": {
+      "ind_cents_kwh": 13.56,
+      "ind_usd_mwh": 135.6
+    },
+    "NM": {
+      "ind_cents_kwh": 5.84,
+      "ind_usd_mwh": 58.4
+    },
+    "NV": {
+      "ind_cents_kwh": 7.66,
+      "ind_usd_mwh": 76.6
+    },
+    "NY": {
+      "ind_cents_kwh": 8.73,
+      "ind_usd_mwh": 87.3
+    },
+    "OH": {
+      "ind_cents_kwh": 9.81,
+      "ind_usd_mwh": 98.1
+    },
+    "OK": {
+      "ind_cents_kwh": 5.88,
+      "ind_usd_mwh": 58.8
+    },
+    "OR": {
+      "ind_cents_kwh": 7.96,
+      "ind_usd_mwh": 79.6
+    },
+    "PA": {
+      "ind_cents_kwh": 10.33,
+      "ind_usd_mwh": 103.3
+    },
+    "RI": {
+      "ind_cents_kwh": 17.13,
+      "ind_usd_mwh": 171.3
+    },
+    "SC": {
+      "ind_cents_kwh": 7.44,
+      "ind_usd_mwh": 74.4
+    },
+    "SD": {
+      "ind_cents_kwh": 9.41,
+      "ind_usd_mwh": 94.1
+    },
+    "TN": {
+      "ind_cents_kwh": 7.06,
+      "ind_usd_mwh": 70.6
+    },
+    "TX": {
+      "ind_cents_kwh": 6.26,
+      "ind_usd_mwh": 62.6
+    },
+    "US": {
+      "ind_cents_kwh": 8.58,
+      "ind_usd_mwh": 85.8
+    },
+    "UT": {
+      "ind_cents_kwh": 8.28,
+      "ind_usd_mwh": 82.8
+    },
+    "VA": {
+      "ind_cents_kwh": 10.25,
+      "ind_usd_mwh": 102.5
+    },
+    "VT": {
+      "ind_cents_kwh": 13.26,
+      "ind_usd_mwh": 132.6
+    },
+    "WA": {
+      "ind_cents_kwh": 6.85,
+      "ind_usd_mwh": 68.5
+    },
+    "WI": {
+      "ind_cents_kwh": 8.66,
+      "ind_usd_mwh": 86.6
+    },
+    "WV": {
+      "ind_cents_kwh": 8.14,
+      "ind_usd_mwh": 81.4
+    },
+    "WY": {
+      "ind_cents_kwh": 8.6,
+      "ind_usd_mwh": 86.0
+    }
+  }
+}
