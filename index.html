@@ -289,6 +289,12 @@
   .chart-box { position: relative; height: 290px; margin-top: 14px; }
   .chart-box.short { height: 240px; }
   .chart-box.tall  { height: 320px; }
+  /* Charts-first: in any card that holds a chart, show the chart above its description note */
+  .stub-card:has(.chart-box) { display: flex; flex-direction: column; }
+  .stub-card:has(.chart-box) > .note { order: 1; margin: 12px 0 0; }
+  .stub-card:has(.chart-box) > .sc-method,
+  .stub-card:has(.chart-box) > .tab-callout,
+  .stub-card:has(.chart-box) > .leadtime-row { order: 2; }
 
   /* ---------- Cost stack (lifted from production) ---------- */
   .cost-group-label {
@@ -1735,22 +1741,6 @@
         <h3>At the largest platforms, total tokens processed have scaled <b>~330× in 24 months</b> (Google: 9.7 T → 3,200 T per month, May 2024 → May 2026), while $/token has fallen ~100×. The AI economy runs on this curve.</h3>
       </div>
 
-      <!-- Card 0: Journey of a token (interactive, full-width) -->
-      <div class="stub-card">
-        <h4>Journey of a token — from one prompt to the gigawatt buildout</h4>
-        <div class="note">Step a single prompt through the real constraint stack, watch the <b>tokens → energy → dollars</b> meter accrue, then scale one token up to the whole buildout. <b>The example prompt, token IDs and probabilities are illustrative;</b> every energy, price, GW and capex figure is cited.</div>
-        <div class="map-view-toggle" id="tjDepthToggle" role="tablist" aria-label="Detail level">
-          <button class="map-view-btn active" data-tjdepth="plain" type="button">Plain language</button>
-          <button class="map-view-btn"        data-tjdepth="deep"  type="button">Go deeper</button>
-        </div>
-        <div id="tjStage"></div>
-        <div id="tjStepPanel"></div>
-        <div id="tjControls"></div>
-        <div id="tjMeter"></div>
-        <div id="tjScaleup"></div>
-        <div class="sc-method" id="tjMethod"></div>
-      </div>
-
       <!-- Card 1: Industry token volume (full-width) -->
       <div class="stub-card">
         <h4>Industry token volume by provider</h4>
@@ -1794,6 +1784,22 @@
           <div class="note">Where the compute actually goes &middot; late-2025 industry estimates</div>
           <div id="splitChart"></div>
         </div>
+      </div>
+
+      <!-- Journey of a token — interactive deep-dive, moved below the charts + slimmed -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Journey of a token — from one prompt to the gigawatt buildout</h4>
+        <div class="note">Optional walkthrough — step one prompt through the stack and watch the <b>tokens → energy → dollars</b> meter, then scale it up to the buildout. Illustrative example; energy / price / GW / capex all cited.</div>
+        <div class="map-view-toggle" id="tjDepthToggle" role="tablist" aria-label="Detail level">
+          <button class="map-view-btn active" data-tjdepth="plain" type="button">Plain language</button>
+          <button class="map-view-btn"        data-tjdepth="deep"  type="button">Go deeper</button>
+        </div>
+        <div id="tjStage"></div>
+        <div id="tjStepPanel"></div>
+        <div id="tjControls"></div>
+        <div id="tjMeter"></div>
+        <div id="tjScaleup"></div>
+        <div class="sc-method" id="tjMethod"></div>
       </div>
     </section>
 
@@ -2796,8 +2802,31 @@
   }
   function applyChartDefaults() {
     if (typeof Chart === "undefined") return;
+    const c = getChartColors();
     Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.color = getChartColors().text;
+    Chart.defaults.font.size = 11;
+    Chart.defaults.color = c.text;
+    Chart.defaults.borderColor = c.grid;                 // soft, consistent grid lines everywhere
+    // Bars — consistently rounded
+    Chart.defaults.elements.bar.borderRadius = 6;
+    Chart.defaults.elements.bar.borderSkipped = false;
+    // Lines — smooth, no dotty points until hover
+    Chart.defaults.elements.line.tension = 0.35;
+    Chart.defaults.elements.line.borderWidth = 2;
+    Chart.defaults.elements.point.radius = 0;
+    Chart.defaults.elements.point.hoverRadius = 4;
+    Chart.defaults.elements.point.hitRadius = 10;
+    // Legend (where shown) — tidy bottom row with point markers
+    try {
+      const L = Chart.defaults.plugins.legend;
+      L.position = "bottom";
+      L.labels = Object.assign(L.labels || {}, { usePointStyle: true, boxWidth: 7, padding: 14 });
+      const T = Chart.defaults.plugins.tooltip;
+      T.usePointStyle = true; T.padding = 10; T.cornerRadius = 8; T.boxPadding = 5;
+    } catch (_) {}
+    // Gentle, consistent motion
+    Chart.defaults.animation.duration = 550;
+    Chart.defaults.animation.easing = "easeOutQuart";
   }
   function initCharts() {
     if (_chartsInit || typeof Chart === "undefined") return;
