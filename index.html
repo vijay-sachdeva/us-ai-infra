@@ -169,7 +169,7 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 22px rgba(15,27,45,.08);
   }
-  .stub-card h4 { font-size: 15.5px; font-weight: 700; margin-bottom: 6px; }
+  .stub-card h4 { font-size: 16.5px; font-weight: 700; margin-bottom: 6px; letter-spacing: -.01em; }
   .stub-card .note { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
   .stub-card p { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
   .stub-card .badge {
@@ -286,15 +286,17 @@
   }
 
   /* ---------- Chart wrapper ---------- */
-  .chart-box { position: relative; height: 290px; margin-top: 14px; }
-  .chart-box.short { height: 240px; }
-  .chart-box.tall  { height: 320px; }
-  /* Charts-first: in any card that holds a chart, show the chart above its description note */
-  .stub-card:has(.chart-box) { display: flex; flex-direction: column; }
-  .stub-card:has(.chart-box) > .note { order: 1; margin: 12px 0 0; }
-  .stub-card:has(.chart-box) > .sc-method,
-  .stub-card:has(.chart-box) > .tab-callout,
-  .stub-card:has(.chart-box) > .leadtime-row { order: 2; }
+  .chart-box { position: relative; height: 296px; margin-top: 14px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 72%);
+    border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px 4px; }
+  .chart-box.short { height: 246px; }
+  .chart-box.tall  { height: 326px; }
+  /* Charts-first: show the chart/visual above its description note, on every card */
+  .stub-card { display: flex; flex-direction: column; }
+  .stub-card > .note { order: 1; margin: 12px 0 0; }
+  .stub-card > .sc-method,
+  .stub-card > .tab-callout,
+  .stub-card > .leadtime-row { order: 2; }
 
   /* ---------- Cost stack (lifted from production) ---------- */
   .cost-group-label {
@@ -2804,17 +2806,21 @@
     if (typeof Chart === "undefined") return;
     const c = getChartColors();
     Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.font.size = 11;
+    Chart.defaults.font.size = 12.5;                     // bolder, more legible
     Chart.defaults.color = c.text;
     Chart.defaults.borderColor = c.grid;                 // soft, consistent grid lines everywhere
-    // Bars — consistently rounded
-    Chart.defaults.elements.bar.borderRadius = 6;
+    // Bars — consistently rounded + chunkier
+    Chart.defaults.elements.bar.borderRadius = 7;
     Chart.defaults.elements.bar.borderSkipped = false;
-    // Lines — smooth, no dotty points until hover
+    try {
+      Chart.defaults.datasets.bar.categoryPercentage = 0.82;
+      Chart.defaults.datasets.bar.barPercentage = 0.94;
+    } catch (_) {}
+    // Lines — smooth + heavier stroke, no dotty points until hover
     Chart.defaults.elements.line.tension = 0.35;
-    Chart.defaults.elements.line.borderWidth = 2;
+    Chart.defaults.elements.line.borderWidth = 2.6;
     Chart.defaults.elements.point.radius = 0;
-    Chart.defaults.elements.point.hoverRadius = 4;
+    Chart.defaults.elements.point.hoverRadius = 5;
     Chart.defaults.elements.point.hitRadius = 10;
     // Legend (where shown) — tidy bottom row with point markers
     try {
@@ -2842,7 +2848,7 @@
   function LABEL_STYLE_FN() {
     return {
       color: getChartColors().label,
-      font: { weight: 700, size: 11 },
+      font: { weight: 800, size: 12 },
       anchor: "end",
       align: "end"
     };
