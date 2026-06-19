@@ -1593,7 +1593,7 @@
       <div class="stub-card" style="margin-top:14px">
         <h4>Time-to-power by procurement path</h4>
         <div class="note">The binding 2026 question isn't whether power is scarce — it's which path energizes a site fastest, at what trade-off · months from decision to first power · firmness tag + one-line trade-off · grid duration cited (LBNL); on-site gas / recip bands modeled (labeled)</div>
-        <div id="timeToPower" style="margin-top:10px"></div>
+        <div class="chart-box" style="height:300px;margin-top:10px"><canvas id="timeToPowerChart"></canvas></div>
         <div class="sc-method" id="timeToPowerMethod"></div>
       </div>
 
@@ -3341,34 +3341,45 @@
   }
 
   function renderTimeToPower() {
-    if (!$("timeToPower") || !DATA.timeToPower) return;
-    const tp  = DATA.timeToPower;
-    const max = tp.maxScale;
-    const esc = s => String(s).replace(/"/g, "&quot;");
-    $("timeToPower").innerHTML = tp.items.map(it => {
-      const offset = (it.minVal / max * 100);
-      const width  = ((it.maxVal - it.minVal) / max * 100);
-      const pill   = it.firm === "firm" ? "ok" : (it.firm === "bridge" ? "warn" : "crit");
-      return `
-      <div class="ttp-row" title="${esc(it.note + "  Example: " + it.example)}">
-        <div class="ttp-top">
-          <div class="leadtime-name">${it.name}
-            <span class="stack-pill ${pill}">${it.firmLabel}</span>
-          </div>
-          <div class="leadtime-val ${it.severity}">${it.range}</div>
-        </div>
-        <div class="leadtime-bar-wrap">
-          <div class="ttp-bar ${it.severity}" style="margin-left:${offset.toFixed(1)}%;width:${width.toFixed(1)}%"></div>
-        </div>
-        <div class="ttp-tradeoff">${it.tradeoff} <span class="stack-src">— ${it.src.label}</span></div>
-      </div>`;
-    }).join("");
+    if (!$("timeToPowerChart") || typeof Chart === "undefined" || !DATA.timeToPower) return;
+    if (renderTimeToPower._done) return;
+    renderTimeToPower._done = true;
+    initCharts(); applyChartDefaults();
+    const tp = DATA.timeToPower, cl = getChartColors();
+    const rows = tp.items.slice().sort((a, b) => a.minVal - b.minVal);   // fastest first
+    const sev = { ok: "#15803d", warn: "#c2710c", crit: "#c0322b" };      // green=fast → red=slow
+    _charts.timeToPowerChart = new Chart($("timeToPowerChart"), {
+      type: "bar",
+      data: { labels: rows.map(r => r.name), datasets: [{
+        label: "months to first power",
+        data: rows.map(r => [r.minVal, r.maxVal]),                        // floating min→max bar
+        backgroundColor: rows.map(r => sev[r.severity] || "#1d4ed8"),
+        borderRadius: 6, maxBarThickness: 22
+      }]},
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 12 } },
+        plugins: {
+          legend: { display: false }, datalabels: { display: false },
+          tooltip: { callbacks: {
+            label: c => " " + rows[c.dataIndex].range + " · " + rows[c.dataIndex].firmLabel,
+            afterBody: items => rows[items[0].dataIndex].tradeoff,
+            footer: items => "Source: " + rows[items[0].dataIndex].src.label
+          }}
+        },
+        scales: {
+          x: { min: 0, max: tp.maxScale, grid: { color: cl.grid }, ticks: { callback: v => v + " mo" },
+               title: { display: true, text: "months to first power · 0–84 (7-yr) scale" } },
+          y: { grid: { display: false } }
+        }
+      }
+    });
     if ($("timeToPowerMethod")) {
       $("timeToPowerMethod").innerHTML =
-        `<b>Firmness:</b> Firm = dispatchable 24/7 (grid / nuclear); Bridge = interim on-site gas while firm power catches up; ` +
-        `On-site = fastest but fuel-cost / supply dependent. Bar = months-to-first-power range on a 0–84 mo (7-yr) scale. ` +
-        `<b>Cited:</b> grid interconnect duration (LBNL Queued Up 2025), fuel-cell speed (Bloom/Oracle), nuclear restart (Constellation/Microsoft), SMR window (DOE / Google–Kairos). ` +
-        `<b>Modeled (labeled):</b> behind-the-meter gas and reciprocating-engine deployment bands — OEM site-install is fast but order-book lead times vary; trade-off / firmness tags are editorial.`;
+        `<b>Bars = months-to-first-power range</b> (min→max), 0–84 mo (7-yr) scale; <b>green = fastest, red = slowest</b>. ` +
+        `<b>Firmness</b> (on hover): Firm = dispatchable 24/7 (grid / nuclear); Bridge = interim on-site gas; On-site = fastest but fuel-dependent. ` +
+        `<b>Cited:</b> grid interconnect (LBNL Queued Up 2025), fuel cells (Bloom/Oracle), nuclear restart (Constellation/Microsoft), SMR (DOE / Google–Kairos). ` +
+        `<b>Modeled (labeled):</b> behind-the-meter gas + reciprocating-engine bands; trade-off / firmness tags are editorial.`;
     }
   }
 
@@ -4964,7 +4975,7 @@
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart","renderTimeToPower"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
