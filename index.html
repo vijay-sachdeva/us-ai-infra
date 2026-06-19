@@ -1189,6 +1189,55 @@
   @media (min-width: 641px) and (max-width: 940px) {
     .kpis { grid-template-columns: repeat(3, 1fr); }
   }
+
+  /* ===== Overview cold-open (feat/overview-cold-open) — --ov vars mapped to theme tokens ===== */
+  #overview{--ov-ink:var(--ink);--ov-muted:var(--muted);--ov-line:var(--line);
+    --ov-demand:var(--accent);--ov-gen:var(--ink-2);--ov-gap:var(--red);--ov-amber:var(--amber);
+    max-width:1040px;margin:0 auto}
+  .ov-eyebrow{display:flex;justify-content:space-between;font-size:12px;color:var(--ov-muted);letter-spacing:.04em}
+  .ov-live{display:flex;align-items:center;gap:6px}
+  .ov-live i{width:7px;height:7px;border-radius:50%;background:#39d98a;display:inline-block}
+  .ov-h1{font-size:30px;font-weight:600;margin:.3rem 0 .35rem;color:var(--ov-ink);line-height:1.18}
+  .ov-accent{color:var(--ov-demand)}
+  .ov-sub{font-size:15px;color:var(--ov-muted);margin:0 0 1.4rem}
+  .ov-chartwrap{width:100%}
+  .ov-legend{display:flex;gap:18px;margin-top:8px;font-size:12px;color:var(--ov-muted);flex-wrap:wrap}
+  .ov-sw{display:inline-block;width:14px;vertical-align:middle;margin-right:5px}
+  .ov-sw-line{height:0;border-top:2.5px solid var(--ov-demand)}
+  .ov-sw-dash{height:0;border-top:2px dashed var(--ov-gen)}
+  .ov-sw-area{height:10px;border-radius:2px;background:var(--ov-gap);opacity:.5}
+  .ov-index-head{display:flex;justify-content:space-between;align-items:baseline;margin:2rem 0 .7rem;font-size:14px;color:var(--ov-ink);font-weight:500}
+  .ov-stress{font-size:12px;color:var(--ov-muted)} .ov-stress b{color:var(--ov-gap)}
+  .ov-gauges{display:flex;flex-direction:column;gap:11px}
+  .ov-gauge{display:flex;align-items:center;gap:12px}
+  .ov-gauge .lab{font-size:13px;color:var(--ov-muted);width:172px;flex:none}
+  .ov-gauge .track{flex:1;height:8px;border-radius:4px;background:var(--ov-line)}
+  .ov-gauge .fill{height:8px;border-radius:4px;width:0;transition:width 1s ease}
+  .ov-gauge .val{font-size:13px;color:var(--ov-ink);width:112px;text-align:right;flex:none}
+  .ov-gauge .val a{color:var(--ov-muted);text-decoration:none;font-size:10px;vertical-align:super;margin-left:4px}
+  .ov-lens-label{font-size:12px;color:var(--ov-muted);margin:2rem 0 .6rem}
+  .ov-lenses{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .ov-lens{display:flex;flex-direction:column;gap:2px;padding:13px 15px;border:1px solid var(--ov-line);border-radius:10px;text-decoration:none;background:rgba(255,255,255,.02);transition:border-color .15s}
+  .ov-lens:hover{border-color:var(--ov-demand)}
+  .ov-lens b{font-size:15px;font-weight:500;color:var(--ov-ink)}
+  .ov-lens span{font-size:11px;color:var(--ov-muted)}
+  .ov-ticker{display:flex;flex-direction:column;gap:8px;margin-top:1.6rem;border-top:1px solid var(--ov-line);padding-top:1rem}
+  .ov-tick{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ov-ink)}
+  .ov-tick time{color:var(--ov-muted);font-size:11px;width:54px;flex:none}
+  .ov-tag{font-size:10px;font-weight:600;letter-spacing:.04em;padding:2px 6px;border-radius:4px;border:1px solid currentColor;flex:none}
+  .ov-why{color:var(--ov-muted)}
+  .ov-toggle{display:inline-flex;border:1px solid var(--ov-line);border-radius:8px;overflow:hidden;margin:.2rem 0 1rem}
+  .ov-toggle button{appearance:none;background:transparent;border:0;color:var(--ov-muted);font:inherit;font-size:13px;padding:6px 14px;cursor:pointer}
+  .ov-toggle button.on{background:rgba(88,166,255,.12);color:var(--ov-ink)}
+  .ov-toggle button+button{border-left:1px solid var(--ov-line)}
+  .ov-maplegend{display:flex;align-items:center;gap:14px;margin-top:8px;font-size:12px;color:var(--ov-muted);flex-wrap:wrap}
+  .ov-maplegend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  .ov-tip{position:absolute;pointer-events:none;opacity:0;transform:translate(-50%,-110%);transition:opacity .12s;
+    background:#11161b;border:1px solid #2a3543;border-radius:8px;padding:7px 10px;font-size:12px;color:#e6edf3;white-space:nowrap;z-index:5;max-width:220px}
+  .ov-tip b{color:#e6edf3;font-weight:500} .ov-tip .s{display:block;color:#8b97a3;margin-top:2px;white-space:normal}
+  .ov-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  @media(max-width:640px){.ov-h1{font-size:24px}.ov-lenses{grid-template-columns:1fr}.ov-gauge .lab{width:120px}}
+  @media(prefers-reduced-motion:reduce){.ov-gauge .fill{transition:none}}
 </style>
 <script>
   // Set theme before body renders to avoid a light-mode flash.
@@ -1257,41 +1306,29 @@
   <div class="wrap">
 
     <!-- ============ OVERVIEW ============ -->
-    <section class="tab-content" data-tab="overview">
-      <h2 class="tab-title">Overview</h2>
-      <p class="tab-sub">The 30-second pitch. Pick a persona below for the deep dive.</p>
-
-      <div class="hero-headline">
-        <div class="eyebrow">State of the Industry</div>
-        <h2>The US data center buildout has hit a power wall — demand is racing ahead of the grid.</h2>
-        <p>Hyperscalers are committing record capital to AI infrastructure, but electricity, transformers and interconnection queues now set the pace. This monitor tracks where capacity is going, what it costs, and what is holding it back.</p>
+    <section class="tab-content ov" data-tab="overview" id="overview">
+      <div class="ov-eyebrow">
+        <span>US AI infrastructure · overview</span>
+        <span class="ov-live"><i></i>live · refreshed daily</span>
       </div>
-
-      <!-- topStory banner (lifted from production) -->
-      <div id="topStory"></div>
-
-      <!-- KPI strip (lifted from production) -->
-      <div class="kpis" id="kpis"></div>
-
-      <p class="tab-sub" style="margin-top:32px"><b>Dive deeper:</b></p>
-      <div class="persona-picker">
-        <a href="#capital">
-          <div class="pname">Capital</div>
-          <div class="pdesc">Capex magnitudes, vacancy, $/MW returns, M&amp;A heatmap. For investors.</div>
-        </a>
-        <a href="#buildout">
-          <div class="pname">Buildout</div>
-          <div class="pdesc">Interconnection queues, lead times, cost stack, site selection. For builders.</div>
-        </a>
-        <a href="#grid">
-          <div class="pname">Grid</div>
-          <div class="pdesc">Demand vs generation, rate impact, regulation, utility actions. For energy + policy.</div>
-        </a>
-        <a href="#tokens">
-          <div class="pname">Tokens</div>
-          <div class="pdesc">Industry token volume, $/token compression, tokens × energy bridge.</div>
-        </a>
+      <h1 class="ov-h1">What breaks first — <span class="ov-accent">chips, power, land, or capital?</span></h1>
+      <p class="ov-sub">Record capital is committing, but power sets the pace. Watch the gap open.</p>
+      <div class="ov-toggle" role="tablist" aria-label="Hero view">
+        <button data-h="wall" role="tab" aria-selected="true">Power wall</button>
+        <button data-h="map"  role="tab" aria-selected="false">Constraint map</button>
       </div>
+      <div id="ov-stage" class="ov-chartwrap" style="position:relative"></div>
+      <div class="ov-index-head"><span>Power wall index</span>
+        <span class="ov-stress">system stress · <b id="ov-stress">elevated</b></span></div>
+      <div id="ov-index" class="ov-gauges"></div>
+      <div class="ov-lens-label">Choose your lens</div>
+      <div class="ov-lenses">
+        <a class="ov-lens" href="#capital"><b>Who owns the megawatts?</b><span>Capital</span></a>
+        <a class="ov-lens" href="#buildout"><b>Where does capacity get stuck?</b><span>Buildout</span></a>
+        <a class="ov-lens" href="#grid"><b>Who pays for the load?</b><span>Grid</span></a>
+        <a class="ov-lens" href="#tokens"><b>How does usage become power?</b><span>Tokens</span></a>
+      </div>
+      <div id="ov-ticker" class="ov-ticker"></div>
     </section>
 
     <!-- ============ CAPITAL ============ -->
@@ -4584,12 +4621,208 @@
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
   }
 
+  /* ===== Overview cold open (feat/overview-cold-open + map-toggle addendum).
+     Additive + graceful: every piece falls back if its DATA field is missing. ===== */
+  function ovCumsum(a){ var s=0; return a.map(function(v){ s+=v; return s; }); }
+
+  function renderPowerWall(){
+    var host=document.getElementById('ov-stage'); if(!host) return;
+    var S=(DATA&&DATA.demandProjection)||null;   // cumulative demand vs firm gen -> the gap widens
+    var years=S?S.years.map(Number):[2024,2025,2026,2027,2028,2029,2030];
+    var dem  =S?ovCumsum(S.yoyDemandGrowthGW):[25,31,41,55,72,90,108];
+    var gen  =S?ovCumsum(S.newFirmGenForDC):[24,28,33,39,45,50,55];
+    var n=years.length, maxG=Math.ceil(Math.max.apply(null,dem)/20)*20;
+    var X=function(i){return 56+i*(584/(n-1))}, Y=function(g){return 250-(g/maxG)*210};
+    var dP=dem.map(function(g,i){return [X(i),Y(g)]}), gP=gen.map(function(g,i){return [X(i),Y(g)]});
+    var pth=function(p){return "M"+p.map(function(q){return q[0].toFixed(1)+" "+q[1].toFixed(1)}).join(" L ")};
+    var poly=dP.concat(gP.slice().reverse()).map(function(q){return q[0].toFixed(1)+","+q[1].toFixed(1)}).join(" ");
+    var gap=Math.round(dem[n-1]-gen[n-1]);
+    var ticks=[0,Math.floor((n-1)/3),Math.floor(2*(n-1)/3),n-1];
+    var xlab=ticks.map(function(i){var a=i===0?"start":i===n-1?"end":"middle";
+      return '<text x="'+X(i).toFixed(0)+'" y="270" font-size="11" fill="#8b97a3" text-anchor="'+a+'">'+years[i]+'</text>'}).join("");
+    host.innerHTML=
+     '<svg id="ovpw" viewBox="0 0 680 300" width="100%" role="img" aria-labelledby="ovt ovd" style="display:block">'
+     +'<title id="ovt">AI data-center demand versus firm generation</title>'
+     +'<desc id="ovd">Two diverging lines; the widening red area is the projected power gap.</desc>'
+     +'<line x1="56" y1="250" x2="640" y2="250" stroke="#1f2933"/>'
+     +'<text x="56" y="36" font-size="11" fill="#8b97a3">GW of cumulative US data-center load</text>'+xlab
+     +'<polygon id="ovgap" points="'+poly+'" fill="#e5534b" opacity="0"/>'
+     +'<path id="ovgen" d="'+pth(gP)+'" fill="none" stroke="#8b97a3" stroke-width="2" stroke-dasharray="5 4"/>'
+     +'<path id="ovdem" d="'+pth(dP)+'" fill="none" stroke="#58a6ff" stroke-width="2.5"/>'
+     +'<circle cx="'+dP[n-1][0]+'" cy="'+dP[n-1][1]+'" r="3.5" fill="#58a6ff"/>'
+     +'<circle cx="'+gP[n-1][0]+'" cy="'+gP[n-1][1]+'" r="3.5" fill="#8b97a3"/>'
+     +'<line id="ovscrub" x1="0" y1="40" x2="0" y2="250" stroke="#3a4654" opacity="0"/>'
+     +'<text id="ovlbl" x="634" y="'+((dP[n-1][1]+gP[n-1][1])/2).toFixed(0)+'" font-size="13" font-weight="500" fill="#e5534b" text-anchor="end" opacity="0"></text>'
+     +'</svg>'
+     +'<div id="ovread" style="position:absolute;top:4px;opacity:0;transform:translate(-50%,0);pointer-events:none;font-size:12px;padding:3px 8px;border-radius:8px;background:#11161b;border:1px solid #2a3543;color:#e6edf3;white-space:nowrap"></div>'
+     +'<div class="ov-legend"><span><i class="ov-sw ov-sw-line"></i>AI demand</span>'
+     +'<span><i class="ov-sw ov-sw-dash"></i>firm generation</span>'
+     +'<span><i class="ov-sw ov-sw-area"></i>the gap</span>'
+     +'<span style="margin-left:auto">cumulative GW · Goldman / Wood Mackenzie / EIA (modeled)</span></div>';
+    host.style.position='relative';
+    var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+    var dem_=document.getElementById('ovdem'), gen_=document.getElementById('ovgen'),
+        gapEl=document.getElementById('ovgap'), lbl=document.getElementById('ovlbl');
+    function draw(el,d){var L=el.getTotalLength();el.style.strokeDasharray=L;el.style.strokeDashoffset=L;el.getBoundingClientRect();el.style.transition='stroke-dashoffset 1.4s ease '+d+'s';el.style.strokeDashoffset=0;}
+    function reveal(){gapEl.style.transition='opacity .9s';gapEl.style.opacity=.22;lbl.style.opacity=1;
+      if(reduce){lbl.textContent=gap+' GW gap';return;}
+      var t0=null,done=false;requestAnimationFrame(function tick(ts){if(!t0)t0=ts;var k=Math.min(1,(ts-t0)/900);lbl.textContent=Math.round(k*gap)+' GW gap';if(k<1)requestAnimationFrame(tick);else done=true;});
+      setTimeout(function(){if(!done)lbl.textContent=gap+' GW gap';},1200);}
+    if(reduce){gen_.style.strokeDasharray='5 4';reveal();}
+    else{draw(gen_,0);draw(dem_,.15);setTimeout(reveal,1500);}
+    var svg=document.getElementById('ovpw'),scrub=document.getElementById('ovscrub'),rd=document.getElementById('ovread');
+    svg.addEventListener('mousemove',function(e){try{var r=svg.getBoundingClientRect();var vx=(e.clientX-r.left)/r.width*680;
+      var i=Math.max(0,Math.min(n-1,Math.round((vx-56)/(584/(n-1)))));var x=X(i);
+      scrub.setAttribute('x1',x);scrub.setAttribute('x2',x);scrub.style.opacity=1;
+      rd.style.opacity=1;rd.style.left=(x/680*100)+'%';rd.textContent=years[i]+' · gap '+Math.round(dem[i]-gen[i])+' GW';}catch(_){}});
+    svg.addEventListener('mouseleave',function(){scrub.style.opacity=0;rd.style.opacity=0;});
+  }
+
+  function renderIndex(){
+    var host=document.getElementById('ov-index'); if(!host) return;
+    var G;
+    if(DATA&&DATA.powerWallIndex){ G=DATA.powerWallIndex; }
+    else {
+      G=[];
+      var dp=DATA&&DATA.demandProjection;
+      if(dp){ var cd=ovCumsum(dp.yoyDemandGrowthGW), cg=ovCumsum(dp.newFirmGenForDC);
+        G.push({lab:'Cumulative demand vs gen',val:'−'+Math.round(cd[cd.length-1]-cg[cg.length-1])+' GW',pct:88,level:'gap',src:'#grid',tier:'Analyst'}); }
+      var pb=DATA&&DATA.powerBreakdown&&DATA.powerBreakdown.funnel;
+      if(pb){ G.push({lab:'Interconnect queue',val:pb.values[0]+' GW',pct:82,level:'gap',src:'#buildout',tier:'Analyst'}); }
+      var it=DATA&&DATA.equipmentLeadTimes&&DATA.equipmentLeadTimes.items&&DATA.equipmentLeadTimes.items[0];
+      if(it){ G.push({lab:'HV transformer lead',val:it.range,pct:75,level:(it.severity==='crit'?'gap':'amber'),src:'#buildout',tier:'Analyst'}); }
+      var vt=DATA&&DATA.vacancyTrend;
+      if(vt){ G.push({lab:'Vacancy (top markets)',val:vt.values[vt.values.length-1]+'% vac',pct:91,level:'gap',src:'#capital',tier:'Analyst'}); }
+      if(!G.length){ G=[{lab:'Demand growth',val:'+33%/yr',pct:86,level:'gap',src:'#grid',tier:'Analyst'}]; }
+    }
+    var col={gap:'#e5534b',amber:'#e3b341',ok:'#39d98a'};
+    host.innerHTML=G.map(function(g){return '<div class="ov-gauge"><span class="lab">'+g.lab+'</span>'
+      +'<span class="track"><span class="fill" data-w="'+g.pct+'%" style="background:'+(col[g.level]||col.amber)+'"></span></span>'
+      +'<span class="val">'+g.val+'<a href="'+g.src+'" title="'+g.tier+' · view source">'+g.tier[0]+'</a></span></div>';}).join('');
+    setTimeout(function(){[].forEach.call(host.querySelectorAll('.fill'),function(f){f.style.width=f.dataset.w;});},300);
+  }
+
+  function renderTicker(){
+    var host=document.getElementById('ov-ticker'); if(!host) return;
+    var feed=(DATA&&(DATA.feed||(DATA.topStory?[DATA.topStory]:[])))||[];
+    if(!feed.length){ host.style.display='none'; return; }
+    host.style.display='';
+    var tagColor={GRID:'#e5534b',CAPITAL:'#39d98a',BUILDOUT:'#58a6ff',TOKENS:'#e3b341'};
+    host.innerHTML=feed.slice(0,3).map(function(it){
+      var tag=(it.tag||it.section||'SIGNAL').toUpperCase();
+      var head=it.headline||it.title||it.text||'';
+      return '<div class="ov-tick"><time>'+(it.date||'')+'</time>'
+        +'<span class="ov-tag" style="color:'+(tagColor[tag]||'#8b97a3')+'">'+tag+'</span>'
+        +'<span>'+head+(it.why?' — <span class="ov-why">'+it.why+'</span>':'')+'</span></div>';
+    }).join('');
+  }
+
+  function ensureD3(cb){
+    if(window.d3&&window.topojson) return cb();   // dashboard already bundles d3 + topojson -> no-op
+    function add(src,next){var s=document.createElement('script');s.src=src;s.onload=next;s.onerror=next;document.head.appendChild(s);}
+    add('https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js',function(){
+      add('https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js',cb);
+    });
+  }
+
+  // Fallback seed only used if DATA.markets is absent; coords real, constraint illustrative.
+  var DEFAULT_MARKETS=[
+    {name:'Northern Virginia (Ashburn)',lat:39.04,lon:-77.49,constraint:95,pipelineGW:8,tag:'power constrained',note:'largest inventory; queues saturated'},
+    {name:'Silicon Valley (Santa Clara)',lat:37.35,lon:-121.95,constraint:90,pipelineGW:2.5,tag:'vacancy tight',note:'priciest power; little land'},
+    {name:'Phoenix',lat:33.45,lon:-112.07,constraint:82,pipelineGW:4,tag:'power + water limited'},
+    {name:'Atlanta',lat:33.75,lon:-84.39,constraint:80,pipelineGW:6,tag:'pipeline-heavy'},
+    {name:'Dallas–Fort Worth',lat:32.78,lon:-96.80,constraint:70,pipelineGW:4,tag:'pipeline-heavy'},
+    {name:'Chicago',lat:41.85,lon:-87.65,constraint:68,pipelineGW:2.5,tag:'vacancy tight'},
+    {name:'Abilene TX (Stargate)',lat:32.45,lon:-99.73,constraint:42,pipelineGW:5,tag:'build-ready',note:'on-site generation'},
+    {name:'Richland Parish LA (Meta Hyperion)',lat:32.42,lon:-91.76,constraint:38,pipelineGW:5,tag:'build-ready · nuclear deal'}
+  ];
+  // Normalize the dashboard's DATA.markets (type/pipeline-MW/status) to the map's schema.
+  function ovMarkets(){
+    var src=(DATA&&DATA.markets&&DATA.markets.length)?DATA.markets:DEFAULT_MARKETS;
+    return src.map(function(m){
+      if(m.constraint!=null) return m;
+      var c=m.type==='constrained'?92:(m.type==='growth'?66:46);
+      return {name:m.name,lat:m.lat,lon:m.lon,constraint:c,
+        pipelineGW:(m.pipelineGW!=null?m.pipelineGW:(m.pipeline?Math.round(m.pipeline/1000):1)),
+        tag:m.tag||m.status||m.type,note:m.note};
+    });
+  }
+
+  function renderConstraintMap(){
+    var host=document.getElementById('ov-stage'); if(!host) return;
+    host.innerHTML='<div id="ov-map" style="position:relative"></div>'
+      +'<div class="ov-maplegend"><span><i style="background:#39d98a"></i>build-ready</span>'
+      +'<span><i style="background:#e3b341"></i>tightening</span>'
+      +'<span><i style="background:#e5534b"></i>power constrained</span>'
+      +'<span style="margin-left:auto">bubble = pipeline GW · click = open Buildout · constraint modeled</span></div>'
+      +'<ul class="ov-sr" id="ov-srlist"></ul>'
+      +'<div class="ov-tip" id="ov-tip"></div>';
+    var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+    var markets=ovMarkets();
+    document.getElementById('ov-srlist').innerHTML=markets.map(function(m){
+      return '<li>'+m.name+': '+m.tag+', constraint '+m.constraint+' of 100.</li>';}).join('');
+    ensureD3(function(){
+      if(!window.d3||!window.topojson){host.querySelector('#ov-map').innerHTML=
+        '<p style="color:var(--ov-muted);font-size:13px">Map needs a connection to load US topology.</p>';return;}
+      var W=900,H=500, tip=document.getElementById('ov-tip'), mapEl=document.getElementById('ov-map');
+      var svg=d3.select(mapEl).append('svg').attr('viewBox','0 0 '+W+' '+H).attr('width','100%')
+        .attr('role','img').attr('aria-label','US data-center markets shaded by power-constraint severity');
+      var proj=d3.geoAlbersUsa().scale(1150).translate([W/2,H/2]); var path=d3.geoPath(proj);
+      var color=function(s){return s>=75?'#e5534b':s>=55?'#e3b341':'#39d98a';};
+      var R=function(g){return 5+Math.sqrt(g||1)*3.2;};
+      d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json').then(function(us){
+        svg.append('g').selectAll('path')
+          .data(topojson.feature(us,us.objects.states).features).join('path')
+          .attr('d',path).attr('fill','#11161b').attr('stroke','#2a3543').attr('stroke-width',0.6);
+        var pts=markets.map(function(m){var xy=proj([m.lon,m.lat]);return xy?{m:m,x:xy[0],y:xy[1]}:null;}).filter(Boolean);
+        var g=svg.append('g');
+        if(!reduce){ g.selectAll('circle.ring').data(pts.filter(function(p){return p.m.constraint>=88;}))
+          .join('circle').attr('cx',function(p){return p.x}).attr('cy',function(p){return p.y})
+          .attr('r',6).attr('fill','none').attr('stroke','#e5534b').attr('stroke-width',1.2)
+          .each(function(){var c=this;
+            var a=document.createElementNS('http://www.w3.org/2000/svg','animate');
+            a.setAttribute('attributeName','r');a.setAttribute('values','6;16;6');a.setAttribute('dur','2.4s');a.setAttribute('repeatCount','indefinite');c.appendChild(a);
+            var o=document.createElementNS('http://www.w3.org/2000/svg','animate');
+            o.setAttribute('attributeName','stroke-opacity');o.setAttribute('values','.7;0;.7');o.setAttribute('dur','2.4s');o.setAttribute('repeatCount','indefinite');c.appendChild(o);});
+        }
+        g.selectAll('circle.mkt').data(pts).join('circle').attr('class','mkt')
+          .attr('cx',function(p){return p.x}).attr('cy',function(p){return p.y})
+          .attr('r',function(p){return R(p.m.pipelineGW)})
+          .attr('fill',function(p){return color(p.m.constraint)}).attr('fill-opacity',.85)
+          .attr('stroke','#0a0d10').attr('stroke-width',1).style('cursor','pointer')
+          .on('mousemove',function(e,p){var b=mapEl.getBoundingClientRect();
+            tip.style.left=(e.clientX-b.left)+'px';tip.style.top=(e.clientY-b.top)+'px';tip.style.opacity=1;
+            tip.innerHTML='<b>'+p.m.name+'</b> · '+p.m.constraint+'/100'
+              +'<span class="s">'+p.m.tag+(p.m.note?' — '+p.m.note:'')
+              +(p.m.pipelineGW?' ('+p.m.pipelineGW+' GW pipeline)':'')+'</span>';})
+          .on('mouseleave',function(){tip.style.opacity=0;})
+          .on('click',function(e,p){location.hash='#buildout';});
+      }).catch(function(){mapEl.innerHTML='<p style="color:var(--ov-muted);font-size:13px">Could not load US topology.</p>';});
+    });
+  }
+
+  function setHero(which){
+    try{localStorage.setItem('ov-hero',which);}catch(e){}
+    document.querySelectorAll('.ov-toggle button').forEach(function(b){
+      var on=b.dataset.h===which; b.classList.toggle('on',on); b.setAttribute('aria-selected',on);});
+    if(which==='map') renderConstraintMap(); else renderPowerWall();
+  }
+  function initOverview(){
+    var tog=document.querySelector('.ov-toggle');
+    if(tog&&!tog._wired){ tog._wired=true;
+      tog.querySelectorAll('button').forEach(function(b){
+        b.addEventListener('click',function(){setHero(b.dataset.h);});});
+    }
+    var saved='wall'; try{saved=localStorage.getItem('ov-hero')||'wall';}catch(e){}
+    setHero(saved);
+    renderIndex(); renderTicker();
+  }
+
   function renderTab(name) {
     if (renderedTabs.has(name)) return;
     renderedTabs.add(name);
     if (name === "overview") {
-      renderTopStory();
-      renderKpis();
+      initOverview();
     } else if (name === "capital") {
       renderCapexSankey("all");
       renderCostStack("costStack");
