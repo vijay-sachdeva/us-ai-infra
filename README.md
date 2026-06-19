@@ -40,6 +40,21 @@ A GitHub Actions workflow runs daily at 11:00 UTC. Each run:
 
 A local Claude Code scheduled task provides a backup. The cutover happens automatically; no human in the loop on update days.
 
+## Live public-data feeds
+
+A second GitHub Actions job (`.github/workflows/refresh-data.yml`) hydrates the dashboard from authoritative public data. Small stdlib-only Python scripts in `scripts/` write pre-computed JSON into `data/`, and the front-end's `hydrate()` merges those files into `DATA` on load.
+
+| Feed | File | Source | Tier |
+|---|---|---|---|
+| Grid headroom by balancing authority | `data/grid.json` | EIA-930 demand + EIA-860 capacity | Primary |
+| Industrial power price by state | `data/power_econ.json` | EIA retail-sales (sector IND) | Primary |
+| Interconnection queue by ISO | `data/queues.json` | LBNL Queued Up + 78% withdrawal haircut | Analyst |
+| Per-state power "white-space" score | `data/siting.json` | modeled join of the above | Modeled |
+
+The white-space score (0–100, rendered as the map's county choropleth) is `0.45·headroom + 0.33·(1−queue_congestion) + 0.22·(1−industrial_price)` — a regional screen, not a site confirmation.
+
+Feeds are **additive and degrade gracefully**: a missing or failed feed leaves the curated `DATA` in place and never blanks a chart. Fast-changing data (hourly demand, monthly price) comes from the EIA API in CI; slow-changing reference data (BA capacity, the annual LBNL queue) is committed CSV under `scripts/data_sources/`, refreshed manually once a year. Requires a free `EIA_API_KEY` repo secret ([register here](https://www.eia.gov/opendata/register.php)).
+
 ## Tech
 
 - **Frontend**: vanilla HTML + Chart.js (+ D3 / topojson on production for the map). No build step.
