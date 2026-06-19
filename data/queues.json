@@ -1,0 +1,58 @@
+{
+  "lastUpdated": "2026-06-19T04:05:27Z",
+  "tier": "analyst",
+  "source": "LBNL Queued Up (LBNL Queued Up 2025)",
+  "withdrawal_rate": 0.78,
+  "iso": [
+    {
+      "iso": "MISO",
+      "active_gw": 340,
+      "credible_gw": 75
+    },
+    {
+      "iso": "PJM",
+      "active_gw": 290,
+      "credible_gw": 64
+    },
+    {
+      "iso": "ERCOT",
+      "active_gw": 210,
+      "credible_gw": 46
+    },
+    {
+      "iso": "CAISO",
+      "active_gw": 150,
+      "credible_gw": 33
+    },
+    {
+      "iso": "SPP",
+      "active_gw": 140,
+      "credible_gw": 31
+    },
+    {
+      "iso": "Southeast",
+      "active_gw": 120,
+      "credible_gw": 26
+    },
+    {
+      "iso": "West",
+      "active_gw": 95,
+      "credible_gw": 21
+    },
+    {
+      "iso": "Northwest",
+      "active_gw": 70,
+      "credible_gw": 15
+    },
+    {
+      "iso": "ISO-NE",
+      "active_gw": 50,
+      "credible_gw": 11
+    },
+    {
+      "iso": "NYISO",
+      "active_gw": 40,
+      "credible_gw": 9
+    }
+  ]
+}

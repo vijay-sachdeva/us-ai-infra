@@ -10,3 +10,7 @@ GITHUB_PUBLISH_BRIEF.md
 .DS_Store
 Thumbs.db
 *.swp
+
+# Python (feed scripts)
+__pycache__/
+*.pyc
