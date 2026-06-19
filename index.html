@@ -483,6 +483,10 @@
   .map-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
   .map-legend span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
   .map-legend .lg-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .map-legend-ws { display: none; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; font-size: 12px; color: var(--ink-2); }
+  .map-legend-ws .ws-grad { width: 160px; height: 10px; border-radius: 3px; background: linear-gradient(90deg,#440154,#31688e,#35b779,#fde725); }
+  .map-legend-ws .ws-scale-label { font-weight: 700; }
+  .map-legend-ws .ws-cap { color: var(--muted); font-style: italic; flex-basis: 100%; }
   @media (max-width: 640px) { .map-city-label { display: none; } }
   [data-theme="dark"] .map-shell {
     background: linear-gradient(180deg, #0f172a, #1e293b);
@@ -1455,6 +1459,13 @@
         <div class="sc-method" id="phantomLoadMethod"></div>
       </div>
 
+      <!-- Full-width: interconnection-queue chart — credible vs. phantom (live LBNL feed) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Interconnection queue by ISO — credible vs. phantom <span class="cf-tier cf-warn">analyst</span></h4>
+        <div class="note">Active queue split into credible (post-withdrawal) vs. speculative · GW · LBNL Queued Up + 78% historical withdrawal · live feed</div>
+        <div class="chart-box short"><canvas id="queueChart"></canvas></div>
+      </div>
+
       <!-- Full-width: US data center map -->
       <div class="stub-card" style="margin-top:14px">
         <h4>Where the capacity sits — primary US markets</h4>
@@ -1462,6 +1473,7 @@
         <div class="map-view-toggle" id="mapViewToggle" role="tablist">
           <button class="map-view-btn active" data-view="pipeline" type="button">Pipeline</button>
           <button class="map-view-btn"        data-view="operational" type="button">Operational</button>
+          <button class="map-view-btn"        data-view="whitespace"  type="button">White-space</button>
         </div>
         <div class="map-shell" id="map">
           <span class="map-label">US Markets</span>
@@ -1470,6 +1482,12 @@
           <span><span class="lg-dot" style="background:#d4452f"></span>Power-constrained</span>
           <span><span class="lg-dot" style="background:#1d4ed8"></span>Major growth</span>
           <span><span class="lg-dot" style="background:#15803d"></span>Emerging</span>
+        </div>
+        <div class="map-legend-ws" id="mapLegendWS">
+          <span class="ws-scale-label">Low</span>
+          <span class="ws-grad"></span>
+          <span class="ws-scale-label">High</span>
+          <span class="ws-cap">Modeled · state/ISO inputs · regional screen, not a site confirmation.</span>
         </div>
       </div>
 
@@ -1583,6 +1601,13 @@
           <h4>Annual demand growth vs. new firm generation</h4>
           <div class="note">DC load added per year vs. firm generation committed to DC · GW · 2024-2030</div>
           <div class="chart-box short"><canvas id="demandGapChart"></canvas></div>
+        </div>
+
+        <!-- Card: Grid headroom by balancing authority (live EIA feed) -->
+        <div class="stub-card">
+          <h4>Grid headroom by balancing authority <span class="cf-tier cf-ok">primary</span></h4>
+          <div class="note">Peak demand vs. installed capacity · % spare · EIA-930 + EIA-860 · live feed (falls back to curated when unavailable)</div>
+          <div class="chart-box short"><canvas id="headroomChart"></canvas></div>
         </div>
 
         <!-- Card 2: Retail rate impact by state (chart) -->
@@ -3851,7 +3876,11 @@
         .attr("viewBox", "0 0 " + W + " " + H)
         .attr("width", W).attr("height", H);
 
-      d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
+      const _ws = renderMap._view === "whitespace";
+      const _topoUrl = _ws
+        ? "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json"   // counties + states + nation
+        : "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+      d3.json(_topoUrl).then(us => {
         const proj = d3.geoAlbersUsa()
           .fitExtent([[12, 12], [W - 12, H - 12]],
             topojson.feature(us, us.objects.nation));
@@ -3864,6 +3893,31 @@
         const mBorder = _mDark ? "#3a4a60" : "#d0d9e4";
         const mCity = _mDark ? "#cbd5e1" : "#3a4a5c";
         const mBubbleStroke = _mDark ? "#0b1220" : "#fff";
+
+        // White-space view: county choropleth shaded by the modeled per-state siting score.
+        if (_ws) {
+          const scores = (DATA.siting && DATA.siting.states) || null;
+          const wsColor = (typeof d3.interpolateViridis === "function")
+            ? d3.scaleSequential(d3.interpolateViridis).domain([0, 100])
+            : d3.scaleLinear().domain([0, 50, 100]).range(["#440154", "#21918c", "#fde725"]);
+          const noData = _mDark ? "#243246" : "#e7edf4";
+          svg.append("g").selectAll("path")
+            .data(topojson.feature(us, us.objects.counties).features)
+            .join("path")
+            .attr("d", path)
+            .attr("fill", d => { const s = scores ? scores[d.id.slice(0, 2)] : null; return s == null ? noData : wsColor(s); })
+            .attr("stroke", "none")
+            .append("title").text(d => { const s = scores ? scores[d.id.slice(0, 2)] : null; return "FIPS " + d.id + " · white-space " + (s == null ? "n/a" : s); });
+          svg.append("path")
+            .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
+            .attr("d", path).attr("fill", "none").attr("stroke", mBorder).attr("stroke-width", 0.6);
+          if (!scores) {
+            svg.append("text").attr("x", W / 2).attr("y", H - 8).attr("text-anchor", "middle")
+              .attr("fill", "#8a97a8").attr("font-size", "12px").attr("font-family", "Inter, sans-serif")
+              .text("white-space feed not yet available — add EIA_API_KEY + run refresh-data");
+          }
+          return;
+        }
 
         // States
         svg.append("g").selectAll("path")
@@ -3970,9 +4024,16 @@
           renderMap._view = view;
           toggle.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
           const note = document.getElementById("mapNote");
-          if (note) note.innerHTML = view === "pipeline"
-            ? "Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · hover for detail"
-            : "Operational view · bubbles sum to ≈ 36 GW operational at primary markets · color = market status · hover for detail";
+          const NOTE = {
+            pipeline: "Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · hover for detail",
+            operational: "Operational view · bubbles sum to ≈ 36 GW operational at primary markets · color = market status · hover for detail",
+            whitespace: "White-space view · counties shaded by modeled per-state siting score (0–100) — higher = more grid headroom, less queue congestion, cheaper industrial power · hover a county"
+          };
+          if (note) note.innerHTML = NOTE[view] || NOTE.pipeline;
+          const stdLeg = document.querySelector(".map-legend");
+          const wsLeg = document.getElementById("mapLegendWS");
+          if (stdLeg) stdLeg.style.display = (view === "whitespace") ? "none" : "";
+          if (wsLeg)  wsLeg.style.display  = (view === "whitespace") ? "flex" : "none";
           renderMap._done = false;  // allow rebuild
           renderMap();
         });
@@ -4445,6 +4506,84 @@
 
   /* ----- Lazy per-tab render ----- */
   const renderedTabs = new Set();
+  /* ----- Live public-data feeds: data/*.json built by scripts/ + refresh-data.yml.
+     Additive + graceful — a missing or failed feed leaves the curated DATA untouched
+     and never blanks a chart. ----- */
+  function renderHeadroomChart() {
+    if (!$("headroomChart") || typeof Chart === "undefined") return;
+    if (!DATA.grid || !DATA.grid.regions) return;   // no feed yet -> skip, keep dashboard intact
+    if (renderHeadroomChart._done) return;
+    renderHeadroomChart._done = true;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const rows = Object.entries(DATA.grid.regions)
+      .filter(([, v]) => v.headroom_pct != null)
+      .map(([ba, v]) => ({ ba, ...v }))
+      .sort((a, b) => a.headroom_pct - b.headroom_pct);
+    const col = v => v <= 6 ? "#e5534b" : (v <= 10 ? "#e3b341" : "#39d98a");
+    _charts.headroomChart = new Chart($("headroomChart"), {
+      type: "bar",
+      data: { labels: rows.map(d => d.ba), datasets: [{
+        label: "Grid headroom %", data: rows.map(d => d.headroom_pct),
+        backgroundColor: rows.map(d => col(d.headroom_pct)), borderRadius: 6, maxBarThickness: 26
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: "y",
+        plugins: {
+          legend: { display: false }, datalabels: { display: false },
+          tooltip: { callbacks: { afterLabel: c => "Peak ≈ " + (rows[c.dataIndex].peak_mw || 0).toLocaleString() + " MW" } }
+        },
+        scales: {
+          x: { grid: { color: cl.grid }, beginAtZero: true, title: { display: true, text: "headroom (%) — EIA-930 + EIA-860" } },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderQueueChart() {
+    if (!$("queueChart") || typeof Chart === "undefined") return;
+    if (!DATA.queues || !Array.isArray(DATA.queues.iso)) return;
+    if (renderQueueChart._done) return;
+    renderQueueChart._done = true;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const q = DATA.queues.iso;
+    const credPct = Math.round(100 * (1 - (DATA.queues.withdrawal_rate != null ? DATA.queues.withdrawal_rate : 0.78)));
+    _charts.queueChart = new Chart($("queueChart"), {
+      type: "bar",
+      data: { labels: q.map(d => d.iso), datasets: [
+        { label: "Credible (post-withdrawal)", data: q.map(d => d.credible_gw), backgroundColor: "#58a6ff", stack: "s" },
+        { label: "Phantom / speculative", data: q.map(d => d.active_gw - d.credible_gw), backgroundColor: "rgba(88,166,255,.20)", stack: "s" }
+      ]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom" }, datalabels: { display: false },
+          tooltip: { callbacks: { footer: items => { const r = q[items[0].dataIndex]; return "Active queue " + r.active_gw + " GW · ~" + credPct + "% credible"; } } }
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, grid: { color: cl.grid }, beginAtZero: true, title: { display: true, text: "queue (GW) — LBNL Queued Up" } }
+        }
+      }
+    });
+  }
+
+  async function hydrate() {
+    const feeds = ["grid", "power_econ", "queues", "siting"];
+    let got;
+    try {
+      got = await Promise.all(feeds.map(f =>
+        fetch("data/" + f + ".json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null)));
+    } catch (_) { return; }                            // network down -> keep curated DATA
+    feeds.forEach((f, i) => { if (got[i]) DATA[f] = got[i]; });   // missing feed -> keep curated DATA
+    const vis = el => !!(el && el.offsetParent !== null);          // only paint into a visible canvas
+    if (DATA.grid && vis($("headroomChart")))  { renderHeadroomChart._done = false; renderHeadroomChart(); }
+    if (DATA.queues && vis($("queueChart")))    { renderQueueChart._done = false; renderQueueChart(); }
+    if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
+  }
+
   function renderTab(name) {
     if (renderedTabs.has(name)) return;
     renderedTabs.add(name);
@@ -4476,6 +4615,7 @@
       renderMegaProjects();
       renderBuildabilityMovements();
       renderPhantomLoad();
+      renderQueueChart();
       renderTimeToPower();
       renderPerfPerWattChart();
     } else if (name === "grid") {
@@ -4488,6 +4628,7 @@
       renderCumDeficitChart();
       renderTurbineSlots();
       renderPowerSourceMixChart();
+      renderHeadroomChart();
     } else if (name === "tokens") {
       renderTokenJourney();
       renderEnergyBridge();
@@ -4539,7 +4680,7 @@
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
@@ -4640,6 +4781,7 @@
 
   showTab(fromHash());          // initial activation also renders the active tab
   motionObserveAll();           // wire up fade-ins + KPI counters
+  hydrate();                    // pull live public-data feeds (data/*.json); additive + graceful
   window.addEventListener('hashchange', function () { showTab(fromHash()); });
 </script>
 
