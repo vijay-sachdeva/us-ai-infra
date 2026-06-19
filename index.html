@@ -297,6 +297,16 @@
   .stub-card > .sc-method,
   .stub-card > .tab-callout,
   .stub-card > .leadtime-row { order: 2; }
+  /* Live-feed freshness */
+  .feed-stamp { font-size: 10px; font-weight: 600; margin-left: 8px; color: var(--green); white-space: nowrap; vertical-align: middle; }
+  .feed-stamp.stale { color: var(--amber); }
+  .feed-stamp:empty { display: none; }
+  #overview .ov-livedata { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--ov-line); font-size: 11.5px; color: var(--ov-muted); }
+  #overview .ov-livedata:empty { display: none; }
+  #overview .ov-livedata .lds-label { font-weight: 700; color: var(--ov-ink); }
+  #overview .ov-livedata .lds-item { display: inline-flex; align-items: center; gap: 5px; }
+  #overview .ov-livedata .lds-item i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; }
+  #overview .ov-livedata .lds-item.stale i { background: var(--amber); }
 
   /* ---------- Cost stack (lifted from production) ---------- */
   .cost-group-label {
@@ -1346,6 +1356,7 @@
         <a class="ov-lens" href="#tokens"><b>How does usage become power?</b><span class="ov-lens-stat">1M tokens ≈ 5 kWh ≈ a few cents</span><span>Tokens →</span></a>
       </div>
       <div id="ov-ticker" class="ov-ticker"></div>
+      <div id="ov-livedata" class="ov-livedata"></div>
     </section>
 
     <!-- ============ CAPITAL ============ -->
@@ -1364,6 +1375,13 @@
           <h4>2026 capex by operator</h4>
           <div class="note">Largest US AI-infra operators &middot; hyperscalers (~75% AI) + AI-native challengers (xAI, Nebius — est.) &middot; USD billions</div>
           <div class="chart-box short"><canvas id="coCapexChart"></canvas></div>
+        </div>
+
+        <!-- Card 1b: AI-attributed share of capex (derived from capexFlow infra/non-core lanes) -->
+        <div class="stub-card">
+          <h4>AI-attributed share of capex <span class="cf-tier cf-crit">modeled</span></h4>
+          <div class="chart-box short"><canvas id="capexAiShareChart"></canvas></div>
+          <div class="note" id="capexAiShareNote"></div>
         </div>
 
         <!-- Card 2: Cost stack per MW (real) -->
@@ -1515,14 +1533,14 @@
 
       <!-- Full-width: interconnection-queue chart — credible vs. phantom (live LBNL feed) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Interconnection queue by ISO — credible vs. phantom <span class="cf-tier cf-warn">analyst</span></h4>
+        <h4>Interconnection queue by ISO — credible vs. phantom <span class="cf-tier cf-warn">analyst</span><span class="feed-stamp" data-feed="queues"></span></h4>
         <div class="note">Active queue split into credible (post-withdrawal) vs. speculative · GW · LBNL Queued Up + 78% historical withdrawal · live feed</div>
         <div class="chart-box short"><canvas id="queueChart"></canvas></div>
       </div>
 
       <!-- Full-width: US data center map -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Where the capacity sits — primary US markets</h4>
+        <h4>Where the capacity sits — primary US markets<span class="feed-stamp" data-feed="siting"></span></h4>
         <div class="note" id="mapNote">Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · hover for detail</div>
         <div class="map-view-toggle" id="mapViewToggle" role="tablist">
           <button class="map-view-btn active" data-view="pipeline" type="button">Pipeline</button>
@@ -1659,7 +1677,7 @@
 
         <!-- Card: Grid headroom by balancing authority (live EIA feed) -->
         <div class="stub-card">
-          <h4>Grid headroom by balancing authority <span class="cf-tier cf-ok">primary</span></h4>
+          <h4>Grid headroom by balancing authority <span class="cf-tier cf-ok">primary</span><span class="feed-stamp" data-feed="grid"></span></h4>
           <div class="note">Peak demand vs. installed capacity · % spare · EIA-930 + EIA-860 · live feed (falls back to curated when unavailable)</div>
           <div class="chart-box short"><canvas id="headroomChart"></canvas></div>
         </div>
@@ -4727,6 +4745,27 @@
     if (DATA.grid && vis($("headroomChart")))  { renderHeadroomChart._done = false; renderHeadroomChart(); }
     if (DATA.queues && vis($("queueChart")))    { renderQueueChart._done = false; renderQueueChart(); }
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
+    renderFeedFreshness();
+  }
+
+  // Surface each live feed's own as-of timestamp (grid/power_econ/queues/siting each carry lastUpdated).
+  function renderFeedFreshness() {
+    const META = { grid: "EIA-930/860", power_econ: "EIA-861 prices", queues: "LBNL queue", siting: "Modeled siting" };
+    const fmt = iso => { try { const d = new Date(iso); return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) + " " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" }) + " UTC"; } catch (_) { return String(iso); } };
+    const ageDays = iso => { try { return (Date.now() - new Date(iso).getTime()) / 864e5; } catch (_) { return 99; } };
+    [].forEach.call(document.querySelectorAll(".feed-stamp[data-feed]"), el => {
+      const d = DATA[el.getAttribute("data-feed")];
+      if (!d || !d.lastUpdated) { el.textContent = ""; el.className = "feed-stamp"; return; }
+      el.className = "feed-stamp" + (ageDays(d.lastUpdated) <= 2.5 ? "" : " stale");
+      el.textContent = "● live · " + fmt(d.lastUpdated);
+    });
+    const strip = $("ov-livedata");
+    if (strip) {
+      const items = ["grid", "power_econ", "queues", "siting"]
+        .filter(k => DATA[k] && DATA[k].lastUpdated)
+        .map(k => { const stale = ageDays(DATA[k].lastUpdated) > 2.5; return '<span class="lds-item' + (stale ? " stale" : "") + '"><i></i>' + META[k] + ' · ' + fmt(DATA[k].lastUpdated) + '</span>'; });
+      strip.innerHTML = items.length ? '<span class="lds-label">◆ Live public-data feeds</span>' + items.join("") : "";
+    }
   }
 
   /* ===== Overview cold open (feat/overview-cold-open + map-toggle addendum).
@@ -4930,7 +4969,7 @@
     }
     var saved='wall'; try{saved=localStorage.getItem('ov-hero')||'wall';}catch(e){}
     setHero(saved);
-    renderStatBand(); renderTicker();
+    renderStatBand(); renderTicker(); renderFeedFreshness();
   }
 
   function renderTab(name) {
@@ -4945,6 +4984,7 @@
       renderPlays();
       renderIrrCalculator();
       renderCapexChart();
+      renderCapexAiShare();
       renderVacancyChart();
       renderOfftakeCoverage();
       renderCircularFinancing("all");
@@ -5028,7 +5068,7 @@
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart","renderTimeToPower"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart","renderTimeToPower","renderCapexAiShare"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
@@ -5309,4 +5349,60 @@
   async function respond(q) {
     q = (q || "").trim();
     if (busy || !q) return;
-    busy = true
+    busy = true; sendBtn.disabled = true;
+    addMsg(q, "user");
+    history.push({ role: "user", content: q });
+    input.value = ""; autosize();
+    const typing = addTyping();
+    try {
+      let answer;
+      if (CHAT_CONFIG.apiEndpoint) {
+        answer = await liveAnswer(q);
+      } else {
+        await new Promise(r => setTimeout(r, 280));
+        answer = scriptedAnswer(q)
+          || "I can answer common questions about this dashboard (power demand, capex, costs, vacancy, lead times, tokens, rates). For more open-ended questions, the live AI assistant kicks in once the Cloudflare Worker backend is deployed — see chatbot-worker.js for one-time setup.";
+      }
+      typing.remove();
+      addMsg(answer, "bot");
+      history.push({ role: "assistant", content: answer });
+    } catch (err) {
+      typing.remove();
+      addMsg("Sorry — I couldn't reach the assistant right now." + (CHAT_CONFIG.apiEndpoint ? " Check that the Cloudflare Worker is deployed and the API key is set." : ""), "note");
+    }
+    busy = false; sendBtn.disabled = false;
+    input.focus();
+  }
+
+  function autosize() {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 92) + "px";
+  }
+  function openPanel() {
+    panel.classList.add("open");
+    fab.style.display = "none";
+    if (!bodyEl.children.length) {
+      const greet = CHAT_CONFIG.apiEndpoint
+        ? "Hi — ask me anything about US data center power, capex, deployment, bottlenecks or token economics shown on this dashboard."
+        : "Hi — I'm running in scripted mode (Cloudflare Worker backend not deployed yet). Try asking about power demand, capex, costs, vacancy, lead times, tokens or rate impacts.";
+      addMsg(greet, "bot");
+    }
+    setTimeout(() => input.focus(), 50);
+  }
+  function closePanel() {
+    panel.classList.remove("open");
+    fab.style.display = "";
+  }
+
+  fab.addEventListener("click", openPanel);
+  closeBtn.addEventListener("click", closePanel);
+  sendBtn.addEventListener("click", () => respond(input.value));
+  input.addEventListener("input", autosize);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); respond(input.value); }
+  });
+})();
+</script>
+
+</body>
+</html>
