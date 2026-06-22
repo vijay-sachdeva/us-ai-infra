@@ -1,68 +1,68 @@
 {
-  "lastUpdated": "2026-06-21T17:10:25Z",
+  "lastUpdated": "2026-06-22T21:27:18Z",
   "tier": "primary",
   "source": "EIA-930 (demand) + EIA-860 (capacity)",
   "regions": {
     "PJM": {
       "peak_mw": 145113,
-      "avg_mw": 99846,
-      "latest_mw": 92523,
+      "avg_mw": 100793,
+      "latest_mw": 117601,
       "capacity_mw": 185000,
       "headroom_pct": 21.6
     },
     "MISO": {
       "peak_mw": 110202,
-      "avg_mw": 80305,
-      "latest_mw": 75652,
+      "avg_mw": 80467,
+      "latest_mw": 87997,
       "capacity_mw": 145000,
       "headroom_pct": 24.0
     },
     "SWPP": {
       "peak_mw": 49586,
-      "avg_mw": 37189,
-      "latest_mw": 34460,
+      "avg_mw": 37172,
+      "latest_mw": 34603,
       "capacity_mw": 95000,
       "headroom_pct": 47.8
     },
     "ERCO": {
       "peak_mw": 82591,
-      "avg_mw": 63756,
-      "latest_mw": 59628,
+      "avg_mw": 64057,
+      "latest_mw": 81291,
       "capacity_mw": 110000,
       "headroom_pct": 24.9
     },
     "CISO": {
       "peak_mw": 38369,
-      "avg_mw": 27839,
-      "latest_mw": 26139,
+      "avg_mw": 27980,
+      "latest_mw": 27760,
       "capacity_mw": 80000,
       "headroom_pct": 52.0
     },
     "ISNE": {
       "peak_mw": 22186,
-      "avg_mw": 13013,
-      "latest_mw": 9630,
+      "avg_mw": 13136,
+      "latest_mw": 14767,
       "capacity_mw": 31000,
       "headroom_pct": 28.4
     },
     "NYIS": {
       "peak_mw": 27545,
-      "avg_mw": 17256,
-      "latest_mw": 14752,
+      "avg_mw": 17469,
+      "latest_mw": 19199,
       "capacity_mw": 40000,
       "headroom_pct": 31.1
     },
     "SOCO": {
-      "peak_mw": 43166,
-      "avg_mw": 29494,
-      "latest_mw": 27351,
+      "peak_mw": 43525,
+      "avg_mw": 29658,
+      "latest_mw": 39789,
       "capacity_mw": 52000,
-      "headroom_pct": 17.0
+      "headroom_pct": 16.3
     },
     "DUK": {
       "peak_mw": 21103,
-      "avg_mw": 13545,
-      "latest_mw": 13866,
+      "avg_mw": 13753,
+      "latest_mw": 20344,
       "capacity_mw": 50000,
       "headroom_pct": 57.8
     }
