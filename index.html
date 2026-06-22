@@ -554,6 +554,10 @@
   .mp-table .mp-status.construction { background: var(--amber-soft); color: var(--amber); }
   .mp-table .mp-status.planned      { background: var(--accent-soft); color: var(--accent); }
   .mp-table .mp-status.operational  { background: var(--green-soft); color: var(--green); }
+  .mp-table .mp-power { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 4px; white-space: nowrap; }
+  .mp-table .mp-power.btm       { background: var(--amber-soft); color: var(--amber); }
+  .mp-table .mp-power.colocated { background: var(--accent-soft); color: var(--accent); }
+  .mp-table .mp-power.grid      { background: var(--line);        color: var(--ink-2); }
   .mp-table .mp-src  { font-size: 10.5px; font-style: italic; color: var(--muted); display: block; margin-top: 2px; }
   .mp-table tfoot td { background: var(--bg); font-weight: 700; color: var(--ink); }
 
@@ -1565,8 +1569,8 @@
 
       <!-- Full-width: Named pipeline projects (companion to the map) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Named pipeline projects</h4>
-        <div class="note">Specific announced builds inside the 97 GW queue · sorted by announced MW · each row cited to operator filings / press releases</div>
+        <h4>Named AI-infrastructure builds &amp; power deals</h4>
+        <div class="note">Announced data-center campuses + the behind-the-meter / colocated power securing them · MW = announced campus or dedicated-generation capacity · <b>power-procurement model</b> classified editorially (<b>BTM</b> = on-site generation that bypasses the interconnect queue · <b>Colocated</b> = adjacent to existing nuclear/gas · <b>Grid</b> = utility interconnection) · sorted by MW · each row cited to operator / utility filings &amp; press (not third-party trackers)</div>
         <div id="megaProjectsList" style="margin-top:6px"></div>
       </div>
 
@@ -2045,37 +2049,52 @@
     /* ----- Named pipeline projects -----
        Each: name, operator, state, mw (announced), status, citation. */
     megaProjects: [
-      { name: "Hyperion",         operator: "Meta",                     state: "LA", mw: 5000, status: "construction",
+      { name: "Hyperion",         operator: "Meta",                     state: "LA", mw: 5000, status: "construction", power: { gen: "Gas (Entergy)", model: "Colocated" },
         keyRisk: { text: "Entergy gas-unit build timing — CCGT capacity phased online 2028–29", gate: "generation" },
         latestUpdate: { date: "2026-04", text: "LPSC fast-tracked Entergy's 7 added gas units (10 plants, ~7.5 GW); final vote Dec 2026.", src: { label: "Entergy / LPSC", tier: "primary" } },
         src: { label: "Meta + Entergy Louisiana 5 GW agreement",     tier: "primary" } },
-      { name: "Stargate Abilene", operator: "OpenAI / Oracle / Crusoe", state: "TX", mw: 1200, status: "construction",
+      { name: "Stargate Abilene", operator: "OpenAI / Oracle / Crusoe", state: "TX", mw: 1200, status: "construction", power: { gen: "Gas (on-site)", model: "BTM" },
         keyRisk: { text: "On-site gas + ERCOT large-load interconnection ramp", gate: "interconnection" },
         src: { label: "Crusoe Abilene + OpenAI Stargate site",       tier: "primary" } },
-      { name: "Pennsylvania",     operator: "Nebius",                   state: "PA", mw: 1200, status: "planned",
+      { name: "Pennsylvania",     operator: "Nebius",                   state: "PA", mw: 1200, status: "planned", power: { gen: "Grid (PJM)", model: "Grid" },
         keyRisk: { text: "PJM interconnection + FERC-ordered co-location rules", gate: "interconnection" },
         src: { label: "Nebius Q1 2026 earnings",                     tier: "primary" } },
-      { name: "Prometheus",       operator: "Meta",                     state: "OH", mw: 1000, status: "construction",
+      { name: "Prometheus",       operator: "Meta",                     state: "OH", mw: 1000, status: "construction", power: { gen: "Grid (AEP Ohio)", model: "Grid" },
         keyRisk: { text: "AEP Ohio large-load tariff — 85% take-or-pay for >25 MW", gate: "rate" },
         src: { label: "Meta Ohio campus disclosures",                tier: "primary" } },
-      { name: "Lebanon",          operator: "Meta",                     state: "IN", mw: 1000, status: "construction",
+      { name: "Lebanon",          operator: "Meta",                     state: "IN", mw: 1000, status: "construction", power: { gen: "Grid (MISO)", model: "Grid" },
         keyRisk: { text: "MISO interconnection + new generation timing", gate: "generation" },
         src: { label: "Meta Lebanon IN $10B+ build",                 tier: "primary" } },
-      { name: "Childress",        operator: "IREN",                     state: "TX", mw:  750, status: "operational",
+      { name: "Childress",        operator: "IREN",                     state: "TX", mw:  750, status: "operational", power: { gen: "Grid (ERCOT)", model: "Grid" },
         keyRisk: { text: "Energized — expansion power procurement in ERCOT", gate: "power" },
         src: { label: "IREN 10-Q",                                   tier: "primary" } },
-      { name: "Delta Forge",      operator: "Applied Digital",          state: "TX", mw:  640, status: "construction",
+      { name: "Delta Forge",      operator: "Applied Digital",          state: "TX", mw:  640, status: "construction", power: { gen: "Grid (ERCOT)", model: "Grid" },
         keyRisk: { text: "ERCOT interconnection + power-contract timing", gate: "interconnection" },
         src: { label: "Applied Digital IR — Delta Forge 1+2",        tier: "primary" } },
-      { name: "Hale County",      operator: "Aligned Data Centers",     state: "TX", mw:  540, status: "construction",
+      { name: "Hale County",      operator: "Aligned Data Centers",     state: "TX", mw:  540, status: "construction", power: { gen: "Grid (ERCOT)", model: "Grid" },
         keyRisk: { text: "ERCOT interconnection ramp", gate: "interconnection" },
         src: { label: "Aligned Hale County TX 540 MW campus",        tier: "primary" } },
-      { name: "Fairwater",        operator: "Microsoft",                state: "WI", mw:  500, status: "operational",
+      { name: "Fairwater",        operator: "Microsoft",                state: "WI", mw:  500, status: "operational", power: { gen: "Grid (MISO)", model: "Grid" },
         keyRisk: { text: "Energized — MISO / ATC transmission for expansion", gate: "power" },
         src: { label: "MSFT Mount Pleasant WI press release",        tier: "primary" } },
-      { name: "Polaris Forge",    operator: "Applied Digital",          state: "ND", mw:  500, status: "construction",
+      { name: "Polaris Forge",    operator: "Applied Digital",          state: "ND", mw:  500, status: "construction", power: { gen: "On-site gas", model: "BTM" },
         keyRisk: { text: "Ellendale ND on-site power ramp", gate: "power" },
-        src: { label: "Applied Digital IR — Ellendale ND",           tier: "primary" } }
+        src: { label: "Applied Digital IR — Ellendale ND",           tier: "primary" } },
+      { name: "Homer City Energy Campus", operator: "Homer City / Kiewit", state: "PA", mw: 4500, status: "construction", power: { gen: "Gas (coal→NG)", model: "BTM" },
+        keyRisk: { text: "GE Vernova 7 H₂-capable turbines (first deliveries 2026); largest US gas-for-DC campus; first power ~2027", gate: "generation" },
+        src: { label: "Homer City Redevelopment / GE Vernova",       tier: "primary" } },
+      { name: "Susquehanna",      operator: "Amazon (AWS) / Talen",     state: "PA", mw: 1920, status: "construction", power: { gen: "Nuclear", model: "Colocated" },
+        keyRisk: { text: "FERC rejected behind-the-meter co-location → restructured to grid-connected PPA; ramps to 1.92 GW by 2032", gate: "rate" },
+        src: { label: "Talen Energy IR + FERC docket",              tier: "primary" } },
+      { name: "Duane Arnold",     operator: "Google / NextEra",         state: "IA", mw:  615, status: "planned", power: { gen: "Nuclear (restart)", model: "Colocated" },
+        keyRisk: { text: "Plant restart + NRC relicensing; online targeted ~Q1 2029", gate: "generation" },
+        src: { label: "NextEra + Google Cloud PPA",                  tier: "primary" } },
+      { name: "Colossus 2",       operator: "xAI / Solaris",            state: "TN", mw: 1000, status: "construction", power: { gen: "Gas (on-site)", model: "BTM" },
+        keyRisk: { text: "Solaris on-site gas-turbine JV (~1.1 GW by 2027); faced Clean Air Act permit scrutiny (SELC)", gate: "power" },
+        src: { label: "Solaris Energy IR + SemiAnalysis",           tier: "analyst" } },
+      { name: "Joule HPC Campus", operator: "Joule Capital / CAT",      state: "UT", mw: 4000, status: "planned", power: { gen: "Gas CCHP + BESS", model: "BTM" },
+        keyRisk: { text: "Fully islanded — CAT G3520K gensets + 1.1 GWh BESS, grid-independent; online 2026", gate: "power" },
+        src: { label: "Caterpillar / Joule / Wheeler (Aug 2025)",   tier: "primary" } }
     ],
     hyperscalerMW: {
       companies:   ["Amazon (AWS)", "Meta", "Microsoft", "Google", "Oracle"],
@@ -4216,6 +4235,7 @@
         <td><span class="mp-name">${p.name}</span><span class="mp-src">— ${p.src.label}</span>${risk}${upd}</td>
         <td class="mp-op">${p.operator}</td>
         <td>${p.state}</td>
+        <td>${p.power ? '<span class="mp-power ' + p.power.model.toLowerCase() + '" title="' + p.power.model + ' power-procurement">' + p.power.gen + ' · ' + p.power.model + '</span>' : ''}</td>
         <td class="mp-mw">${p.mw.toLocaleString()}</td>
         <td><span class="mp-status ${p.status}">${p.status}</span></td>
       </tr>`;
@@ -4227,6 +4247,7 @@
             <th>Project</th>
             <th>Operator</th>
             <th>State</th>
+            <th>Power</th>
             <th style="text-align:right">MW</th>
             <th>Status</th>
           </tr>
@@ -4234,7 +4255,7 @@
         <tbody>${rows}</tbody>
         <tfoot>
           <tr>
-            <td colspan="3">${sorted.length} named projects</td>
+            <td colspan="4">${sorted.length} named builds</td>
             <td class="mp-mw">${totalMW.toLocaleString()}</td>
             <td>≈ ${(totalMW / 1000).toFixed(1)} GW</td>
           </tr>
