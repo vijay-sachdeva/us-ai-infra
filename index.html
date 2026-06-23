@@ -827,6 +827,11 @@
     font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 8px;
     padding-top: 8px; border-top: 1px dashed var(--line);
   }
+  /* collapsed methodology under the waterfall — one visible line, full chain on demand */
+  .pl-method { margin-top: 10px; }
+  .pl-method > summary { font-size: 11px; font-weight: 700; color: var(--accent); cursor: pointer; }
+  .pl-method > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pl-onesrc { color: var(--muted); font-size: 10.5px; }
   .mp-table .mp-risk {
     display: block; font-size: 11px; color: var(--ink-2); margin-top: 4px; font-weight: 500; line-height: 1.4;
   }
@@ -1565,19 +1570,27 @@
 
       <!-- Full-width: interconnection funnel -->
       <div class="stub-card">
-        <h4>Interconnection queue → construction → operational</h4>
-        <div class="note">US data center grid pipeline · GW · LBNL Queued Up 2025 + CBRE + Goldman Sachs</div>
-        <div class="funnel-flow" id="funnelFlow"></div>
+        <h4>The queue is 16&times; larger than active construction</h4>
+        <div class="note">Four separate snapshots of US data-center grid capacity — not one cohort moving through stages · GW · LBNL Queued Up 2025 + CBRE + Goldman Sachs</div>
+        <div class="chart-box short"><canvas id="funnelCompare" role="img" aria-label="Four independent US data-center capacity snapshots in gigawatts: requested queue 97, operational stock 41, modeled buildable 24, under construction 6."></canvas></div>
         <div class="funnel-conv" id="funnelConv"></div>
       </div>
 
       <!-- Full-width: phantom-load reconciliation (after the funnel, before the map) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Phantom-load reconciliation — how much of the queue is real?</h4>
-        <div class="note">The headline ~97 GW interconnect queue, net of duplicate/multi-utility filings and speculative/unfinanced requests · GW · haircuts modeled, each cited</div>
-        <div class="funnel-flow" id="phantomLoad"></div>
+        <h4>Only about one-quarter of queued demand appears buildable near term</h4>
+        <div class="note">Phantom-load reconciliation — the headline queue net of duplicate and speculative requests · GW · haircuts modeled</div>
+        <div class="map-view-toggle" id="phantomScenario" role="group" aria-label="Haircut scenario">
+          <button class="map-view-btn"        data-scenario="low"  type="button" aria-pressed="false">Low</button>
+          <button class="map-view-btn active"  data-scenario="mid"  type="button" aria-pressed="true">Midpoint</button>
+          <button class="map-view-btn"        data-scenario="high" type="button" aria-pressed="false">High</button>
+        </div>
+        <div class="chart-box tall"><canvas id="phantomWaterfall" role="img" aria-label="Waterfall reconciling the 97 GW headline queue down to a modeled 24 GW buildable after duplicate and speculative haircuts."></canvas></div>
         <div class="funnel-conv" id="phantomLoadConv"></div>
-        <div class="sc-method" id="phantomLoadMethod"></div>
+        <details class="pl-method">
+          <summary>Methodology &amp; sources</summary>
+          <div class="sc-method" id="phantomLoadMethod"></div>
+        </details>
       </div>
 
       <!-- Full-width: interconnection-queue chart — credible vs. phantom (live LBNL feed) -->
@@ -2112,7 +2125,9 @@
           { label: "CBRE North America Trends H2 2025", tier: "analyst" },
           { label: "Goldman Sachs Research", tier: "analyst" }
         ]
-      }
+      },
+      // modeled near-term buildable share of the 97 GW queue (= phantomLoad Midpoint endpoint)
+      modeledBuildableGW: 24
     },
     markets: [
       // `pipeline` is allocated from the LBNL Queued Up 2025 total (~97 GW)
@@ -2940,6 +2955,20 @@
   // One-time Chart.js setup — register datalabels plugin and set defaults
   let _chartsInit = false;
   const _charts = {};  // id → Chart instance, used to destroy on theme change
+
+  // Buildout reconciliation palette — role → hex. Matches existing dashboard hexes.
+  // Color law: blue=headline/requested · amber=uncertain pipeline · red=modeled
+  // deduction · green=operational/plausibly-buildable · gray=context.
+  const PL_COLORS = { blue: "#1d4ed8", amber: "#c2710c", red: "#c0322b", green: "#10b981", gray: "#94a3b8" };
+  const PL_QUEUE  = 97;                              // headline queue (analyst-cited)
+  const PL_RANGE  = { min: 19, max: 33, mid: 24 };   // modeled buildable envelope
+  // Sequential haircut scenarios. Integers are pre-rounded — do NOT recompute %→GW live
+  // (97×0.65=63.05≠63). high.specDelta is 40 (not 44) by design; do not "fix".
+  const PL_SCENARIOS = {
+    low:  { afterDup: 63, dupDelta: 34, buildable: 19, specDelta: 44, dupPct: "−35%", specPct: "−70%" },
+    mid:  { afterDup: 68, dupDelta: 29, buildable: 24, specDelta: 44, dupPct: "−30%", specPct: "−65%" },
+    high: { afterDup: 73, dupDelta: 24, buildable: 33, specDelta: 40, dupPct: "−25%", specPct: "−55%" }
+  };
   function getChartColors() {
     const dark = document.documentElement.getAttribute("data-theme") === "dark";
     return {
@@ -3023,7 +3052,7 @@
   }
   function _chartRows(chart) {
     const labels = chart.data.labels || [];
-    const dss = (chart.data.datasets || []).filter(d => d && d.data);
+    const dss = (chart.data.datasets || []).filter(d => d && d.data && (!d.label || d.label[0] !== "_"));
     const head = ["", ...dss.map(d => d.label || "value")];
     const body = labels.map((lab, i) => ["" + lab, ...dss.map(d => {
       const v = d.data[i];
@@ -3056,6 +3085,17 @@
     });
     t.appendChild(tb); wrap.appendChild(t);
     return wrap;
+  }
+  // Rebuild a canvas's inline accessible data table in place (e.g. after a scenario
+  // re-render) so the screen-reader table never lags the chart. Preserves the wrap's
+  // id / hidden state / toggle binding; no-op before enhanceCharts has built the table.
+  function refreshChartTable(id) {
+    const wrap = document.getElementById(id + "-data");
+    const chart = (typeof Chart !== "undefined") && Chart.getChart(id);
+    if (!wrap || !chart) return;
+    const fresh = _buildDataTable(chart, chart.canvas).querySelector("table");
+    const old = wrap.querySelector("table");
+    if (fresh && old) old.replaceWith(fresh);
   }
   function _mkToolBtn(label, title) {
     const b = document.createElement("button");
@@ -3247,42 +3287,137 @@
     }
   }
 
-  function renderPhantomLoad() {
-    if (!$("phantomLoad") || !DATA.phantomLoad) return;
-    const p = DATA.phantomLoad;
-    const classFor = (k) => k === "buildable" ? "op" : (k === "queued" ? "queue" : "cut");
-    $("phantomLoad").innerHTML = p.stages.map((s, i) => {
-      const hc = s.haircutPct
-        ? `<div class="fs-haircut">${s.haircutPct}</div>`
-        : "";
-      const stageHtml = `
-        <div class="funnel-stage ${classFor(s.key)}" title="${s.note} — ${s.src.label}">
-          <div><span class="fs-num">${s.gw}</span><span class="fs-unit">GW</span></div>
-          <div class="fs-label">${s.label}</div>
-          ${hc}
-        </div>`;
-      return i < p.stages.length - 1 ? stageHtml + '<div class="funnel-arrow">→</div>' : stageHtml;
-    }).join("");
+  // Reconciliation WATERFALL: 97 GW headline queue → modeled ~24 GW buildable, via two
+  // sequential modeled haircuts. Floating bars (transparent _base + visible value), with a
+  // Low/Mid/High scenario control and a fixed 19–33 GW modeled-range box on the result.
+  function renderPhantomWaterfall(scenario) {
+    if (!$("phantomWaterfall") || typeof Chart === "undefined" || !DATA.phantomLoad) return;
+    scenario = scenario || renderPhantomWaterfall._view || "mid";
+    renderPhantomWaterfall._view = scenario;        // persists across destroy → theme rebuild keeps scenario
+    initCharts(); applyChartDefaults();
+    const s  = PL_SCENARIOS[scenario];
+    const cl = getChartColors();
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const queued = p.stages[0].gw;
-    const buildable = p.stages[p.stages.length - 1].gw;
-    const survivePct = (buildable / queued * 100).toFixed(0);
-    const inflationX = (queued / buildable).toFixed(1);
+    const labels = ["Headline queued", "− Duplicate / multi-utility", "− Speculative / unfinanced", "= Buildable (modeled)"];
+    const base   = [0, s.afterDup, s.buildable, 0];
+    const value  = [PL_QUEUE, s.dupDelta, s.specDelta, s.buildable];
+    const colors = [PL_COLORS.blue, PL_COLORS.red, PL_COLORS.red, PL_COLORS.green];
+    const signs  = ["", "−", "−", "="];
+
+    if (_charts.phantomWaterfall) { try { _charts.phantomWaterfall.destroy(); } catch (_) {} delete _charts.phantomWaterfall; }
+
+    _charts.phantomWaterfall = new Chart($("phantomWaterfall"), {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          { label: "_base", data: base, backgroundColor: "rgba(0,0,0,0)", stack: "wf", datalabels: { display: false } },
+          { label: "GW", data: value, stack: "wf",
+            backgroundColor: colors,
+            borderColor:  colors.map((c, i) => i === 3 ? cl.label : c),
+            borderWidth:  colors.map((_, i) => i === 3 ? 1.5 : 0),
+            borderDash: [4, 3], borderRadius: 7, maxBarThickness: 34 }
+        ]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        animation: reduce ? false : undefined,
+        layout: { padding: { right: 64, top: 6 } },
+        scales: {
+          x: { stacked: true, beginAtZero: true, suggestedMax: 105, grid: { color: cl.grid }, ticks: { callback: v => v + " GW" } },
+          y: { stacked: true, grid: { display: false }, ticks: { font: { weight: 700 } } }
+        },
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            display: c => c.datasetIndex === 1,        // only the visible dataset labels
+            color: cl.label, font: { weight: 800, size: 12 },
+            anchor: "end", align: "end", clamp: true,
+            formatter: (v, c) => signs[c.dataIndex] + v + " GW"
+          },
+          annotation: { annotations: {
+            range: {
+              type: "box", xScaleID: "x", yScaleID: "y",
+              yMin: 2.6, yMax: 3.4,
+              xMin: PL_RANGE.min, xMax: PL_RANGE.max,
+              backgroundColor: "rgba(16,185,129,0.16)",
+              borderColor: "rgba(16,185,129,0.55)", borderWidth: 1, borderDash: [3, 3],
+              label: { display: true, content: PL_RANGE.min + "–" + PL_RANGE.max + " GW range (" + PL_RANGE.mid + " = midpoint)",
+                       position: { x: "end", y: "start" }, color: PL_COLORS.green,
+                       font: { size: 9.5, weight: 700 }, backgroundColor: "rgba(0,0,0,0)" }
+            }
+          }},
+          tooltip: {
+            filter: item => item.datasetIndex === 1,
+            callbacks: {
+              title: items => labels[items[0].dataIndex],
+              label: c => {
+                const i = c.dataIndex;
+                if (i === 0) return " Headline queued: 97 GW (LBNL, analyst)";
+                if (i === 3) return " Buildable near-term: " + s.buildable + " GW (modeled; range " + PL_RANGE.min + "–" + PL_RANGE.max + " GW)";
+                const pct = i === 1 ? s.dupPct : s.specPct;
+                const running = i === 1 ? s.afterDup : s.buildable;
+                return " −" + value[i] + " GW (" + pct + ") → " + running + " GW remaining";
+              },
+              footer: items => {
+                const i = items[0].dataIndex;
+                if (i === 1) return DATA.phantomLoad.stages[1].src.label;
+                if (i === 2) return DATA.phantomLoad.stages[2].src.label;
+                if (i === 3) return "Modeled residual — see Methodology";
+                return DATA.phantomLoad.queuedSrc.label;
+              }
+            }
+          }
+        }
+      }
+    });
+
     if ($("phantomLoadConv")) {
+      const frac = Math.round(s.buildable / PL_QUEUE * 100);   // tracks the scenario (no fixed "one-quarter")
       $("phantomLoadConv").innerHTML =
-        'Roughly <b>' + survivePct + '%</b> of the ' + queued + ' GW queue (~' + buildable +
-        ' GW) is plausibly buildable near-term — the headline number is inflated ~<b>' +
-        inflationX + 'x</b> by duplicate and speculative requests.';
+        'About <b>' + frac + '%</b> of the ' + PL_QUEUE + ' GW headline queue (~<b>' + s.buildable +
+        ' GW</b>; modeled range ' + PL_RANGE.min + '–' + PL_RANGE.max +
+        ' GW) appears buildable near-term once duplicate and speculative requests are removed.' +
+        '<br><span class="pl-onesrc">Modeled estimate using LBNL queue data and cited industry haircut ranges.</span>';
     }
-    if ($("phantomLoadMethod")) {
-      const bases = p.stages.map(s => `${s.label.replace(/^− /, "")} → ${s.src.label}`).join("; ");
-      $("phantomLoadMethod").innerHTML =
-        '<b>Per-stage haircuts (modeled bands)</b>: duplicate/multi-utility ' +
-        p.stages[1].haircutPct + ', speculative/unfinanced ' + p.stages[2].haircutPct +
-        '; buildable endpoint (' + buildable + ' GW) is modeled. Queue base: ' +
-        p.queuedSrc.label + '. ' + p.validation.text + ' <span class="stack-src">— ' +
-        p.validation.src.label + '.</span><br>Bases: ' + bases + '.';
-    }
+    refreshChartTable("phantomWaterfall");   // keep the inline a11y table in sync with the scenario
+    renderPhantomMethod();
+  }
+
+  // Full source chain for the waterfall — folded into a <details>; scenario-independent.
+  function renderPhantomMethod() {
+    if (!$("phantomLoadMethod")) return;
+    const p = DATA.phantomLoad;
+    $("phantomLoadMethod").innerHTML =
+      '<b>Modeled reconciliation.</b> Haircut bands: duplicate/multi-utility ' + p.stages[1].haircutPct +
+      ', speculative/unfinanced ' + p.stages[2].haircutPct + '. The ' + PL_RANGE.mid +
+      ' GW buildable endpoint is a midpoint; the ' + PL_RANGE.min + '–' + PL_RANGE.max +
+      ' GW range spans Low/High haircut assumptions. ' +
+      '<b>Citation tiers:</b> 41 / 6 / 97 GW are analyst-cited; the 24 GW buildable endpoint and the haircut bands are modeled.<br>' +
+      '<b>Queue base:</b> ' + p.queuedSrc.label + '.<br>' +
+      '<b>Duplicate basis:</b> ' + p.stages[1].src.label + '.<br>' +
+      '<b>Speculative basis:</b> ' + p.stages[2].src.label + '.<br>' +
+      '<b>Real-world check:</b> ' + p.validation.text + ' <span class="stack-src">— ' + p.validation.src.label + '.</span>';
+  }
+
+  // Low / Midpoint / High scenario control (idempotent — survives theme rebuild via _wired).
+  function wirePhantomScenario() {
+    const toggle = $("phantomScenario");
+    if (!toggle || toggle._wired) return;
+    toggle._wired = true;
+    toggle.querySelectorAll(".map-view-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const v = btn.dataset.scenario;
+        if (v === renderPhantomWaterfall._view) return;
+        toggle.querySelectorAll(".map-view-btn").forEach(b => {
+          const on = b === btn;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        renderPhantomWaterfall(v);
+      });
+    });
   }
 
   function renderCumDeficitChart() {
@@ -4203,23 +4338,76 @@
   }
 
   /* ----- Engineer tab renders ----- */
+  // Context comparison — FOUR independent capacity snapshots (NOT a flowing cohort).
+  // Operational stock is existing capacity, not the downstream of today's queue, so these
+  // are separate horizontal bars with no arrows. The 24 GW buildable bar is marked modeled.
   function renderFunnel() {
-    if (!$("funnelFlow") || !DATA.powerBreakdown) return;
-    const f = DATA.powerBreakdown.funnel;
-    const classes = ["queue", "build", "op"];
-    $("funnelFlow").innerHTML = f.stages.map((stage, i) => {
-      const stageHtml = `
-        <div class="funnel-stage ${classes[i]}">
-          <div><span class="fs-num">${f.values[i]}</span><span class="fs-unit">GW</span></div>
-          <div class="fs-label">${stage}</div>
-        </div>`;
-      return i < f.stages.length - 1 ? stageHtml + '<div class="funnel-arrow">→</div>' : stageHtml;
-    }).join("");
-    const queue = f.values[0], underCon = f.values[1], op = f.values[2];
-    const convInQueue = (underCon / queue * 100).toFixed(1);
+    if (!$("funnelCompare") || typeof Chart === "undefined" || !DATA.powerBreakdown) return;
+    if (renderFunnel._done) return;
+    renderFunnel._done = true;
+    initCharts(); applyChartDefaults();
+    const f  = DATA.powerBreakdown.funnel;          // KEEP source intact — exporter + renderMap read it
+    const cl = getChartColors();
+    const buildable = DATA.powerBreakdown.modeledBuildableGW;
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const rows = [
+      { label: "Requested (interconnect queue)",    v: f.values[0], color: PL_COLORS.blue,  modeled: false, srcIdx: 0 },
+      { label: "Operational (current stock)",       v: f.values[2], color: PL_COLORS.green, modeled: false, srcIdx: 2 },
+      { label: "Modeled buildable near-term",       v: buildable,   color: PL_COLORS.green, modeled: true,  srcIdx: -1 },
+      { label: "Under construction (active build)", v: f.values[1], color: PL_COLORS.gray,  modeled: false, srcIdx: 1 }
+    ];
+    const sub = [
+      "Headline interconnect/large-load requests — " + Math.round(f.values[0] / f.values[1]) + "× the " + f.values[1] + " GW under construction.",
+      "Existing installed operational stock — not the queue's downstream output.",
+      "Modeled — see Phantom-load reconciliation below.",
+      "Active build today — the small number the headline dwarfs."
+    ];
+
+    _charts.funnelCompare = new Chart($("funnelCompare"), {
+      type: "bar",
+      data: {
+        labels: rows.map(r => r.label),
+        datasets: [{
+          label: "GW",
+          data: rows.map(r => r.v),
+          backgroundColor: rows.map(r => r.color),
+          borderColor:     rows.map(r => r.modeled ? cl.label : r.color),
+          borderWidth:     rows.map(r => r.modeled ? 1.5 : 0),
+          borderDash: [4, 3], borderRadius: 7, maxBarThickness: 30
+        }]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        animation: reduce ? false : undefined,
+        layout: { padding: { right: 56 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), {
+            display: true, anchor: "end", align: "end", clamp: true, color: cl.label,
+            formatter: (v, c) => v + " GW" + (rows[c.dataIndex].modeled ? " (modeled)" : "")
+          }),
+          tooltip: { callbacks: {
+            label: c => " " + c.parsed.x + " GW",
+            afterLabel: c => rows[c.dataIndex].modeled
+              ? "Modeled residual after duplicate + speculative haircuts (range 19–33 GW; 24 = midpoint)."
+              : (rows[c.dataIndex].srcIdx >= 0 ? f.srcs[rows[c.dataIndex].srcIdx].label : ""),
+            footer: c => sub[c.dataIndex]
+          }}
+        },
+        scales: {
+          x: { beginAtZero: true, suggestedMax: 105, grid: { color: cl.grid }, ticks: { callback: v => v + " GW" } },
+          y: { grid: { display: false }, ticks: { font: { weight: 700 } } }
+        }
+      }
+    });
+
     if ($("funnelConv")) {
+      const x = Math.round(f.values[0] / f.values[1]);   // 16, live — never drifts
       $("funnelConv").innerHTML =
-        'Only <b>' + convInQueue + '%</b> of the ' + queue + ' GW in the queue is actively under construction — the rest is gated by power, transmission and permitting.';
+        'The <b>' + f.values[0] + ' GW</b> interconnect queue is about <b>' + x +
+        '&times;</b> the <b>' + f.values[1] + ' GW</b> actively under construction. These are independent snapshots — the <b>' +
+        f.values[2] + ' GW</b> operational stock is existing capacity, not the queue&rsquo;s output.';
     }
   }
 
@@ -5382,7 +5570,8 @@
       renderMap();
       renderMegaProjects();
       renderBuildabilityMovements();
-      renderPhantomLoad();
+      renderPhantomWaterfall();
+      wirePhantomScenario();
       renderQueueChart();
       renderTimeToPower();
       renderPerfPerWattChart();
@@ -5453,7 +5642,7 @@
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderFunnel"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
