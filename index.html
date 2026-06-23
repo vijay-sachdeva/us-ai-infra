@@ -298,6 +298,31 @@
   .stub-card > .sc-method,
   .stub-card > .tab-callout,
   .stub-card > .leadtime-row { order: 2; }
+  /* Per-chart tools: accessible data table + PNG/CSV export + deep-link (ranks 6+7) */
+  .chart-tools { order: 0; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-top: 9px; }
+  .chart-tool-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px; font-size: 11px; font-weight: 700; font-family: inherit;
+    background: transparent; border: 1px solid var(--line); color: var(--muted);
+    border-radius: 6px; cursor: pointer; line-height: 1.6; transition: color .12s, border-color .12s, background .12s;
+  }
+  .chart-tool-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .chart-tool-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .chart-tool-btn[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .chart-data-wrap { order: 0; margin-top: 8px; overflow-x: auto; }
+  .chart-data-wrap[hidden] { display: none; }
+  .chart-data-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .chart-data-table caption { text-align: left; font-weight: 700; color: var(--muted); padding: 1px 0 6px; font-size: 11px; }
+  .chart-data-table th, .chart-data-table td { padding: 4px 9px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+  .chart-data-table th:first-child, .chart-data-table td:first-child { text-align: left; }
+  .chart-data-table thead th { color: var(--ink-2); font-weight: 700; }
+  .chart-data-table tbody th { color: var(--ink); font-weight: 600; }
+  .chart-link-flash { animation: linkflash 1.6s ease-out; }
+  @keyframes linkflash {
+    0%, 18% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 55%, transparent); }
+    100%    { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+  }
+  @media (prefers-reduced-motion: reduce) { .chart-link-flash { animation: none; } }
   /* Live-feed freshness */
   .feed-stamp { font-size: 10px; font-weight: 600; margin-left: 8px; color: var(--green); white-space: nowrap; vertical-align: middle; }
   .feed-stamp.stale { color: var(--amber); }
@@ -2976,6 +3001,132 @@
     get(_, prop) { return LABEL_STYLE_FN()[prop]; }
   });
 
+  /* ---- Per-chart tools: accessible data table, PNG/CSV export, deep-link (ranks 6 + 7) ----
+     One shared helper auto-attaches a small toolbar + a hidden <table> under every
+     Chart.js canvas, so every chart gets the same affordances for free. */
+  function _csvEscape(s) { s = String(s == null ? "" : s); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+  function _downloadBlob(name, content, mime) {
+    const blob = content instanceof Blob ? content : new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+  function _chartTitle(canvas) {
+    const card = canvas.closest(".stub-card");
+    const h = card && card.querySelector("h4");
+    return h ? h.textContent.replace(/\s+/g, " ").trim() : canvas.id;
+  }
+  function _chartRows(chart) {
+    const labels = chart.data.labels || [];
+    const dss = (chart.data.datasets || []).filter(d => d && d.data);
+    const head = ["", ...dss.map(d => d.label || "value")];
+    const body = labels.map((lab, i) => ["" + lab, ...dss.map(d => {
+      const v = d.data[i];
+      return (v == null || typeof v === "object") ? "" : v;
+    })]);
+    return { head, body };
+  }
+  function _buildDataTable(chart, canvas) {
+    const { head, body } = _chartRows(chart);
+    const wrap = document.createElement("div");
+    wrap.className = "chart-data-wrap"; wrap.hidden = true;
+    const t = document.createElement("table");
+    t.className = "chart-data-table";
+    const cap = document.createElement("caption");
+    cap.textContent = _chartTitle(canvas) + " — data";
+    t.appendChild(cap);
+    const thead = document.createElement("thead"), hr = document.createElement("tr");
+    head.forEach((h, i) => { const c = document.createElement("th"); c.scope = "col"; c.textContent = i === 0 ? "" : h; hr.appendChild(c); });
+    thead.appendChild(hr); t.appendChild(thead);
+    const tb = document.createElement("tbody");
+    body.forEach(row => {
+      const tr = document.createElement("tr");
+      row.forEach((cell, i) => {
+        const c = document.createElement(i === 0 ? "th" : "td");
+        if (i === 0) c.scope = "row";
+        c.textContent = cell === "" ? "—" : cell;
+        tr.appendChild(c);
+      });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); wrap.appendChild(t);
+    return wrap;
+  }
+  function _mkToolBtn(label, title) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chart-tool-btn"; b.textContent = label;
+    b.setAttribute("aria-label", title); b.title = title;
+    return b;
+  }
+  function enhanceCharts(scope) {
+    if (typeof Chart === "undefined") return;
+    const sec = document.querySelector('section.tab-content[data-tab="' + scope + '"]') || document;
+    sec.querySelectorAll(".chart-box > canvas[id]").forEach(canvas => {
+      const id = canvas.id;
+      const chart = Chart.getChart(id);
+      if (!chart) return;
+      const box = canvas.closest(".chart-box");
+      if (!box) return;
+      box.setAttribute("data-chart-anchor", id);
+      // idempotent — survives theme re-render (charts are destroyed but the toolbar DOM stays)
+      if (box.nextElementSibling && box.nextElementSibling.classList && box.nextElementSibling.classList.contains("chart-tools")) return;
+      const tools = document.createElement("div");
+      tools.className = "chart-tools";
+      const table = _buildDataTable(chart, canvas);
+
+      const dataBtn = _mkToolBtn("Data", "Show the underlying numbers as a table");
+      dataBtn.setAttribute("aria-expanded", "false");
+      dataBtn.setAttribute("aria-controls", id + "-data");
+      table.id = id + "-data";
+      dataBtn.addEventListener("click", () => {
+        const open = table.hidden; table.hidden = !open;
+        dataBtn.setAttribute("aria-expanded", String(open));
+      });
+
+      const pngBtn = _mkToolBtn("PNG", "Download this chart as a PNG image");
+      pngBtn.addEventListener("click", () => {
+        const live = Chart.getChart(id); if (!live) return;
+        const dataUrl = live.toBase64Image("image/png", 1);
+        const bin = atob(dataUrl.split(",")[1]), arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        _downloadBlob(id + ".png", new Blob([arr], { type: "image/png" }));
+      });
+
+      const csvBtn = _mkToolBtn("CSV", "Download this chart's data as CSV");
+      csvBtn.addEventListener("click", () => {
+        const live = Chart.getChart(id); if (!live) return;
+        const { head, body } = _chartRows(live);
+        _downloadBlob(id + ".csv", [head, ...body].map(r => r.map(_csvEscape).join(",")).join("\r\n"), "text/csv");
+      });
+
+      const linkBtn = _mkToolBtn("Link", "Copy a direct link to this chart");
+      linkBtn.addEventListener("click", async () => {
+        const url = location.origin + location.pathname + "#" + scope + ":" + id;
+        try { await navigator.clipboard.writeText(url); }
+        catch (_) { const ta = document.createElement("textarea"); ta.value = url; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove(); }
+        const prev = linkBtn.textContent; linkBtn.textContent = "Copied ✓";
+        setTimeout(() => { linkBtn.textContent = prev; }, 1400);
+      });
+
+      tools.append(dataBtn, pngBtn, csvBtn, linkBtn);
+      box.insertAdjacentElement("afterend", tools);
+      tools.insertAdjacentElement("afterend", table);
+    });
+  }
+  // Deep-link target: after a tab renders, scroll to (and briefly flash) the linked chart.
+  function scrollToChartAnchor(anchor) {
+    if (!anchor) return;
+    const tryScroll = () => {
+      const box = document.querySelector('.chart-box[data-chart-anchor="' + (window.CSS && CSS.escape ? CSS.escape(anchor) : anchor) + '"]');
+      if (!box) return false;
+      box.scrollIntoView({ behavior: "smooth", block: "center" });
+      box.classList.remove("chart-link-flash"); void box.offsetWidth; box.classList.add("chart-link-flash");
+      return true;
+    };
+    if (!tryScroll()) setTimeout(tryScroll, 120);   // charts may still be laying out
+  }
+
   function renderCapexSankey(view) {
     const host = $("capexSankey");
     if (!host || !DATA.capexFlow) return;
@@ -5253,7 +5404,7 @@
     }
   }
 
-  function showTab(name) {
+  function showTab(name, anchor) {
     if (!name) name = 'overview';
     document.querySelectorAll('section.tab-content').forEach(function (s) {
       s.classList.toggle('active', s.dataset.tab === name);
@@ -5261,19 +5412,24 @@
     document.querySelectorAll('nav.tabs a').forEach(function (a) {
       a.classList.toggle('active', a.dataset.tab === name);
     });
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    if (!anchor) window.scrollTo({ top: 0, behavior: 'instant' });
     document.title = 'US AI Infrastructure Monitor · ' + name;
     renderTab(name);
+    if (typeof enhanceCharts === "function") enhanceCharts(name);   // attach data-table / export / link tools
     motionObserveAll();         // catch any cards/numbers newly rendered for this tab
+    if (anchor && typeof scrollToChartAnchor === "function") scrollToChartAnchor(anchor);
   }
   // Legacy hash aliases — anyone with a /#investor bookmark from earlier WIP
   // gets routed to the right tab under the new name.
   const HASH_ALIASES = { investor: "capital", engineer: "buildout", policy: "grid" };
-  function fromHash() {
-    let h = (location.hash || '#overview').slice(1);
-    if (HASH_ALIASES[h]) h = HASH_ALIASES[h];
-    return h;
+  // Hash grammar: "#<tab>" or deep-link "#<tab>:<canvasId>"
+  function parseHash() {
+    const raw = (location.hash || '#overview').slice(1);
+    let [tab, anchor] = raw.split(':');
+    if (HASH_ALIASES[tab]) tab = HASH_ALIASES[tab];
+    return { tab: tab || 'overview', anchor: anchor || '' };
   }
+  function fromHash() { return parseHash().tab; }   // back-compat for any other caller
 
   /* ----- Theme (dark/light) ----- */
   const THEME_KEY = "us-dc-theme";
@@ -5299,7 +5455,7 @@
       });
       if (typeof renderedTabs !== "undefined" && renderedTabs.clear) renderedTabs.clear();
       // Re-trigger render for current tab
-      const cur = (location.hash || "#overview").slice(1);
+      const cur = (typeof parseHash === "function") ? parseHash().tab : (location.hash || "#overview").slice(1);
       if (typeof showTab === "function") showTab(cur);
     }
   }
@@ -5392,10 +5548,10 @@
     });
   }
 
-  showTab(fromHash());          // initial activation also renders the active tab
+  (function () { const h = parseHash(); showTab(h.tab, h.anchor); })();   // initial activation also renders the active tab
   motionObserveAll();           // wire up fade-ins + KPI counters
   hydrate();                    // pull live public-data feeds (data/*.json); additive + graceful
-  window.addEventListener('hashchange', function () { showTab(fromHash()); });
+  window.addEventListener('hashchange', function () { const h = parseHash(); showTab(h.tab, h.anchor); });
 </script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
