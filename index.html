@@ -1398,6 +1398,20 @@
         </div>
       </div>
 
+      <!-- Full-width: combined hyperscaler capex trend over time (the capex-tracker curve) -->
+      <div class="stub-card">
+        <h4>Combined hyperscaler capex — the curve <span class="cf-tier cf-warn">actuals + &rsquo;26 guidance</span></h4>
+        <div class="chart-box tall"><canvas id="capexTrendChart"></canvas></div>
+        <div class="sc-method" id="capexTrendMethod"></div>
+      </div>
+
+      <!-- Full-width: capex vs operating cash flow — the crossover watch -->
+      <div class="stub-card">
+        <h4>Capex vs operating cash flow — the crossover watch <span class="cf-tier cf-warn">actuals + &rsquo;26 guidance</span></h4>
+        <div class="chart-box tall"><canvas id="capexVsCashflowChart"></canvas></div>
+        <div class="sc-method" id="capexVsCashflowMethod"></div>
+      </div>
+
       <!-- Full-width: capex flow Sankey (after capex totals + cost stack) -->
       <div class="stub-card">
         <h4>Where the capex flows — 2026</h4>
@@ -1895,6 +1909,40 @@
         { label: "CoreWeave 2026 guidance" },
         { label: "Nebius FY2026 capex guidance ($20–25B range)" },
         { label: "xAI 2026 est. — private (Colossus ~$18B GPUs; $20B Series E)" }
+      ]
+    },
+
+    /* ----- Combined hyperscaler capex trend + capex-vs-cash-flow (Capital).
+       Big-5 public hyperscalers (Amazon, Microsoft, Alphabet, Meta, Oracle).
+       FY2021–2025 = reported ACTUALS from 10-Ks / earnings releases (primary).
+       2026 = company capex GUIDANCE (Amazon ~$200B; Alphabet $175–185B → $180 mid;
+       Meta $125–145B → $135 mid), a Microsoft 9-mo-actual+Q4 estimate, and Oracle's
+       reported actual (FY ends May, already closed). Combined 2026 OCF is left null
+       on purpose — Amazon/Alphabet/Meta issue no 2026 cash-flow guidance, so a true
+       2026 crossover can't be computed from sourced numbers. USD billions. ----- */
+    capexTrend: {
+      years: [2021, 2022, 2023, 2024, 2025, 2026],
+      guidanceFrom: 2026,
+      companies: [
+        { name: "Amazon",    color: "#ff9900", capex: [61.1, 63.6, 52.7, 83.0, 131.8, 200], ocf: [46.3, 46.8, 84.9, 115.9, 139.5, null] },
+        { name: "Microsoft", color: "#7cbb00", capex: [20.6, 23.9, 28.1, 44.5, 64.6, 113],  ocf: [76.7, 89.0, 87.6, 118.5, 136.2, 176]  },
+        { name: "Alphabet",  color: "#4285f4", capex: [24.6, 31.5, 32.3, 52.5, 91.4, 180],  ocf: [91.7, 91.5, 101.7, 125.3, 164.7, null] },
+        { name: "Meta",      color: "#0668e1", capex: [19.2, 32.0, 28.1, 39.2, 72.2, 135],  ocf: [57.7, 50.5, 71.1, 91.3, 115.8, null]  },
+        { name: "Oracle",    color: "#c74634", capex: [2.1, 4.5, 8.7, 6.9, 21.2, 55.7],     ocf: [15.9, 9.5, 17.2, 18.7, 20.8, 32.0]    }
+      ],
+      combined: {
+        capex: [127.6, 155.5, 149.9, 226.1, 381.2, 683.7],
+        ocf:   [288.3, 287.3, 362.5, 469.7, 577.0, null]
+      },
+      crossover: "Through FY2025 (the last full-actual year) combined Big-5 capex was ~66% of operating cash flow — $381B vs $577B — up from ~44% in 2021, as capex roughly tripled while OCF only doubled. 2026 is the inflection year: capex guidance is ~$684B, but three of the five issue no 2026 OCF guidance, so a true 2026 crossover can't be computed from sourced figures.",
+      oracleCrossover: "Oracle is the lone single-name crossover already: its FY2026 capex ($55.7B) exceeds operating cash flow ($32.0B) — negative free cash flow of roughly −$24B.",
+      src: { label: "Company 10-Ks / earnings releases — FY2021–25 reported actuals; 2026 = company capex guidance (Amazon/Alphabet/Meta), Microsoft estimate, Oracle actual", tier: "primary" },
+      caveats: [
+        "<b>2026 is guidance, not actual.</b> Amazon/Alphabet/Meta capex are company guidance (midpoints used); Microsoft is a 9-month actual + Q4 estimate; only Oracle's 2026 is reported (its FY closed May 31, 2026).",
+        "<b>Fiscal years aren't aligned.</b> Amazon/Alphabet/Meta close in December, Microsoft in June, Oracle in May — combined sums add overlapping but not identical 12-month windows.",
+        "<b>Capex definitions differ.</b> Meta's headline figure includes finance-lease principal; the others are cash purchases of PP&amp;E — this modestly overstates Meta's relative share.",
+        "<b>2026 combined OCF is blank by design.</b> Amazon, Alphabet and Meta issue no 2026 cash-flow guidance, so a five-company 2026 OCF total (and a 2026 crossover) can't be sourced.",
+        "Excludes AI-native challengers (CoreWeave, xAI, Nebius) — this is the Big-5 <i>public-hyperscaler</i> curve, a narrower scope than the ~$848B all-in capex headline."
       ]
     },
 
@@ -3709,6 +3757,130 @@
     }
   }
 
+  // Rank 3 — combined Big-5 hyperscaler capex over time (stacked by company).
+  // 2026 column is faded + flagged as guidance; stack-top datalabel = combined total.
+  function renderCapexTrend() {
+    if (!$("capexTrendChart") || typeof Chart === "undefined" || !DATA.capexTrend) return;
+    if (renderCapexTrend._done) return;
+    renderCapexTrend._done = true;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const t = DATA.capexTrend;
+    const gIdx = t.years.indexOf(t.guidanceFrom);   // first guidance year (2026)
+    const hexA = (h, a) => {                         // hex → rgba (fade the guidance column)
+      const n = parseInt(h.slice(1), 16);
+      return "rgba(" + (n >> 16 & 255) + "," + (n >> 8 & 255) + "," + (n & 255) + "," + a + ")";
+    };
+    // largest contributor at the bottom of the stack, smallest drawn on top
+    const ordered = t.companies.slice().sort((a, b) => b.capex[gIdx] - a.capex[gIdx]);
+    const datasets = ordered.map((co, di) => ({
+      label: co.name,
+      data: co.capex,
+      backgroundColor: co.capex.map((_, i) => i >= gIdx ? hexA(co.color, 0.5) : co.color),
+      borderWidth: 0, borderSkipped: false, stack: "capex", maxBarThickness: 70,
+      _top: di === ordered.length - 1
+    }));
+    _charts.capexTrendChart = new Chart($("capexTrendChart"), {
+      type: "bar",
+      data: { labels: t.years.map(String), datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 26 } },
+        plugins: {
+          legend: { display: true },
+          annotation: { annotations: {
+            guideLine: { type: "line", scaleID: "x", value: gIdx - 0.5, borderColor: cl.label, borderWidth: 1, borderDash: [4, 4],
+              label: { display: true, content: "2026 = guidance", position: "start", backgroundColor: "rgba(15,27,45,0.62)", color: "#fff", font: { size: 9.5, weight: 700 }, padding: 3 } }
+          } },
+          datalabels: {
+            display: ctx => ctx.dataset._top,        // only the top dataset prints the column total
+            anchor: "end", align: "end", offset: 3,
+            color: cl.text, font: { weight: 800, size: 11.5 },
+            formatter: (v, ctx) => "$" + Math.round(t.combined.capex[ctx.dataIndex]) + "B"
+          },
+          tooltip: { callbacks: {
+            title: items => t.years[items[0].dataIndex] + (items[0].dataIndex >= gIdx ? " · guidance" : " · actual"),
+            label: c => " " + c.dataset.label + ": $" + c.parsed.y + "B",
+            footer: items => "Combined: $" + Math.round(t.combined.capex[items[0].dataIndex]) + "B"
+          } }
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, beginAtZero: true, grid: { color: cl.grid }, ticks: { callback: v => "$" + v + "B" }, title: { display: true, text: "Annual capex (USD B)" } }
+        }
+      }
+    });
+    const m = $("capexTrendMethod");
+    if (m) m.innerHTML = "Combined Big-5 capex <b>$" + t.combined.capex[0] + "B &rarr; $" + t.combined.capex[gIdx] + "B</b> (&rsquo;21&rarr;&rsquo;26). " +
+      "Solid bars are reported actuals; the faded 2026 column is <b>guidance</b> (Amazon/Alphabet/Meta company guidance, Microsoft estimate, Oracle actual). " +
+      "Big-5 public hyperscalers only. Source: " + t.src.label + ".";
+  }
+
+  // Rank 5 — combined capex vs operating cash flow (the crossover watch).
+  // OCF is a filled envelope; capex is the rising line. 2026 capex segment is dashed
+  // (guidance); 2026 OCF is null on purpose (3 of 5 issue no cash-flow guidance) so the line stops.
+  function renderCapexVsCashflow() {
+    if (!$("capexVsCashflowChart") || typeof Chart === "undefined" || !DATA.capexTrend) return;
+    if (renderCapexVsCashflow._done) return;
+    renderCapexVsCashflow._done = true;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const t = DATA.capexTrend;
+    const gIdx = t.years.indexOf(t.guidanceFrom);
+    const capex = t.combined.capex, ocf = t.combined.ocf;
+    _charts.capexVsCashflowChart = new Chart($("capexVsCashflowChart"), {
+      type: "line",
+      data: { labels: t.years.map(String), datasets: [
+        {
+          label: "Combined operating cash flow",
+          data: ocf, spanGaps: false, fill: true,
+          borderColor: "#15803d", backgroundColor: "rgba(21,128,61,0.10)",
+          pointRadius: ocf.map((v, i) => v == null ? 0 : (i === gIdx - 1 ? 4 : 0)),
+          pointBackgroundColor: "#15803d", pointBorderColor: "#15803d"
+        },
+        {
+          label: "Combined capex",
+          data: capex, fill: false, borderColor: "#1d4ed8",
+          segment: { borderDash: ctx => ctx.p1DataIndex >= gIdx ? [6, 4] : undefined },
+          pointRadius: capex.map((v, i) => (i === 0 || i === gIdx - 1 || i === gIdx) ? 4 : 0),
+          pointStyle: capex.map((v, i) => i === gIdx ? "rectRot" : "circle"),
+          pointBackgroundColor: capex.map((v, i) => i === gIdx ? "#fff" : "#1d4ed8"),
+          pointBorderColor: "#1d4ed8"
+        }
+      ] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 24, right: 18 } },
+        plugins: {
+          legend: { display: true },
+          annotation: { annotations: {
+            guideLine: { type: "line", scaleID: "x", value: gIdx - 0.5, borderColor: cl.label, borderWidth: 1, borderDash: [4, 4],
+              label: { display: true, content: "2026 = guidance", position: "start", backgroundColor: "rgba(15,27,45,0.62)", color: "#fff", font: { size: 9.5, weight: 700 }, padding: 3 } }
+          } },
+          datalabels: {
+            color: cl.text, font: { weight: 800, size: 11 }, anchor: "end", align: "top", offset: 5,
+            display: ctx => {
+              const i = ctx.dataIndex;
+              if (ctx.dataset.label === "Combined capex") return i === 0 || i === gIdx - 1 || i === gIdx;
+              return i === gIdx - 1;   // OCF: label the last actual (2025)
+            },
+            formatter: v => v == null ? "" : "$" + Math.round(v) + "B"
+          },
+          tooltip: { callbacks: {
+            title: items => t.years[items[0].dataIndex] + (items[0].dataIndex >= gIdx ? " · capex = guidance" : " · actual"),
+            label: c => c.parsed.y == null ? null : " " + c.dataset.label + ": $" + c.parsed.y + "B"
+          } }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true, grid: { color: cl.grid }, ticks: { callback: v => "$" + v + "B" }, title: { display: true, text: "USD B" } }
+        }
+      }
+    });
+    const m = $("capexVsCashflowMethod");
+    if (m) m.innerHTML = "<b>The crossover watch.</b> " + t.crossover + " <b>" + t.oracleCrossover + "</b> Source: " + t.src.label + ".";
+  }
+
   function renderCapexChart() {
     if (!$("coCapexChart") || typeof Chart === "undefined") return;
     if (renderCapexChart._done) return;
@@ -5036,6 +5208,8 @@
       renderIrrCalculator();
       renderCapexChart();
       renderCapexAiShare();
+      renderCapexTrend();
+      renderCapexVsCashflow();
       renderVacancyChart();
       renderOfftakeCoverage();
       renderCircularFinancing("all");
@@ -5119,7 +5293,7 @@
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
