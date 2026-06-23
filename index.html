@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
@@ -1392,7 +1393,8 @@
         <div class="stub-card">
           <h4>What a megawatt costs</h4>
           <div class="note">Illustrative $M to build one MW of AI capacity &middot; GPUs dominate</div>
-          <div id="costStack" style="margin-top:6px"></div>
+          <div class="chart-box short" style="margin-top:6px"><canvas id="costStack"></canvas></div>
+          <div class="sc-method" id="costStackMethod"></div>
         </div>
       </div>
 
@@ -1593,7 +1595,8 @@
         <div class="stub-card">
           <h4>Where every $1M goes</h4>
           <div class="note">Build cost breakdown per MW · facility vs compute layers</div>
-          <div id="costStackEngineer" style="margin-top:6px"></div>
+          <div class="chart-box short" style="margin-top:6px"><canvas id="costStackEngineer"></canvas></div>
+          <div class="sc-method" id="costStackEngineerMethod"></div>
         </div>
 
         <!-- Card 5: Buildout cadence by hyperscaler (chart) -->
@@ -1806,7 +1809,8 @@
         <div class="stub-card" style="grid-column: 1 / -1">
           <h4>Inference vs training split</h4>
           <div class="note">Where the compute actually goes &middot; late-2025 industry estimates</div>
-          <div id="splitChart"></div>
+          <div class="chart-box short"><canvas id="splitChart"></canvas></div>
+          <div class="sc-method" id="splitChartMethod"></div>
         </div>
       </div>
 
@@ -2799,18 +2803,36 @@
   /* ----- Investor tab renders ----- */
   function renderCostStack(targetId) {
     targetId = targetId || "costStack";
-    if (!$(targetId) || !DATA.costStack) return;
-    const cs = DATA.costStack;
-    const max = Math.max.apply(null, cs.layers.map(l => l.value));
+    if (!$(targetId) || typeof Chart === "undefined" || !DATA.costStack) return;
+    if (_charts[targetId]) return;                       // per-target guard (two callers)
+    initCharts(); applyChartDefaults();
+    const cs = DATA.costStack, cl = getChartColors();
     const facColor = "#1d9e75", compColor = "#1d4ed8";
-    const rowHtml = (l, color) => `<div class="cost-row" title="${l.name}: ${l.detail}"><span class="cn">${l.name}</span><div class="cb" style="width:${(l.value / max * 100).toFixed(1)}%;background:${color}"></div><span class="cv">$${l.value}M</span></div>`;
-    let html = `<div class="cost-group-label"><i style="background:${facColor}"></i>Facility — paid by developer</div>`;
-    cs.layers.filter(l => l.group === "facility").forEach(l => { html += rowHtml(l, facColor); });
-    html += `<div class="cost-sub"><span>Facility subtotal</span><span>$${cs.facilitySubtotal}M / MW</span></div>`;
-    html += `<div class="cost-group-label"><i style="background:${compColor}"></i>Compute — paid by consumer</div>`;
-    cs.layers.filter(l => l.group === "compute").forEach(l => { html += rowHtml(l, compColor); });
-    html += `<div class="cost-total"><span>All-in total</span><span>$${cs.allInTotal}M / MW</span></div>`;
-    $(targetId).innerHTML = html;
+    const rows = cs.layers.slice().sort((a, b) => b.value - a.value);   // largest layer (GPUs) first
+    _charts[targetId] = new Chart($(targetId), {
+      type: "bar",
+      data: { labels: rows.map(l => l.name), datasets: [{
+        label: "$M / MW",
+        data: rows.map(l => l.value),
+        backgroundColor: rows.map(l => l.group === "facility" ? facColor : compColor),
+        borderRadius: 6, maxBarThickness: 22
+      }]},
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 30 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, anchor: "end", align: "end", formatter: v => "$" + v + "M" }),
+          tooltip: { callbacks: { label: c => { const l = rows[c.dataIndex]; return " $" + l.value + "M/MW · " + (l.group === "facility" ? "facility" : "compute") + (l.detail ? " — " + l.detail : ""); } } }
+        },
+        scales: {
+          x: { grid: { color: cl.grid }, ticks: { callback: v => "$" + v + "M" }, beginAtZero: true },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+    const m = $(targetId + "Method");
+    if (m) m.innerHTML = "<b>All-in ~$" + cs.allInTotal + "M / MW</b> — facility $" + cs.facilitySubtotal + "M (green) + compute $" + (cs.allInTotal - cs.facilitySubtotal) + "M (blue) · illustrative · GPUs dominate.";
   }
 
   function renderDeals() {
@@ -2889,6 +2911,7 @@
       Chart.defaults.plugins = Chart.defaults.plugins || {};
       Chart.defaults.plugins.datalabels = { display: false };
     }
+    if (window["chartjs-plugin-annotation"]) { try { Chart.register(window["chartjs-plugin-annotation"]); } catch (_) {} }
     applyChartDefaults();
   }
   // Common datalabel style — picks up current theme color
@@ -3094,13 +3117,14 @@
         plugins: {
           legend: { display: false },
           datalabels: { display: true, color: cl.label, font: { weight: 700, size: 11 }, align: "top", offset: 6, formatter: v => v + " GW" },
+          annotation: { annotations: { bloom: { type: "line", yMin: 35, yMax: 35, borderColor: "#c2710c", borderWidth: 1, borderDash: [5, 4], label: { display: true, content: "Bloom Energy: ~35 GW gap by 2030", position: "end", backgroundColor: "rgba(194,113,12,0.85)", color: "#fff", font: { size: 9.5, weight: 700 }, padding: 3 } } } },
           tooltip: { callbacks: {
             label: c => " " + c.parsed.y + " GW standing shortfall",
             footer: () => "Source: " + cd.src.label
           }}
         },
         scales: {
-          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true, suggestedMax: 22, title: { display: true, text: "Cumulative shortfall (GW)" } },
+          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true, suggestedMax: 38, title: { display: true, text: "Cumulative shortfall (GW)" } },
           x: { grid: { display: false } }
         }
       }
@@ -3744,6 +3768,7 @@
         plugins: {
           legend: { display: false },
           datalabels: { display: true, color: cl.label, font: { weight: 700, size: 11 }, align: "top", offset: 6, formatter: v => v + "%" },
+          annotation: { annotations: { floor: { type: "line", yMin: 5, yMax: 5, borderColor: cl.label, borderWidth: 1, borderDash: [5, 4], label: { display: true, content: "~5% healthy-market floor", position: "start", backgroundColor: "rgba(15,27,45,0.6)", color: "#fff", font: { size: 9.5, weight: 700 }, padding: 3 } } } },
           tooltip: { callbacks: {
             label: c => " " + c.parsed.y + "% vacancy",
             footer: () => v.src ? "Source: " + v.src.label : ""
@@ -4663,29 +4688,34 @@
   }
 
   function renderSplitChart() {
-    if (!$("splitChart") || !DATA.inferenceTrainingSplit) return;
-    const s = DATA.inferenceTrainingSplit;
-    $("splitChart").innerHTML = `
-      <div class="split-block">
-        <div class="split-label"><span>Compute hours</span><span>${s.computeHours.inference}% inference · ${s.computeHours.training}% training</span></div>
-        <div class="split-bar">
-          <div class="split-seg inference" style="width:${s.computeHours.inference}%">Inference ${s.computeHours.inference}%</div>
-          <div class="split-seg training"  style="width:${s.computeHours.training}%">Train ${s.computeHours.training}%</div>
-        </div>
-      </div>
-      <div class="split-block">
-        <div class="split-label"><span>Dollar spend</span><span>${s.spend.inference}% inference · ${s.spend.training}% training</span></div>
-        <div class="split-bar">
-          <div class="split-seg inference" style="width:${s.spend.inference}%">Inference ${s.spend.inference}%</div>
-          <div class="split-seg training"  style="width:${s.spend.training}%">Train ${s.spend.training}%</div>
-        </div>
-      </div>
-      <div class="split-legend">
-        <span><span class="lg-dot" style="background:#1d4ed8"></span>Inference (continuous, scales with users)</span>
-        <span><span class="lg-dot" style="background:#c2710c"></span>Training (concentrated, periodic)</span>
-      </div>
-      <div class="sc-note" style="margin-top:10px">${s.note} Source: ${s.src.label}.</div>
-    `;
+    if (!$("splitChart") || typeof Chart === "undefined" || !DATA.inferenceTrainingSplit) return;
+    if (renderSplitChart._done) return;
+    renderSplitChart._done = true;
+    initCharts(); applyChartDefaults();
+    const s = DATA.inferenceTrainingSplit, cl = getChartColors();
+    _charts.splitChart = new Chart($("splitChart"), {
+      type: "bar",
+      data: {
+        labels: ["Compute hours", "Dollar spend"],
+        datasets: [
+          { label: "Inference", data: [s.computeHours.inference, s.spend.inference], backgroundColor: "#1d4ed8", stack: "s" },
+          { label: "Training",  data: [s.computeHours.training,  s.spend.training],  backgroundColor: "#c2710c", stack: "s" }
+        ]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true },
+          datalabels: { display: true, color: "#fff", font: { weight: 800, size: 12 }, formatter: v => v + "%" },
+          tooltip: { callbacks: { label: c => " " + c.dataset.label + ": " + c.parsed.x + "%", footer: () => "Source: " + s.src.label } }
+        },
+        scales: {
+          x: { stacked: true, min: 0, max: 100, grid: { color: cl.grid }, ticks: { callback: v => v + "%" } },
+          y: { stacked: true, grid: { display: false } }
+        }
+      }
+    });
+    if ($("splitChartMethod")) $("splitChartMethod").innerHTML = s.note + " Source: " + s.src.label + ".";
   }
 
   /* ----- Lazy per-tab render ----- */
@@ -5089,7 +5119,7 @@
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart","renderTimeToPower","renderCapexAiShare"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
