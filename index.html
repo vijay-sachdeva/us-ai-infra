@@ -293,7 +293,9 @@
   .chart-box.short { height: 246px; }
   .chart-box.tall  { height: 326px; }
   /* Charts-first: show the chart/visual above its description note, on every card */
-  .stub-card { display: flex; flex-direction: column; }
+  /* min-width:0 lets a card shrink below its content's intrinsic width when it's a
+     grid item (otherwise a Chart.js canvas's fixed px width pins the column wide on mobile) */
+  .stub-card { display: flex; flex-direction: column; min-width: 0; }
   .stub-card > .note { order: 1; margin: 12px 0 0; }
   .stub-card > .sc-method,
   .stub-card > .tab-callout,
@@ -539,7 +541,7 @@
 
   /* Map view toggle (Pipeline / Operational) */
   .map-view-toggle {
-    display: inline-flex; gap: 4px; margin: 4px 0 12px;
+    display: inline-flex; flex-wrap: wrap; max-width: 100%; gap: 4px; margin: 4px 0 12px;
     padding: 3px; background: var(--bg);
     border-radius: 6px; border: 1px solid var(--line);
   }
@@ -557,7 +559,9 @@
   [data-theme="dark"] .map-view-btn.active { background: #1e293b; }
 
   /* Named pipeline projects table */
-  .mp-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
+  /* let the wide builds table scroll inside its card on mobile instead of pushing the page */
+  #megaProjectsList { overflow-x: auto; }
+  .mp-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; min-width: 520px; }
   .mp-table th {
     text-align: left; padding: 8px 10px; background: var(--bg);
     font-size: 10.5px; font-weight: 700; color: var(--ink-2);
