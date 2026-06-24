@@ -1283,6 +1283,8 @@
   .ov-tick time{color:var(--ov-muted);font-size:11px;width:54px;flex:none}
   .ov-tag{font-size:10px;font-weight:600;letter-spacing:.04em;padding:2px 6px;border-radius:4px;border:1px solid currentColor;flex:none}
   .ov-why{color:var(--ov-muted)}
+  .ov-src{color:var(--ov-muted);font-size:11px;font-style:italic}
+  .ov-src a{color:inherit;text-decoration:underline}
   .ov-toggle{display:inline-flex;border:1px solid var(--ov-line);border-radius:8px;overflow:hidden;margin:.2rem 0 1rem}
   .ov-toggle button{appearance:none;background:transparent;border:0;color:var(--ov-muted);font:inherit;font-size:13px;padding:6px 14px;cursor:pointer}
   .ov-toggle button.on{background:rgba(88,166,255,.12);color:var(--ov-ink)}
@@ -1324,7 +1326,7 @@
 <!-- ================= TOP BANNER ================= -->
 <div class="top-banner">
   <div class="tb-wrap">
-    <span class="tb-left"><span class="tb-dot"></span> Updated <span class="tb-date">—</span></span>
+    <span class="tb-left"><span class="tb-dot"></span> Content updated <span class="tb-date">—</span></span>
     <span class="tb-center">All insights are derived from publicly available information.</span>
     <span class="tb-right">Contact <a href="mailto:vijaysachdeva@gmail.com">vijaysachdeva@gmail.com</a></span>
   </div>
@@ -5431,9 +5433,11 @@
     host.innerHTML=feed.slice(0,3).map(function(it){
       var tag=(it.tag||it.section||'SIGNAL').toUpperCase();
       var head=it.headline||it.title||it.text||'';
+      var src=it.src?(it.url?' <span class="ov-src">— <a href="'+it.url+'" target="_blank" rel="noopener">'+it.src+'</a></span>'
+                            :' <span class="ov-src">— '+it.src+'</span>'):'';
       return '<div class="ov-tick"><time>'+(it.date||'')+'</time>'
         +'<span class="ov-tag" style="color:'+(tagColor[tag]||'#8b97a3')+'">'+tag+'</span>'
-        +'<span>'+head+(it.why?' — <span class="ov-why">'+it.why+'</span>':'')+'</span></div>';
+        +'<span>'+head+(it.why?' — <span class="ov-why">'+it.why+'</span>':'')+src+'</span></div>';
     }).join('');
   }
 
@@ -5800,11 +5804,15 @@
   /* Compact, structured summary of all 5 tabs — fed to Claude as context. */
   function dataContext() {
     const L = [];
-    L.push("US AI Infrastructure Monitor — data as of " + DATA.lastUpdated + ".");
+    L.push("US AI Infrastructure Monitor — content/news last refreshed " + DATA.lastUpdated + ". Individual figures carry their own as-of dates and source tiers (Primary/Analyst/Modeled), and the live grid/power/queue/siting feeds show their own timestamps — do NOT claim every figure is measured as of the refresh date.");
 
     L.push(""); L.push("=== OVERVIEW (headline KPIs) ===");
     DATA.kpis.forEach(k => L.push("- " + k.label + ": " + k.value + " " + k.unit + (k.sub ? " (" + k.sub + ")" : "")));
     if (DATA.topStory) L.push("Top story (" + DATA.topStory.date + " · " + DATA.topStory.src + "): " + DATA.topStory.text);
+    if (Array.isArray(DATA.feed) && DATA.feed.length) {
+      L.push("Recent signals (the live news ticker, most-recent first — each is a dated, sourced news item, NOT a refreshed metric):");
+      DATA.feed.forEach(it => L.push("- [" + (it.tag || "SIGNAL") + " · " + (it.date || "") + " · " + (it.src || "source n/a") + "] " + (it.text || it.headline || it.title || "")));
+    }
 
     L.push(""); L.push("=== INVESTOR ===");
     const cc = DATA.companyCapex;
