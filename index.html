@@ -1300,6 +1300,8 @@
   .ov-stat:hover{border-color:var(--ov-demand);transform:translateY(-2px)}
   .ov-stat-num{font-size:29px;font-weight:700;letter-spacing:-.02em;color:var(--ov-ink);line-height:1.05}
   .ov-stat-num .unit{font-size:14px;font-weight:600;color:var(--ov-muted);margin-left:2px}
+  /* Unified figures — align digits across all headline numbers (modern data-viz polish) */
+  .ov-stat-num, .kpi .value, .funnel-stage .fs-num { font-variant-numeric: tabular-nums; }
   .ov-stat-hook{font-size:12px;color:var(--ov-muted);line-height:1.35}
   .ov-stat .cf-tier{align-self:flex-start;margin-top:3px}
   .ov-lens-stat{font-size:12px;color:var(--ov-ink);opacity:.82;line-height:1.35}
@@ -2971,6 +2973,56 @@
     mid:  { afterDup: 68, dupDelta: 29, buildable: 24, specDelta: 44, dupPct: "−30%", specPct: "−65%" },
     high: { afterDup: 73, dupDelta: 24, buildable: 33, specDelta: 40, dupPct: "−25%", specPct: "−55%" }
   };
+
+  // ===== Unified modern-chart system =====
+  // One semantic palette for the whole dashboard — color encodes MEANING, not series order.
+  const CHART_PALETTE = {
+    demand:     "#1d4ed8",   // requested / demand / headline
+    supply:     "#15803d",   // operational / supply / "real"
+    constraint: "#c0322b",   // constraint / deduction / pressure
+    pipeline:   "#c2710c",   // uncertain / in-progress pipeline
+    context:    "#94a3b8",   // neutral context
+    accent:     "#0ea5e9"    // secondary series
+  };
+  const hexA = (h, a) => { const n = parseInt(h.slice(1), 16); return "rgba(" + (n >> 16 & 255) + "," + (n >> 8 & 255) + "," + (n & 255) + "," + a + ")"; };
+
+  // Lollipop ranking chart — thin stem + end dot. The modern replacement for ranked bars.
+  // rows: [{label, value, color}]; opts: {fmt, tick, suggestedMax, rightPad, dotR, tooltipCallbacks, annotation, seriesLabel}
+  function renderLollipop(canvasId, rows, opts) {
+    if (!$(canvasId) || typeof Chart === "undefined") return;
+    opts = opts || {};
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const fmt = opts.fmt || (v => v);
+    const colors = rows.map(x => x.color || CHART_PALETTE.demand);
+    const r = opts.dotR || 7;
+    if (_charts[canvasId]) { try { _charts[canvasId].destroy(); } catch (_) {} delete _charts[canvasId]; }
+    const dots = { id: "lolly-" + canvasId, afterDatasetsDraw(chart) {
+      const ctx = chart.ctx, meta = chart.getDatasetMeta(0);
+      meta.data.forEach((el, i) => { ctx.save(); ctx.beginPath(); ctx.arc(el.x, el.y, r, 0, 6.2832); ctx.fillStyle = colors[i]; ctx.fill(); ctx.restore(); });
+    } };
+    _charts[canvasId] = new Chart($(canvasId), {
+      type: "bar",
+      data: { labels: rows.map(x => x.label), datasets: [{ label: opts.seriesLabel, data: rows.map(x => x.value), backgroundColor: colors.map(c => hexA(c, 0.45)), borderWidth: 0, barThickness: 3 }] },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: opts.rightPad || 52 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, anchor: "end", align: "end", offset: r + 6, formatter: (v, c) => fmt(v, rows[c.dataIndex]) }),
+          tooltip: { callbacks: opts.tooltipCallbacks || { label: c => " " + fmt(c.parsed.x, rows[c.dataIndex]) } },
+          annotation: opts.annotation
+        },
+        scales: {
+          x: { beginAtZero: true, suggestedMax: opts.suggestedMax, grid: { color: cl.grid }, ticks: { callback: opts.tick || (v => v) } },
+          y: { grid: { display: false }, ticks: { font: { weight: 700 } } }
+        }
+      },
+      plugins: [dots]
+    });
+    return _charts[canvasId];
+  }
+
   function getChartColors() {
     const dark = document.documentElement.getAttribute("data-theme") === "dark";
     return {
@@ -3007,9 +3059,9 @@
       const T = Chart.defaults.plugins.tooltip;
       T.usePointStyle = true; T.padding = 10; T.cornerRadius = 8; T.boxPadding = 5;
     } catch (_) {}
-    // Gentle, consistent motion
-    Chart.defaults.animation.duration = 550;
-    Chart.defaults.animation.easing = "easeOutQuart";
+    // Gentle, consistent motion — honor prefers-reduced-motion in one place
+    const _reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    Chart.defaults.animation = _reduce ? false : { duration: 550, easing: "easeOutQuart" };
   }
   function initCharts() {
     if (_chartsInit || typeof Chart === "undefined") return;
@@ -4010,8 +4062,6 @@
     if (!$("capexAiShareChart") || typeof Chart === "undefined" || !DATA.capexFlow) return;
     if (renderCapexAiShare._done) return;
     renderCapexAiShare._done = true;
-    initCharts(); applyChartDefaults();
-    const cl = getChartColors();
     const rows = DATA.capexFlow.companies.map(co => {
       const infra = co.buckets.filter(b => b.lane === "infra").reduce((s, b) => s + b.value, 0);
       const total = co.buckets.reduce((s, b) => s + b.value, 0) || co.total;
@@ -4020,26 +4070,10 @@
     const sumInfra = rows.reduce((s, r) => s + r.infra, 0);
     const sumTotal = rows.reduce((s, r) => s + r.total, 0);
     const aggPct = Math.round(sumInfra / sumTotal * 100);
-    _charts.capexAiShareChart = new Chart($("capexAiShareChart"), {
-      type: "bar",
-      data: { labels: rows.map(r => r.name), datasets: [{
-        label: "AI / data-center share of capex",
-        data: rows.map(r => r.pct),
-        backgroundColor: rows.map(r => r.color), borderRadius: 6, maxBarThickness: 20
-      }]},
-      options: {
-        indexAxis: "y", responsive: true, maintainAspectRatio: false,
-        layout: { padding: { right: 30 } },
-        plugins: {
-          legend: { display: false },
-          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, anchor: "end", align: "end", formatter: v => v + "%" }),
-          tooltip: { callbacks: { label: c => { const r = rows[c.dataIndex]; return " ~" + r.pct + "% AI-attributed · $" + r.infra + "B of $" + r.total + "B capex"; } } }
-        },
-        scales: {
-          x: { min: 0, max: 100, grid: { color: cl.grid }, ticks: { callback: v => v + "%" } },
-          y: { grid: { display: false } }
-        }
-      }
+    renderLollipop("capexAiShareChart", rows.map(r => ({ label: r.name, value: r.pct, color: r.color })), {
+      seriesLabel: "AI / DC share of capex (%)",
+      fmt: v => v + "%", tick: v => v + "%", suggestedMax: 100, rightPad: 46,
+      tooltipCallbacks: { label: c => { const r = rows[c.dataIndex]; return " ~" + r.pct + "% AI-attributed · $" + r.infra + "B of $" + r.total + "B capex"; } }
     });
     if ($("capexAiShareNote")) {
       $("capexAiShareNote").innerHTML =
@@ -4049,8 +4083,8 @@
     }
   }
 
-  // Rank 3 — combined Big-5 hyperscaler capex over time (stacked by company).
-  // 2026 column is faded + flagged as guidance; stack-top datalabel = combined total.
+  // Rank 3 — combined Big-5 hyperscaler capex over time, as a STACKED AREA ("the wave").
+  // Top line = combined total (labelled per year); the 2026 guidance era is shaded.
   function renderCapexTrend() {
     if (!$("capexTrendChart") || typeof Chart === "undefined" || !DATA.capexTrend) return;
     if (renderCapexTrend._done) return;
@@ -4059,21 +4093,18 @@
     const cl = getChartColors();
     const t = DATA.capexTrend;
     const gIdx = t.years.indexOf(t.guidanceFrom);   // first guidance year (2026)
-    const hexA = (h, a) => {                         // hex → rgba (fade the guidance column)
-      const n = parseInt(h.slice(1), 16);
-      return "rgba(" + (n >> 16 & 255) + "," + (n >> 8 & 255) + "," + (n & 255) + "," + a + ")";
-    };
     // largest contributor at the bottom of the stack, smallest drawn on top
     const ordered = t.companies.slice().sort((a, b) => b.capex[gIdx] - a.capex[gIdx]);
     const datasets = ordered.map((co, di) => ({
       label: co.name,
       data: co.capex,
-      backgroundColor: co.capex.map((_, i) => i >= gIdx ? hexA(co.color, 0.5) : co.color),
-      borderWidth: 0, borderSkipped: false, stack: "capex", maxBarThickness: 70,
+      backgroundColor: hexA(co.color, 0.5),
+      borderColor: co.color, borderWidth: 1.5,
+      fill: true, tension: 0.3, pointRadius: 0, pointHoverRadius: 4,
       _top: di === ordered.length - 1
     }));
     _charts.capexTrendChart = new Chart($("capexTrendChart"), {
-      type: "bar",
+      type: "line",
       data: { labels: t.years.map(String), datasets },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -4081,13 +4112,14 @@
         plugins: {
           legend: { display: true },
           annotation: { annotations: {
-            guideLine: { type: "line", scaleID: "x", value: gIdx - 0.5, borderColor: cl.label, borderWidth: 1, borderDash: [4, 4],
-              label: { display: true, content: "2026 = guidance", position: "start", backgroundColor: "rgba(15,27,45,0.62)", color: "#fff", font: { size: 9.5, weight: 700 }, padding: 3 } }
+            guidance: { type: "box", xMin: gIdx - 0.5, xMax: t.years.length - 1,
+              backgroundColor: hexA(CHART_PALETTE.context, 0.12), borderWidth: 0,
+              label: { display: true, content: "2026 = guidance", position: { x: "center", y: "start" }, color: cl.label, font: { size: 9.5, weight: 700 }, backgroundColor: "rgba(0,0,0,0)" } }
           } },
           datalabels: {
-            display: ctx => ctx.dataset._top,        // only the top dataset prints the column total
-            anchor: "end", align: "end", offset: 3,
-            color: cl.text, font: { weight: 800, size: 11.5 },
+            display: ctx => ctx.dataset._top,        // only the top series prints the combined total
+            anchor: "end", align: "top", offset: 2,
+            color: cl.text, font: { weight: 800, size: 11 },
             formatter: (v, ctx) => "$" + Math.round(t.combined.capex[ctx.dataIndex]) + "B"
           },
           tooltip: { callbacks: {
@@ -4103,8 +4135,8 @@
       }
     });
     const m = $("capexTrendMethod");
-    if (m) m.innerHTML = "Combined Big-5 capex <b>$" + t.combined.capex[0] + "B &rarr; $" + t.combined.capex[gIdx] + "B</b> (&rsquo;21&rarr;&rsquo;26). " +
-      "Solid bars are reported actuals; the faded 2026 column is <b>guidance</b> (Amazon/Alphabet/Meta company guidance, Microsoft estimate, Oracle actual). " +
+    if (m) m.innerHTML = "Combined Big-5 capex <b>$" + t.combined.capex[0] + "B &rarr; $" + t.combined.capex[gIdx] + "B</b> (&rsquo;21&rarr;&rsquo;26) — the wave. " +
+      "Solid fill = reported actuals; the shaded 2026 band is <b>guidance</b> (Amazon/Alphabet/Meta company guidance, Microsoft estimate, Oracle actual). " +
       "Big-5 public hyperscalers only. Source: " + t.src.label + ".";
   }
 
@@ -4177,30 +4209,16 @@
     if (!$("coCapexChart") || typeof Chart === "undefined") return;
     if (renderCapexChart._done) return;
     renderCapexChart._done = true;
-    initCharts(); applyChartDefaults();
     const cc = DATA.companyCapex;
-    const cl = getChartColors();
-    _charts.coCapexChart = new Chart($("coCapexChart"), {
-      type: "bar",
-      data: { labels: cc.companies, datasets: [{
-        label: "2026 capex", data: cc.values,
-        backgroundColor: cc.colors, borderRadius: 6, maxBarThickness: 70
-      }]},
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        layout: { padding: { top: 24 } },
-        plugins: {
-          legend: { display: false },
-          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, formatter: v => "$" + v + "B" }),
-          tooltip: { callbacks: {
-            label: c => " $" + c.parsed.y + "B planned capex",
-            footer: items => { const s = cc.srcs[items[0].dataIndex]; return s ? "Source: " + s.label : ""; }
-          }}
-        },
-        scales: {
-          y: { grid: { color: cl.grid }, ticks: { callback: v => "$" + v + "B" }, beginAtZero: true },
-          x: { grid: { display: false } }
-        }
+    const rows = cc.companies.map((name, i) => ({ label: name, value: cc.values[i], color: cc.colors[i], _i: i }))
+      .sort((a, b) => b.value - a.value);
+    renderLollipop("coCapexChart", rows, {
+      seriesLabel: "2026 capex (USD B)",
+      fmt: v => "$" + v + "B", tick: v => "$" + v + "B", rightPad: 58,
+      suggestedMax: Math.max.apply(null, cc.values) * 1.12,
+      tooltipCallbacks: {
+        label: c => " $" + c.parsed.x + "B planned capex",
+        footer: items => { const s = cc.srcs[rows[items[0].dataIndex]._i]; return s ? "Source: " + s.label : ""; }
       }
     });
   }
@@ -4417,36 +4435,14 @@
     if (!$("leadTimeChart") || typeof Chart === "undefined") return;
     if (renderLeadTimeChart._done) return;
     renderLeadTimeChart._done = true;
-    initCharts(); applyChartDefaults();
     const sorted = [...DATA.markets].sort((a, b) => b.lead - a.lead);
-    const colorFor = (l) => l >= 6 ? "#c0322b" : l >= 4 ? "#c2710c" : "#15803d";
-    const cl = getChartColors();
-    _charts.leadTimeChart = new Chart($("leadTimeChart"), {
-      type: "bar",
-      data: {
-        labels: sorted.map(m => m.name),
-        datasets: [{
-          label: "Lead time (years)",
-          data: sorted.map(m => m.lead),
-          backgroundColor: sorted.map(m => colorFor(m.lead)),
-          borderRadius: 5, maxBarThickness: 22
-        }]
-      },
-      options: {
-        indexAxis: "y", responsive: true, maintainAspectRatio: false,
-        layout: { padding: { right: 28 } },
-        plugins: {
-          legend: { display: false },
-          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, formatter: v => v + " yr" }),
-          tooltip: { callbacks: {
-            label: c => " " + c.parsed.x + " years",
-            footer: items => { const m = sorted[items[0].dataIndex]; return m ? m.note : ""; }
-          }}
-        },
-        scales: {
-          x: { grid: { color: cl.grid }, ticks: { callback: v => v + " yr" }, beginAtZero: true, suggestedMax: 8 },
-          y: { grid: { display: false } }
-        }
+    const colorFor = (l) => l >= 6 ? CHART_PALETTE.constraint : l >= 4 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply;
+    renderLollipop("leadTimeChart", sorted.map(m => ({ label: m.name, value: m.lead, color: colorFor(m.lead) })), {
+      seriesLabel: "Lead time (years)",
+      fmt: v => v + " yr", tick: v => v + " yr", suggestedMax: 8, rightPad: 46,
+      tooltipCallbacks: {
+        label: c => " " + c.parsed.x + " years",
+        footer: items => { const m = sorted[items[0].dataIndex]; return m ? m.note : ""; }
       }
     });
   }
@@ -4855,8 +4851,8 @@
       data: {
         labels: dp.years,
         datasets: [
-          { label: "DC demand added", data: dp.yoyDemandGrowthGW, backgroundColor: "#c0322b", borderRadius: 5, maxBarThickness: 26 },
-          { label: "New firm gen for DC", data: dp.newFirmGenForDC, backgroundColor: "#15803d", borderRadius: 5, maxBarThickness: 26 }
+          { label: "DC demand added", data: dp.yoyDemandGrowthGW, backgroundColor: CHART_PALETTE.demand, borderRadius: 5, maxBarThickness: 26 },
+          { label: "New firm gen for DC", data: dp.newFirmGenForDC, backgroundColor: CHART_PALETTE.supply, borderRadius: 5, maxBarThickness: 26 }
         ]
       },
       options: {
@@ -4882,36 +4878,15 @@
     if (!$("rateImpactChart") || typeof Chart === "undefined") return;
     if (renderRateImpactChart._done) return;
     renderRateImpactChart._done = true;
-    initCharts(); applyChartDefaults();
     const ri = DATA.rateImpacts;
-    const colorFor = (v) => v >= 25 ? "#c0322b" : v >= 15 ? "#c2710c" : "#15803d";
-    const cl = getChartColors();
-    _charts.rateImpactChart = new Chart($("rateImpactChart"), {
-      type: "bar",
-      data: {
-        labels: ri.states.map(s => s.state),
-        datasets: [{
-          label: "Rate increase by 2030",
-          data: ri.states.map(s => s.increase),
-          backgroundColor: ri.states.map(s => colorFor(s.increase)),
-          borderRadius: 5, maxBarThickness: 22
-        }]
-      },
-      options: {
-        indexAxis: "y", responsive: true, maintainAspectRatio: false,
-        layout: { padding: { right: 36 } },
-        plugins: {
-          legend: { display: false },
-          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, formatter: v => "+" + v + "%" }),
-          tooltip: { callbacks: {
-            label: c => " +" + c.parsed.x + "% by 2030",
-            footer: () => "Source: " + ri.src.label
-          }}
-        },
-        scales: {
-          x: { grid: { color: cl.grid }, ticks: { callback: v => "+" + v + "%" }, beginAtZero: true, suggestedMax: 60 },
-          y: { grid: { display: false } }
-        }
+    const colorFor = (v) => v >= 25 ? CHART_PALETTE.constraint : v >= 15 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply;
+    const rows = ri.states.map(s => ({ label: s.state, value: s.increase, color: colorFor(s.increase) })).sort((a, b) => b.value - a.value);
+    renderLollipop("rateImpactChart", rows, {
+      seriesLabel: "Rate increase by 2030 (%)",
+      fmt: v => "+" + v + "%", tick: v => "+" + v + "%", suggestedMax: 60, rightPad: 48,
+      tooltipCallbacks: {
+        label: c => " +" + c.parsed.x + "% by 2030",
+        footer: () => "Source: " + ri.src.label
       }
     });
   }
@@ -5245,30 +5220,22 @@
     if (!DATA.grid || !DATA.grid.regions) return;   // no feed yet -> skip, keep dashboard intact
     if (renderHeadroomChart._done) return;
     renderHeadroomChart._done = true;
-    initCharts(); applyChartDefaults();
-    const cl = getChartColors();
     const rows = Object.entries(DATA.grid.regions)
       .filter(([, v]) => v.headroom_pct != null)
       .map(([ba, v]) => ({ ba, ...v }))
       .sort((a, b) => a.headroom_pct - b.headroom_pct);
-    const col = v => v <= 6 ? "#e5534b" : (v <= 10 ? "#e3b341" : "#39d98a");
-    _charts.headroomChart = new Chart($("headroomChart"), {
-      type: "bar",
-      data: { labels: rows.map(d => d.ba), datasets: [{
-        label: "Grid headroom %", data: rows.map(d => d.headroom_pct),
-        backgroundColor: rows.map(d => col(d.headroom_pct)), borderRadius: 6, maxBarThickness: 26
-      }]},
-      options: {
-        responsive: true, maintainAspectRatio: false, indexAxis: "y",
-        plugins: {
-          legend: { display: false }, datalabels: { display: false },
-          tooltip: { callbacks: { afterLabel: c => "Peak ≈ " + (rows[c.dataIndex].peak_mw || 0).toLocaleString() + " MW" } }
-        },
-        scales: {
-          x: { grid: { color: cl.grid }, beginAtZero: true, title: { display: true, text: "headroom (%) — EIA-930 + EIA-860" } },
-          y: { grid: { display: false } }
-        }
-      }
+    const col = v => v <= 6 ? CHART_PALETTE.constraint : (v <= 10 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply);
+    renderLollipop("headroomChart", rows.map(r => ({ label: r.ba, value: r.headroom_pct, color: col(r.headroom_pct) })), {
+      seriesLabel: "Grid headroom (%)",
+      fmt: v => v + "%", tick: v => v + "%", rightPad: 44,
+      tooltipCallbacks: {
+        label: c => " " + c.parsed.x + "% headroom",
+        afterLabel: c => "Peak ≈ " + (rows[c.dataIndex].peak_mw || 0).toLocaleString() + " MW · EIA-930 + EIA-860"
+      },
+      annotation: { annotations: {
+        crit:    { type: "line", scaleID: "x", value: 6,  borderColor: hexA(CHART_PALETTE.constraint, 0.7), borderWidth: 1, borderDash: [4, 4], label: { display: true, content: "6% critical",  position: "start", color: "#fff", backgroundColor: hexA(CHART_PALETTE.constraint, 0.85), font: { size: 9, weight: 700 }, padding: 2 } },
+        healthy: { type: "line", scaleID: "x", value: 10, borderColor: hexA(CHART_PALETTE.supply, 0.7),     borderWidth: 1, borderDash: [4, 4], label: { display: true, content: "10% healthy", position: "end",   color: "#fff", backgroundColor: hexA(CHART_PALETTE.supply, 0.85),     font: { size: 9, weight: 700 }, padding: 2 } }
+      } }
     });
   }
 
@@ -5284,8 +5251,8 @@
     _charts.queueChart = new Chart($("queueChart"), {
       type: "bar",
       data: { labels: q.map(d => d.iso), datasets: [
-        { label: "Credible (post-withdrawal)", data: q.map(d => d.credible_gw), backgroundColor: "#58a6ff", stack: "s" },
-        { label: "Phantom / speculative", data: q.map(d => d.active_gw - d.credible_gw), backgroundColor: "rgba(88,166,255,.20)", stack: "s" }
+        { label: "Credible (post-withdrawal)", data: q.map(d => d.credible_gw), backgroundColor: CHART_PALETTE.supply, stack: "s" },
+        { label: "Phantom / speculative", data: q.map(d => d.active_gw - d.credible_gw), backgroundColor: hexA(CHART_PALETTE.context, 0.3), stack: "s" }
       ]},
       options: {
         responsive: true, maintainAspectRatio: false,
