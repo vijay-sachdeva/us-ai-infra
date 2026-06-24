@@ -1,68 +1,68 @@
 {
-  "lastUpdated": "2026-06-23T18:27:26Z",
+  "lastUpdated": "2026-06-24T18:19:33Z",
   "tier": "primary",
   "source": "EIA-930 (demand) + EIA-860 (capacity)",
   "regions": {
     "PJM": {
       "peak_mw": 145113,
-      "avg_mw": 101356,
-      "latest_mw": 102881,
+      "avg_mw": 101690,
+      "latest_mw": 100533,
       "capacity_mw": 185000,
       "headroom_pct": 21.6
     },
     "MISO": {
       "peak_mw": 110202,
-      "avg_mw": 80479,
-      "latest_mw": 85530,
+      "avg_mw": 80460,
+      "latest_mw": 86682,
       "capacity_mw": 145000,
       "headroom_pct": 24.0
     },
     "SWPP": {
       "peak_mw": 49586,
-      "avg_mw": 36958,
-      "latest_mw": 36953,
+      "avg_mw": 36825,
+      "latest_mw": 37736,
       "capacity_mw": 95000,
       "headroom_pct": 47.8
     },
     "ERCO": {
       "peak_mw": 82591,
-      "avg_mw": 64198,
-      "latest_mw": 72273,
+      "avg_mw": 64307,
+      "latest_mw": 71697,
       "capacity_mw": 110000,
       "headroom_pct": 24.9
     },
     "CISO": {
       "peak_mw": 38369,
-      "avg_mw": 28110,
-      "latest_mw": 31382,
+      "avg_mw": 28188,
+      "latest_mw": 28437,
       "capacity_mw": 80000,
       "headroom_pct": 52.0
     },
     "ISNE": {
       "peak_mw": 22186,
-      "avg_mw": 13264,
-      "latest_mw": 13794,
+      "avg_mw": 13356,
+      "latest_mw": 11304,
       "capacity_mw": 31000,
       "headroom_pct": 28.4
     },
     "NYIS": {
       "peak_mw": 27545,
-      "avg_mw": 17613,
-      "latest_mw": 17163,
+      "avg_mw": 17710,
+      "latest_mw": 16533,
       "capacity_mw": 40000,
       "headroom_pct": 31.1
     },
     "SOCO": {
       "peak_mw": 43525,
-      "avg_mw": 29896,
-      "latest_mw": 35065,
+      "avg_mw": 29958,
+      "latest_mw": 32974,
       "capacity_mw": 52000,
       "headroom_pct": 16.3
     },
     "DUK": {
       "peak_mw": 21103,
-      "avg_mw": 13869,
-      "latest_mw": 16137,
+      "avg_mw": 13960,
+      "latest_mw": 14201,
       "capacity_mw": 50000,
       "headroom_pct": 57.8
     }
