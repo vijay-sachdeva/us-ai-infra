@@ -2987,7 +2987,7 @@
   const hexA = (h, a) => { const n = parseInt(h.slice(1), 16); return "rgba(" + (n >> 16 & 255) + "," + (n >> 8 & 255) + "," + (n & 255) + "," + a + ")"; };
 
   // Lollipop ranking chart — thin stem + end dot. The modern replacement for ranked bars.
-  // rows: [{label, value, color}]; opts: {fmt, tick, suggestedMax, rightPad, dotR, tooltipCallbacks, annotation, drawTopLabels}
+  // rows: [{label, value, color}]; opts: {fmt, tick, suggestedMax, rightPad, dotR, tooltipCallbacks, annotation, seriesLabel}
   function renderLollipop(canvasId, rows, opts) {
     if (!$(canvasId) || typeof Chart === "undefined") return;
     opts = opts || {};
@@ -3003,7 +3003,7 @@
     } };
     _charts[canvasId] = new Chart($(canvasId), {
       type: "bar",
-      data: { labels: rows.map(x => x.label), datasets: [{ data: rows.map(x => x.value), backgroundColor: colors.map(c => hexA(c, 0.45)), borderWidth: 0, barThickness: 3 }] },
+      data: { labels: rows.map(x => x.label), datasets: [{ label: opts.seriesLabel, data: rows.map(x => x.value), backgroundColor: colors.map(c => hexA(c, 0.45)), borderWidth: 0, barThickness: 3 }] },
       options: {
         indexAxis: "y", responsive: true, maintainAspectRatio: false,
         layout: { padding: { right: opts.rightPad || 52 } },
@@ -3059,9 +3059,9 @@
       const T = Chart.defaults.plugins.tooltip;
       T.usePointStyle = true; T.padding = 10; T.cornerRadius = 8; T.boxPadding = 5;
     } catch (_) {}
-    // Gentle, consistent motion
-    Chart.defaults.animation.duration = 550;
-    Chart.defaults.animation.easing = "easeOutQuart";
+    // Gentle, consistent motion — honor prefers-reduced-motion in one place
+    const _reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    Chart.defaults.animation = _reduce ? false : { duration: 550, easing: "easeOutQuart" };
   }
   function initCharts() {
     if (_chartsInit || typeof Chart === "undefined") return;
@@ -4062,8 +4062,6 @@
     if (!$("capexAiShareChart") || typeof Chart === "undefined" || !DATA.capexFlow) return;
     if (renderCapexAiShare._done) return;
     renderCapexAiShare._done = true;
-    initCharts(); applyChartDefaults();
-    const cl = getChartColors();
     const rows = DATA.capexFlow.companies.map(co => {
       const infra = co.buckets.filter(b => b.lane === "infra").reduce((s, b) => s + b.value, 0);
       const total = co.buckets.reduce((s, b) => s + b.value, 0) || co.total;
@@ -4073,6 +4071,7 @@
     const sumTotal = rows.reduce((s, r) => s + r.total, 0);
     const aggPct = Math.round(sumInfra / sumTotal * 100);
     renderLollipop("capexAiShareChart", rows.map(r => ({ label: r.name, value: r.pct, color: r.color })), {
+      seriesLabel: "AI / DC share of capex (%)",
       fmt: v => v + "%", tick: v => v + "%", suggestedMax: 100, rightPad: 46,
       tooltipCallbacks: { label: c => { const r = rows[c.dataIndex]; return " ~" + r.pct + "% AI-attributed · $" + r.infra + "B of $" + r.total + "B capex"; } }
     });
@@ -4214,6 +4213,7 @@
     const rows = cc.companies.map((name, i) => ({ label: name, value: cc.values[i], color: cc.colors[i], _i: i }))
       .sort((a, b) => b.value - a.value);
     renderLollipop("coCapexChart", rows, {
+      seriesLabel: "2026 capex (USD B)",
       fmt: v => "$" + v + "B", tick: v => "$" + v + "B", rightPad: 58,
       suggestedMax: Math.max.apply(null, cc.values) * 1.12,
       tooltipCallbacks: {
@@ -4438,6 +4438,7 @@
     const sorted = [...DATA.markets].sort((a, b) => b.lead - a.lead);
     const colorFor = (l) => l >= 6 ? CHART_PALETTE.constraint : l >= 4 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply;
     renderLollipop("leadTimeChart", sorted.map(m => ({ label: m.name, value: m.lead, color: colorFor(m.lead) })), {
+      seriesLabel: "Lead time (years)",
       fmt: v => v + " yr", tick: v => v + " yr", suggestedMax: 8, rightPad: 46,
       tooltipCallbacks: {
         label: c => " " + c.parsed.x + " years",
@@ -4850,7 +4851,7 @@
       data: {
         labels: dp.years,
         datasets: [
-          { label: "DC demand added", data: dp.yoyDemandGrowthGW, backgroundColor: CHART_PALETTE.constraint, borderRadius: 5, maxBarThickness: 26 },
+          { label: "DC demand added", data: dp.yoyDemandGrowthGW, backgroundColor: CHART_PALETTE.demand, borderRadius: 5, maxBarThickness: 26 },
           { label: "New firm gen for DC", data: dp.newFirmGenForDC, backgroundColor: CHART_PALETTE.supply, borderRadius: 5, maxBarThickness: 26 }
         ]
       },
@@ -4881,6 +4882,7 @@
     const colorFor = (v) => v >= 25 ? CHART_PALETTE.constraint : v >= 15 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply;
     const rows = ri.states.map(s => ({ label: s.state, value: s.increase, color: colorFor(s.increase) })).sort((a, b) => b.value - a.value);
     renderLollipop("rateImpactChart", rows, {
+      seriesLabel: "Rate increase by 2030 (%)",
       fmt: v => "+" + v + "%", tick: v => "+" + v + "%", suggestedMax: 60, rightPad: 48,
       tooltipCallbacks: {
         label: c => " +" + c.parsed.x + "% by 2030",
@@ -5218,14 +5220,13 @@
     if (!DATA.grid || !DATA.grid.regions) return;   // no feed yet -> skip, keep dashboard intact
     if (renderHeadroomChart._done) return;
     renderHeadroomChart._done = true;
-    initCharts(); applyChartDefaults();
-    const cl = getChartColors();
     const rows = Object.entries(DATA.grid.regions)
       .filter(([, v]) => v.headroom_pct != null)
       .map(([ba, v]) => ({ ba, ...v }))
       .sort((a, b) => a.headroom_pct - b.headroom_pct);
     const col = v => v <= 6 ? CHART_PALETTE.constraint : (v <= 10 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply);
     renderLollipop("headroomChart", rows.map(r => ({ label: r.ba, value: r.headroom_pct, color: col(r.headroom_pct) })), {
+      seriesLabel: "Grid headroom (%)",
       fmt: v => v + "%", tick: v => v + "%", rightPad: 44,
       tooltipCallbacks: {
         label: c => " " + c.parsed.x + "% headroom",
