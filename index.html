@@ -589,7 +589,12 @@
   .mp-table .mp-power.colocated { background: var(--accent-soft); color: var(--accent); }
   .mp-table .mp-power.grid      { background: var(--line);        color: var(--ink-2); }
   .mp-table .mp-src  { font-size: 10.5px; font-style: italic; color: var(--muted); display: block; margin-top: 2px; }
+  a.mp-src { text-decoration: none; }
+  a.mp-src:hover { color: var(--accent); text-decoration: underline; }
   .mp-table tfoot td { background: var(--bg); font-weight: 700; color: var(--ink); }
+  .mp-data-actions { margin-top: 10px; font-size: 11px; color: var(--muted); }
+  .mp-data-actions a { color: var(--accent); text-decoration: none; }
+  .mp-data-actions a:hover { text-decoration: underline; }
 
   /* ---------- Engineer: interconnection funnel ---------- */
   .funnel-flow {
@@ -4762,13 +4767,44 @@
   }
 
   function renderMegaProjects() {
-    if (!$("megaProjectsList") || !Array.isArray(DATA.megaProjects)) return;
-    const sorted  = [...DATA.megaProjects].sort((a, b) => (b.mw || 0) - (a.mw || 0));
-    const totalMW = sorted.reduce((s, p) => s + (p.mw || 0), 0);
-    const rows = sorted.map(p => {
-      const risk = p.keyRisk ? `<span class="mp-risk"><span class="mp-gate">${p.keyRisk.gate}</span>${p.keyRisk.text}</span>` : "";
-      const upd  = p.latestUpdate ? `<span class="mp-upd"><b>${p.latestUpdate.date}</b> · ${p.latestUpdate.text}<span class="mp-src" style="display:inline"> — ${p.latestUpdate.src.label}</span></span>` : "";
-      return `
+    if (!$("megaProjectsList")) return;
+    // Prefer the canonical open dataset (data/projects.json, source-linked + verified);
+    // fall back to the inline seed only if the feed hasn't loaded (offline / fetch fail).
+    const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
+    let rows, totalMW, count, foot;
+    if (pj) {
+      const conf = { high: "ok", medium: "warn", low: "crit" };
+      const sorted = [...pj].sort((a, b) => (b.capacity_mw || 0) - (a.capacity_mw || 0));
+      totalMW = sorted.reduce((s, p) => s + (p.capacity_mw || 0), 0); count = sorted.length;
+      rows = sorted.map(p => {
+        const src = (p.sources || []).find(s => s.url && s.supports_claim) || (p.sources || []).find(s => s.url);
+        const srcHtml = src
+          ? `<a class="mp-src" href="${src.url}" target="_blank" rel="noopener">— ${src.publisher} ↗</a>`
+          : `<span class="mp-src">— source pending</span>`;
+        const cpill = (p.confidence && p.confidence !== "high")
+          ? ` <span class="cf-tier cf-${conf[p.confidence] || "warn"}" title="confidence in this record">${p.confidence}</span>` : "";
+        const note = p.note ? `<span class="mp-risk">${p.note}</span>` : "";
+        const pw = p.power ? `<span class="mp-power ${(p.power.model || "").toLowerCase()}" title="${p.power.model} power-procurement">${p.power.generation} · ${p.power.model}</span>` : "";
+        const mwT = (p.capacity_type && p.capacity_type !== "unspecified") ? p.capacity_type.replace(/_/g, " ") : "capacity (MW)";
+        return `
+      <tr>
+        <td><span class="mp-name">${p.name}</span>${cpill}${srcHtml}${note}</td>
+        <td class="mp-op">${p.operator}</td>
+        <td>${p.state}</td>
+        <td>${pw}</td>
+        <td class="mp-mw" title="${mwT}">${(p.capacity_mw || 0).toLocaleString()}</td>
+        <td><span class="mp-status ${p.status}">${p.status}</span></td>
+      </tr>`;
+      }).join("");
+      foot = `${count} named builds · <a href="data/projects.json" target="_blank" rel="noopener">open dataset</a>`;
+    } else {
+      if (!Array.isArray(DATA.megaProjects)) return;
+      const sorted = [...DATA.megaProjects].sort((a, b) => (b.mw || 0) - (a.mw || 0));
+      totalMW = sorted.reduce((s, p) => s + (p.mw || 0), 0); count = sorted.length;
+      rows = sorted.map(p => {
+        const risk = p.keyRisk ? `<span class="mp-risk"><span class="mp-gate">${p.keyRisk.gate}</span>${p.keyRisk.text}</span>` : "";
+        const upd  = p.latestUpdate ? `<span class="mp-upd"><b>${p.latestUpdate.date}</b> · ${p.latestUpdate.text}<span class="mp-src" style="display:inline"> — ${p.latestUpdate.src.label}</span></span>` : "";
+        return `
       <tr>
         <td><span class="mp-name">${p.name}</span><span class="mp-src">— ${p.src.label}</span>${risk}${upd}</td>
         <td class="mp-op">${p.operator}</td>
@@ -4777,28 +4813,20 @@
         <td class="mp-mw">${p.mw.toLocaleString()}</td>
         <td><span class="mp-status ${p.status}">${p.status}</span></td>
       </tr>`;
-    }).join("");
+      }).join("");
+      foot = `${count} named builds`;
+    }
     $("megaProjectsList").innerHTML = `
       <table class="mp-table">
         <thead>
-          <tr>
-            <th>Project</th>
-            <th>Operator</th>
-            <th>State</th>
-            <th>Power</th>
-            <th style="text-align:right">MW</th>
-            <th>Status</th>
-          </tr>
+          <tr><th>Project</th><th>Operator</th><th>State</th><th>Power</th><th style="text-align:right">MW</th><th>Status</th></tr>
         </thead>
         <tbody>${rows}</tbody>
         <tfoot>
-          <tr>
-            <td colspan="4">${sorted.length} named builds</td>
-            <td class="mp-mw">${totalMW.toLocaleString()}</td>
-            <td>≈ ${(totalMW / 1000).toFixed(1)} GW</td>
-          </tr>
+          <tr><td colspan="4">${foot}</td><td class="mp-mw">${totalMW.toLocaleString()}</td><td>≈ ${(totalMW / 1000).toFixed(1)} GW</td></tr>
         </tfoot>
-      </table>`;
+      </table>
+      ${pj ? '<div class="mp-data-actions">Open data: <a href="data/projects.json" target="_blank" rel="noopener">download JSON ↓</a> · <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/schemas/projects.schema.json" target="_blank" rel="noopener">schema</a> · licensed <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/data/LICENSE" target="_blank" rel="noopener">CC BY 4.0</a> · sources verified per record</div>' : ''}`;
   }
 
   function renderBuildabilityMovements() {
@@ -5269,7 +5297,7 @@
   }
 
   async function hydrate() {
-    const feeds = ["grid", "power_econ", "queues", "siting"];
+    const feeds = ["grid", "power_econ", "queues", "siting", "projects"];
     let got;
     try {
       got = await Promise.all(feeds.map(f =>
@@ -5280,6 +5308,7 @@
     if (DATA.grid && vis($("headroomChart")))  { renderHeadroomChart._done = false; renderHeadroomChart(); }
     if (DATA.queues && vis($("queueChart")))    { renderQueueChart._done = false; renderQueueChart(); }
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
+    if (DATA.projects && vis($("megaProjectsList"))) renderMegaProjects();   // swap the seed table for the canonical dataset
     renderFeedFreshness();
   }
 

@@ -1,0 +1,28 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+The curated datasets in this directory — including projects.json (the named
+AI data-center project + power-deal ledger) and the derived metric feeds
+(grid.json, power_econ.json, queues.json, siting.json) — are licensed under
+CC BY 4.0:
+
+    https://creativecommons.org/licenses/by/4.0/
+
+You are free to share and adapt this data for any purpose, including
+commercially, provided you give appropriate credit, link to the license, and
+indicate if changes were made.
+
+Suggested attribution:
+    "US AI Infrastructure Monitor — data CC BY 4.0,
+     https://vijay-sachdeva.github.io/us-ai-infra"
+
+IMPORTANT — third-party material:
+Individual records cite upstream sources. Government and operator filings,
+press releases, and primary disclosures are facts and freely citable. Some
+records also reference ANALYST material (e.g. SemiAnalysis, CBRE, Goldman,
+LightCounting, TrendForce). Those underlying reports remain under their
+owners' terms and are NOT relicensed by this CC BY 4.0 grant — each record's
+`sources[].provenance` field marks which class it is. Re-users must honor the
+original terms of any analyst source they rely on.
+
+Source code in this repository is licensed separately under the MIT License —
+see ../LICENSE.

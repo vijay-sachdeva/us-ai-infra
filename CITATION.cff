@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: "US AI Infrastructure Monitor"
+message: "If you use this data or dashboard, please cite it as below."
+type: dataset
+authors:
+  - family-names: Sachdeva
+    given-names: Vijay
+url: "https://vijay-sachdeva.github.io/us-ai-infra"
+repository-code: "https://github.com/vijay-sachdeva/us-ai-infra"
+abstract: >-
+  An open, source-linked tracker of US AI data-center infrastructure — the
+  named project + power-deal ledger, capex, grid constraints, equipment lead
+  times, and token economics. Code is MIT-licensed; curated datasets are
+  CC BY 4.0 (third-party analyst sources retain their own terms, marked
+  per-record).
+license: CC-BY-4.0
+version: "0.1.0"
+date-released: "2026-06-24"
+keywords:
+  - data centers
+  - artificial intelligence
+  - energy
+  - electric grid
+  - capital expenditure
+  - open data

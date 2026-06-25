@@ -76,8 +76,21 @@ All insights derive from publicly available information — disclosed prominentl
 
 CBRE & JLL data-center reports, Goldman Sachs research, SemiAnalysis, Epoch AI, LBNL Queued Up, EIA, company IR pages, FERC filings, Bloomberg, Reuters, WSJ, CNBC, Fortune, Data Center Knowledge, Data Center Dynamics, Data Center Frontier, S&P Global.
 
-## License & disclaimer
+## Open data
 
-Portfolio project. Figures are best-available estimates carrying meaningful uncertainty; not investment advice.
+The named-project + power-deal ledger is published as a citeable open dataset:
+
+- **`data/projects.json`** — named US AI data-center campuses, each with verified, **clickable source URLs** (operator filings, utility/PUC dockets, primary press), coordinates, status, power model, and a three-part provenance model: `provenance` (government / filing / operator / trade_press / analyst), `transformation` (reported / estimated / forecast / …), and `confidence` (high / medium / low). Every source URL was opened and checked — `supports_claim` marks whether the page actually states the operator + MW + status. Headline MW that are announced/ultimate targets are flagged (`capacity_type`, `transformation`, `note`).
+- **`schemas/projects.schema.json`** — machine-readable JSON Schema for the records.
+
+The "Named builds & power deals" table on the dashboard renders directly from `projects.json`; download it from the table footer or the repo. Bulk feeds (`data/{grid,power_econ,queues,siting}.json`) are documented above. An OpenAPI spec + bulk CSV/Parquet releases are on the roadmap.
+
+## License & citation
+
+- **Code** (`index.html`, `scripts/`, `tools/`): **MIT** — see [LICENSE](LICENSE).
+- **Curated data** (`data/`): **CC BY 4.0** — see [data/LICENSE](data/LICENSE). Suggested attribution: *"US AI Infrastructure Monitor — data CC BY 4.0, https://vijay-sachdeva.github.io/us-ai-infra"*. Third-party analyst sources cited per record retain their own terms and are **not** relicensed (marked via `sources[].provenance`).
+- Cite the project via [CITATION.cff](CITATION.cff).
+
+Figures are best-available estimates carrying meaningful uncertainty; several headline MW figures are announced/ultimate targets (flagged per record). Not investment advice.
 
 Contact: Vijay Sachdeva · vijaysachdeva@gmail.com
