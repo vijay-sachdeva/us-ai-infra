@@ -1545,8 +1545,8 @@
       <div class="stub-grid">
         <!-- Card 3: M&A heatmap (NEW) -->
         <div class="stub-card">
-          <h4>M&amp;A and major deals</h4>
-          <div class="note">Deals shaping the buildout &middot; past 30-60 days</div>
+          <h4>Capital &amp; deals tracker</h4>
+          <div class="note">Major financings, partnerships &amp; M&amp;A shaping the buildout &middot; past 30-60 days &middot; each row cited</div>
           <div class="deals-grid" id="dealsGrid"></div>
         </div>
 
@@ -1638,8 +1638,8 @@
 
       <!-- Full-width: interconnection-queue chart — credible vs. phantom (live LBNL feed) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Interconnection queue by ISO — credible vs. phantom <span class="cf-tier cf-warn">analyst</span><span class="feed-stamp" data-feed="queues"></span></h4>
-        <div class="note">Active queue split into credible (post-withdrawal) vs. speculative · GW · LBNL Queued Up + 78% historical withdrawal · live feed</div>
+        <h4>Generation interconnection queue by ISO — credible vs. phantom <span class="cf-tier cf-warn">analyst</span><span class="feed-stamp" data-feed="queues"></span></h4>
+        <div class="note">The broad <b>generation + storage</b> interconnection queue by ISO — the grid-connection pipeline data-center load also competes within, <b>not</b> a data-center-only load queue · split credible (post-withdrawal) vs. speculative · GW · LBNL Queued Up; the <b>78% is the historical generation-queue withdrawal rate</b>, applied here as a proxy · live feed</div>
         <div class="chart-box short"><canvas id="queueChart"></canvas></div>
       </div>
 
@@ -1783,8 +1783,8 @@
 
         <!-- Card: Grid headroom by balancing authority (live EIA feed) -->
         <div class="stub-card">
-          <h4>Grid headroom by balancing authority <span class="cf-tier cf-ok">primary</span><span class="feed-stamp" data-feed="grid"></span></h4>
-          <div class="note">Peak demand vs. installed capacity · % spare · EIA-930 + EIA-860 · live feed (falls back to curated when unavailable)</div>
+          <h4>Grid headroom by balancing authority <span class="cf-tier cf-warn">derived</span><span class="feed-stamp" data-feed="grid"></span></h4>
+          <div class="note">Installed <b>nameplate</b> capacity minus peak demand, as % spare — a <b>derived proxy</b> for grid slack, <b>not</b> deliverable/accredited headroom (excludes reserve margins, forced outages, transmission limits, seasonal peaks). Inputs are primary (EIA-930 demand + EIA-860 nameplate); the headroom % is the modeled output · live feed (falls back to curated when unavailable)</div>
           <div class="chart-box short"><canvas id="headroomChart"></canvas></div>
         </div>
 
