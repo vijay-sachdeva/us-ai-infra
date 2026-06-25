@@ -1948,14 +1948,14 @@
       url: "https://openai.com/index/five-new-stargate-sites/"
     },
     feed: [
+      { date: "Jun 2026", tag: "BUILDOUT", text: "OpenAI and Broadcom unveiled “Jalapeño,” OpenAI's first custom AI chip — an LLM-optimized inference ASIC on a reticle-sized design taken from concept to tape-out in nine months, with initial deployment targeted by the end of 2026 — joining Google's TPU and Amazon's Trainium in pushing hyperscalers toward their own silicon and away from sole reliance on Nvidia.", src: "CNBC / TechCrunch" },
+      { date: "Jun 2026", tag: "GRID", text: "PJM — the largest US grid — endorsed a new “Capacity Advisory” emergency procedure (effective immediately after its June 24 reliability-committee vote) to warn of looming capacity shortfalls even outside extreme weather, as AI data-center demand outpaces additions of new generation.", src: "PJM Inside Lines / Bloomberg" },
       { date: "Jun 2026", tag: "BUILDOUT", text: "At Data Center World 2026, engineering leaders from Oracle, Nvidia and Google described facilities shifting from general-purpose IT into tightly integrated AI compute systems — with rack densities that once ran 30–40 kW now reaching hundreds of kilowatts and approaching the megawatt range.", src: "Data Center Knowledge" },
       { date: "Jun 2026", tag: "GRID", text: "Virginia — the largest US data center market — issued revised permitting guidance challenging the long-held assumption that hyperscale backup generators rarely run, signaling tighter air-permit scrutiny as diesel and gas backup fleets scale.", src: "Data Center Knowledge" },
       { date: "Jun 2026", tag: "BUILDOUT", text: "Microsoft and Chevron signed a 20-year power deal for “Project Kilby,” a West Texas data center near Pecos fed by a co-located natural-gas plant ramping to 2.67 GW — one of the largest gas-fired data center projects in the US, with first power targeted for 2028.", src: "TechCrunch / Bloomberg" },
       { date: "Jun 2026", tag: "BUILDOUT", text: "Nvidia told London Climate Week its newest AI systems run on warm-liquid cooling that needs little extra chilling, with its sustainability chief calling data centers’ water-consumption challenge “largely solved” — even as Google and Amazon defend water use amid local opposition.", src: "Axios" },
       { date: "Jun 2026", tag: "GRID", text: "A wave of state 'ratepayer protection' laws gained ground — Oklahoma enacted its Data Center Consumer Ratepayer Protection Act and 300+ data-center bills were filed across 30+ states in 2026 — all aimed at making large loads, not households, pay for the grid upgrades their demand requires.", src: "MultiState / Oklahoma Senate" },
-      { date: "Jun 2026", tag: "GRID", text: "FERC issued show-cause orders to all six US grid operators (PJM, MISO, SPP, CAISO, ISO-NE, NYISO), giving them 60 days to justify or reform how data centers connect to the grid, with large loads required to pay their interconnection costs.", src: "Data Center Dynamics" },
-      { date: "Jun 2026", tag: "CAPITAL", text: "Oracle reported fiscal Q4 remaining performance obligations of $638B (up 363% year-over-year, +$85B sequentially) and OCI revenue up 93% to $5.8B — a backlog driven largely by OpenAI's Stargate that underscores the scale of contracted AI-cloud demand.", src: "Oracle / ERP Today" },
-      { date: "Jun 2026", tag: "CAPITAL", text: "Dell'Oro Group raised its 2026 data center capex outlook above $1 trillion and projected spending will reach $1.7 trillion by 2030, citing accelerating AI infrastructure buildouts and memory-cost inflation.", src: "Dell'Oro Group" }
+      { date: "Jun 2026", tag: "GRID", text: "FERC issued show-cause orders to all six US grid operators (PJM, MISO, SPP, CAISO, ISO-NE, NYISO), giving them 60 days to justify or reform how data centers connect to the grid, with large loads required to pay their interconnection costs.", src: "Data Center Dynamics" }
     ],
     kpis: [
       { label: "US power demand 2026", value: "41", unit: "GW",
@@ -2838,7 +2838,7 @@
     },
     tokenEnergyBridge: [
       { value: "1M tokens",   label: "Input unit",            note: "One million tokens of inference output." },
-      { value: "~5 kWh",      label: "Electricity",           note: "Energy for ~1M tokens of inference output on a frontier model — about 0.005 Wh per token, so ~2 Wh for a typical answer." },
+      { value: "~5 kWh",      label: "Electricity",           note: "Energy for ~1M tokens of inference output on a frontier model — ~0.005 Wh/token midpoint (~2 Wh per answer). Modeled range ~3–10 kWh/1M depending on model size, input/output mix, batching, utilization and PUE." },
       { value: "~200M",       label: "Tokens per MW-hr",      note: "Inverse: a 1-MW server can serve ~200M tokens in an hour." },
       { value: "~$200",       label: "Revenue per MW-hr",     note: "At ~$1 per 1M output tokens, 200M tokens ≈ $200 of API revenue per MW-hr — vs. ~$50/MW-hr industrial power (~4× spread). Frontier-priced tokens (~$15/1M) lift this to ~$3,000/MW-hr." }
     ],
@@ -2886,8 +2886,9 @@
       ],
       scaleUp: {
         aggregate: { value: "3.2 quadrillion", unit: "tokens / month", who: "Google, all surfaces, May 2026", tokens: 3.2e15, src: { label: "Sundar Pichai, Google I/O 2026 keynote", tier: "primary" } },
+        whRange: [0.003, 0.010],   // Wh/token low–high band (≈3–10 kWh / 1M); midpoint 0.005
         soWhat: "One prompt is a couple of watt-hours and a fraction of a cent. Multiply by the token volume the largest platforms now run and you arrive at the gigawatts and hundreds of billions of capex the rest of this dashboard tracks. That multiplication is the whole story.",
-        note: "This traces the real layers a token's work touches and the real per-token economics, decomposed for teaching — not a claim that one prompt physically travels these layers in this exact sequence. Energy, price, GW and capex are cited; the volume → GWh step is modeled arithmetic; ~22 GW is one company's inference, while the ~97 GW queue spans all operators plus training and headroom."
+        note: "This traces the real layers a token's work touches and the real per-token economics, decomposed for teaching — not a claim that one prompt physically travels these layers in this exact sequence. Energy, price, GW and capex are cited; the volume → GWh step is modeled arithmetic shown as a RANGE; ~13–44 GW (≈22 GW midpoint) is one company's inference under a ~3–10 kWh/1M energy band, while the ~97 GW queue spans all operators plus training and headroom."
       },
       src: { label: "Pipeline framing original; all energy, price, GW and capex figures cited per step / rung", tier: "modeled" }
     }
@@ -5213,6 +5214,8 @@
     function paintScaleup() {
       const su = tj.scaleUp, whMo = su.aggregate.tokens * ex.whPerToken;
       const twhMo = whMo / 1e12, gw = whMo / 730 / 1e9;
+      const wr = su.whRange || [ex.whPerToken, ex.whPerToken];
+      const gwLo = su.aggregate.tokens * wr[0] / 730 / 1e9, gwHi = su.aggregate.tokens * wr[1] / 730 / 1e9;
       const queueGW = (DATA.powerBreakdown && DATA.powerBreakdown.funnel) ? DATA.powerBreakdown.funnel.values[0] : 97;
       const capexB = DATA.companyCapex ? DATA.companyCapex.values.reduce((a, b) => a + b, 0) : 848;
       const cell = (v, l, n) => `<div class="bridge-cell"><div class="bv">${v}</div><div class="bl">${l}</div><div class="bn">${n}</div></div>`;
@@ -5222,7 +5225,7 @@
         `<div class="bridge-row">` +
         cell("~" + totalWh.toFixed(0) + " Wh", "One answer", "≈ " + (ex.inputTokens + ex.outputTokens) + " tokens at ~0.005 Wh/token (cited bridge).") + arrow +
         cell(su.aggregate.value, su.aggregate.unit, su.aggregate.who + " — " + su.aggregate.src.label + ".") + arrow +
-        cell("~" + Math.round(twhMo) + " TWh/mo", "≈ " + gw.toFixed(0) + " GW continuous", "Modeled: that volume × ~5 kWh/1M ÷ 730 h. One company's inference alone.") + arrow +
+        cell("~" + Math.round(gwLo) + "–" + Math.round(gwHi) + " GW", "continuous · ≈" + gw.toFixed(0) + " GW midpoint", "Modeled range: ~" + Math.round(twhMo) + " TWh/mo at the ~5 kWh/1M midpoint; band = ~3–10 kWh/1M (model size, output mix, batching, utilization, PUE). One company's inference — not an observed figure.") + arrow +
         cell("~" + queueGW + " GW", "US interconnect queue", "All operators, training + inference + headroom (LBNL Queued Up 2025).") + arrow +
         cell("~$" + capexB + "B", "2026 operator capex", "What it costs to build (company 2026 guidance).") +
         `</div><div class="tj-sowhat">${su.soWhat}</div>`;
