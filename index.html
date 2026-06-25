@@ -837,6 +837,9 @@
   .pl-method > summary { font-size: 11px; font-weight: 700; color: var(--accent); cursor: pointer; }
   .pl-method > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .pl-onesrc { color: var(--muted); font-size: 10.5px; }
+  /* Inline source citations linked to the canonical ledger (data/sources.json) */
+  a.src-link { color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
+  a.src-link:hover { color: var(--accent); text-decoration-style: solid; }
   .mp-table .mp-risk {
     display: block; font-size: 11px; color: var(--ink-2); margin-top: 4px; font-weight: 500; line-height: 1.4;
   }
@@ -5297,7 +5300,7 @@
   }
 
   async function hydrate() {
-    const feeds = ["grid", "power_econ", "queues", "siting", "projects"];
+    const feeds = ["grid", "power_econ", "queues", "siting", "projects", "sources"];
     let got;
     try {
       got = await Promise.all(feeds.map(f =>
@@ -5310,6 +5313,47 @@
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
     if (DATA.projects && vis($("megaProjectsList"))) renderMegaProjects();   // swap the seed table for the canonical dataset
     renderFeedFreshness();
+    if (DATA.sources) linkifySources(document.querySelector("section.tab-content.active"));
+  }
+
+  // Linkify cited source labels to the canonical ledger (data/sources.json) — ONE post-render
+  // pass, no edits to the 50+ render sites. Walks text nodes inside source-display elements and
+  // wraps the first known label per node in a link; modeled/unlinkable labels stay plain text.
+  function linkifySources(root) {
+    if (!root || !DATA.sources || !Array.isArray(DATA.sources.ledger)) return;
+    if (!linkifySources._map) {
+      linkifySources._map = DATA.sources.ledger
+        .filter(e => e.url && e.linkable !== false)
+        .map(e => ({ label: e.label, url: e.url, publisher: e.publisher || "" }))
+        .sort((a, b) => b.label.length - a.label.length);   // longest first → compound labels win
+    }
+    const map = linkifySources._map;
+    if (!map.length) return;
+    const sel = ".sc-method,.note,.stack-src,.deal-src,.sc-note,.mp-upd,.tab-callout,.funnel-conv,.play-note";
+    root.querySelectorAll(sel).forEach(el => {
+      if (el.dataset.srcLinked) return;
+      el.dataset.srcLinked = "1";
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+      const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(node => {
+        const text = node.nodeValue;
+        if (!text || text.length < 4) return;
+        if (node.parentNode && node.parentNode.closest && node.parentNode.closest("a")) return;
+        let hit = null, idx = -1;
+        for (const m of map) { const i = text.indexOf(m.label); if (i !== -1) { hit = m; idx = i; break; } }
+        if (!hit) return;
+        const frag = document.createDocumentFragment();
+        const before = text.slice(0, idx), after = text.slice(idx + hit.label.length);
+        if (before) frag.appendChild(document.createTextNode(before));
+        const a = document.createElement("a");
+        a.className = "src-link"; a.href = hit.url; a.target = "_blank"; a.rel = "noopener";
+        if (hit.publisher) a.title = hit.publisher;
+        a.textContent = hit.label;
+        frag.appendChild(a);
+        if (after) frag.appendChild(document.createTextNode(after));
+        node.parentNode.replaceChild(frag, node);
+      });
+    });
   }
 
   // Surface each live feed's own as-of timestamp (grid/power_econ/queues/siting each carry lastUpdated).
@@ -5610,6 +5654,7 @@
     renderTab(name);
     if (typeof enhanceCharts === "function") enhanceCharts(name);   // attach data-table / export / link tools
     motionObserveAll();         // catch any cards/numbers newly rendered for this tab
+    if (typeof linkifySources === "function") linkifySources(document.querySelector("section.tab-content.active"));
     if (anchor && typeof scrollToChartAnchor === "function") scrollToChartAnchor(anchor);
   }
   // Legacy hash aliases — anyone with a /#investor bookmark from earlier WIP
