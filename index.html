@@ -1312,6 +1312,16 @@
   .ov-gauge .val{font-size:13px;color:var(--ov-ink);width:112px;text-align:right;flex:none}
   .ov-gauge .val a{color:var(--ov-muted);text-decoration:none;font-size:10px;vertical-align:super;margin-left:4px}
   .ov-lens-label{font-size:12px;color:var(--ov-muted);margin:2rem 0 .6rem}
+  .ov-briefing{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:760px){.ov-briefing{grid-template-columns:1fr}}
+  .ov-brief{border:1px solid var(--ov-line);border-radius:10px;padding:11px 14px}
+  .ov-brief-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px}
+  .ov-brief-top .ov-tag{font-size:10px;font-weight:800;letter-spacing:.05em}
+  .ov-brief-top time{font-size:11px;color:var(--ov-muted);white-space:nowrap}
+  .ov-brief-text{font-size:12.5px;color:var(--ov-ink);line-height:1.45}
+  .ov-brief-src{margin-top:6px;font-size:11px}
+  .ov-bsrc{color:var(--ov-muted);text-decoration:none}
+  .ov-bsrc:hover{color:var(--accent);text-decoration:underline}
   .ov-lenses{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .ov-lens{display:flex;flex-direction:column;gap:2px;padding:13px 15px;border:1px solid var(--ov-line);border-radius:10px;text-decoration:none;background:rgba(255,255,255,.02);transition:border-color .15s}
   .ov-lens:hover{border-color:var(--ov-demand)}
@@ -1428,6 +1438,8 @@
         <button data-h="map"  role="tab" aria-selected="false">Constraint map</button>
       </div>
       <div id="ov-stage" class="ov-chartwrap" style="position:relative"></div>
+      <div class="ov-lens-label">This week in US AI infrastructure</div>
+      <div id="ov-briefing" class="ov-briefing"></div>
       <div class="ov-lens-label">The build · by the numbers</div>
       <div id="ov-statband" class="ov-statband"></div>
       <div class="ov-lens-label">Choose your lens</div>
@@ -1437,7 +1449,6 @@
         <a class="ov-lens" href="#grid"><b>Who pays for the load?</b><span class="ov-lens-stat">19 GW shortfall by 2030 · rate-hike risk</span><span>Grid →</span></a>
         <a class="ov-lens" href="#tokens"><b>How does usage become power?</b><span class="ov-lens-stat">1M tokens ≈ 5 kWh ≈ a few cents</span><span>Tokens →</span></a>
       </div>
-      <div id="ov-ticker" class="ov-ticker"></div>
       <div id="ov-livedata" class="ov-livedata"></div>
     </section>
 
@@ -5525,6 +5536,20 @@
     if(typeof motionObserveAll==='function') motionObserveAll();
   }
 
+  // "This week" editorial briefing — top developments from the live feed, source-linked.
+  function renderBriefing(){
+    var host=document.getElementById('ov-briefing'); if(!host) return;
+    var feed=(DATA&&DATA.feed)||[];
+    if(!feed.length){ host.style.display='none'; return; }
+    var tagColor={GRID:'#e5534b',CAPITAL:'#39d98a',BUILDOUT:'#58a6ff',TOKENS:'#e3b341'};
+    host.innerHTML=feed.slice(0,5).map(function(it){
+      var tag=(it.tag||it.section||'SIGNAL').toUpperCase();
+      var head=it.headline||it.title||it.text||'';
+      var src=it.src?(it.url?'<a class="ov-bsrc" href="'+it.url+'" target="_blank" rel="noopener">'+it.src+' ↗</a>':'<span class="ov-bsrc">'+it.src+'</span>'):'';
+      return '<div class="ov-brief"><div class="ov-brief-top"><span class="ov-tag" style="color:'+(tagColor[tag]||'#8b97a3')+'">'+tag+'</span><time>'+(it.date||'')+'</time></div>'
+        +'<div class="ov-brief-text">'+head+'</div>'+(src?'<div class="ov-brief-src">'+src+'</div>':'')+'</div>';
+    }).join('');
+  }
   function renderTicker(){
     var host=document.getElementById('ov-ticker'); if(!host) return;
     var feed=(DATA&&(DATA.feed||(DATA.topStory?[DATA.topStory]:[])))||[];
@@ -5640,7 +5665,7 @@
     }
     var saved='wall'; try{saved=localStorage.getItem('ov-hero')||'wall';}catch(e){}
     setHero(saved);
-    renderStatBand(); renderTicker(); renderFeedFreshness();
+    renderStatBand(); renderBriefing(); renderFeedFreshness();
   }
 
   function renderTab(name) {
