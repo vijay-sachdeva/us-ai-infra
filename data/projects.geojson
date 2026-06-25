@@ -1,0 +1,316 @@
+{
+ "type": "FeatureCollection",
+ "name": "US AI data-center projects",
+ "license": "CC-BY-4.0",
+ "attribution": "US AI Infrastructure Monitor — data CC BY 4.0, https://vijay-sachdeva.github.io/us-ai-infra",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -91.632333,
+     32.477149
+    ]
+   },
+   "properties": {
+    "id": "hyperion-meta-la",
+    "name": "Hyperion (Meta Richland Parish)",
+    "operator": "Meta",
+    "state": "LA",
+    "capacity_mw": 5000,
+    "capacity_type": "it_critical_load",
+    "status": "construction",
+    "power_model": "Colocated",
+    "confidence": "high",
+    "source_url": "https://investor.atmeta.com/investor-news/press-release-details/2025/Meta-Announces-Joint-Venture-with-Funds-Managed-by-Blue-Owl-Capital-to-Develop-Hyperion-Data-Center/default.aspx"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -99.8009,
+     32.4942
+    ]
+   },
+   "properties": {
+    "id": "stargate-abilene-tx",
+    "name": "Stargate Abilene (Crusoe / Lancium)",
+    "operator": "OpenAI / Oracle / Crusoe",
+    "state": "TX",
+    "capacity_mw": 1200,
+    "capacity_type": "total_power",
+    "status": "construction",
+    "power_model": "BTM",
+    "confidence": "high",
+    "source_url": "https://www.crusoe.ai/resources/newsroom/crusoe-expands-ai-data-center-campus-in-abilene-to-1-2-gigawatts"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -82.7551,
+     40.0583
+    ]
+   },
+   "properties": {
+    "id": "prometheus-meta-oh",
+    "name": "Prometheus (Meta New Albany)",
+    "operator": "Meta",
+    "state": "OH",
+    "capacity_mw": 1000,
+    "capacity_type": "total_power",
+    "status": "construction",
+    "power_model": "Grid",
+    "confidence": "high",
+    "source_url": "https://techcrunch.com/2025/07/14/mark-zuckerberg-says-meta-is-building-a-5gw-ai-data-center/"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -86.55,
+     40.06
+    ]
+   },
+   "properties": {
+    "id": "lebanon-meta-in",
+    "name": "Meta Lebanon (Indiana)",
+    "operator": "Meta",
+    "state": "IN",
+    "capacity_mw": 1000,
+    "capacity_type": "unspecified",
+    "status": "construction",
+    "power_model": "Grid",
+    "confidence": "high",
+    "source_url": "https://about.fb.com/news/2026/02/metas-new-data-center-lebanon-indiana-marks-milestone-ai-investment/"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -100.2038,
+     34.4265
+    ]
+   },
+   "properties": {
+    "id": "iren-childress-tx",
+    "name": "IREN Childress",
+    "operator": "IREN",
+    "state": "TX",
+    "capacity_mw": 750,
+    "capacity_type": "total_power",
+    "status": "operational",
+    "power_model": "Grid",
+    "confidence": "high",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/0001878848/000187884825000081/iren-20250930.htm"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -92.6693,
+     31.3905
+    ]
+   },
+   "properties": {
+    "id": "delta-forge-1-applied-la",
+    "name": "Delta Forge 1 (Applied Digital)",
+    "operator": "Applied Digital",
+    "state": "LA",
+    "capacity_mw": 430,
+    "capacity_type": "total_power",
+    "status": "construction",
+    "power_model": "Grid",
+    "confidence": "high",
+    "source_url": "https://ir.applieddigital.com/news-events/press-releases/detail/144/applied-digital-breaks-ground-on-delta-forge-1-a-430-mw-ai"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -101.828,
+     33.855
+    ]
+   },
+   "properties": {
+    "id": "aligned-caprock-hale-tx",
+    "name": "Project Caprock (Aligned, Hale County)",
+    "operator": "Aligned Data Centers",
+    "state": "TX",
+    "capacity_mw": 540,
+    "capacity_type": "total_power",
+    "status": "construction",
+    "power_model": "Grid",
+    "confidence": "high",
+    "source_url": "https://aligneddc.com/press-release/aligned-breaks-ground-on-project-caprock/"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -87.926,
+     42.716
+    ]
+   },
+   "properties": {
+    "id": "fairwater-msft-wi",
+    "name": "Fairwater (Microsoft Mount Pleasant)",
+    "operator": "Microsoft",
+    "state": "WI",
+    "capacity_mw": 500,
+    "capacity_type": "unspecified",
+    "status": "operational",
+    "power_model": "Grid",
+    "confidence": "medium",
+    "source_url": "https://news.microsoft.com/source/2026/06/23/microsoft-completes-construction-on-first-datacenter-facility-in-mount-pleasant-wisconsin/"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -98.5685,
+     46.0214
+    ]
+   },
+   "properties": {
+    "id": "polaris-forge-1-applied-nd",
+    "name": "Polaris Forge 1 (Applied Digital Ellendale)",
+    "operator": "Applied Digital",
+    "state": "ND",
+    "capacity_mw": 400,
+    "capacity_type": "it_critical_load",
+    "status": "construction",
+    "power_model": "Grid",
+    "confidence": "high",
+    "source_url": "https://ir.applieddigital.com/news-events/press-releases/detail/137/applied-digital-completes-phase-ii-ready-for-service-at"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -79.19361,
+     40.51083
+    ]
+   },
+   "properties": {
+    "id": "homer-city-pa",
+    "name": "Homer City Energy Campus",
+    "operator": "Homer City Redevelopment / Kiewit",
+    "state": "PA",
+    "capacity_mw": 4500,
+    "capacity_type": "total_power",
+    "status": "construction",
+    "power_model": "BTM",
+    "confidence": "high",
+    "source_url": "https://www.gevernova.com/news/press-releases/homer-city-redevelopment-kiewit-announce-country-largest-natural-gas-powered-data-center-support-ai-hpc-demand"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -76.14889,
+     41.08889
+    ]
+   },
+   "properties": {
+    "id": "susquehanna-aws-talen-pa",
+    "name": "Susquehanna (AWS / Talen)",
+    "operator": "Amazon (AWS) / Talen",
+    "state": "PA",
+    "capacity_mw": 1920,
+    "capacity_type": "total_power",
+    "status": "construction",
+    "power_model": "Colocated",
+    "confidence": "high",
+    "source_url": "https://www.utilitydive.com/news/talen-amazon-aws-susquehanna-nuclear-data-centert/750440/"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -91.77764,
+     42.10125
+    ]
+   },
+   "properties": {
+    "id": "duane-arnold-google-nextera-ia",
+    "name": "Duane Arnold (Google / NextEra)",
+    "operator": "Google / NextEra",
+    "state": "IA",
+    "capacity_mw": 615,
+    "capacity_type": "total_power",
+    "status": "planned",
+    "power_model": "Colocated",
+    "confidence": "high",
+    "source_url": "https://newsroom.nexteraenergy.com/NextEra-Energy-and-Google-Announce-New-Collaboration-to-Accelerate-Nuclear-Energy-Deployment-in-the-U-S?l=12"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -90.043,
+     34.9997
+    ]
+   },
+   "properties": {
+    "id": "colossus-2-xai-tn",
+    "name": "Colossus 2 (xAI)",
+    "operator": "xAI / Solaris",
+    "state": "TN",
+    "capacity_mw": 1000,
+    "capacity_type": "total_power",
+    "status": "operational",
+    "power_model": "BTM",
+    "confidence": "medium",
+    "source_url": "https://newsletter.semianalysis.com/p/xais-colossus-2-first-gigawatt-datacenter"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -112.408,
+     39.216
+    ]
+   },
+   "properties": {
+    "id": "joule-bettergrid-ut",
+    "name": "Joule HPC / BetterGrid Campus",
+    "operator": "Joule Capital / Caterpillar",
+    "state": "UT",
+    "capacity_mw": 4000,
+    "capacity_type": "total_power",
+    "status": "construction",
+    "power_model": "BTM",
+    "confidence": "high",
+    "source_url": "https://www.caterpillar.com/en/news/corporate-press-releases/h/joule-caterpillar-wheeler.html"
+   }
+  }
+ ]
+}

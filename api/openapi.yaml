@@ -1,0 +1,122 @@
+openapi: 3.1.0
+info:
+  title: US AI Infrastructure Monitor — Open Data API
+  version: 0.1.0
+  description: >
+    A static, versioned, CORS-open data API served from GitHub Pages. Every path is a
+    plain GET of a file under the site root — no auth, no rate limit beyond the CDN.
+    Curated data is CC BY 4.0; third-party analyst sources cited per record retain their
+    own terms (see data/LICENSE). The project ledger is also available as CSV and GeoJSON.
+  license:
+    name: CC BY 4.0 (data)
+    url: https://creativecommons.org/licenses/by/4.0/
+  contact:
+    name: US AI Infrastructure Monitor
+    url: https://vijay-sachdeva.github.io/us-ai-infra/
+servers:
+  - url: https://vijay-sachdeva.github.io/us-ai-infra
+    description: GitHub Pages (production)
+paths:
+  /data/projects.json:
+    get:
+      summary: Named AI data-center project + power-deal ledger (canonical)
+      description: Campuses with verified source URLs, coordinates, status, power model, and a provenance/transformation/confidence model. Full schema at /schemas/projects.schema.json.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectLedger" }
+  /data/projects.csv:
+    get:
+      summary: Project ledger — flat CSV (one row per campus)
+      responses:
+        "200": { description: OK, content: { text/csv: { schema: { type: string } } } }
+  /data/projects.geojson:
+    get:
+      summary: Project ledger — GeoJSON FeatureCollection (geocoded campuses)
+      responses:
+        "200": { description: OK, content: { application/geo+json: { schema: { type: object } } } }
+  /data/sources.json:
+    get:
+      summary: Source ledger — every cited label → verified URL + provenance class
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/SourceLedger" } } } }
+  /data/grid.json:
+    get:
+      summary: Grid headroom by balancing authority (derived from EIA-930 + EIA-860)
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: object } } } } }
+  /data/power_econ.json:
+    get:
+      summary: Industrial power price by state (EIA-861)
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: object } } } } }
+  /data/queues.json:
+    get:
+      summary: Generation interconnection queue by ISO (LBNL Queued Up)
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: object } } } } }
+  /data/siting.json:
+    get:
+      summary: Per-state modeled white-space siting score (0–100)
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: object } } } } }
+components:
+  schemas:
+    ProjectLedger:
+      type: object
+      required: [name, version, license, records]
+      properties:
+        name: { type: string }
+        version: { type: string }
+        generated: { type: string }
+        license: { type: string, const: CC-BY-4.0 }
+        record_count: { type: integer }
+        records:
+          type: array
+          items: { $ref: "#/components/schemas/Project" }
+    Project:
+      type: object
+      description: One named campus. Canonical JSON Schema — /schemas/projects.schema.json.
+      properties:
+        id: { type: string, example: hyperion-meta-la }
+        name: { type: string }
+        operator: { type: string }
+        state: { type: string, description: USPS 2-letter }
+        location:
+          type: object
+          properties:
+            lat: { type: [number, "null"] }
+            lon: { type: [number, "null"] }
+            precision: { type: string, enum: [site, city, county, unknown] }
+        capacity_mw: { type: [number, "null"] }
+        capacity_type: { type: string, enum: [total_power, it_critical_load, unspecified] }
+        status: { type: string, enum: [operational, construction, planned, announced, unknown] }
+        status_as_of: { type: string }
+        power:
+          type: object
+          properties:
+            generation: { type: string }
+            model: { type: string, enum: [BTM, Colocated, Grid] }
+        provenance: { type: string, enum: [government, filing, operator, trade_press, analyst, unknown] }
+        transformation: { type: string, enum: [reported, calculated, estimated, forecast, scenario] }
+        confidence: { type: string, enum: [high, medium, low] }
+        sources:
+          type: array
+          items:
+            type: object
+            properties:
+              url: { type: [string, "null"] }
+              publisher: { type: string }
+              provenance: { type: string }
+              supports_claim: { type: boolean }
+    SourceLedger:
+      type: object
+      properties:
+        ledger:
+          type: array
+          items:
+            type: object
+            properties:
+              label: { type: string }
+              url: { type: [string, "null"] }
+              publisher: { type: string }
+              provenance: { type: string }
+              linkable: { type: boolean }
