@@ -5422,14 +5422,15 @@
       const d = DATA[el.getAttribute("data-feed")];
       if (!d || !d.lastUpdated) { el.textContent = ""; el.className = "feed-stamp"; return; }
       el.className = "feed-stamp" + (ageDays(d.lastUpdated) <= 2.5 ? "" : " stale");
-      el.textContent = "● live · " + fmt(d.lastUpdated);
+      el.title = "Auto-fetched timestamp — when CI last pulled this feed. The underlying public dataset (EIA, LBNL, …) may report an earlier observation period.";
+      el.textContent = "● fetched " + fmt(d.lastUpdated);
     });
     const strip = $("ov-livedata");
     if (strip) {
       const items = ["grid", "power_econ", "queues", "siting"]
         .filter(k => DATA[k] && DATA[k].lastUpdated)
         .map(k => { const stale = ageDays(DATA[k].lastUpdated) > 2.5; return '<span class="lds-item' + (stale ? " stale" : "") + '"><i></i>' + META[k] + ' · ' + fmt(DATA[k].lastUpdated) + '</span>'; });
-      strip.innerHTML = items.length ? '<span class="lds-label">◆ Live public-data feeds</span>' + items.join("") : "";
+      strip.innerHTML = items.length ? '<span class="lds-label" title="Timestamps are when CI last auto-fetched each feed — the underlying public data (EIA, LBNL) may report an earlier observation period.">◆ Public-data feeds · auto-fetched</span>' + items.join("") : "";
     }
   }
 
