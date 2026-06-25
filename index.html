@@ -5,6 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>US AI Infrastructure Monitor</title>
 <meta name="description" content="A persona-targeted dashboard tracking US AI infrastructure — power demand, capex, deployment geography, bottlenecks, and the token economics underneath the buildout." />
+<link rel="canonical" href="https://vijay-sachdeva.github.io/us-ai-infra/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="US AI Infrastructure Monitor" />
+<meta property="og:url" content="https://vijay-sachdeva.github.io/us-ai-infra/" />
+<meta property="og:title" content="US AI Infrastructure Monitor" />
+<meta property="og:description" content="Open, source-linked tracker of US AI data-center infrastructure — power, capex, grid constraints, named projects, and token economics. Data CC BY 4.0." />
+<meta property="og:image" content="https://vijay-sachdeva.github.io/us-ai-infra/favicon.png" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="US AI Infrastructure Monitor" />
+<meta name="twitter:description" content="Open, source-linked US AI data-center infrastructure tracker — power, capex, grid, named projects, token economics. Data CC BY 4.0." />
+<meta name="twitter:image" content="https://vijay-sachdeva.github.io/us-ai-infra/favicon.png" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"WebSite","name":"US AI Infrastructure Monitor","url":"https://vijay-sachdeva.github.io/us-ai-infra/","description":"Open, source-linked tracker of US AI data-center infrastructure — power, capex, grid constraints, named projects, and token economics."},
+ {"@type":"Dataset","name":"US AI data-center project + power-deal ledger","description":"Named US AI data-center campuses with verified source URLs, coordinates, status, power model, and a provenance/transformation/confidence model.","license":"https://creativecommons.org/licenses/by/4.0/","creator":{"@type":"Person","name":"Vijay Sachdeva"},"url":"https://vijay-sachdeva.github.io/us-ai-infra/","isAccessibleForFree":true,"keywords":["data centers","artificial intelligence","energy","electric grid","capital expenditure","open data"],"distribution":[{"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://vijay-sachdeva.github.io/us-ai-infra/data/projects.json"}]}
+]}
+</script>
 <link rel="icon" type="image/png" href="favicon.png" />
 <link rel="apple-touch-icon" href="favicon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -840,6 +857,20 @@
   /* Inline source citations linked to the canonical ledger (data/sources.json) */
   a.src-link { color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
   a.src-link:hover { color: var(--accent); text-decoration-style: solid; }
+  /* Site footer — data / methods / citation nav */
+  .site-footer { border-top: 1px solid var(--line); margin-top: 34px; padding: 22px 22px 40px; }
+  .sf-inner { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+  .sf-line { font-size: 12.5px; color: var(--ink-2); }
+  .sf-line a, .sf-nav a { color: var(--accent); text-decoration: none; }
+  .sf-line a:hover, .sf-nav a:hover { text-decoration: underline; }
+  .sf-nav { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; font-weight: 600; }
+  .sf-cite { font-size: 11px; color: var(--muted); line-height: 1.5; max-width: 760px; }
+  /* Accessibility — comfortable tap targets on touch screens */
+  @media (max-width: 700px) {
+    .chart-tool-btn { min-height: 44px; padding: 0 13px; }
+    .map-view-btn { min-height: 44px; }
+    .sf-nav a { min-height: 44px; display: inline-flex; align-items: center; }
+  }
   .mp-table .mp-risk {
     display: block; font-size: 11px; color: var(--ink-2); margin-top: 4px; font-weight: 500; line-height: 1.4;
   }
@@ -3175,6 +3206,13 @@
       const box = canvas.closest(".chart-box");
       if (!box) return;
       box.setAttribute("data-chart-anchor", id);
+      // a11y: expose each chart canvas as a labelled image (screen readers ignore bare <canvas>)
+      if (!canvas.getAttribute("aria-label")) {
+        const card = canvas.closest(".stub-card");
+        const h = card && card.querySelector("h4");
+        canvas.setAttribute("role", "img");
+        canvas.setAttribute("aria-label", (h ? h.textContent.replace(/\s+/g, " ").trim() : id) + " — chart; underlying numbers in the Data table below.");
+      }
       // idempotent — survives theme re-render (charts are destroyed but the toolbar DOM stays)
       if (box.nextElementSibling && box.nextElementSibling.classList && box.nextElementSibling.classList.contains("chart-tools")) return;
       const tools = document.createElement("div");
@@ -6026,6 +6064,21 @@
   });
 })();
 </script>
+
+<footer class="site-footer">
+  <div class="sf-inner">
+    <div class="sf-line">US AI Infrastructure Monitor — open &amp; source-linked. Code <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a>, data <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/data/LICENSE" target="_blank" rel="noopener">CC BY 4.0</a>.</div>
+    <nav class="sf-nav" aria-label="Data &amp; methods">
+      <a href="https://github.com/vijay-sachdeva/us-ai-infra" target="_blank" rel="noopener">GitHub</a>
+      <a href="data/projects.json" target="_blank" rel="noopener">Project dataset</a>
+      <a href="data/sources.json" target="_blank" rel="noopener">Source ledger</a>
+      <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/schemas/projects.schema.json" target="_blank" rel="noopener">Schema</a>
+      <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+      <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/CITATION.cff" target="_blank" rel="noopener">Cite</a>
+    </nav>
+    <div class="sf-cite">Suggested citation: “US AI Infrastructure Monitor — data CC BY 4.0, vijay-sachdeva.github.io/us-ai-infra.” Best-available estimates with uncertainty; not investment advice.</div>
+  </div>
+</footer>
 
 </body>
 </html>
