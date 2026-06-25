@@ -3143,6 +3143,31 @@
     const h = card && card.querySelector("h4");
     return h ? h.textContent.replace(/\s+/g, " ").trim() : canvas.id;
   }
+  // Self-contained PNG: composite the chart with a title header + source/date/license
+  // footer, so a shared image stands on its own (title, source, date, license, permalink).
+  function _exportChartPng(id) {
+    const live = Chart.getChart(id); if (!live) return;
+    const cv = live.canvas;
+    const scale = (cv.clientWidth ? cv.width / cv.clientWidth : (window.devicePixelRatio || 1)) || 1;
+    const padX = Math.round(20 * scale), headH = Math.round(48 * scale), footH = Math.round(34 * scale);
+    const dark = document.documentElement.getAttribute("data-theme") === "dark";
+    const out = document.createElement("canvas");
+    out.width = cv.width; out.height = headH + cv.height + footH;
+    const ctx = out.getContext("2d");
+    ctx.fillStyle = dark ? "#0b1220" : "#ffffff";
+    ctx.fillRect(0, 0, out.width, out.height);
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = dark ? "#e2e8f0" : "#0f1b2d";
+    ctx.font = "600 " + Math.round(15 * scale) + "px Inter, sans-serif";
+    ctx.fillText(_chartTitle(cv), padX, headH / 2, out.width - 2 * padX);
+    ctx.drawImage(cv, 0, headH);
+    ctx.fillStyle = dark ? "#94a3b8" : "#64748b";
+    ctx.font = Math.round(11 * scale) + "px Inter, sans-serif";
+    const asOf = (window.DATA && DATA.lastUpdated) ? "as of " + DATA.lastUpdated + " · " : "";
+    ctx.fillText("US AI Infrastructure Monitor · " + asOf + "CC BY 4.0 · vijay-sachdeva.github.io/us-ai-infra",
+      padX, headH + cv.height + footH / 2, out.width - 2 * padX);
+    out.toBlob(b => { if (b) _downloadBlob(id + ".png", b); }, "image/png");
+  }
   function _chartRows(chart) {
     const labels = chart.data.labels || [];
     const dss = (chart.data.datasets || []).filter(d => d && d.data && (!d.label || d.label[0] !== "_"));
@@ -3228,14 +3253,8 @@
         dataBtn.setAttribute("aria-expanded", String(open));
       });
 
-      const pngBtn = _mkToolBtn("PNG", "Download this chart as a PNG image");
-      pngBtn.addEventListener("click", () => {
-        const live = Chart.getChart(id); if (!live) return;
-        const dataUrl = live.toBase64Image("image/png", 1);
-        const bin = atob(dataUrl.split(",")[1]), arr = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-        _downloadBlob(id + ".png", new Blob([arr], { type: "image/png" }));
-      });
+      const pngBtn = _mkToolBtn("PNG", "Download this chart as a PNG (with title, source + license)");
+      pngBtn.addEventListener("click", () => _exportChartPng(id));
 
       const csvBtn = _mkToolBtn("CSV", "Download this chart's data as CSV");
       csvBtn.addEventListener("click", () => {
