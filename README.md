@@ -81,9 +81,13 @@ CBRE & JLL data-center reports, Goldman Sachs research, SemiAnalysis, Epoch AI, 
 The named-project + power-deal ledger is published as a citeable open dataset:
 
 - **`data/projects.json`** — named US AI data-center campuses, each with verified, **clickable source URLs** (operator filings, utility/PUC dockets, primary press), coordinates, status, power model, and a three-part provenance model: `provenance` (government / filing / operator / trade_press / analyst), `transformation` (reported / estimated / forecast / …), and `confidence` (high / medium / low). Every source URL was opened and checked — `supports_claim` marks whether the page actually states the operator + MW + status. Headline MW that are announced/ultimate targets are flagged (`capacity_type`, `transformation`, `note`).
+- **`data/projects.csv`** / **`data/projects.geojson`** — the same ledger flat (spreadsheets) and as geocoded points (maps).
 - **`schemas/projects.schema.json`** — machine-readable JSON Schema for the records.
+- **`data/sources.json`** — the source ledger (every cited label → verified URL + provenance).
 
-The "Named builds & power deals" table on the dashboard renders directly from `projects.json`; download it from the table footer or the repo. Bulk feeds (`data/{grid,power_econ,queues,siting}.json`) are documented above. An OpenAPI spec + bulk CSV/Parquet releases are on the roadmap.
+### API & bulk downloads
+
+The data is a **static, CORS-open, plain-GET API** served from GitHub Pages — no auth, no key. See **[`api/openapi.yaml`](api/openapi.yaml)** for the OpenAPI 3.1 description and **[`data/README.md`](data/README.md)** for the data dictionary. Base URL `https://vijay-sachdeva.github.io/us-ai-infra`; e.g. `GET /data/projects.json`, `/data/projects.csv`, `/data/projects.geojson`, `/data/sources.json`, plus the four metric feeds (`grid`/`power_econ`/`queues`/`siting`). The dashboard's "Named builds & power deals" table renders directly from `projects.json`. (Parquet release pending a CI build dep.)
 
 ## License & citation
 
