@@ -5741,6 +5741,19 @@
     if (typeof enhanceCharts === "function") enhanceCharts(name);   // attach data-table / export / link tools
     motionObserveAll();         // catch any cards/numbers newly rendered for this tab
     if (typeof linkifySources === "function") linkifySources(document.querySelector("section.tab-content.active"));
+    // A chart created the instant a tab un-hides can size to a not-yet-reflowed (0-width)
+    // container and stay blank until reload. After layout settles, resize the now-visible
+    // charts so they repaint at the correct size.
+    if (typeof _charts !== "undefined" && typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(function () {
+        for (var id in _charts) {
+          var c = _charts[id];
+          if (c && c.canvas && c.canvas.offsetParent !== null && typeof c.resize === "function") {
+            try { c.resize(); } catch (_) {}
+          }
+        }
+      });
+    }
     if (anchor && typeof scrollToChartAnchor === "function") scrollToChartAnchor(anchor);
   }
   // Legacy hash aliases — anyone with a /#investor bookmark from earlier WIP
