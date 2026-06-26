@@ -1429,7 +1429,7 @@
     <section class="tab-content ov" data-tab="overview" id="overview">
       <div class="ov-eyebrow">
         <span>US AI infrastructure · overview</span>
-        <span class="ov-live"><i></i>live · refreshed daily</span>
+        <span class="ov-live"><i></i>auto-refreshed daily</span>
       </div>
       <h1 class="ov-h1">What breaks first — <span class="ov-accent">chips, power, land, or capital?</span></h1>
       <p class="ov-sub">Record capital is committing, but power sets the pace. Watch the gap open.</p>
@@ -1647,10 +1647,10 @@
         </details>
       </div>
 
-      <!-- Full-width: interconnection-queue chart — credible vs. phantom (live LBNL feed) -->
+      <!-- Full-width: interconnection-queue chart — credible vs. phantom (LBNL feed · annual, fetched in CI) -->
       <div class="stub-card" style="margin-top:14px">
         <h4>Generation interconnection queue by ISO — credible vs. phantom <span class="cf-tier cf-warn">analyst</span><span class="feed-stamp" data-feed="queues"></span></h4>
-        <div class="note">The broad <b>generation + storage</b> interconnection queue by ISO — the grid-connection pipeline data-center load also competes within, <b>not</b> a data-center-only load queue · split credible (post-withdrawal) vs. speculative · GW · LBNL Queued Up; the <b>78% is the historical generation-queue withdrawal rate</b>, applied here as a proxy · live feed</div>
+        <div class="note">The broad <b>generation + storage</b> interconnection queue by ISO — the grid-connection pipeline data-center load also competes within, <b>not</b> a data-center-only load queue · split credible (post-withdrawal) vs. speculative · GW · LBNL Queued Up; the <b>78% is the historical generation-queue withdrawal rate</b>, applied here as a proxy · annual LBNL snapshot, fetched in CI</div>
         <div class="chart-box short"><canvas id="queueChart"></canvas></div>
       </div>
 
@@ -1792,10 +1792,10 @@
           <div class="chart-box short"><canvas id="demandGapChart"></canvas></div>
         </div>
 
-        <!-- Card: Grid headroom by balancing authority (live EIA feed) -->
+        <!-- Card: Grid headroom by balancing authority (EIA feed, fetched in CI) -->
         <div class="stub-card">
           <h4>Grid headroom by balancing authority <span class="cf-tier cf-warn">derived</span><span class="feed-stamp" data-feed="grid"></span></h4>
-          <div class="note">Installed <b>nameplate</b> capacity minus peak demand, as % spare — a <b>derived proxy</b> for grid slack, <b>not</b> deliverable/accredited headroom (excludes reserve margins, forced outages, transmission limits, seasonal peaks). Inputs are primary (EIA-930 demand + EIA-860 nameplate); the headroom % is the modeled output · live feed (falls back to curated when unavailable)</div>
+          <div class="note">Installed <b>nameplate</b> capacity minus peak demand, as % spare — a <b>derived proxy</b> for grid slack, <b>not</b> deliverable/accredited headroom (excludes reserve margins, forced outages, transmission limits, seasonal peaks). Inputs are primary (EIA-930 demand + EIA-860 nameplate); the headroom % is the modeled output · fetched in CI (falls back to curated when unavailable)</div>
           <div class="chart-box short"><canvas id="headroomChart"></canvas></div>
         </div>
 
@@ -5436,14 +5436,15 @@
       const d = DATA[el.getAttribute("data-feed")];
       if (!d || !d.lastUpdated) { el.textContent = ""; el.className = "feed-stamp"; return; }
       el.className = "feed-stamp" + (ageDays(d.lastUpdated) <= 2.5 ? "" : " stale");
-      el.title = "Auto-fetched timestamp — when CI last pulled this feed. The underlying public dataset (EIA, LBNL, …) may report an earlier observation period.";
-      el.textContent = "● fetched " + fmt(d.lastUpdated);
+      const period = d.period || d.observed || null;   // observation period, when the feed carries one
+      el.title = "Fetched " + fmt(d.lastUpdated) + " — when CI last pulled this feed (retrieval)." + (period ? " Underlying data observes " + period + " (observation period, may lag retrieval)." : " The underlying public dataset (EIA, LBNL, …) may report an earlier observation period.");
+      el.textContent = "● fetched " + fmt(d.lastUpdated) + (period ? " · data " + period : "");
     });
     const strip = $("ov-livedata");
     if (strip) {
       const items = ["grid", "power_econ", "queues", "siting"]
         .filter(k => DATA[k] && DATA[k].lastUpdated)
-        .map(k => { const stale = ageDays(DATA[k].lastUpdated) > 2.5; return '<span class="lds-item' + (stale ? " stale" : "") + '"><i></i>' + META[k] + ' · ' + fmt(DATA[k].lastUpdated) + '</span>'; });
+        .map(k => { const stale = ageDays(DATA[k].lastUpdated) > 2.5; const per = DATA[k].period || DATA[k].observed; return '<span class="lds-item' + (stale ? " stale" : "") + '" title="fetched ' + fmt(DATA[k].lastUpdated) + (per ? '; data observes ' + per : '') + '"><i></i>' + META[k] + ' · ' + fmt(DATA[k].lastUpdated) + (per ? ' · data ' + per : '') + '</span>'; });
       strip.innerHTML = items.length ? '<span class="lds-label" title="Timestamps are when CI last auto-fetched each feed — the underlying public data (EIA, LBNL) may report an earlier observation period.">◆ Public-data feeds · auto-fetched</span>' + items.join("") : "";
     }
   }
@@ -5944,13 +5945,13 @@
   /* Compact, structured summary of all 5 tabs — fed to Claude as context. */
   function dataContext() {
     const L = [];
-    L.push("US AI Infrastructure Monitor — content/news last refreshed " + DATA.lastUpdated + ". Individual figures carry their own as-of dates and source tiers (Primary/Analyst/Modeled), and the live grid/power/queue/siting feeds show their own timestamps — do NOT claim every figure is measured as of the refresh date.");
+    L.push("US AI Infrastructure Monitor — content/news last refreshed " + DATA.lastUpdated + ". Individual figures carry their own as-of dates and source tiers (Primary/Analyst/Modeled), and the public-data grid/power/queue/siting feeds show their own CI-fetch timestamps (retrieval, not necessarily observation date) — do NOT claim every figure is measured as of the refresh date.");
 
     L.push(""); L.push("=== OVERVIEW (headline KPIs) ===");
     DATA.kpis.forEach(k => L.push("- " + k.label + ": " + k.value + " " + k.unit + (k.sub ? " (" + k.sub + ")" : "")));
     if (DATA.topStory) L.push("Top story (" + DATA.topStory.date + " · " + DATA.topStory.src + "): " + DATA.topStory.text);
     if (Array.isArray(DATA.feed) && DATA.feed.length) {
-      L.push("Recent signals (the live news ticker, most-recent first — each is a dated, sourced news item, NOT a refreshed metric):");
+      L.push("Recent signals (the daily-refreshed news ticker, most-recent first — each is a dated, sourced news item, NOT a refreshed metric):");
       DATA.feed.forEach(it => L.push("- [" + (it.tag || "SIGNAL") + " · " + (it.date || "") + " · " + (it.src || "source n/a") + "] " + (it.text || it.headline || it.title || "")));
     }
 
