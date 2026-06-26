@@ -1,0 +1,245 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/"
+  },
+  "@type": "dcat:Catalog",
+  "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/catalog.jsonld",
+  "dcterms:title": "US AI Infrastructure Monitor — open data catalog",
+  "dcterms:description": "DCAT catalog for the US AI Infrastructure Monitor: a curated, versioned, CORS-open set of static data files served from GitHub Pages as a plain-GET API (no auth, no key). Anchored by the named US AI data-center project and power-deal ledger, with derived grid, power-economics, interconnection-queue, and siting feeds.",
+  "dcterms:license": "https://creativecommons.org/licenses/by/4.0/",
+  "dcterms:publisher": {
+    "@type": "foaf:Organization",
+    "foaf:name": "US AI Infrastructure Monitor",
+    "foaf:homepage": "https://vijay-sachdeva.github.io/us-ai-infra"
+  },
+  "foaf:homepage": "https://vijay-sachdeva.github.io/us-ai-infra",
+  "dcat:dataset": [
+    {
+      "@type": "dcat:Dataset",
+      "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/projects.json",
+      "dcterms:identifier": "projects",
+      "dcterms:title": "US AI data-center project + power-deal ledger",
+      "dcterms:description": "Canonical ledger of named US AI data-center campuses and their power arrangements. Each record carries operator, state, location (lat/lon + precision), capacity_mw with a capacity_type qualifier, status with status_as_of, power (generation + model), an orthogonal provenance/transformation/confidence triad, a revision counter, and per-record sources[] whose URLs were opened and checked (supports_claim=true means the page was confirmed to state this operator + ~MW + status). Several headline MW figures are announced/ultimate targets rather than confirmed current draw — see capacity_type, transformation, confidence, and the per-record note.",
+      "dcterms:license": "https://creativecommons.org/licenses/by/4.0/",
+      "dcterms:publisher": {
+        "@type": "foaf:Organization",
+        "foaf:name": "US AI Infrastructure Monitor",
+        "foaf:homepage": "https://vijay-sachdeva.github.io/us-ai-infra"
+      },
+      "dcterms:spatial": { "@id": "https://sws.geonames.org/6252001/" },
+      "dcat:keyword": [
+        "AI infrastructure",
+        "data centers",
+        "hyperscale",
+        "power",
+        "electricity",
+        "capacity",
+        "United States",
+        "open data"
+      ],
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/projects.json",
+          "dcterms:title": "Project ledger (JSON, canonical)",
+          "dcterms:description": "Canonical JSON ledger conforming to schemas/projects.schema.json; carries version, license, attribution, and the full records[] array.",
+          "dcat:downloadURL": "https://vijay-sachdeva.github.io/us-ai-infra/data/projects.json",
+          "dcat:mediaType": "application/json",
+          "dcterms:format": "JSON",
+          "dcterms:license": "https://creativecommons.org/licenses/by/4.0/",
+          "dcterms:conformsTo": "https://vijay-sachdeva.github.io/us-ai-infra/schemas/projects.schema.json"
+        },
+        {
+          "@type": "dcat:Distribution",
+          "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/projects.csv",
+          "dcterms:title": "Project ledger (CSV)",
+          "dcterms:description": "The ledger flattened to one row per campus, generated from projects.json.",
+          "dcat:downloadURL": "https://vijay-sachdeva.github.io/us-ai-infra/data/projects.csv",
+          "dcat:mediaType": "text/csv",
+          "dcterms:format": "CSV",
+          "dcterms:license": "https://creativecommons.org/licenses/by/4.0/"
+        },
+        {
+          "@type": "dcat:Distribution",
+          "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/projects.geojson",
+          "dcterms:title": "Project ledger (GeoJSON)",
+          "dcterms:description": "The ledger as geocoded point features, generated from projects.json; records without a confirmed site are omitted or carry null geometry per their location precision.",
+          "dcat:downloadURL": "https://vijay-sachdeva.github.io/us-ai-infra/data/projects.geojson",
+          "dcat:mediaType": "application/geo+json",
+          "dcterms:format": "GeoJSON",
+          "dcterms:license": "https://creativecommons.org/licenses/by/4.0/"
+        }
+      ]
+    },
+    {
+      "@type": "dcat:Dataset",
+      "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/sources.json",
+      "dcterms:identifier": "sources",
+      "dcterms:title": "Source ledger",
+      "dcterms:description": "Every source label cited across the monitor, mapped to its verified canonical public URL and provenance class (government / filing / operator / trade_press / analyst). Modeled or composite references carry linkable=false and point to methodology rather than a single document. Analyst sources retain their own terms.",
+      "dcterms:license": "https://creativecommons.org/licenses/by/4.0/",
+      "dcterms:publisher": {
+        "@type": "foaf:Organization",
+        "foaf:name": "US AI Infrastructure Monitor",
+        "foaf:homepage": "https://vijay-sachdeva.github.io/us-ai-infra"
+      },
+      "dcterms:spatial": { "@id": "https://sws.geonames.org/6252001/" },
+      "dcat:keyword": [
+        "citations",
+        "provenance",
+        "sources",
+        "AI infrastructure",
+        "open data"
+      ],
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/sources.json",
+          "dcterms:title": "Source ledger (JSON)",
+          "dcat:downloadURL": "https://vijay-sachdeva.github.io/us-ai-infra/data/sources.json",
+          "dcat:mediaType": "application/json",
+          "dcterms:format": "JSON",
+          "dcterms:license": "https://creativecommons.org/licenses/by/4.0/"
+        }
+      ]
+    },
+    {
+      "@type": "dcat:Dataset",
+      "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/grid.json",
+      "dcterms:identifier": "grid",
+      "dcterms:title": "Grid headroom by balancing authority",
+      "dcterms:description": "Derived grid headroom by balancing authority / ISO (peak, average, latest demand, capacity, headroom percent), built from EIA-930 demand and EIA-860 capacity. The lastUpdated field is when CI last fetched the feed, not the observation period.",
+      "dcterms:license": "https://creativecommons.org/licenses/by/4.0/",
+      "dcterms:source": "EIA-930 (demand) + EIA-860 (capacity)",
+      "dcterms:publisher": {
+        "@type": "foaf:Organization",
+        "foaf:name": "US AI Infrastructure Monitor",
+        "foaf:homepage": "https://vijay-sachdeva.github.io/us-ai-infra"
+      },
+      "dcterms:spatial": { "@id": "https://sws.geonames.org/6252001/" },
+      "dcat:keyword": [
+        "grid",
+        "headroom",
+        "balancing authority",
+        "ISO",
+        "EIA-930",
+        "EIA-860",
+        "electricity"
+      ],
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/grid.json",
+          "dcterms:title": "Grid headroom (JSON)",
+          "dcat:downloadURL": "https://vijay-sachdeva.github.io/us-ai-infra/data/grid.json",
+          "dcat:mediaType": "application/json",
+          "dcterms:format": "JSON",
+          "dcterms:license": "https://creativecommons.org/licenses/by/4.0/"
+        }
+      ]
+    },
+    {
+      "@type": "dcat:Dataset",
+      "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/power_econ.json",
+      "dcterms:identifier": "power_econ",
+      "dcterms:title": "Industrial power price by state",
+      "dcterms:description": "Industrial-sector retail electricity price by US state (cents/kWh and USD/MWh), from EIA retail-sales (sector IND). The period field reports the underlying EIA observation month; lastUpdated is the CI fetch time.",
+      "dcterms:license": "https://creativecommons.org/licenses/by/4.0/",
+      "dcterms:source": "EIA retail-sales (sector IND, EIA-861)",
+      "dcterms:publisher": {
+        "@type": "foaf:Organization",
+        "foaf:name": "US AI Infrastructure Monitor",
+        "foaf:homepage": "https://vijay-sachdeva.github.io/us-ai-infra"
+      },
+      "dcterms:spatial": { "@id": "https://sws.geonames.org/6252001/" },
+      "dcat:keyword": [
+        "electricity price",
+        "industrial",
+        "power economics",
+        "EIA-861",
+        "states"
+      ],
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/power_econ.json",
+          "dcterms:title": "Industrial power price (JSON)",
+          "dcat:downloadURL": "https://vijay-sachdeva.github.io/us-ai-infra/data/power_econ.json",
+          "dcat:mediaType": "application/json",
+          "dcterms:format": "JSON",
+          "dcterms:license": "https://creativecommons.org/licenses/by/4.0/"
+        }
+      ]
+    },
+    {
+      "@type": "dcat:Dataset",
+      "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/queues.json",
+      "dcterms:identifier": "queues",
+      "dcterms:title": "Generation interconnection queues by ISO",
+      "dcterms:description": "Generation interconnection queue volume by ISO (active GW and a credible GW after a 0.78 withdrawal haircut), derived from LBNL Queued Up. The lastUpdated field is the CI fetch time; the underlying LBNL dataset is annual.",
+      "dcterms:license": "https://creativecommons.org/licenses/by/4.0/",
+      "dcterms:source": "LBNL Queued Up 2025",
+      "dcterms:publisher": {
+        "@type": "foaf:Organization",
+        "foaf:name": "US AI Infrastructure Monitor",
+        "foaf:homepage": "https://vijay-sachdeva.github.io/us-ai-infra"
+      },
+      "dcterms:spatial": { "@id": "https://sws.geonames.org/6252001/" },
+      "dcat:keyword": [
+        "interconnection queue",
+        "generation",
+        "ISO",
+        "LBNL",
+        "Queued Up",
+        "electricity"
+      ],
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/queues.json",
+          "dcterms:title": "Interconnection queues (JSON)",
+          "dcat:downloadURL": "https://vijay-sachdeva.github.io/us-ai-infra/data/queues.json",
+          "dcat:mediaType": "application/json",
+          "dcterms:format": "JSON",
+          "dcterms:license": "https://creativecommons.org/licenses/by/4.0/"
+        }
+      ]
+    },
+    {
+      "@type": "dcat:Dataset",
+      "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/siting.json",
+      "dcterms:identifier": "siting",
+      "dcterms:title": "Per-state white-space siting score",
+      "dcterms:description": "Modeled per-state siting score (0-100) combining grid headroom, interconnection-queue congestion, and industrial power price via 0.45*headroom + 0.33*(1-queue_congestion) + 0.22*(1-industrial_price). State/ISO inputs; county-true geometry is Phase 2. Modeled output — lastUpdated is the CI build time.",
+      "dcterms:license": "https://creativecommons.org/licenses/by/4.0/",
+      "dcterms:source": "Modeled from EIA-930+860, LBNL, EIA-861",
+      "dcterms:publisher": {
+        "@type": "foaf:Organization",
+        "foaf:name": "US AI Infrastructure Monitor",
+        "foaf:homepage": "https://vijay-sachdeva.github.io/us-ai-infra"
+      },
+      "dcterms:spatial": { "@id": "https://sws.geonames.org/6252001/" },
+      "dcat:keyword": [
+        "siting",
+        "site selection",
+        "white space",
+        "modeled",
+        "states",
+        "AI infrastructure"
+      ],
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "@id": "https://vijay-sachdeva.github.io/us-ai-infra/data/siting.json",
+          "dcterms:title": "Siting score (JSON)",
+          "dcat:downloadURL": "https://vijay-sachdeva.github.io/us-ai-infra/data/siting.json",
+          "dcat:mediaType": "application/json",
+          "dcterms:format": "JSON",
+          "dcterms:license": "https://creativecommons.org/licenses/by/4.0/"
+        }
+      ]
+    }
+  ]
+}
