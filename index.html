@@ -5410,18 +5410,36 @@
         const text = node.nodeValue;
         if (!text || text.length < 4) return;
         if (node.parentNode && node.parentNode.closest && node.parentNode.closest("a")) return;
-        let hit = null, idx = -1;
-        for (const m of map) { const i = text.indexOf(m.label); if (i !== -1) { hit = m; idx = i; break; } }
-        if (!hit) return;
+        // Collect ALL non-overlapping label matches left→right; at each position the
+        // earliest-starting label wins, and since `map` is pre-sorted longest-first a
+        // compound label (e.g. "LBNL Queued Up 2025") beats its substring ("LBNL Queued Up").
+        const matches = [];
+        let pos = 0;
+        while (pos < text.length) {
+          let best = null, bestIdx = -1;
+          for (const m of map) {
+            const i = text.indexOf(m.label, pos);
+            if (i !== -1 && (bestIdx === -1 || i < bestIdx)) { best = m; bestIdx = i; }
+          }
+          if (!best) break;
+          matches.push({ m: best, idx: bestIdx });
+          pos = bestIdx + best.label.length;
+        }
+        if (!matches.length) return;
         const frag = document.createDocumentFragment();
-        const before = text.slice(0, idx), after = text.slice(idx + hit.label.length);
-        if (before) frag.appendChild(document.createTextNode(before));
-        const a = document.createElement("a");
-        a.className = "src-link"; a.href = hit.url; a.target = "_blank"; a.rel = "noopener";
-        if (hit.publisher) a.title = hit.publisher;
-        a.textContent = hit.label;
-        frag.appendChild(a);
-        if (after) frag.appendChild(document.createTextNode(after));
+        let cursor = 0;
+        matches.forEach(hitObj => {
+          const m = hitObj.m, idx = hitObj.idx;
+          if (idx < cursor) return;                       // safety: skip any accidental overlap
+          if (idx > cursor) frag.appendChild(document.createTextNode(text.slice(cursor, idx)));
+          const a = document.createElement("a");
+          a.className = "src-link"; a.href = m.url; a.target = "_blank"; a.rel = "noopener";
+          if (m.publisher) a.title = m.publisher;
+          a.textContent = m.label;
+          frag.appendChild(a);
+          cursor = idx + m.label.length;
+        });
+        if (cursor < text.length) frag.appendChild(document.createTextNode(text.slice(cursor)));
         node.parentNode.replaceChild(frag, node);
       });
     });
