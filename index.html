@@ -319,6 +319,12 @@
   .stub-card > .leadtime-row { order: 2; }
   /* Per-chart tools: accessible data table + PNG/CSV export + deep-link (ranks 6+7) */
   .chart-tools { order: 0; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-top: 9px; }
+  /* Standardized per-chart caption: one-line takeaway + as-of + source, sits under the chart. */
+  .chart-cap { order: 0; margin-top: 10px; font-size: 11.5px; line-height: 1.55; }
+  .chart-cap .cap-take { color: var(--ink); font-weight: 600; }
+  .chart-cap .cap-meta { color: var(--muted); margin-top: 2px; }
+  .chart-cap .cap-meta a { color: var(--accent); text-decoration: none; }
+  .chart-cap .cap-meta a:hover { text-decoration: underline; }
   .chart-tool-btn {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 3px 9px; font-size: 11px; font-weight: 700; font-family: inherit;
@@ -3050,6 +3056,38 @@
     return String(t);
   }
 
+  // Per-chart caption metadata, keyed by canvas id: { take: one-sentence insight, asof: data
+  // vintage (not the page refresh date), src: { label, url } }. Every takeaway is grounded in the
+  // chart's own data — fact-checked, no invented figures. enhanceCharts() renders these under each
+  // chart; charts absent from the map simply get no caption (graceful).
+  const CHART_META = {
+    coCapexChart: { take: "Amazon leads 2026 AI-infra capex at $200B, ahead of Microsoft ($190B), Google ($185B) and Meta ($150B), with AI-native challengers far smaller — Oracle $50B, CoreWeave $33B, Nebius $22B and xAI $18B.", asof: "2026 guidance", src: { label: "company 2026 capex guidance" } },
+    capexAiShareChart: { take: "Across ~$808B of tracked operator capex roughly 90% is AI/data-center-attributed, with pure-plays like Oracle and CoreWeave near 100% and diversified operators lower — but the infra-vs-non-core split is an editorial Modeled estimate, not a reported line item.", asof: "2026 guidance", src: { label: "modeled (this dashboard)" } },
+    costStack: { take: "Building one MW of AI capacity runs ~$42M all-in, with compute ($31M) dwarfing facility ($11M) and GPUs/accelerators alone ($23M) the single largest layer — more than the entire shell, power, cooling and servers combined.", asof: "illustrative", src: { label: "illustrative per-MW build stack (JLL + analyst)" } },
+    capexTrendChart: { take: "Combined Big-5 hyperscaler capex (Amazon, Microsoft, Alphabet, Meta, Oracle) more than quintupled from $128B in 2021 to a guided ~$684B in 2026, where the 2026 figure is company guidance/estimate rather than reported actuals.", asof: "2021-2025 actuals + 2026 guidance", src: { label: "company 10-Ks / earnings (2026 = guidance)" } },
+    capexVsCashflowChart: { take: "Through FY2025 combined Big-5 capex ($381B) was ~66% of operating cash flow ($577B), up from ~44% in 2021, and Oracle is already the lone single-name crossover — its FY2026 capex ($55.7B) exceeds operating cash flow ($32.0B) for roughly -$24B free cash flow.", asof: "2021-2025 actuals + 2026 guidance", src: { label: "company 10-Ks / earnings (2026 = guidance)" } },
+    vacancyChart: { take: "Primary-market data-center vacancy collapsed from 9.5% in 2019 to 1.4% in 2025 — far below the ~5% healthy-market floor — evidencing the supply-tightness and landlord pricing-power story.", asof: "2025 (year-end)", src: { label: "CBRE — North America Data Center Trends" } },
+    funnelCompare: { take: "The US data-center interconnect queue (97 GW) sits about 16x the 6 GW actively under construction, and even existing operational stock (41 GW) and modeled near-term buildable capacity (24 GW) dwarf active builds — these are four independent snapshots, not one cohort moving through stages.", asof: "2025 snapshots", src: { label: "LBNL Queued Up 2025 + CBRE + Goldman Sachs" } },
+    phantomWaterfall: { take: "Stripping the 97 GW headline queue of duplicate/multi-utility filings (-30% at midpoint) and speculative/unfinanced requests (-65%) leaves only about 24 GW — roughly a quarter, within a modeled 19–33 GW range — that appears buildable near-term.", asof: "2025 queue · haircuts modeled", src: { label: "LBNL Queued Up 2025" } },
+    queueChart: { take: "Across US ISOs the generation+storage interconnection queue is dominated by phantom volume — applying LBNL's 78% historical withdrawal rate leaves only ~22% credible, e.g. MISO 340 GW active but just 75 GW credible and PJM 290 GW active vs 64 GW credible.", asof: "annual LBNL snapshot (fetched in CI)", src: { label: "LBNL Queued Up" } },
+    leadTimeChart: { take: "Time from greenfield to energized ranges from about 3 years in fast-growth markets (Dallas, Louisiana, Central Ohio) up to 7 years in power-constrained Northern Virginia, with Silicon Valley at 6 — where you build drives the wait.", asof: "current market estimates", src: { label: "market estimates (curated)" } },
+    costStackEngineer: { take: "Compute, not the building, dominates the per-MW build cost: GPUs/accelerators alone run $23M/MW and servers/networking $8M, so the compute layers ($31M) far outweigh the entire facility shell, power and cooling stack ($11M).", asof: "current build-cost estimates", src: { label: "illustrative build stack (curated)" } },
+    buildoutChart: { take: "Across the top 5 hyperscalers self-built pipeline capacity exceeds operational capacity at every one — e.g. Meta has ~1,500 MW operational vs ~3,100 MW in pipeline and Amazon ~2,300 MW vs ~2,600 MW — signaling buildout still ramping well ahead of what is live.", asof: "modeled from IR + analyst sources", src: { label: "operator IR + analyst estimates (modeled)" } },
+    timeToPowerChart: { take: "On-site paths energize a site fastest — fuel cells in 3–12 months and behind-the-meter gas in 6–18 — while a full grid interconnect takes 48–84 months (4–7 years), making procurement path, not power scarcity, the binding 2026 timing variable.", asof: "2026 · grid duration cited, on-site bands modeled", src: { label: "LBNL Queued Up 2025" } },
+    perfPerWattChart: { take: "On a pinned dense FP16/BF16 silicon metric, per-watt efficiency only rose ~3x from A100 (index 100) to B200 (289) — but separate modeled effective-inference markers (FP4 + NVL72 rack-scale) reach 1,000 for GB200 NVL72 and ~3,500 for Rubin, showing the real deployment gains come from lower precision and rack design, not raw FP16 FLOPS/W.", asof: "2020–2025 GPU generations · markers modeled", src: { label: "NVIDIA datasheets (A100/H100/H200/Blackwell)" } },
+    demandGapChart: { take: "Annual US data-center demand additions outrun new firm generation committed to DC load nearly every year of the projection, with the widest single-year gap of 7 GW in 2027 (17 GW demand added vs. 10 GW firm gen) and demand exceeding new firm gen through 2030.", asof: "2024-2030 projection", src: { label: "modeled (GS / Wood Mackenzie / EIA + IRPs)" } },
+    headroomChart: { take: "On a derived nameplate-capacity proxy, all nine tracked balancing authorities sit above the 10% 'healthy' line, ranging from Southern Co. (SOCO) tightest at 16.3% to Duke (DUK) loosest at 57.8% spare.", asof: "fetched in CI (see feed stamp)", src: { label: "EIA-930 + EIA-860" } },
+    rateImpactChart: { take: "Under high-DC-load scenarios, Virginia faces a projected +57% residential rate increase by 2030 vs. 2024 — more than double any other state, with only Texas (+28%) and Ohio (+22%) also above 20%.", asof: "by 2030 vs. 2024 (modeled)", src: { label: "Fortune analysis, utility IRPs (modeled)" } },
+    cumDeficitChart: { take: "The standing cumulative shortfall of DC demand added over firm generation committed to DC widens every year to roughly 19 GW by 2030 — conservative against Bloom Energy's ~35 GW gap reference line.", asof: "2024-2030 (modeled)", src: { label: "modeled (GS / Wood Mackenzie / EIA + IRPs)" } },
+    turbineSlots: { take: "Gas-turbine order books are effectively sold out near-term: GE Vernova carries ~100 GW combined (44 GW firm backlog + 56 GW deposit-backed slot reservations), with the earliest new delivery slots not opening until 2029-2030 across GE Vernova, Siemens Energy and Mitsubishi.", asof: "Q1 FY2026 (reported Apr 2026)", src: { label: "GE Vernova / Siemens Energy / MHI earnings" } },
+    powerSourceMixChart: { take: "Gas carries US data-center load growth this decade — grid gas (+130 TWh) plus behind-the-meter on-site gas (+60 TWh) dominate the additional annual generation committed to 2030, ahead of renewables+storage (+110 TWh) and nuclear (+50 TWh, overwhelmingly post-2030 SMRs).", asof: "outlook to 2030 (period split modeled)", src: { label: "IEA, EIA STEO, S&P Global (period split modeled)" } },
+    // Tokens tab (drafted from chart data after the tokens agent dropped mid-run; same grounding bar)
+    tokenVolumeChart: { take: "Externally-billed API token volume grew ~22× in two years — from ~100T tokens/quarter (Q1 2024) to ~2,180T (Q2 2026), led by OpenAI (~800T) — and even this excludes the far larger in-product inference load.", asof: "Q1 2024–Q2 2026 · modeled", src: { label: "Epoch AI, SemiAnalysis + provider disclosures (modeled)" } },
+    priceCompressionChart: { take: "Output-token prices keep falling — GPT-4's $60 per 1M (2023) to $8 (GPT-4.1, 2025), Claude 3 Opus $75 to $15 — and span roughly 125× from today's frontier down to OSS-hosted models near $0.60 per 1M.", asof: "2023–2025 launch prices", src: { label: "Provider pricing pages, OpenRouter, Together AI" } },
+    costPerTaskChart: { take: "Cheaper tokens don't always mean cheaper work: a simple chat task's cost collapsed (~$0.04→$0.0003), but a 2026 coding/agentic task burns ~1.2M tokens (vs ~2,000 in 2023), so its cost to COMPLETE rose to ~$18 even as sticker $/token fell ~100–300×.", asof: "2023 vs 2026 frontier · $/token cited, tokens-per-task modeled", src: { label: "modeled basket; $/token from provider pricing" } },
+    splitChart: { take: "Inference now dominates AI compute — ~92% of compute-hours vs 8% for training — but training stays more cost-concentrated, taking ~35% of spend versus 65% for inference.", asof: "late-2025 estimates", src: { label: "SemiAnalysis, Epoch AI" } },
+  };
+
   // Lollipop ranking chart — thin stem + end dot. The modern replacement for ranked bars.
   // rows: [{label, value, color}]; opts: {fmt, tick, suggestedMax, rightPad, dotR, tooltipCallbacks, annotation, seriesLabel}
   function renderLollipop(canvasId, rows, opts) {
@@ -3263,8 +3301,9 @@
         canvas.setAttribute("role", "img");
         canvas.setAttribute("aria-label", (h ? h.textContent.replace(/\s+/g, " ").trim() : id) + " — chart; underlying numbers in the Data table below.");
       }
-      // idempotent — survives theme re-render (charts are destroyed but the toolbar DOM stays)
-      if (box.nextElementSibling && box.nextElementSibling.classList && box.nextElementSibling.classList.contains("chart-tools")) return;
+      // idempotent — survives theme re-render (charts are destroyed but the caption/toolbar DOM stays)
+      if (box.dataset.enhanced) return;
+      box.dataset.enhanced = "1";
       const tools = document.createElement("div");
       tools.className = "chart-tools";
       const table = _buildDataTable(chart, canvas);
@@ -3298,7 +3337,23 @@
       });
 
       tools.append(dataBtn, pngBtn, csvBtn, linkBtn);
-      box.insertAdjacentElement("afterend", tools);
+      // Optional standardized caption (grounded takeaway + as-of + source) between chart and toolbar.
+      const cm = (typeof CHART_META !== "undefined") ? CHART_META[id] : null;
+      let anchorEl = box;
+      if (cm && (cm.take || cm.asof || (cm.src && cm.src.label))) {
+        const cap = document.createElement("div");
+        cap.className = "chart-cap";
+        let capHtml = "";
+        if (cm.take) capHtml += '<div class="cap-take">' + cm.take + '</div>';
+        const bits = [];
+        if (cm.asof) bits.push("As of " + cm.asof);
+        if (cm.src && cm.src.label) bits.push("Source: " + (cm.src.url ? '<a href="' + cm.src.url + '" target="_blank" rel="noopener">' + cm.src.label + '</a>' : cm.src.label));
+        if (bits.length) capHtml += '<div class="cap-meta">' + bits.join(" · ") + '</div>';
+        cap.innerHTML = capHtml;
+        box.insertAdjacentElement("afterend", cap);
+        anchorEl = cap;
+      }
+      anchorEl.insertAdjacentElement("afterend", tools);
       tools.insertAdjacentElement("afterend", table);
     });
   }
@@ -5413,7 +5468,7 @@
     }
     const map = linkifySources._map;
     if (!map.length) return;
-    const sel = ".sc-method,.note,.stack-src,.deal-src,.sc-note,.mp-upd,.tab-callout,.funnel-conv,.play-note";
+    const sel = ".sc-method,.note,.stack-src,.deal-src,.sc-note,.mp-upd,.tab-callout,.funnel-conv,.play-note,.chart-cap";
     root.querySelectorAll(sel).forEach(el => {
       if (el.dataset.srcLinked) return;
       el.dataset.srcLinked = "1";
