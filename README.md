@@ -89,6 +89,10 @@ The named-project + power-deal ledger is published as a citeable open dataset:
 
 The data is a **static, CORS-open, plain-GET API** served from GitHub Pages — no auth, no key. See **[`api/openapi.yaml`](api/openapi.yaml)** for the OpenAPI 3.1 description and **[`data/README.md`](data/README.md)** for the data dictionary. Base URL `https://vijay-sachdeva.github.io/us-ai-infra`; e.g. `GET /data/projects.json`, `/data/projects.csv`, `/data/projects.geojson`, `/data/sources.json`, plus the four metric feeds (`grid`/`power_econ`/`queues`/`siting`). The dashboard's "Named builds & power deals" table renders directly from `projects.json`. (Parquet release pending a CI build dep.)
 
+## Contributing & corrections
+
+Data corrections and new project records are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the sourcing bar (every source URL must be opened and verified, and `supports_claim` reflects what the page actually states) and the schema / provenance conventions. Past corrections are logged publicly in [CORRECTIONS.md](CORRECTIONS.md).
+
 ## License & citation
 
 - **Code** (`index.html`, `scripts/`, `tools/`): **MIT** — see [LICENSE](LICENSE).
