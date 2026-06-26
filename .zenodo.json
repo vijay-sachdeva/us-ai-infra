@@ -1,0 +1,41 @@
+{
+  "title": "US AI Infrastructure Monitor — US AI data-center project + power-deal ledger",
+  "description": "<p>An open, source-linked dataset of US AI data-center infrastructure: a ledger of named US AI data-center campuses and their power arrangements, plus companion grid, power-price, interconnection-queue, and siting feeds.</p><p>The canonical file, <code>data/projects.json</code>, records named US AI data-center campuses with verified, clickable source URLs, coordinates, capacity (MW), capacity type, status, and power model (generation + grid/BTM/colocated). Each record carries a three-part provenance model — <code>provenance</code> (government / filing / operator / trade_press / analyst), <code>transformation</code> (reported / calculated / estimated / forecast / scenario), and <code>confidence</code> (high / medium / low). Every <code>sources[]</code> entry was opened and checked: <code>supports_claim: true</code> means the page was confirmed to state the operator + ~MW + status. Several headline MW figures are announced/ultimate targets, not confirmed current draw, and are flagged per record via <code>capacity_type</code>, <code>transformation</code>, and a <code>note</code>.</p><p>The ledger is also published as flat CSV (<code>data/projects.csv</code>) and geocoded GeoJSON points (<code>data/projects.geojson</code>), both generated from <code>data/projects.json</code>, and is described by a JSON Schema (<code>schemas/projects.schema.json</code>) and an OpenAPI document (<code>api/openapi.yaml</code>).</p><p>Curated data is licensed CC BY 4.0. Third-party analyst sources cited per record retain their own terms (marked with <code>provenance: analyst</code>) and are pointers, not relicensed. Suggested attribution: \"US AI Infrastructure Monitor — data CC BY 4.0, https://vijay-sachdeva.github.io/us-ai-infra\". The accompanying dashboard code is MIT-licensed and lives in the same repository.</p>",
+  "upload_type": "dataset",
+  "access_right": "open",
+  "license": "cc-by-4.0",
+  "language": "eng",
+  "version": "0.1.0",
+  "creators": [
+    {
+      "name": "Sachdeva, Vijay"
+    }
+  ],
+  "keywords": [
+    "data centers",
+    "artificial intelligence",
+    "AI infrastructure",
+    "energy",
+    "electric grid",
+    "power",
+    "capital expenditure",
+    "interconnection queue",
+    "open data",
+    "United States"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/vijay-sachdeva/us-ai-infra",
+      "relation": "isSupplementTo",
+      "resource_type": "software",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://vijay-sachdeva.github.io/us-ai-infra",
+      "relation": "isDocumentedBy",
+      "resource_type": "other",
+      "scheme": "url"
+    }
+  ],
+  "notes": "Dataset versions track the `version` field in data/projects.json. Curated datasets are CC BY 4.0; third-party analyst sources cited per record retain their own terms (provenance: analyst). Code in the same repository is MIT-licensed."
+}

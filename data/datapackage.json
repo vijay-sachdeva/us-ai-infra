@@ -1,0 +1,234 @@
+{
+  "profile": "data-package",
+  "name": "us-ai-infra-ledger",
+  "title": "US AI Infrastructure Monitor — data package",
+  "description": "Open, source-linked dataset behind the US AI Infrastructure Monitor. The flagship resource is a hand-verified ledger of named US AI data-center campuses and their power arrangements; supporting resources cover the source ledger, grid headroom by region, industrial power economics by state, interconnection-queue figures by ISO, and a modeled state-level siting score. Each ledger record's source URLs were opened and checked. Several headline MW figures are ultimate/announced targets rather than confirmed current draw — see the capacity_type, transformation, confidence, and per-record notes. Code is MIT-licensed; this data is CC BY 4.0. Analyst-sourced rows remain under their owners' terms (see data/LICENSE).",
+  "version": "0.1.0",
+  "homepage": "https://vijay-sachdeva.github.io/us-ai-infra",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "path": "https://creativecommons.org/licenses/by/4.0/",
+      "title": "Creative Commons Attribution 4.0 International"
+    }
+  ],
+  "contributors": [
+    {
+      "title": "Vijay Sachdeva",
+      "email": "vijaysachdeva@gmail.com",
+      "path": "https://github.com/vijay-sachdeva/us-ai-infra",
+      "role": "author"
+    },
+    {
+      "title": "Vijay Sachdeva",
+      "email": "vijaysachdeva@gmail.com",
+      "path": "https://github.com/vijay-sachdeva/us-ai-infra",
+      "role": "maintainer"
+    }
+  ],
+  "keywords": [
+    "ai",
+    "data-centers",
+    "electricity",
+    "power",
+    "grid",
+    "infrastructure",
+    "united-states",
+    "open-data"
+  ],
+  "resources": [
+    {
+      "name": "projects",
+      "title": "US AI data-center project + power-deal ledger (tabular)",
+      "description": "Flat, one-row-per-campus export of the canonical ledger. Derived from projects.json by scripts/build_projects_exports.py; projects.json is the source of truth and carries the full nested source list per record.",
+      "path": "projects.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "dialect": {
+        "delimiter": ",",
+        "header": true
+      },
+      "schema": {
+        "primaryKey": "id",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string",
+            "description": "Stable slug identifying the campus, e.g. hyperion-meta-la. Unique across the ledger."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "Human-readable campus / project name."
+          },
+          {
+            "name": "operator",
+            "type": "string",
+            "description": "Operating party or parties (slash-separated when multiple, e.g. 'OpenAI / Oracle / Crusoe')."
+          },
+          {
+            "name": "state",
+            "type": "string",
+            "description": "USPS 2-letter state code where the campus is sited."
+          },
+          {
+            "name": "lat",
+            "type": "number",
+            "description": "Latitude in decimal degrees (WGS84). Blank when the location is undisclosed (coord_precision = unknown)."
+          },
+          {
+            "name": "lon",
+            "type": "number",
+            "description": "Longitude in decimal degrees (WGS84). Blank when the location is undisclosed (coord_precision = unknown)."
+          },
+          {
+            "name": "coord_precision",
+            "type": "string",
+            "description": "Granularity the lat/lon resolves to.",
+            "constraints": {
+              "enum": ["site", "city", "county", "unknown"]
+            }
+          },
+          {
+            "name": "capacity_mw",
+            "type": "number",
+            "description": "Headline capacity in megawatts. Interpret together with capacity_type, transformation, and confidence — several figures are ultimate/announced targets, not confirmed current draw."
+          },
+          {
+            "name": "capacity_type",
+            "type": "string",
+            "description": "What the capacity_mw figure measures.",
+            "constraints": {
+              "enum": ["total_power", "it_critical_load", "unspecified"]
+            }
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "Development stage of the campus as of status_as_of.",
+            "constraints": {
+              "enum": ["operational", "construction", "planned", "announced", "unknown"]
+            }
+          },
+          {
+            "name": "status_as_of",
+            "type": "yearmonth",
+            "description": "YYYY-MM the status was observed."
+          },
+          {
+            "name": "power_generation",
+            "type": "string",
+            "description": "Free-text description of the generation / supply arrangement (e.g. 'Grid (PJM)', 'Gas (on-site turbines)', 'Nuclear (restart)')."
+          },
+          {
+            "name": "power_model",
+            "type": "string",
+            "description": "How power reaches the campus: BTM (behind-the-meter), Colocated (adjacent colocated generation), or Grid (grid-supplied).",
+            "constraints": {
+              "enum": ["BTM", "Colocated", "Grid"]
+            }
+          },
+          {
+            "name": "provenance",
+            "type": "string",
+            "description": "Class of the primary source backing the record.",
+            "constraints": {
+              "enum": ["government", "filing", "operator", "trade_press", "analyst", "unknown"]
+            }
+          },
+          {
+            "name": "transformation",
+            "type": "string",
+            "description": "How the capacity value relates to the source.",
+            "constraints": {
+              "enum": ["reported", "calculated", "estimated", "forecast", "scenario"]
+            }
+          },
+          {
+            "name": "confidence",
+            "type": "string",
+            "description": "Analyst confidence in the record as published.",
+            "constraints": {
+              "enum": ["high", "medium", "low"]
+            }
+          },
+          {
+            "name": "primary_source_url",
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the chosen primary source — the first source with a URL that supports the claim, else the first source with any URL. See projects.json for the full source list per record."
+          },
+          {
+            "name": "primary_source_publisher",
+            "type": "string",
+            "description": "Publisher of the primary source (e.g. 'Meta Platforms (IR)', 'SEC EDGAR', 'Data Center Dynamics')."
+          }
+        ]
+      }
+    },
+    {
+      "name": "projects-json",
+      "title": "US AI data-center project + power-deal ledger (canonical JSON)",
+      "description": "Canonical source of truth for the ledger: top-level metadata (name, version, license, attribution, notes, record_count) plus records[] with nested location, power, and a full per-record sources[] list. Conforms to schemas/projects.schema.json.",
+      "path": "projects.json",
+      "format": "json",
+      "mediatype": "application/json",
+      "encoding": "utf-8"
+    },
+    {
+      "name": "projects-geojson",
+      "title": "US AI data-center projects (GeoJSON points)",
+      "description": "FeatureCollection of Point features for every ledger record with a known location. Derived from projects.json by scripts/build_projects_exports.py; records with an undisclosed location are omitted.",
+      "path": "projects.geojson",
+      "format": "geojson",
+      "mediatype": "application/geo+json",
+      "encoding": "utf-8"
+    },
+    {
+      "name": "sources",
+      "title": "Source ledger",
+      "description": "Every source label cited across the dashboard mapped to its verified canonical public URL plus provenance class. Modeled, derived, or composite references carry no external URL (linkable=false). Includes a coverage summary and a ledger[] array of {label, url, publisher, provenance, linkable}.",
+      "path": "sources.json",
+      "format": "json",
+      "mediatype": "application/json",
+      "encoding": "utf-8"
+    },
+    {
+      "name": "grid",
+      "title": "Regional grid headroom",
+      "description": "Per-region demand and capacity figures (peak / average / latest MW, installed capacity, and percent headroom) keyed by ISO/region. Sourced from EIA-930 (demand) and EIA-860 (capacity).",
+      "path": "grid.json",
+      "format": "json",
+      "mediatype": "application/json",
+      "encoding": "utf-8"
+    },
+    {
+      "name": "power-econ",
+      "title": "Industrial power economics by state",
+      "description": "Per-state industrial retail electricity price for a single reporting period (the 'period' field), as cents/kWh and USD/MWh. Sourced from EIA retail-sales data, industrial (IND) sector.",
+      "path": "power_econ.json",
+      "format": "json",
+      "mediatype": "application/json",
+      "encoding": "utf-8"
+    },
+    {
+      "name": "queues",
+      "title": "Interconnection-queue figures by ISO",
+      "description": "Per-ISO interconnection-queue volumes (active GW vs. a credible-completion estimate) plus a system-wide withdrawal rate. Sourced from LBNL Queued Up 2025.",
+      "path": "queues.json",
+      "format": "json",
+      "mediatype": "application/json",
+      "encoding": "utf-8"
+    },
+    {
+      "name": "siting",
+      "title": "Modeled state-level siting score",
+      "description": "Modeled 0–100 siting attractiveness score per state (keyed by FIPS state code), computed as 0.45·headroom + 0.33·(1−queue_congestion) + 0.22·(1−industrial_price). Inputs: EIA-930+860 (headroom), LBNL (congestion), EIA-861 (price). State/ISO resolution; county-true geometry is Phase 2.",
+      "path": "siting.json",
+      "format": "json",
+      "mediatype": "application/json",
+      "encoding": "utf-8"
+    }
+  ]
+}
