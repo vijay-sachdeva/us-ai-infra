@@ -865,6 +865,10 @@
   .sf-line a:hover, .sf-nav a:hover { text-decoration: underline; }
   .sf-nav { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; font-weight: 600; }
   .sf-cite { font-size: 11px; color: var(--muted); line-height: 1.5; max-width: 760px; }
+  .sf-legend { font-size: 11.5px; color: var(--ink-2); line-height: 1.9; max-width: 880px; }
+  .sf-legend a { color: var(--accent); text-decoration: none; }
+  .sf-legend a:hover { text-decoration: underline; }
+  .sf-legend .cf-tier { margin: 0 2px; vertical-align: middle; }
   /* Accessibility — comfortable tap targets on touch screens */
   @media (max-width: 700px) {
     .chart-tool-btn { min-height: 44px; padding: 0 13px; }
@@ -1472,7 +1476,7 @@
 
         <!-- Card 1b: AI-attributed share of capex (derived from capexFlow infra/non-core lanes) -->
         <div class="stub-card">
-          <h4>AI-attributed share of capex <span class="cf-tier cf-crit">modeled</span></h4>
+          <h4>AI-attributed share of capex <span class="cf-tier cf-crit" title="Modeled — computed/estimated here, not directly reported (transformation).">modeled</span></h4>
           <div class="chart-box short"><canvas id="capexAiShareChart"></canvas></div>
           <div class="note" id="capexAiShareNote"></div>
         </div>
@@ -1649,7 +1653,7 @@
 
       <!-- Full-width: interconnection-queue chart — credible vs. phantom (LBNL feed · annual, fetched in CI) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Generation interconnection queue by ISO — credible vs. phantom <span class="cf-tier cf-warn">analyst</span><span class="feed-stamp" data-feed="queues"></span></h4>
+        <h4>Generation interconnection queue by ISO — credible vs. phantom <span class="cf-tier cf-warn" title="Analyst — third-party research estimate (provenance).">analyst</span><span class="feed-stamp" data-feed="queues"></span></h4>
         <div class="note">The broad <b>generation + storage</b> interconnection queue by ISO — the grid-connection pipeline data-center load also competes within, <b>not</b> a data-center-only load queue · split credible (post-withdrawal) vs. speculative · GW · LBNL Queued Up; the <b>78% is the historical generation-queue withdrawal rate</b>, applied here as a proxy · annual LBNL snapshot, fetched in CI</div>
         <div class="chart-box short"><canvas id="queueChart"></canvas></div>
       </div>
@@ -1794,7 +1798,7 @@
 
         <!-- Card: Grid headroom by balancing authority (EIA feed, fetched in CI) -->
         <div class="stub-card">
-          <h4>Grid headroom by balancing authority <span class="cf-tier cf-warn">derived</span><span class="feed-stamp" data-feed="grid"></span></h4>
+          <h4>Grid headroom by balancing authority <span class="cf-tier cf-warn" title="Derived — computed/estimated here, not directly reported (transformation).">derived</span><span class="feed-stamp" data-feed="grid"></span></h4>
           <div class="note">Installed <b>nameplate</b> capacity minus peak demand, as % spare — a <b>derived proxy</b> for grid slack, <b>not</b> deliverable/accredited headroom (excludes reserve margins, forced outages, transmission limits, seasonal peaks). Inputs are primary (EIA-930 demand + EIA-860 nameplate); the headroom % is the modeled output · fetched in CI (falls back to curated when unavailable)</div>
           <div class="chart-box short"><canvas id="headroomChart"></canvas></div>
         </div>
@@ -3037,6 +3041,15 @@
   };
   const hexA = (h, a) => { const n = parseInt(h.slice(1), 16); return "rgba(" + (n >> 16 & 255) + "," + (n >> 8 & 255) + "," + (n & 255) + "," + a + ")"; };
 
+  // Plain-language tooltip for the source-label pills, mapping the legacy "tier" word to the
+  // open dataset's provenance / transformation / confidence model (see the footer legend).
+  function tierTitle(t) {
+    if (t === "primary") return "Primary — directly reported by a government, filing, or operator source (provenance).";
+    if (t === "analyst") return "Analyst — third-party research estimate (provenance).";
+    if (t === "modeled" || t === "derived") return t.charAt(0).toUpperCase() + t.slice(1) + " — computed/estimated here, not directly reported (transformation).";
+    return String(t);
+  }
+
   // Lollipop ranking chart — thin stem + end dot. The modern replacement for ranked bars.
   // rows: [{label, value, color}]; opts: {fmt, tick, suggestedMax, rightPad, dotR, tooltipCallbacks, annotation, seriesLabel}
   function renderLollipop(canvasId, rows, opts) {
@@ -3858,7 +3871,7 @@
           '<span class="cf-row-amt">' + amt + '</span>' +
           '<span class="cf-row-lbl">' + e.label + '</span>' +
           '<span class="cf-row-src">' + e.src.label +
-          ' <span class="cf-tier cf-' + tierClass(e.src.tier) + '">' + e.src.tier + '</span></span>' +
+          ' <span class="cf-tier cf-' + tierClass(e.src.tier) + '" title="' + tierTitle(e.src.tier) + '">' + e.src.tier + '</span></span>' +
           '</div>';
       }).join("");
     }
@@ -5550,7 +5563,7 @@
       return '<a class="ov-stat" href="'+s.href+'">'
         +'<div class="ov-stat-num">'+numHtml+'</div>'
         +'<div class="ov-stat-hook">'+s.hook+'</div>'
-        +'<span class="cf-tier '+tierCls(s.tier)+'">'+s.tier+'</span></a>';
+        +'<span class="cf-tier '+tierCls(s.tier)+'" title="'+tierTitle(s.tier)+'">'+s.tier+'</span></a>';
     }).join('');
     if(typeof motionObserveAll==='function') motionObserveAll();
   }
@@ -5963,7 +5976,7 @@
   /* Compact, structured summary of all 5 tabs — fed to Claude as context. */
   function dataContext() {
     const L = [];
-    L.push("US AI Infrastructure Monitor — content/news last refreshed " + DATA.lastUpdated + ". Individual figures carry their own as-of dates and source tiers (Primary/Analyst/Modeled), and the public-data grid/power/queue/siting feeds show their own CI-fetch timestamps (retrieval, not necessarily observation date) — do NOT claim every figure is measured as of the refresh date.");
+    L.push("US AI Infrastructure Monitor — content/news last refreshed " + DATA.lastUpdated + ". Individual figures carry their own as-of dates and source labels — provenance (primary = government/filing/operator, or analyst) and whether a figure is modeled/derived — and the public-data grid/power/queue/siting feeds show their own CI-fetch timestamps (retrieval, not necessarily observation date) — do NOT claim every figure is measured as of the refresh date.");
 
     L.push(""); L.push("=== OVERVIEW (headline KPIs) ===");
     DATA.kpis.forEach(k => L.push("- " + k.label + ": " + k.value + " " + k.unit + (k.sub ? " (" + k.sub + ")" : "")));
@@ -6157,8 +6170,11 @@
       <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/api/openapi.yaml" target="_blank" rel="noopener">API</a>
       <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/schemas/projects.schema.json" target="_blank" rel="noopener">Schema</a>
       <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+      <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/CORRECTIONS.md" target="_blank" rel="noopener">Corrections</a>
       <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/CITATION.cff" target="_blank" rel="noopener">Cite</a>
+      <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contribute</a>
     </nav>
+    <div class="sf-legend">How to read the source labels on charts: <span class="cf-tier cf-ok">primary</span> directly reported by a government, filing, or operator source · <span class="cf-tier cf-warn">analyst</span> third-party research estimate · <span class="cf-tier cf-crit">modeled</span> / <span class="cf-tier cf-warn">derived</span> computed here, not directly reported. Per record, the <a href="data/projects.json" target="_blank" rel="noopener">open dataset</a> carries the full <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/data/README.md#provenance-model-per-project-record" target="_blank" rel="noopener">provenance · transformation · confidence</a> model.</div>
     <div class="sf-cite">Suggested citation: “US AI Infrastructure Monitor — data CC BY 4.0, vijay-sachdeva.github.io/us-ai-infra.” Best-available estimates with uncertainty; not investment advice.</div>
   </div>
 </footer>
