@@ -110,17 +110,18 @@ PRs welcome. Note two things specific to this repo:
 
 ## The build step (regenerating the flat/geo exports)
 
-`data/projects.json` is the **canonical** source. `data/projects.csv` (one row per campus) and
-`data/projects.geojson` (geocoded points) are **derived** — never edit them by hand. After any change
-to `projects.json`, regenerate them:
+`data/projects.json` is the **canonical** source. `data/projects.csv` (one row per campus),
+`data/projects.geojson` (geocoded points), and `data/projects.parquet` (columnar) are **derived** —
+never edit them by hand. After any change to `projects.json`, regenerate them:
 
 ```sh
-python scripts/build_projects_exports.py
+python scripts/build_projects_exports.py        # CSV + GeoJSON — stdlib-only
+python scripts/build_parquet.py                 # Parquet — needs: pip install pandas pyarrow
 ```
 
-This is stdlib-only and prints a row/feature count (e.g. `projects.csv: 15 rows · projects.geojson: 14 features` —
-records without coordinates are omitted from the GeoJSON). Commit the regenerated `projects.csv` and
-`projects.geojson` alongside your `projects.json` change so the three stay in sync.
+The first is stdlib-only and prints a row/feature count (e.g. `projects.csv: 15 rows · projects.geojson: 14 features` —
+records without coordinates are omitted from the GeoJSON). Commit the regenerated `projects.csv`,
+`projects.geojson`, and `projects.parquet` alongside your `projects.json` change so they stay in sync.
 
 If you add or remove records, update `record_count` in `projects.json` to match, and bump the
 dataset `version` on schema/record changes (see [`CHANGELOG.md`](CHANGELOG.md) and
@@ -144,7 +145,7 @@ This project is **dual-licensed**, and that affects what you may contribute:
 - [ ] New/changed records validate against `schemas/projects.schema.json`.
 - [ ] Every `sources[].url` was opened; `supports_claim` reflects what the page actually states.
 - [ ] `provenance` / `transformation` / `confidence` set honestly; weak points flagged in `note`.
-- [ ] Ran `python scripts/build_projects_exports.py` and committed the regenerated `projects.csv` + `projects.geojson`.
+- [ ] Ran `python scripts/build_projects_exports.py` (and `build_parquet.py`) and committed the regenerated `projects.csv` + `projects.geojson` + `projects.parquet`.
 - [ ] `record_count` (and `version` if appropriate) updated in `projects.json`.
 - [ ] No hand edits to the CI-generated feeds (`grid` / `power_econ` / `queues` / `siting`) or to `index.html`'s auto-refreshed fields.
 - [ ] A data correction is logged in [`CORRECTIONS.md`](CORRECTIONS.md) and `CHANGELOG.md`, with `revision` bumped.

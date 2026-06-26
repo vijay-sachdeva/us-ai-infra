@@ -37,6 +37,11 @@ paths:
       summary: Project ledger — GeoJSON FeatureCollection (geocoded campuses)
       responses:
         "200": { description: OK, content: { application/geo+json: { schema: { type: object } } } }
+  /data/projects.parquet:
+    get:
+      summary: Project ledger — Apache Parquet (columnar; same columns and row order as the CSV)
+      responses:
+        "200": { description: OK, content: { application/vnd.apache.parquet: { schema: { type: string, format: binary } } } }
   /data/sources.json:
     get:
       summary: Source ledger — every cited label → verified URL + provenance class
