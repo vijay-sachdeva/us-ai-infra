@@ -5,11 +5,11 @@
   "license": "CC-BY-4.0",
   "note": "Every source label cited across the dashboard, mapped to its verified canonical public URL + provenance class (government / filing / operator / trade_press / analyst). Modeled, derived, or composite references carry no external URL (linkable=false) — they point to methodology, not a single document. Analyst sources retain their own terms.",
   "coverage": {
-    "total": 104,
-    "linkable": 75,
-    "withUrl": 75,
+    "total": 108,
+    "linkable": 79,
+    "withUrl": 79,
     "modeledOrVague": 29,
-    "note": "After de-duplicating exact-duplicate labels, 104 distinct labels remain: 75 are linkable with researcher-verified canonical URLs (operator / filing / government / trade_press / analyst), and 29 are modeled or vague composites with no single citeable document. Several authoritative hosts (SEC EDGAR, IEA, LBNL, Oracle, OpenAI) 403 the automated fetcher but their identities were confirmed via search. No URLs were invented for the 29 modeled entries. Ready to ship."
+    "note": "After de-duplicating exact-duplicate labels, 108 distinct labels remain: 79 are linkable with researcher-verified canonical URLs (operator / filing / government / trade_press / analyst), and 29 are modeled or vague composites with no single citeable document. Several authoritative hosts (SEC EDGAR, IEA, LBNL, Oracle, OpenAI) 403 the automated fetcher but their identities were confirmed via search. No URLs were invented for the 29 modeled entries. The four grid-feed forms (EIA-930, EIA-860, EIA-861, LBNL Queued Up) were added so grid charts linkify their cited sources."
   },
   "ledger": [
     {
@@ -766,6 +766,34 @@
       "url": "https://investor.oracle.com/investor-news/news-details/2025/Oracle-Announces-Fiscal-Year-2026-First-Quarter-Financial-Results/default.aspx",
       "publisher": "Oracle Corporation (Investor Relations)",
       "provenance": "operator",
+      "linkable": true
+    },
+    {
+      "label": "EIA-930",
+      "url": "https://www.eia.gov/electricity/gridmonitor/about",
+      "publisher": "U.S. Energy Information Administration — Hourly Electric Grid Monitor (Form EIA-930)",
+      "provenance": "government",
+      "linkable": true
+    },
+    {
+      "label": "EIA-860",
+      "url": "https://www.eia.gov/electricity/data/eia860/",
+      "publisher": "U.S. Energy Information Administration — Form EIA-860 (annual generator nameplate capacity)",
+      "provenance": "government",
+      "linkable": true
+    },
+    {
+      "label": "EIA-861",
+      "url": "https://www.eia.gov/electricity/data/eia861/",
+      "publisher": "U.S. Energy Information Administration — Form EIA-861 (annual electric power industry; retail sales & prices)",
+      "provenance": "government",
+      "linkable": true
+    },
+    {
+      "label": "LBNL Queued Up",
+      "url": "https://emp.lbl.gov/publications/queued-2025-edition-characteristics",
+      "publisher": "Lawrence Berkeley National Laboratory (LBNL), Energy Markets & Policy",
+      "provenance": "analyst",
       "linkable": true
     }
   ]
