@@ -775,6 +775,15 @@
   .ttp-bar.ok   { background: linear-gradient(90deg, #b8e1c4, var(--green)); }
   .ttp-tradeoff { font-size: 11.5px; color: var(--ink-2); line-height: 1.45; margin-top: 5px; }
 
+  /* ---------- Capital: vertical-integration scenarios ---------- */
+  .vi-trend { font-size: 12.5px; color: var(--ink-2); line-height: 1.6; margin: 2px 0 4px; }
+  .vi-lens-head { font-size: 13px; font-weight: 700; color: var(--ink); margin: 12px 0 9px; }
+  .vi-points { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .vi-point { display: flex; gap: 9px; align-items: flex-start; font-size: 12.5px; color: var(--ink-2); line-height: 1.55; }
+  .vi-point .cf-tier { flex: 0 0 auto; margin-top: 1px; }
+  .vi-src { color: var(--muted); white-space: nowrap; }
+  .vi-disclaim { font-size: 11px; color: var(--muted); margin-top: 12px; }
+
   /* ---------- Power-to-revenue yield reconciliation (Capital tab) ---------- */
   .p2r-lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
   .p2r-lane { border: 1px solid var(--line); border-radius: 6px; padding: 9px 11px; background: var(--accent-soft); }
@@ -1585,6 +1594,18 @@
         <div class="cf-legend" id="cfLegend"></div>
         <div class="cf-ledger" id="cfLedger"></div>
         <div class="sc-method" id="cfMethod"></div>
+      </div>
+
+      <!-- Full-width: Vertical integration — custom silicon (NEW storyboard) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Vertical integration — when the buyers build their own chips <span class="cf-tier cf-warn" title="Scenario analysis — sourced but forward-looking. Not investment advice.">scenario</span></h4>
+        <div class="note">OpenAI's Broadcom-built "Jalapeño" joins Google TPU and Amazon Trainium moving inference off merchant NVIDIA GPUs. Good or bad for the industry? Three sourced lenses — <b>market-structure analysis, not investment advice</b>.</div>
+        <div class="map-view-toggle" id="viToggle" role="group" aria-label="Vertical-integration lens" style="margin-top:10px">
+          <button class="map-view-btn active" data-vilens="bull" aria-pressed="true">Bull</button>
+          <button class="map-view-btn" data-vilens="bear" aria-pressed="false">Bear</button>
+          <button class="map-view-btn" data-vilens="wildcard" aria-pressed="false">Wildcard</button>
+        </div>
+        <div id="verticalIntegration" style="margin-top:12px"></div>
       </div>
 
       <!-- Full-width: Power-to-revenue yield reconciliation (NEW) -->
@@ -2697,6 +2718,37 @@
         { from: "Blackstone", to: "Google",     kind: "equity", v: 5,   label: "$5B equity, TPU JV",                     src: { label: "Blackstone / Google TPU JV reporting", tier: "analyst" } }
       ],
       methodology: "Directed counterparty map — edges are hand-curated and individually cited to a filing or press release. Disclosed headline $ shown where one exists; several figures (Broadcom 10GW, Oracle/Microsoft/AMD totals) are vendor/analyst estimates of multi-year commitments, not single reported line items, and are tiered accordingly. Where no public $ exists (CoreWeave 7% stake, AMD warrant, CoreWeave revenue mix) the edge is qualitative. This is descriptive — there is no aggregate circularity score and nothing here is advice."
+    },
+
+    /* ----- Vertical integration / custom silicon (Capital narrative) -----
+       Forward-looking SCENARIO analysis, sourced + tier-tagged. Market-structure
+       framing only — explicitly NOT investment advice. Anchored on the Jalapeño /
+       Broadcom / TPU / Trainium signals already tracked on this page. */
+    verticalIntegration: {
+      trend: "OpenAI's Broadcom-built \"Jalapeño\" inference ASIC (~10 GW, ~$350B est., deploy by end-2026) joins Google's TPU and Amazon's Trainium in moving inference workloads off merchant NVIDIA GPUs — the clearest sign that the biggest buyers are integrating into chip design.",
+      trendSrc: "OpenAI/Broadcom release, Oct 2025",
+      lenses: [
+        { key: "bull", title: "Bull — why it's good for the industry", points: [
+          { tier: "analyst", text: "Breaks the single-vendor allocation bottleneck: the 2023-24 crunch was about getting NVIDIA allocation, not demand — a credible second source relieves it." },
+          { tier: "scenario", text: "Inference ASICs are tuned for $/token, not peak FLOPS; cheaper inference widens access and pulls more workloads onto US infrastructure." },
+          { tier: "analyst", text: "Owning the chip lets a hyperscaler co-design silicon + rack + datacenter — where the real efficiency gains live (FP4 + rack-scale), per the perf-per-watt data." },
+          { tier: "scenario", text: "Supply diversifies off one roadmap, so total compute reaching the market should grow faster than any single vendor could ship." }
+        ]},
+        { key: "bear", title: "Bear — the risks it introduces", points: [
+          { tier: "scenario", text: "Capex lock-in and stranded-asset risk: a custom ASIC is a multi-year bet — if the model architecture shifts, bespoke silicon is harder to repurpose than merchant GPUs." },
+          { tier: "analyst", text: "Ecosystem fragmentation vs the CUDA moat — compiler / software portability across TPU, Trainium and Jalapeño is a real, hidden cost." },
+          { tier: "analyst", text: "It moves the chokepoint rather than removing it: every design still funnels through TSMC CoWoS packaging + HBM (the same constraint the bottleneck timeline shows).", src: "TSMC Q1 2026 earnings call" },
+          { tier: "scenario", text: "Design and demand concentrate in a few hyperscalers; smaller labs and enterprises still rent merchant GPUs and may face the allocation gap alone." },
+          { tier: "scenario", text: "Shifts merchant-GPU economics as inference migrates in-house — a market-structure change for NVIDIA, not a stock call." }
+        ]},
+        { key: "wildcard", title: "Wildcard — what it could disrupt", points: [
+          { tier: "scenario", text: "The merchant-vs-custom tipping point: if in-house ASICs capture most inference, merchant GPUs concentrate on training and the long tail." },
+          { tier: "analyst", text: "Packaging and foundry capacity become the real arbiter regardless of who designs — TSMC CoWoS (~75k -> 130k wafers/mo) decides who actually ships.", src: "TSMC Q1 2026 earnings call" },
+          { tier: "scenario", text: "If inference commoditizes, margin migrates from the chip to power + cooling + the model — whoever owns the megawatts wins (this site's core thesis)." },
+          { tier: "primary", text: "Chips as collateral: Apollo's $35B Broadcom AI XPV lends against the silicon itself — a financialization layer custom-silicon programs deepen.", src: "Apollo / Blackstone press, Jun 2026" }
+        ]}
+      ],
+      note: "Scenarios, not predictions — each lens is sourced and tier-tagged (primary / analyst / scenario). Market-structure analysis; not investment advice."
     },
 
     /* ----- Time-to-power by procurement path (Buildout) -----
@@ -4121,6 +4173,46 @@
     }
   }
 
+  // Capital: vertical-integration scenarios — bull/bear/wildcard toggle over DATA.verticalIntegration.
+  // HTML (no Chart.js); paints sourced points with tier pills; theme-safe (re-called via renderedTabs.clear()).
+  function renderVerticalIntegration(view) {
+    var host = document.getElementById("verticalIntegration");
+    var vi = (DATA && DATA.verticalIntegration) || null;
+    if (!host || !vi || !vi.lenses) return;
+    var R = renderVerticalIntegration;
+    R._view = view || R._view || "bull";
+    var toggle = document.getElementById("viToggle");
+    if (toggle && !toggle._wired) {
+      toggle._wired = true;
+      toggle.querySelectorAll(".map-view-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          if (b.dataset.vilens === R._view) return;
+          renderVerticalIntegration(b.dataset.vilens);
+        });
+      });
+    }
+    // keep the toggle buttons in sync with the active view (also after a theme rebuild)
+    if (toggle) toggle.querySelectorAll(".map-view-btn").forEach(function (x) {
+      var on = x.dataset.vilens === R._view; x.classList.toggle("active", on); x.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    function pill(t) {
+      var cls = (t === "primary") ? "cf-ok" : ((t === "analyst" || t === "scenario") ? "cf-warn" : "cf-crit");
+      var title = (t === "scenario") ? "Scenario — a labeled projection, not a prediction." : ((typeof tierTitle === "function") ? tierTitle(t) : t);
+      return '<span class="cf-tier ' + cls + '" title="' + String(title).replace(/"/g, "&quot;") + '">' + t + "</span>";
+    }
+    var lens = vi.lenses.filter(function (l) { return l.key === R._view; })[0] || vi.lenses[0];
+    var trendSrc = vi.trendSrc ? ' <span class="vi-src">— ' + vi.trendSrc + "</span>" : "";
+    var pts = (lens.points || []).map(function (p) {
+      var src = p.src ? ' <span class="vi-src">— ' + p.src + "</span>" : "";
+      return '<li class="vi-point">' + pill(p.tier) + "<span>" + p.text + src + "</span></li>";
+    }).join("");
+    host.innerHTML =
+      '<div class="vi-trend">' + vi.trend + trendSrc + "</div>" +
+      '<div class="vi-lens-head">' + lens.title + "</div>" +
+      '<ul class="vi-points">' + pts + "</ul>" +
+      (vi.note ? '<div class="vi-disclaim">' + vi.note + "</div>" : "");
+  }
+
   function renderPowerToRevenueYield() {
     if (!$("powerToRevenueYield") || !DATA.powerToRevenueYield) return;
     const d = DATA.powerToRevenueYield;
@@ -5536,7 +5628,7 @@
     }
     const map = linkifySources._map;
     if (!map.length) return;
-    const sel = ".sc-method,.note,.stack-src,.deal-src,.sc-note,.mp-upd,.tab-callout,.funnel-conv,.play-note,.chart-cap,.bn-evidence";
+    const sel = ".sc-method,.note,.stack-src,.deal-src,.sc-note,.mp-upd,.tab-callout,.funnel-conv,.play-note,.chart-cap,.bn-evidence,.vi-trend,.vi-point";
     root.querySelectorAll(sel).forEach(el => {
       if (el.dataset.srcLinked) return;
       el.dataset.srcLinked = "1";
@@ -5894,6 +5986,7 @@
       renderVacancyChart();
       renderOfftakeCoverage();
       renderCircularFinancing("all");
+      renderVerticalIntegration();
       renderPowerToRevenueYield();
     } else if (name === "buildout") {
       renderFunnel();
