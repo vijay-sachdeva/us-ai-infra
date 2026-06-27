@@ -987,6 +987,35 @@
     vertical-align: middle; margin-right: 6px;
   }
 
+  /* ---------- Overview: shifting-bottleneck timeline (interactive) ---------- */
+  #ov-bottleneck { margin-top: 8px; }
+  .bn-rail { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 2px; }
+  .bn-stop { display: flex; flex-direction: column; align-items: center; gap: 5px; background: none; border: none; cursor: pointer; padding: 2px 2px 4px; min-width: 72px; flex: 1 1 72px; }
+  .bn-dot { width: 13px; height: 13px; border-radius: 50%; background: var(--line); box-shadow: 0 0 0 2px var(--line); transition: background .2s, box-shadow .2s, transform .2s; }
+  .bn-stop.done .bn-dot { background: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .bn-stop.active .bn-dot { background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); transform: scale(1.3); }
+  .bn-stop.projected .bn-dot { background: var(--card); box-shadow: 0 0 0 2px #c2710c; }
+  .bn-stop.active.projected .bn-dot { background: #c2710c; box-shadow: 0 0 0 4px rgba(194,113,12,.25); }
+  .bn-period { font-size: 11px; font-weight: 700; color: var(--muted); }
+  .bn-stop.active .bn-period { color: var(--ink); }
+  .bn-stop-title { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.2; max-width: 90px; }
+  .bn-seg { flex: 1 1 8px; height: 2px; background: var(--line); align-self: flex-start; min-width: 6px; margin-top: 27px; }
+  .bn-panel { margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--card); }
+  .bn-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .bn-period-lg { font-size: 15px; font-weight: 800; color: var(--ink); }
+  .bn-layer { font-size: 9px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 2px 6px; font-family: 'Courier New', monospace; }
+  .bn-binding { font-size: 13.5px; font-weight: 700; color: var(--ink); margin-bottom: 6px; line-height: 1.45; }
+  .bn-loosened { font-size: 11.5px; color: var(--muted); margin-bottom: 6px; }
+  .bn-loosened b { color: var(--ink-2); }
+  .bn-detail { font-size: 12.5px; color: var(--ink-2); line-height: 1.6; }
+  .bn-evidence { font-size: 11px; color: var(--muted); margin-top: 9px; }
+  .bn-controls { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  .bn-btn { appearance: none; background: none; border: 1px solid var(--line); color: var(--ink-2); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; min-height: 32px; }
+  .bn-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .bn-btn:disabled { opacity: .4; cursor: default; }
+  .bn-count { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  @media (max-width: 700px) { .bn-btn { min-height: 44px; } .bn-stop { min-width: 56px; } }
+
   /* ---------- Tokens: Journey of a token (interactive) ---------- */
   #tjStage { margin-top: 12px; }
   .tj-rail { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 2px; }
@@ -1448,6 +1477,8 @@
         <button data-h="map"  role="tab" aria-selected="false">Constraint map</button>
       </div>
       <div id="ov-stage" class="ov-chartwrap" style="position:relative"></div>
+      <div class="ov-lens-label">How the bottleneck has shifted</div>
+      <div id="ov-bottleneck"></div>
       <div class="ov-lens-label">This week in US AI infrastructure</div>
       <div id="ov-briefing" class="ov-briefing"></div>
       <div class="ov-lens-label">The build · by the numbers</div>
@@ -1961,7 +1992,7 @@
   // daily-refresh workflow resumes editing this same content. Until then,
   // this is a snapshot that may lag production by a day or two.
   const DATA = {
-    lastUpdated: "2026-06-25",
+    lastUpdated: "2026-06-26",
     topStory: {
       date: "June 24, 2026",
       text: "OpenAI and Broadcom unveiled “Jalapeño,” OpenAI's first custom AI chip — a reticle-sized, LLM-optimized inference ASIC taken from design to tape-out in nine months, with deployment targeted by the end of 2026 as OpenAI moves to build its own silicon and reduce its reliance on Nvidia GPUs.",
@@ -1969,14 +2000,14 @@
       url: "https://www.cnbc.com/2026/06/24/openai-and-broadcom-reveal-jalapeno-first-ai-chip-in-partnership.html"
     },
     feed: [
+      { date: "Jun 2026", tag: "BUILDOUT", text: "Nvidia and AI-cloud operator IREN unveiled a partnership to deploy up to 5 GW of Nvidia-based AI infrastructure, with IREN's Sweetwater, Texas campus named a flagship site for Nvidia's new “DSX” AI-factory reference design.", src: "Data Center Knowledge" },
+      { date: "Jun 2026", tag: "GRID", text: "Prometheus Hyperscale won unanimous conditional-use approval from Uinta County, Wyoming for a 506-acre campus starting at 1.25 GW with a path to 5 GW — powered entirely by an on-site, islanded natural-gas microgrid that draws nothing from the public grid, underscoring the “bring-your-own-power” shift.", src: "Data Center Dynamics / PRNewswire" },
       { date: "Jun 2026", tag: "BUILDOUT", text: "OpenAI and Broadcom unveiled “Jalapeño,” OpenAI's first custom AI chip — an LLM-optimized inference ASIC on a reticle-sized design taken from concept to tape-out in nine months, with initial deployment targeted by the end of 2026 — joining Google's TPU and Amazon's Trainium in pushing hyperscalers toward their own silicon and away from sole reliance on Nvidia.", src: "CNBC / TechCrunch" },
       { date: "Jun 2026", tag: "GRID", text: "PJM — the largest US grid — endorsed a new “Capacity Advisory” emergency procedure (effective immediately after its June 24 reliability-committee vote) to warn of looming capacity shortfalls even outside extreme weather, as AI data-center demand outpaces additions of new generation.", src: "PJM Inside Lines / Bloomberg" },
       { date: "Jun 2026", tag: "BUILDOUT", text: "At Data Center World 2026, engineering leaders from Oracle, Nvidia and Google described facilities shifting from general-purpose IT into tightly integrated AI compute systems — with rack densities that once ran 30–40 kW now reaching hundreds of kilowatts and approaching the megawatt range.", src: "Data Center Knowledge" },
       { date: "Jun 2026", tag: "GRID", text: "Virginia — the largest US data center market — issued revised permitting guidance challenging the long-held assumption that hyperscale backup generators rarely run, signaling tighter air-permit scrutiny as diesel and gas backup fleets scale.", src: "Data Center Knowledge" },
       { date: "Jun 2026", tag: "BUILDOUT", text: "Microsoft and Chevron signed a 20-year power deal for “Project Kilby,” a West Texas data center near Pecos fed by a co-located natural-gas plant ramping to 2.67 GW — one of the largest gas-fired data center projects in the US, with first power targeted for 2028.", src: "TechCrunch / Bloomberg" },
-      { date: "Jun 2026", tag: "BUILDOUT", text: "Nvidia told London Climate Week its newest AI systems run on warm-liquid cooling that needs little extra chilling, with its sustainability chief calling data centers’ water-consumption challenge “largely solved” — even as Google and Amazon defend water use amid local opposition.", src: "Axios" },
-      { date: "Jun 2026", tag: "GRID", text: "A wave of state 'ratepayer protection' laws gained ground — Oklahoma enacted its Data Center Consumer Ratepayer Protection Act and 300+ data-center bills were filed across 30+ states in 2026 — all aimed at making large loads, not households, pay for the grid upgrades their demand requires.", src: "MultiState / Oklahoma Senate" },
-      { date: "Jun 2026", tag: "GRID", text: "FERC issued show-cause orders to all six US grid operators (PJM, MISO, SPP, CAISO, ISO-NE, NYISO), giving them 60 days to justify or reform how data centers connect to the grid, with large loads required to pay their interconnection costs.", src: "Data Center Dynamics" }
+      { date: "Jun 2026", tag: "BUILDOUT", text: "Nvidia told London Climate Week its newest AI systems run on warm-liquid cooling that needs little extra chilling, with its sustainability chief calling data centers’ water-consumption challenge “largely solved” — even as Google and Amazon defend water use amid local opposition.", src: "Axios" }
     ],
     kpis: [
       { label: "US power demand 2026", value: "41", unit: "GW",
@@ -2302,6 +2333,43 @@
           evidence: "HBM3e supply lags demand; SK hynix + Samsung raised HBM3e prices ~20% for 2026; HBM4 ramps for NVIDIA Vera Rubin platform.",
           src: { label: "TrendForce HBM Industry Analysis 1Q26", tier: "analyst" } }
       ]
+    },
+
+    /* ----- Shifting bottleneck timeline (Overview narrative) -----
+       Full-stack arc: the binding constraint as it has moved across BOTH the compute
+       stack (GPU -> memory -> packaging -> architecture) and the physical stack
+       (power -> grid gear -> thermal). Historical eras are grounded in the sourced
+       charts elsewhere on this page; the 2027+ era is an explicitly labeled SCENARIO. */
+    bottleneckTimeline: {
+      eras: [
+        { period: "2023", title: "Compute allocation", layer: "compute", status: "past",
+          binding: "Getting frontier GPUs at all",
+          loosened: "",
+          detail: "Capital and power were ahead of silicon — the gate was NVIDIA H100 allocation, not equipment lead time. Whoever held GPU allocation built; everyone else waited in line.",
+          evidence: [{ label: "NVIDIA datasheets (A100/H100/H200/Blackwell)" }] },
+        { period: "2024", title: "Power & interconnect", layer: "physical", status: "past",
+          binding: "Grid interconnection and firm power",
+          loosened: "Blackwell (GB200) ramp eased raw-silicon scarcity",
+          detail: "As Blackwell shipped, the gate moved to the grid: a ~97 GW interconnection queue formed and the gap between new data-center demand and firm generation committed to it began to open.",
+          evidence: [{ label: "LBNL Queued Up 2025" }, { label: "Goldman Sachs, Wood Mackenzie, EIA + utility IRP filings (modeled)" }] },
+        { period: "2025", title: "Grid hardware + memory", layer: "physical", status: "past",
+          binding: "Long-lead grid gear (HV transformers) and HBM",
+          loosened: "Queue positions secured; attention turns to equipment",
+          detail: "HV transformers stretched to 36-60 months (vs ~24 pre-2020) and gas-turbine slots sold out to 2029-30; in parallel HBM3e supply lagged demand, with prices up ~20% for 2026.",
+          evidence: [{ label: "GE Vernova / Siemens Energy / MHI earnings" }, { label: "TrendForce HBM Industry Analysis 1Q26" }, { label: "CBRE H2 2025" }] },
+        { period: "2026", title: "Packaging, memory & architecture", layer: "compute", status: "now",
+          binding: "Advanced packaging (CoWoS) + HBM4 — and efficiency now comes from architecture, not raw FLOPS/W",
+          loosened: "GB200 NVL racks now generally available",
+          detail: "Silicon is GA; the real throughput gains now come from lower precision (FP4) and rack-scale NVL72 design, while CoWoS roughly doubles (~75k -> 130k wafers/mo) and HBM4 ramps for the Vera Rubin platform.",
+          evidence: [{ label: "TSMC Q1 2026 earnings call" }, { label: "TrendForce HBM Industry Analysis 1Q26" }, { label: "NVIDIA Q1 FY27 CFO commentary (May 2026)" }] },
+        { period: "2027+", title: "Thermal, optics & the algorithm", layer: "both", status: "projected",
+          binding: "Heat rejection at 1 MW+ racks · 1.6T / co-packaged-optics interconnect · transformer-architecture efficiency — with power & grid gear the persistent long pole",
+          loosened: "Silicon, packaging and memory normalize",
+          detail: "Scenario, not a prediction: as the compute substrate eases, the binding constraint likely rotates to thermal/cooling at extreme rack density, the 1.6T -> co-packaged-optics interconnect, and the efficiency of the transformer architecture itself — while HV transformers and firm power remain the multi-year long pole.",
+          evidence: [{ label: "LightCounting April 2026 forecast" }] }
+      ],
+      note: "Full-stack view: the binding constraint moves across both the compute stack (GPU -> memory -> packaging -> architecture) and the physical stack (power -> grid gear -> thermal). Historical eras are grounded in the sourced charts on this site; 2027+ is a labeled scenario.",
+      src: { label: "US AI Infrastructure Monitor synthesis of the cited sources", tier: "modeled" }
     },
 
     /* ----- Substrate bottlenecks (Buildout) — upstream concentration ----- */
@@ -5468,7 +5536,7 @@
     }
     const map = linkifySources._map;
     if (!map.length) return;
-    const sel = ".sc-method,.note,.stack-src,.deal-src,.sc-note,.mp-upd,.tab-callout,.funnel-conv,.play-note,.chart-cap";
+    const sel = ".sc-method,.note,.stack-src,.deal-src,.sc-note,.mp-upd,.tab-callout,.funnel-conv,.play-note,.chart-cap,.bn-evidence";
     root.querySelectorAll(sel).forEach(el => {
       if (el.dataset.srcLinked) return;
       el.dataset.srcLinked = "1";
@@ -5637,6 +5705,59 @@
         +'<div class="ov-brief-text">'+head+'</div>'+(src?'<div class="ov-brief-src">'+src+'</div>':'')+'</div>';
     }).join('');
   }
+  // Overview: shifting-bottleneck timeline — minimal interactive step-rail over DATA.bottleneckTimeline.
+  // HTML/SVG (no Chart.js); rebuilds markup + rewires listeners each call (theme-safe); state on the fn.
+  function renderBottleneckTimeline(){
+    var host=document.getElementById('ov-bottleneck'); if(!host) return;
+    var tl=(DATA&&DATA.bottleneckTimeline)||null;
+    if(!tl||!tl.eras||!tl.eras.length){ host.style.display='none'; return; }
+    host.style.display='';
+    var eras=tl.eras, R=renderBottleneckTimeline;
+    if(typeof R._step!=='number'){ var ni=eras.findIndex(function(e){return e.status==='now';}); R._step=ni<0?0:ni; }
+    var railHtml='<div class="bn-rail" role="tablist" aria-label="Bottleneck eras">';
+    eras.forEach(function(e,i){
+      if(i>0) railHtml+='<div class="bn-seg"></div>';
+      railHtml+='<button class="bn-stop" role="tab" data-i="'+i+'" aria-label="'+e.period+' — '+e.title+'">'
+        +'<span class="bn-dot"></span><span class="bn-period">'+e.period+'</span>'
+        +'<span class="bn-stop-title">'+e.title+'</span></button>';
+    });
+    railHtml+='</div>';
+    host.innerHTML=railHtml
+      +'<div class="bn-panel" id="bnPanel"></div>'
+      +'<div class="bn-controls"><button class="bn-btn" id="bnPrev">&larr; Prev</button>'
+      +'<span class="bn-count" id="bnCount"></span>'
+      +'<button class="bn-btn" id="bnNext">Next &rarr;</button></div>';
+    var stops=host.querySelectorAll('.bn-stop');
+    var panel=host.querySelector('#bnPanel'), countEl=host.querySelector('#bnCount');
+    var prevBtn=host.querySelector('#bnPrev'), nextBtn=host.querySelector('#bnNext');
+    function paint(i){
+      i=Math.max(0,Math.min(eras.length-1,i)); R._step=i;
+      var e=eras[i];
+      for(var si=0; si<stops.length; si++){
+        stops[si].classList.toggle('active',si===i);
+        stops[si].classList.toggle('done',si<i);
+        stops[si].classList.toggle('projected',eras[si].status==='projected');
+        stops[si].setAttribute('aria-selected',si===i?'true':'false');
+      }
+      var layerTag=e.layer==='both'?'compute + physical':e.layer;
+      var ev=(e.evidence||[]).map(function(x){return x.label;}).join(' · ');
+      var pill=e.status==='projected'
+        ? '<span class="cf-tier cf-warn" title="Scenario — a labeled projection, not a prediction.">scenario</span>'
+        : (e.status==='now' ? '<span class="cf-tier cf-ok" title="The binding constraint today.">now</span>' : '');
+      panel.innerHTML='<div class="bn-head"><span class="bn-period-lg">'+e.period+'</span>'
+        +'<span class="bn-layer">'+layerTag+'</span>'+pill+'</div>'
+        +'<div class="bn-binding">Binding: '+e.binding+'</div>'
+        +(e.loosened?'<div class="bn-loosened">What just loosened: <b>'+e.loosened+'</b></div>':'')
+        +'<div class="bn-detail">'+e.detail+'</div>'
+        +(ev?'<div class="bn-evidence">Evidence: '+ev+'</div>':'');
+      countEl.textContent=(i+1)+' / '+eras.length;
+      prevBtn.disabled=(i===0); nextBtn.disabled=(i===eras.length-1);
+    }
+    for(var k=0;k<stops.length;k++){ (function(btn){ btn.addEventListener('click',function(){ paint(+btn.dataset.i); }); })(stops[k]); }
+    prevBtn.addEventListener('click',function(){ paint(R._step-1); });
+    nextBtn.addEventListener('click',function(){ paint(R._step+1); });
+    paint(R._step);
+  }
   function renderTicker(){
     var host=document.getElementById('ov-ticker'); if(!host) return;
     var feed=(DATA&&(DATA.feed||(DATA.topStory?[DATA.topStory]:[])))||[];
@@ -5752,7 +5873,7 @@
     }
     var saved='wall'; try{saved=localStorage.getItem('ov-hero')||'wall';}catch(e){}
     setHero(saved);
-    renderStatBand(); renderBriefing(); renderFeedFreshness();
+    renderStatBand(); renderBottleneckTimeline(); renderBriefing(); renderFeedFreshness();
   }
 
   function renderTab(name) {
