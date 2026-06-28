@@ -6380,7 +6380,15 @@
     try {
       let answer;
       if (CHAT_CONFIG.apiEndpoint) {
-        answer = await liveAnswer(q);
+        try {
+          answer = await liveAnswer(q);
+        } catch (e) {
+          // Live Worker unreachable / erroring (e.g. Anthropic credits, network, CORS) —
+          // degrade gracefully to the local scripted answerer so common questions still
+          // work on this static site; only surface the note below if there's no local match.
+          answer = scriptedAnswer(q);
+          if (!answer) throw e;
+        }
       } else {
         await new Promise(r => setTimeout(r, 280));
         answer = scriptedAnswer(q)
@@ -6391,7 +6399,7 @@
       history.push({ role: "assistant", content: answer });
     } catch (err) {
       typing.remove();
-      addMsg("Sorry — I couldn't reach the assistant right now." + (CHAT_CONFIG.apiEndpoint ? " Check that the Cloudflare Worker is deployed and the API key is set." : ""), "note");
+      addMsg("I couldn't reach the live assistant right now, and that question isn't one of my built-in topics. I can still answer common questions about power, capex, build cost, vacancy, lead times, tokens and rates — try one of those." + (CHAT_CONFIG.apiEndpoint ? " (Live AI answers need the Cloudflare Worker reachable and its Anthropic API key funded.)" : ""), "note");
     }
     busy = false; sendBtn.disabled = false;
     input.focus();
