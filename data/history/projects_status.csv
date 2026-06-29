@@ -1,0 +1,16 @@
+date,id,operator,state,capacity_mw,capacity_type,status,status_as_of
+2026-06-24,aligned-caprock-hale-tx,Aligned Data Centers,TX,540,total_power,construction,2026-04
+2026-06-24,colossus-2-xai-tn,xAI / Solaris,TN,1000,total_power,operational,2026-01
+2026-06-24,delta-forge-1-applied-la,Applied Digital,LA,430,total_power,construction,2026-05
+2026-06-24,duane-arnold-google-nextera-ia,Google / NextEra,IA,615,total_power,planned,2025-10
+2026-06-24,fairwater-msft-wi,Microsoft,WI,500,unspecified,operational,2026-06
+2026-06-24,homer-city-pa,Homer City Redevelopment / Kiewit,PA,4500,total_power,construction,2026-06
+2026-06-24,hyperion-meta-la,Meta,LA,5000,it_critical_load,construction,2026-06
+2026-06-24,iren-childress-tx,IREN,TX,750,total_power,operational,2025-09
+2026-06-24,joule-bettergrid-ut,Joule Capital / Caterpillar,UT,4000,total_power,construction,2026-01
+2026-06-24,lebanon-meta-in,Meta,IN,1000,unspecified,construction,2026-02
+2026-06-24,nebius-pa,Nebius,PA,1200,total_power,planned,2026-05
+2026-06-24,polaris-forge-1-applied-nd,Applied Digital,ND,400,it_critical_load,construction,2026-06
+2026-06-24,prometheus-meta-oh,Meta,OH,1000,total_power,construction,2026-05
+2026-06-24,stargate-abilene-tx,OpenAI / Oracle / Crusoe,TX,1200,total_power,construction,2025-11
+2026-06-24,susquehanna-aws-talen-pa,Amazon (AWS) / Talen,PA,1920,total_power,construction,2025-06

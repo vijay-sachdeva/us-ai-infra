@@ -21,6 +21,7 @@ sources cited per record retain their own terms — each carries a `provenance` 
 | `power_econ.json` | Industrial power price by state (EIA-861) | JSON |
 | `queues.json` | Generation interconnection queue by ISO (LBNL Queued Up + 78% withdrawal haircut) | JSON |
 | `siting.json` | Per-state modeled white-space siting score (0–100) | JSON |
+| `history/*.csv` | **Time-series archive** — each feed's daily snapshots accumulating over time (tidy/long CSV); see [`history/README.md`](history/README.md) | CSV |
 | `datapackage.json` | [Frictionless](https://datapackage.org) Data Package descriptor — Table Schema for `projects.csv` + every resource | JSON |
 | `catalog.jsonld` | [DCAT 3](https://www.w3.org/TR/vocab-dcat-3/) catalog — datasets + distributions metadata for harvesters | JSON-LD |
 

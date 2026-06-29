@@ -47,6 +47,31 @@ paths:
       summary: Source ledger — every cited label → verified URL + provenance class
       responses:
         "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/SourceLedger" } } } }
+  /data/history/grid.csv:
+    get:
+      summary: Time-series — grid headroom by balancing authority, accumulating daily (one row per date × BA)
+      responses:
+        "200": { description: OK, content: { text/csv: { schema: { type: string } } } }
+  /data/history/power_econ.csv:
+    get:
+      summary: Time-series — industrial power price by state, accumulating daily (one row per date × state)
+      responses:
+        "200": { description: OK, content: { text/csv: { schema: { type: string } } } }
+  /data/history/queues.csv:
+    get:
+      summary: Time-series — interconnection queue by ISO, accumulating daily (one row per date × ISO)
+      responses:
+        "200": { description: OK, content: { text/csv: { schema: { type: string } } } }
+  /data/history/siting.csv:
+    get:
+      summary: Time-series — modeled siting score by state, accumulating daily (one row per date × FIPS)
+      responses:
+        "200": { description: OK, content: { text/csv: { schema: { type: string } } } }
+  /data/history/projects_status.csv:
+    get:
+      summary: Time-series — project-ledger status snapshots (one row per ledger version × project)
+      responses:
+        "200": { description: OK, content: { text/csv: { schema: { type: string } } } }
   /data/grid.json:
     get:
       summary: Grid headroom by balancing authority (derived from EIA-930 + EIA-860)

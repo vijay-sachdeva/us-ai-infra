@@ -229,6 +229,51 @@
       "format": "json",
       "mediatype": "application/json",
       "encoding": "utf-8"
+    },
+    {
+      "name": "history-grid",
+      "title": "Time-series — grid headroom by balancing authority (daily)",
+      "description": "Accumulating tidy CSV, one row per date × balancing authority, appended daily from grid.json. `date` = the feed's as-of day; `fetched_at` = full retrieval timestamp.",
+      "path": "history/grid.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8"
+    },
+    {
+      "name": "history-power-econ",
+      "title": "Time-series — industrial power price by state (daily)",
+      "description": "Accumulating tidy CSV, one row per date × state, from power_econ.json. `period` is the observation month (may lag `date`).",
+      "path": "history/power_econ.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8"
+    },
+    {
+      "name": "history-queues",
+      "title": "Time-series — interconnection queue by ISO (daily)",
+      "description": "Accumulating tidy CSV, one row per date × ISO, from queues.json (active vs withdrawal-haircut credible GW).",
+      "path": "history/queues.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8"
+    },
+    {
+      "name": "history-siting",
+      "title": "Time-series — modeled siting score by state (daily)",
+      "description": "Accumulating tidy CSV, one row per date × FIPS state, from siting.json (modeled 0–100 score).",
+      "path": "history/siting.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8"
+    },
+    {
+      "name": "history-projects-status",
+      "title": "Time-series — project-ledger status snapshots",
+      "description": "One row per ledger version × project (status/capacity over time), from projects.json; `date` = the ledger `generated` date.",
+      "path": "history/projects_status.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8"
     }
   ]
 }
