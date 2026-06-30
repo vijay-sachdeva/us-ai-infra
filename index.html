@@ -33,6 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
+<script src="config.js"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -6085,7 +6086,7 @@
   function fromHash() { return parseHash().tab; }   // back-compat for any other caller
 
   /* ----- Theme (dark/light) ----- */
-  const THEME_KEY = "us-dc-theme";
+  const THEME_KEY = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.themeKey) || "us-dc-theme";
   function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
   }
@@ -6246,7 +6247,7 @@
    ============================================================ */
 (function () {
   const CHAT_CONFIG = {
-    apiEndpoint: "https://datacenter-monitor-chat.vijaysachdeva.workers.dev"
+    apiEndpoint: (typeof REGION_CONFIG !== "undefined" ? REGION_CONFIG.chatEndpoint : "https://datacenter-monitor-chat.vijaysachdeva.workers.dev")
   };
 
   const el = (id) => document.getElementById(id);
