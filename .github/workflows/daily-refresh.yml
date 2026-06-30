@@ -2,17 +2,13 @@ name: Daily refresh
 
 on:
   schedule:
-    # GitHub Actions cron is best-effort and is most delayed/dropped at the top
-    # of an hour, so we use an off-:00 minute and run twice. The script early-exits
-    # if it already refreshed today, so the second slot is a free retry, not a
-    # double update. Times are UTC.
     - cron: '17 10 * * *'   # ~06:17 ET — primary
     - cron: '17 16 * * *'   # ~12:17 ET — backstop
-  workflow_dispatch: {}   # Allow manual triggering from the Actions tab
+  workflow_dispatch: {}
 
 permissions:
   contents: write
-  issues: write   # for the failure-notification step
+  issues: write
 
 concurrency:
   group: daily-refresh
@@ -40,30 +36,19 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scripts/daily_refresh.py
 
-      - name: Verify index.html integrity
+      - name: Verify current.json integrity
         run: |
-          lines=$(wc -l < index.html)
-          echo "index.html: $lines lines"
-          if [ "$lines" -lt 4000 ]; then
-            echo "::error::index.html is only $lines lines — looks truncated. Aborting before commit."; exit 1
-          fi
-          if ! tail -2 index.html | grep -q '</html>'; then
-            echo "::error::index.html does not end with </html> — looks truncated. Aborting before commit."; exit 1
-          fi
-          for tag in '</script>' '</body>' '</html>'; do
-            grep -q "$tag" index.html || { echo "::error::index.html missing $tag — aborting before commit."; exit 1; }
-          done
-          echo "index.html integrity OK"
+          python -c "import json; d=json.load(open('data/current.json',encoding='utf-8')); assert d.get('lastUpdated') and d.get('topStory',{}).get('url'), 'current.json missing fields'; print('current.json OK', d['lastUpdated'])"
 
       - name: Commit and push if changed
         run: |
-          if [[ -z "$(git status --porcelain index.html)" ]]; then
-            echo "No changes to index.html — nothing to commit."
+          if [[ -z "$(git status --porcelain data/current.json)" ]]; then
+            echo "No changes to data/current.json — nothing to commit."
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html
+          git add data/current.json
           git commit -m "Daily refresh ($(date -u +'%Y-%m-%d'))"
           git push
 
@@ -79,6 +64,4 @@ jobs:
           fi
           gh issue create \
             --title "⚠️ Daily refresh failing" \
-            --body "The daily-refresh workflow failed on $(date -u +'%Y-%m-%d'). Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-          Close this issue once the refresh is healthy again — it won't be recreated while it stays open."
+            --body "The daily-refresh workflow failed on $(date -u +'%Y-%m-%d'). Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
