@@ -2949,9 +2949,74 @@ const $ = (id) => document.getElementById(id);
     renderStatBand(); renderBottleneckTimeline(); renderBriefing(); renderFeedFreshness();
   }
 
+  /* ----- Capability manifest (region maturity gating) -----
+     REGION_CONFIG.capabilities maps a tab/card key -> bool. A MISSING key defaults to
+     ENABLED (back-compat: the US config sets everything true, so all of this is a no-op
+     there). A key set false does NOT silently hide content — it marks the tab "soon" and
+     renders an honest "not yet tracked" placeholder + a contribute link, so a sparse
+     geography launches lean and fills in as data matures, never faking parity. */
+  const CAPS = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.capabilities) || {};
+  function capEnabled(key) { return CAPS[key] !== false; }   // default-on; only explicit false disables
+
+  function capPlaceholderHTML(label) {
+    const brand = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.brand) || "this region";
+    const repo  = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.repoUrl) || "";
+    const contribute = repo
+      ? (' <a href="' + repo + '/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributions welcome &rarr;</a>')
+      : "";
+    return '<div class="cap-placeholder">' +
+             '<div class="cap-ph-badge">Not yet tracked</div>' +
+             '<h3>' + label + ' &mdash; no verified ' + brand + ' data yet</h3>' +
+             '<p>This dataset is on the roadmap. We only publish a panel once it is backed by a ' +
+             'verifiable public source &mdash; we never fabricate parity with a more mature region.' +
+             contribute + '</p>' +
+           '</div>';
+  }
+  // Inject gating styles once, and only if SOMETHING is disabled (zero footprint for the US).
+  function ensureCapStyles() {
+    if (document.getElementById("cap-styles")) return;
+    if (!Object.keys(CAPS).some(function (k) { return CAPS[k] === false; })) return;
+    const s = document.createElement("style");
+    s.id = "cap-styles";
+    s.textContent =
+      ".tab-soon{opacity:.72}" +
+      ".tab-soon::after{content:'soon';font-size:.62em;font-weight:600;letter-spacing:.04em;" +
+        "text-transform:uppercase;margin-left:.4em;padding:.1em .4em;border-radius:4px;" +
+        "background:var(--surface-2,#23262e);color:var(--muted,#8b93a3);vertical-align:middle}" +
+      ".cap-placeholder{max-width:640px;margin:2.5rem auto;padding:1.75rem;text-align:center;" +
+        "border:1px dashed var(--border,#2a2f3a);border-radius:12px;background:var(--surface,#16181d)}" +
+      ".cap-ph-badge{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.06em;" +
+        "text-transform:uppercase;color:var(--muted,#8b93a3);border:1px solid var(--border,#2a2f3a);" +
+        "border-radius:999px;padding:.2rem .7rem;margin-bottom:.9rem}" +
+      ".cap-placeholder h3{margin:.2rem 0 .6rem;font-size:1.05rem}" +
+      ".cap-placeholder p{color:var(--muted,#8b93a3);font-size:.92rem;line-height:1.5;margin:0}";
+    document.head.appendChild(s);
+  }
+  // Gate the nav + any [data-capability] cards once, at startup.
+  function gateCapabilities() {
+    ensureCapStyles();
+    document.querySelectorAll('nav.tabs a[data-tab]').forEach(function (a) {
+      if (!capEnabled(a.dataset.tab)) a.classList.add('tab-soon');     // kept clickable -> shows placeholder
+    });
+    document.querySelectorAll('[data-capability]').forEach(function (el) {
+      if (!capEnabled(el.dataset.capability)) {
+        el.innerHTML = capPlaceholderHTML(el.dataset.capLabel || el.dataset.capability);
+        el.classList.add('cap-gated');
+      }
+    });
+  }
+
   function renderTab(name) {
     if (renderedTabs.has(name)) return;
     renderedTabs.add(name);
+    if (!capEnabled(name)) {                                            // disabled tab -> honest placeholder, skip US render fns
+      const sec = document.querySelector('section.tab-content[data-tab="' + name + '"]');
+      if (sec && !sec.querySelector('.cap-placeholder')) {
+        const label = sec.getAttribute('data-tab-label') || (name.charAt(0).toUpperCase() + name.slice(1));
+        sec.innerHTML = capPlaceholderHTML(label);
+      }
+      return;
+    }
     if (name === "overview") {
       initOverview();
     } else if (name === "capital") {
@@ -3018,7 +3083,7 @@ const $ = (id) => document.getElementById(id);
       a.classList.toggle('active', a.dataset.tab === name);
     });
     if (!anchor) window.scrollTo({ top: 0, behavior: 'instant' });
-    document.title = 'US AI Infrastructure Monitor · ' + name;
+    document.title = ((typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.brand) || 'US AI Infrastructure Monitor') + ' · ' + name;
     renderTab(name);
     if (typeof enhanceCharts === "function") enhanceCharts(name);   // attach data-table / export / link tools
     motionObserveAll();         // catch any cards/numbers newly rendered for this tab
@@ -3151,6 +3216,7 @@ const $ = (id) => document.getElementById(id);
     });
   }
 
+  gateCapabilities();           // mark disabled tabs "soon" + placeholder gated cards (no-op when all caps on)
   (function () { const h = parseHash(); showTab(h.tab, h.anchor); })();   // initial activation also renders the active tab
   motionObserveAll();           // wire up fade-ins + KPI counters
   hydrate();                    // pull live public-data feeds (data/*.json); additive + graceful
