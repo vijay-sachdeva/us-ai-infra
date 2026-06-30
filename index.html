@@ -5616,7 +5616,7 @@
   }
 
   async function hydrate() {
-    const feeds = ["grid", "power_econ", "queues", "siting", "projects", "sources"];
+    const feeds = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.feeds) || ["grid", "power_econ", "queues", "siting", "projects", "sources"];
     let got;
     try {
       got = await Promise.all(feeds.map(f =>
@@ -5706,7 +5706,7 @@
 
   // Surface each live feed's own as-of timestamp (grid/power_econ/queues/siting each carry lastUpdated).
   function renderFeedFreshness() {
-    const META = { grid: "EIA-930/860", power_econ: "EIA-861 prices", queues: "LBNL queue", siting: "Modeled siting" };
+    const META = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.feedMeta) || { grid: "EIA-930/860", power_econ: "EIA-861 prices", queues: "LBNL queue", siting: "Modeled siting" };
     const fmt = iso => { try { const d = new Date(iso); return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) + " " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" }) + " UTC"; } catch (_) { return String(iso); } };
     const ageDays = iso => { try { return (Date.now() - new Date(iso).getTime()) / 864e5; } catch (_) { return 99; } };
     [].forEach.call(document.querySelectorAll(".feed-stamp[data-feed]"), el => {
@@ -6134,24 +6134,8 @@
     if (btn) btn.addEventListener("click", toggleTheme);
   })();
 
-  /* ----- Brand monograms (operator logos) ----- */
-  const BRAND_DEFS = {
-    // Tickers
-    AMZN: { brand: "aws",       letter: "a" },
-    MSFT: { brand: "microsoft", letter: "M" },
-    GOOGL:{ brand: "google",    letter: "G" },
-    META: { brand: "meta",      letter: "M" },
-    ORCL: { brand: "oracle",    letter: "O" },
-    CRWV: { brand: "coreweave", letter: "C" },
-    NBIS: { brand: "nebius",    letter: "N" },
-    APLD: { brand: "applied",   letter: "A" },
-    NVDA: { brand: "nvidia",    letter: "N" },
-    // Company-name keys
-    "Google":    { brand: "google",    letter: "G" },
-    "Microsoft": { brand: "microsoft", letter: "M" },
-    "Meta":      { brand: "meta",      letter: "M" },
-    "Crusoe":    { brand: "other",     letter: "C" }
-  };
+  /* ----- Brand monograms (operator logos) — sourced from REGION_CONFIG.operators ----- */
+  const BRAND_DEFS = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.operators) ? REGION_CONFIG.operators : {};
   function brandFor(key) {
     return BRAND_DEFS[key] || { brand: "other", letter: String(key).charAt(0) };
   }
