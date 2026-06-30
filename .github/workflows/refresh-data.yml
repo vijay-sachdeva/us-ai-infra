@@ -29,6 +29,8 @@ jobs:
           python fetch_power_econ.py
           python build_queues.py
           python build_siting.py
+      - name: Archive history (append today's snapshot)
+        run: python scripts/archive_history.py
       - name: Commit data
         run: |
           git config user.name  "data-bot"
