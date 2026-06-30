@@ -3037,13 +3037,14 @@
 
   const $ = (id) => document.getElementById(id);
 
-  // Populate "Updated" date in the top banner from DATA.lastUpdated
-  (function () {
+  // Populate "Updated" date in the top banner from DATA.lastUpdated (named so hydrate() can re-call it).
+  function renderUpdatedStamp() {
     if (!DATA || !DATA.lastUpdated) return;
     const d = new Date(DATA.lastUpdated + "T00:00:00");
     const formatted = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
     document.querySelectorAll(".tb-date").forEach(el => el.textContent = formatted);
-  })();
+  }
+  renderUpdatedStamp();
 
   function renderTopStory() {
     if (!$("topStory") || !DATA.topStory) return;
@@ -5606,6 +5607,20 @@
         fetch("data/" + f + ".json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null)));
     } catch (_) { return; }                            // network down -> keep curated DATA
     feeds.forEach((f, i) => { if (got[i]) DATA[f] = got[i]; });   // missing feed -> keep curated DATA
+    // A0: current.json is the live headline/news layer (lastUpdated/topStory/feed/kpis), edited by
+    // daily_refresh.py. Overlay it onto the inline DATA (the offline fallback) and re-render the
+    // surfaces that read those fields. Additive + graceful: a missing/failed fetch keeps the inline copy.
+    try {
+      const cur = await fetch("data/current.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null);
+      if (cur && typeof cur === "object") {
+        ["lastUpdated", "topStory", "feed", "kpis"].forEach(k => { if (cur[k] != null) DATA[k] = cur[k]; });
+        renderUpdatedStamp();
+        if (typeof renderTopStory === "function") renderTopStory();
+        if (typeof renderKpis === "function") renderKpis();
+        if (typeof renderStatBand === "function") renderStatBand();
+        if (typeof renderBriefing === "function") renderBriefing();
+      }
+    } catch (_) {}
     const vis = el => !!(el && el.offsetParent !== null);          // only paint into a visible canvas
     if (DATA.grid && vis($("headroomChart")))  { renderHeadroomChart._done = false; renderHeadroomChart(); }
     if (DATA.queues && vis($("queueChart")))    { renderQueueChart._done = false; renderQueueChart(); }
