@@ -21,5 +21,26 @@ const REGION_CONFIG = {
   capabilities: {
     overview: true, capital: true, buildout: true, grid: true, tokens: true,
     map: true, projects: true, gridFeeds: true, queues: true, rateImpacts: true
+  },
+
+  // Live public-data feeds this region publishes (data/<feed>.json) + their short source labels.
+  feeds: ["grid", "power_econ", "queues", "siting", "projects", "sources"],
+  feedMeta: { grid: "EIA-930/860", power_econ: "EIA-861 prices", queues: "LBNL queue", siting: "Modeled siting" },
+
+  // Operator monograms: ticker / company-name -> { brand, letter }. Region-specific operators.
+  operators: {
+    AMZN: { brand: "aws",       letter: "a" },
+    MSFT: { brand: "microsoft", letter: "M" },
+    GOOGL:{ brand: "google",    letter: "G" },
+    META: { brand: "meta",      letter: "M" },
+    ORCL: { brand: "oracle",    letter: "O" },
+    CRWV: { brand: "coreweave", letter: "C" },
+    NBIS: { brand: "nebius",    letter: "N" },
+    APLD: { brand: "applied",   letter: "A" },
+    NVDA: { brand: "nvidia",    letter: "N" },
+    "Google":    { brand: "google",    letter: "G" },
+    "Microsoft": { brand: "microsoft", letter: "M" },
+    "Meta":      { brand: "meta",      letter: "M" },
+    "Crusoe":    { brand: "other",     letter: "C" }
   }
 };
