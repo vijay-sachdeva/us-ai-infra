@@ -2039,6 +2039,12 @@ const $ = (id) => document.getElementById(id);
     // fall back to the inline seed only if the feed hasn't loaded (offline / fetch fail).
     const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
     let rows, totalMW, count, foot;
+    // Region-aware bits (default to US behaviour): the geo column label ("State" vs "Country")
+    // and the repo that hosts the schema/licence, so a non-US ledger links to its own repo.
+    const GEO = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.geoLabel) || "State";
+    const REPO = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.repoUrl) || "https://github.com/vijay-sachdeva/us-ai-infra";
+    // "disclosed" only when some records have no MW (capex-only) — keeps the US footer identical.
+    const anyNullMw = pj ? pj.some(p => p.capacity_mw == null) : false;
     if (pj) {
       const conf = { high: "ok", medium: "warn", low: "crit" };
       const sorted = [...pj].sort((a, b) => (b.capacity_mw || 0) - (a.capacity_mw || 0));
@@ -2059,7 +2065,7 @@ const $ = (id) => document.getElementById(id);
         <td class="mp-op">${p.operator}</td>
         <td>${p.state}</td>
         <td>${pw}</td>
-        <td class="mp-mw" title="${mwT}">${(p.capacity_mw || 0).toLocaleString()}</td>
+        <td class="mp-mw" title="${mwT}">${p.capacity_mw != null ? p.capacity_mw.toLocaleString() : "&mdash;"}</td>
         <td><span class="mp-status ${p.status}">${p.status}</span></td>
       </tr>`;
       }).join("");
@@ -2086,14 +2092,14 @@ const $ = (id) => document.getElementById(id);
     $("megaProjectsList").innerHTML = `
       <table class="mp-table">
         <thead>
-          <tr><th>Project</th><th>Operator</th><th>State</th><th>Power</th><th style="text-align:right">MW</th><th>Status</th></tr>
+          <tr><th>Project</th><th>Operator</th><th>${GEO}</th><th>Power</th><th style="text-align:right">MW</th><th>Status</th></tr>
         </thead>
         <tbody>${rows}</tbody>
         <tfoot>
-          <tr><td colspan="4">${foot}</td><td class="mp-mw">${totalMW.toLocaleString()}</td><td>≈ ${(totalMW / 1000).toFixed(1)} GW</td></tr>
+          <tr><td colspan="4">${foot}</td><td class="mp-mw">${totalMW ? totalMW.toLocaleString() : "&mdash;"}</td><td>${totalMW ? "≈ " + (totalMW / 1000).toFixed(1) + " GW" + (anyNullMw ? " disclosed" : "") : "MW mostly undisclosed"}</td></tr>
         </tfoot>
       </table>
-      ${pj ? '<div class="mp-data-actions">Open data: <a href="data/projects.json" target="_blank" rel="noopener">download JSON ↓</a> · <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/schemas/projects.schema.json" target="_blank" rel="noopener">schema</a> · licensed <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/data/LICENSE" target="_blank" rel="noopener">CC BY 4.0</a> · sources verified per record</div>' : ''}`;
+      ${pj ? '<div class="mp-data-actions">Open data: <a href="data/projects.json" target="_blank" rel="noopener">download JSON ↓</a> · <a href="' + REPO + '/blob/main/schemas/projects.schema.json" target="_blank" rel="noopener">schema</a> · licensed <a href="' + REPO + '/blob/main/data/LICENSE" target="_blank" rel="noopener">CC BY 4.0</a> · sources verified per record</div>' : ''}`;
   }
 
   function renderBuildabilityMovements() {
