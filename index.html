@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260630"></script>
+<script src="config.js?v=20260630b"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -589,6 +589,13 @@
   /* Named pipeline projects table */
   /* let the wide builds table scroll inside its card on mobile instead of pushing the page */
   #megaProjectsList { overflow-x: auto; }
+  /* dense D3 diagrams (capex Sankey, circular financing) keep a readable min-width and
+     scroll horizontally on phones rather than compressing into an unreadable tangle */
+  .chart-hscroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+  .hscroll-hint { display: none; }
+  @media (max-width: 700px) {
+    .hscroll-hint { display: block; font-size: 11px; color: var(--muted); text-align: center; margin-top: 6px; font-style: italic; }
+  }
   .mp-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; min-width: 520px; }
   .mp-table th {
     text-align: left; padding: 8px 10px; background: var(--bg);
@@ -1565,7 +1572,8 @@
           <button class="map-view-btn"        data-cview="Oracle"    type="button">Oracle</button>
           <button class="map-view-btn"        data-cview="CoreWeave" type="button">CoreWeave</button>
         </div>
-        <div id="capexSankey" style="margin-top:10px"></div>
+        <div id="capexSankey" class="chart-hscroll" style="margin-top:10px"></div>
+        <div class="hscroll-hint">swipe the chart to explore →</div>
         <div class="sc-method" id="capexMethod"></div>
       </div>
 
@@ -1592,7 +1600,8 @@
           <button class="map-view-btn"        data-cfview="vendor" type="button">Compute</button>
           <button class="map-view-btn"        data-cfview="debt"   type="button">GPU-backed debt</button>
         </div>
-        <div id="circularFinancing" style="margin-top:8px"></div>
+        <div id="circularFinancing" class="chart-hscroll" style="margin-top:8px"></div>
+        <div class="hscroll-hint">swipe the chart to explore →</div>
         <div class="cf-legend" id="cfLegend"></div>
         <div class="cf-ledger" id="cfLedger"></div>
         <div class="sc-method" id="cfMethod"></div>
@@ -3040,7 +3049,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260630"></script>
+<script src="app.js?v=20260630b"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

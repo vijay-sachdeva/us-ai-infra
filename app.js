@@ -496,12 +496,15 @@ const $ = (id) => document.getElementById(id);
     }
 
     host.querySelectorAll("svg").forEach(s => s.remove());
-    const W = host.clientWidth || 760;
+    // Keep the flow legible on phones: lay out at >=MINW and let the host scroll horizontally
+    // (labels sit on both sides of the middle column, so it can't compress below this).
+    const MINW = 680;
+    const W = Math.max(host.clientWidth || 760, MINW);
     const H = view === "all" ? 480 : 360;
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     const txt = isDark ? "#e2e8f0" : "#1e293b", muted = isDark ? "#94a3b8" : "#64748b";
     const svg = d3.select(host).append("svg")
-      .attr("viewBox", "0 0 " + W + " " + H).style("width", "100%").style("height", "auto")
+      .attr("viewBox", "0 0 " + W + " " + H).style("width", "100%").style("height", "auto").style("min-width", MINW + "px")
       .attr("font-family", "Inter, sans-serif");
     const sankey = d3.sankey().nodeWidth(20).nodePadding(view === "all" ? 12 : 26)
       .extent([[4, 46], [W - 220, H - 14]]);
@@ -920,13 +923,15 @@ const $ = (id) => document.getElementById(id);
     const present = cf.nodes.slice().sort((a,b) => order.indexOf(a.id) - order.indexOf(b.id));
 
     host.querySelectorAll("svg").forEach(s => s.remove());
-    const W = host.clientWidth || 760;
+    // Keep the 13-node ring + labels from colliding on phones: lay out at >=MINW and scroll.
+    const MINW = 620;
+    const W = Math.max(host.clientWidth || 760, MINW);
     const H = 460;
     const cx = W / 2, cy = H / 2 + 6;
     const R = Math.min(W, H) / 2 - 92;
 
     const svg = d3.select(host).append("svg")
-      .attr("viewBox", "0 0 " + W + " " + H).style("width", "100%").style("height", "auto")
+      .attr("viewBox", "0 0 " + W + " " + H).style("width", "100%").style("height", "auto").style("min-width", MINW + "px")
       .attr("font-family", "Inter, sans-serif");
 
     const N = present.length;
