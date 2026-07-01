@@ -3056,6 +3056,27 @@ const $ = (id) => document.getElementById(id);
     }
   }
 
+  // Resize every chart that's currently in a visible tab. A chart created the instant a tab
+  // un-hides can size to a not-yet-reflowed (0-width) container and stay blank until reload.
+  function resizeVisibleCharts() {
+    if (typeof _charts === "undefined") return;
+    for (var id in _charts) {
+      var c = _charts[id];
+      if (c && c.canvas && c.canvas.offsetParent !== null && typeof c.resize === "function") {
+        try { c.resize(); } catch (_) {}
+      }
+    }
+  }
+  // rAF alone is fragile here: a single frame can predate layout, and rAF is PAUSED while the
+  // browser tab is backgrounded (so a chart rendered in a background tab stays 0-width). Retry
+  // on timers too — both rAF and timers resume when the tab regains focus — so a chart can't get
+  // stranded blank.
+  function scheduleChartResize() {
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(resizeVisibleCharts);
+    setTimeout(resizeVisibleCharts, 160);
+    setTimeout(resizeVisibleCharts, 500);
+  }
+
   function showTab(name, anchor) {
     if (!name) name = 'overview';
     document.querySelectorAll('section.tab-content').forEach(function (s) {
@@ -3070,19 +3091,8 @@ const $ = (id) => document.getElementById(id);
     if (typeof enhanceCharts === "function") enhanceCharts(name);   // attach data-table / export / link tools
     motionObserveAll();         // catch any cards/numbers newly rendered for this tab
     if (typeof linkifySources === "function") linkifySources(document.querySelector("section.tab-content.active"));
-    // A chart created the instant a tab un-hides can size to a not-yet-reflowed (0-width)
-    // container and stay blank until reload. After layout settles, resize the now-visible
-    // charts so they repaint at the correct size.
-    if (typeof _charts !== "undefined" && typeof requestAnimationFrame === "function") {
-      requestAnimationFrame(function () {
-        for (var id in _charts) {
-          var c = _charts[id];
-          if (c && c.canvas && c.canvas.offsetParent !== null && typeof c.resize === "function") {
-            try { c.resize(); } catch (_) {}
-          }
-        }
-      });
-    }
+    // Repaint the now-visible charts after layout settles (see scheduleChartResize).
+    scheduleChartResize();
     if (anchor && typeof scrollToChartAnchor === "function") scrollToChartAnchor(anchor);
   }
   // Legacy hash aliases — anyone with a /#investor bookmark from earlier WIP
@@ -3203,3 +3213,6 @@ const $ = (id) => document.getElementById(id);
   motionObserveAll();           // wire up fade-ins + KPI counters
   hydrate();                    // pull live public-data feeds (data/*.json); additive + graceful
   window.addEventListener('hashchange', function () { const h = parseHash(); showTab(h.tab, h.anchor); });
+  // If the page rendered/updated while backgrounded (rAF + timers throttled), charts can be
+  // left at 0-width; repaint the visible ones once the tab regains focus.
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) scheduleChartResize(); });
