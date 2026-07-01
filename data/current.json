@@ -1,17 +1,29 @@
 {
   "lastUpdated": "2026-07-01",
   "topStory": {
-    "date": "June 28, 2026",
-    "text": "CoreWeave disclosed a $99 billion contract backlog tied to long-term AI infrastructure commitments from Nvidia, Meta, Microsoft, and OpenAI, underscoring the AI cloud provider's central role in supplying GPU capacity to hyperscalers and frontier labs as the companies race to secure compute for next-generation models.",
-    "src": "Yahoo Finance",
-    "url": "https://finance.yahoo.com/technology/ai/articles/coreweave-crwv-secures-99-billion-220613159.html"
+    "date": "June 30, 2026",
+    "text": "PJM — the largest US grid — opened bidding June 30 in its 2028/2029 capacity auction (bids close July 7, results July 14), held under an extended ~$325/MW-day price cap and $175 floor. Data-center demand has been the primary driver of PJM's recent record capacity clearing prices, making the outcome a bellwether for how AI load reprices the grid.",
+    "src": "PJM Inside Lines",
+    "url": "https://insidelines.pjm.com/pjm-capacity-auction-for-2028-2029-delivery-year-opens/"
   },
   "feed": [
     {
       "date": "Jun 2026",
-      "tag": "GRID",
-      "text": "PJM — the largest US grid — is set to open its three-year-forward 2028/2029 Base Residual Auction on June 30, the first major capacity auction run amid debate over whether to extend the temporary price collar used in prior auctions; with data-center load having driven the last auction’s revenue up 82% to $16.1B, the clearing price is watched as a bellwether for how AI demand reprices grid capacity.",
-      "src": "Utility Dive / PJM"
+      "tag": "CAPITAL",
+      "text": "CoreWeave disclosed a $99B contract backlog tied to long-term AI-infrastructure commitments from Nvidia, Meta, Microsoft and OpenAI — underscoring the AI cloud's central role in supplying GPU capacity as hyperscalers and labs race to secure compute.",
+      "src": "Yahoo Finance"
+    },
+    {
+      "date": "Jun 2026",
+      "tag": "CAPITAL",
+      "text": "KKR launched Helix Digital Infrastructure — a new hyperscale data-center developer with $10B+ committed from KKR, Nvidia, Vistra and the Kuwait Investment Authority, led by ex-AWS chief Adam Selipsky — pairing campuses with integrated power to attack the power bottleneck.",
+      "src": "KKR / Data Center Dynamics"
+    },
+    {
+      "date": "Jun 2026",
+      "tag": "CAPITAL",
+      "text": "Applied Digital signed a 210 MW, 15-year take-or-pay lease at its Delta Forge 2 AI-factory campus with a US investment-grade hyperscaler — about $5.2B of base-term contracted revenue, its fifth such campus, lifting its contracted portfolio to ~$36B.",
+      "src": "Applied Digital / GlobeNewswire"
     },
     {
       "date": "Jun 2026",
