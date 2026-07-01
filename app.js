@@ -2589,7 +2589,6 @@ const $ = (id) => document.getElementById(id);
         renderUpdatedStamp();
         if (typeof renderTopStory === "function") renderTopStory();
         if (typeof renderKpis === "function") renderKpis();
-        if (typeof renderStatBand === "function") renderStatBand();
         if (typeof renderBriefing === "function") renderBriefing();
       }
     } catch (_) {}
@@ -2737,37 +2736,6 @@ const $ = (id) => document.getElementById(id);
       scrub.setAttribute('x1',x);scrub.setAttribute('x2',x);scrub.style.opacity=1;
       rd.style.opacity=1;rd.style.left=(x/680*100)+'%';rd.textContent=years[i]+' · gap '+Math.round(dem[i]-gen[i])+' GW';}catch(_){}});
     svg.addEventListener('mouseleave',function(){scrub.style.opacity=0;rd.style.opacity=0;});
-  }
-
-  function renderStatBand(){
-    var host=document.getElementById('ov-statband'); if(!host) return;
-    function kpi(re){ return (((DATA&&DATA.kpis)||[]).filter(function(k){return re.test(k.label);})[0])||null; }
-    var capex=kpi(/capex/i), vac=kpi(/vacancy/i);
-    var pl=(DATA&&DATA.phantomLoad)||{}, queued=pl.queuedGW||97;
-    var buildable=(((pl.stages||[]).filter(function(s){return s.key==='buildable';})[0])||{}).gw||24;
-    var dt=DATA&&DATA.disclosedTokenTotals, rows=dt&&dt.rows;
-    var tok=((rows&&rows[rows.length-1].monthly)||'3.2 Q').replace(/\s+/g,'');
-    var lead=(((DATA&&DATA.equipmentLeadTimes&&DATA.equipmentLeadTimes.items)||[])[0]||{}).range||'36–60 mo';
-    var stats=[
-      {num:(capex&&capex.value)||'$848',unit:(capex&&capex.unit)||'B',hook:'2026 hyperscaler capex',tier:'analyst',href:'#capital'},
-      {num:String(queued),unit:'GW',hook:'queued · ~'+buildable+' GW truly buildable',tier:'analyst',href:'#buildout'},
-      {num:tok,unit:'',hook:'Google tokens / mo · 18× billed',tier:'primary',href:'#tokens'},
-      {num:lead,unit:'',hook:'HV transformer lead time',tier:'analyst',href:'#buildout'},
-      {num:(vac&&vac.value)||'1.4',unit:(vac&&vac.unit)||'%',hook:'primary-market vacancy · record low',tier:'analyst',href:'#capital'}
-    ];
-    var tierCls=function(t){return t==='primary'?'cf-ok':(t==='analyst'?'cf-warn':'cf-crit');};
-    var isNum=function(v){return /^\$?\d+\.?\d*$/.test(v);};
-    host.innerHTML=stats.map(function(s){
-      var numHtml;
-      if(isNum(s.num)){ var pfx=String(s.num).charAt(0)==='$'?'$':''; numHtml='<span class="num" data-target="'+s.num+'">'+pfx+'0</span>'; }
-      else { numHtml=s.num; }
-      if(s.unit) numHtml+='<span class="unit">'+s.unit+'</span>';
-      return '<a class="ov-stat" href="'+s.href+'">'
-        +'<div class="ov-stat-num">'+numHtml+'</div>'
-        +'<div class="ov-stat-hook">'+s.hook+'</div>'
-        +'<span class="cf-tier '+tierCls(s.tier)+'" title="'+tierTitle(s.tier)+'">'+s.tier+'</span></a>';
-    }).join('');
-    if(typeof motionObserveAll==='function') motionObserveAll();
   }
 
   // "This week" editorial briefing — top developments from the live feed, source-linked.
@@ -2952,7 +2920,7 @@ const $ = (id) => document.getElementById(id);
     }
     var saved='wall'; try{saved=localStorage.getItem('ov-hero')||'wall';}catch(e){}
     setHero(saved);
-    renderStatBand(); renderBottleneckTimeline(); renderBriefing(); renderFeedFreshness();
+    renderBottleneckTimeline(); renderBriefing(); renderFeedFreshness();
   }
 
   /* ----- Capability manifest (region maturity gating) -----

@@ -1397,15 +1397,8 @@
     background:#11161b;border:1px solid #2a3543;border-radius:8px;padding:7px 10px;font-size:12px;color:#e6edf3;white-space:nowrap;z-index:5;max-width:220px}
   .ov-tip b{color:#e6edf3;font-weight:500} .ov-tip .s{display:block;color:#8b97a3;margin-top:2px;white-space:normal}
   .ov-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-  .ov-statband{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:.3rem 0 0}
-  .ov-stat{display:flex;flex-direction:column;gap:4px;padding:14px 15px;border:1px solid var(--ov-line);border-radius:10px;text-decoration:none;background:rgba(255,255,255,.02);transition:border-color .15s,transform .15s}
-  .ov-stat:hover{border-color:var(--ov-demand);transform:translateY(-2px)}
-  .ov-stat-num{font-size:29px;font-weight:700;letter-spacing:-.02em;color:var(--ov-ink);line-height:1.05}
-  .ov-stat-num .unit{font-size:14px;font-weight:600;color:var(--ov-muted);margin-left:2px}
   /* Unified figures — align digits across all headline numbers (modern data-viz polish) */
-  .ov-stat-num, .kpi .value, .funnel-stage .fs-num { font-variant-numeric: tabular-nums; }
-  .ov-stat-hook{font-size:12px;color:var(--ov-muted);line-height:1.35}
-  .ov-stat .cf-tier{align-self:flex-start;margin-top:3px}
+  .kpi .value, .funnel-stage .fs-num { font-variant-numeric: tabular-nums; }
   .ov-lens-stat{font-size:12px;color:var(--ov-ink);opacity:.82;line-height:1.35}
   /* Front-page causal strip (Tokens → Capital → Buildout → Grid) + bottleneck-timeline framing */
   .ov-lenses.ov-causal{grid-template-columns:repeat(4,1fr)}
@@ -1413,8 +1406,6 @@
   .ov-bn-framing{font-size:12px;color:var(--ov-muted);line-height:1.55;margin:.1rem 0 .7rem;max-width:780px}
   @media(max-width:760px){.ov-lenses.ov-causal{grid-template-columns:1fr 1fr}}
   @media(max-width:520px){.ov-lenses.ov-causal{grid-template-columns:1fr}}
-  @media(max-width:880px){.ov-statband{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:520px){.ov-statband{grid-template-columns:1fr}}
   @media(max-width:640px){.ov-h1{font-size:24px}.ov-lenses{grid-template-columns:1fr}.ov-gauge .lab{width:120px}}
   @media(prefers-reduced-motion:reduce){.ov-gauge .fill{transition:none}}
 </style>
@@ -1506,8 +1497,6 @@
       </div>
       <div class="ov-lens-label">This week in US AI infrastructure</div>
       <div id="ov-briefing" class="ov-briefing"></div>
-      <div class="ov-lens-label">The build · by the numbers</div>
-      <div id="ov-statband" class="ov-statband"></div>
       <div class="ov-lens-label">When each constraint binds — power is the long pole</div>
       <div class="ov-bn-framing">Power is the multi-year long pole; this timeline shows <b>when</b> each narrower constraint binds along the way — GPUs in 2023, packaging &amp; HBM in 2026 — but firm power and grid gear stay the gate underneath all of them.</div>
       <div id="ov-bottleneck"></div>
