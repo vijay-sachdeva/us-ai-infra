@@ -2734,7 +2734,10 @@ const $ = (id) => document.getElementById(id);
     svg.addEventListener('mousemove',function(e){try{var r=svg.getBoundingClientRect();var vx=(e.clientX-r.left)/r.width*680;
       var i=Math.max(0,Math.min(n-1,Math.round((vx-56)/(584/(n-1)))));var x=X(i);
       scrub.setAttribute('x1',x);scrub.setAttribute('x2',x);scrub.style.opacity=1;
-      rd.style.opacity=1;rd.style.left=(x/680*100)+'%';rd.textContent=years[i]+' · gap '+Math.round(dem[i]-gen[i])+' GW';}catch(_){}});
+      rd.style.opacity=1;rd.style.left=(x/680*100)+'%';
+      rd.innerHTML='<b>'+years[i]+'</b> · <span style="color:#58a6ff">demand '+Math.round(dem[i])
+        +'</span> · <span style="color:#9aa7b3">firm '+Math.round(gen[i])
+        +'</span> · <span style="color:#fca5a5">gap '+Math.round(dem[i]-gen[i])+'</span> GW';}catch(_){}});
     svg.addEventListener('mouseleave',function(){scrub.style.opacity=0;rd.style.opacity=0;});
   }
 
