@@ -4,68 +4,113 @@
     "date": "July 2, 2026",
     "text": "Microsoft opened its $3.3 billion Mount Pleasant, Wisconsin data center, the first facility at the campus that has become one of the company's highest-profile AI infrastructure developments. The facility is now fully online after beginning limited operations earlier this year.",
     "src": "Data Center Knowledge",
-    "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-july-2026"
+    "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-july-2026",
+    "players": [
+      "MSFT"
+    ]
   },
   "feed": [
     {
       "date": "Jun 2026",
       "tag": "CAPITAL",
       "text": "CoreWeave disclosed a $99B contract backlog tied to long-term AI-infrastructure commitments from Nvidia, Meta, Microsoft and OpenAI — underscoring the AI cloud's central role in supplying GPU capacity as hyperscalers and labs race to secure compute.",
-      "src": "Yahoo Finance"
+      "src": "Yahoo Finance",
+      "players": [
+        "CRWV",
+        "NVDA",
+        "META",
+        "MSFT",
+        "OpenAI"
+      ]
     },
     {
       "date": "Jun 2026",
       "tag": "CAPITAL",
       "text": "KKR launched Helix Digital Infrastructure — a new hyperscale data-center developer with $10B+ committed from KKR, Nvidia, Vistra and the Kuwait Investment Authority, led by ex-AWS chief Adam Selipsky — pairing campuses with integrated power to attack the power bottleneck.",
-      "src": "KKR / Data Center Dynamics"
+      "src": "KKR / Data Center Dynamics",
+      "players": [
+        "NVDA",
+        "KKR",
+        "Vistra"
+      ]
     },
     {
       "date": "Jun 2026",
       "tag": "CAPITAL",
       "text": "Applied Digital signed a 210 MW, 15-year take-or-pay lease at its Delta Forge 2 AI-factory campus with a US investment-grade hyperscaler — about $5.2B of base-term contracted revenue, its fifth such campus, lifting its contracted portfolio to ~$36B.",
-      "src": "Applied Digital / GlobeNewswire"
+      "src": "Applied Digital / GlobeNewswire",
+      "players": [
+        "APLD"
+      ]
     },
     {
       "date": "Jun 2026",
       "tag": "BUILDOUT",
       "text": "Microsoft unveiled a multibillion-dollar campus in Pecos (Reeves County), West Texas that will add about 2 GW of capacity — one of its largest single expansions — powered initially by an on-site, behind-the-meter natural-gas plant under a supply deal with Chevron for up to 2.67 GW, bypassing the public grid at launch.",
-      "src": "Microsoft / Data Center Dynamics"
+      "src": "Microsoft / Data Center Dynamics",
+      "players": [
+        "MSFT",
+        "Chevron"
+      ]
     },
     {
       "date": "Jun 2026",
       "tag": "BUILDOUT",
       "text": "CloudBurst Data Centers broke ground on a 1.2 GW flagship campus in the San Marcos–New Braunfels corridor of Central Texas, among the largest single-site data-center projects yet announced in North America.",
-      "src": "Data Center Knowledge"
+      "src": "Data Center Knowledge",
+      "players": [
+        "CloudBurst"
+      ]
     },
     {
       "date": "Jun 2026",
       "tag": "GRID",
       "text": "Sunrun, Tesla and Renew Home agreed to pool more than 16 GW of home batteries and smart thermostats into the largest US virtual power plant and sell that capacity to AI data centers — a demand-side alternative to new generation, though analysts note only about 4 GW is firm today.",
-      "src": "24/7 Wall St. / TechTimes"
+      "src": "24/7 Wall St. / TechTimes",
+      "players": [
+        "Tesla",
+        "Sunrun"
+      ]
     },
     {
       "date": "Jun 2026",
       "tag": "BUILDOUT",
       "text": "Big Tech's aggregate future data-center lease commitments topped $850B, a Bloomberg analysis of filings found — Meta added about $79B last quarter (to $182.9B) and Microsoft about $41B (to $196.6B), with Oracle still the largest single holder on its $300B OpenAI Stargate deal.",
-      "src": "Bloomberg"
+      "src": "Bloomberg",
+      "players": [
+        "META",
+        "MSFT",
+        "OpenAI",
+        "ORCL"
+      ]
     },
     {
       "date": "Jun 2026",
       "tag": "BUILDOUT",
       "text": "Nvidia and AI-cloud operator IREN unveiled a partnership to deploy up to 5 GW of Nvidia-based AI infrastructure, with IREN's Sweetwater, Texas campus named a flagship site for Nvidia's new “DSX” AI-factory reference design.",
-      "src": "Data Center Knowledge"
+      "src": "Data Center Knowledge",
+      "players": [
+        "NVDA",
+        "IREN"
+      ]
     },
     {
       "date": "Jun 2026",
       "tag": "GRID",
       "text": "Prometheus Hyperscale won unanimous conditional-use approval from Uinta County, Wyoming for a 506-acre campus starting at 1.25 GW with a path to 5 GW — powered entirely by an on-site, islanded natural-gas microgrid that draws nothing from the public grid, underscoring the “bring-your-own-power” shift.",
-      "src": "Data Center Dynamics / PRNewswire"
+      "src": "Data Center Dynamics / PRNewswire",
+      "players": [
+        "Prometheus"
+      ]
     },
     {
       "date": "Jun 2026",
       "tag": "GRID",
       "text": "PJM — the largest US grid — endorsed a new “Capacity Advisory” emergency procedure (effective immediately after its June 24 reliability-committee vote) to warn of looming capacity shortfalls even outside extreme weather, as AI data-center demand outpaces additions of new generation.",
-      "src": "PJM Inside Lines / Bloomberg"
+      "src": "PJM Inside Lines / Bloomberg",
+      "players": [
+        "PJM"
+      ]
     }
   ],
   "kpis": [

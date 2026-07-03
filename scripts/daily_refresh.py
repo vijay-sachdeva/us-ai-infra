@@ -85,10 +85,13 @@ Return STRICTLY a single JSON object (no markdown fences, no commentary). PREFER
     "date": "Mon DD, YYYY",
     "text": "1-2 factual sentences, no opinion",
     "src": "Publication",
-    "url": "https://..."
+    "url": "https://...",
+    "players": ["MSFT", "OpenAI"]
   }},
   "summary": "one-line description of the swap"
 }}
+
+"players" tags the companies/entities the story is ABOUT (deal participants, not passing mentions), using these canonical symbols where they apply: MSFT, AMZN, GOOGL, META, ORCL, NVDA, AMD, OpenAI, Anthropic, xAI, CRWV, NBIS, APLD, IREN, Crusoe, PJM, Dominion — otherwise a short name. Empty list if none apply.
 
 ONLY on a genuinely dead news day, return the keep-current shape:
 
@@ -207,6 +210,10 @@ def main() -> int:
             print("[refresh] ABORT: topStory.url is not a URL — not writing.", file=sys.stderr)
             return 1
         data["topStory"] = {k: new_top[k] for k in TOP_STORY_KEYS}
+        # Optional player tags (list of short strings) — consumed by the Players tab.
+        players = new_top.get("players")
+        if isinstance(players, list) and all(isinstance(x, str) and 0 < len(x) <= 24 for x in players):
+            data["topStory"]["players"] = players[:8]
 
     # newline="\n": always LF so the working tree matches the LF-normalized blob (small diffs).
     CURRENT_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")

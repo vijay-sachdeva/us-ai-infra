@@ -367,5 +367,38 @@ def test_capacity_mw_positive_when_present(records):
     assert not bad, "capacity_mw failures:\n" + "\n".join(bad)
 
 
+# --------------------------------------------------------------------------- #
+# (g) Curated-module staleness gate. Every CHART_META entry in app.js carries a
+#     reviewed: "YYYY-MM" stamp — when a curator last re-verified that module's
+#     numbers. The UI shows an amber "review due" pill past ~100 days; this test
+#     FAILS the merge gate past 150 days, so a rotting curated panel breaks CI
+#     before it misleads a journalist. Fix = re-verify the module's figures and
+#     bump its reviewed stamp (never bump without re-verifying).
+# --------------------------------------------------------------------------- #
+def test_curated_modules_not_stale():
+    import datetime
+    import re
+    app_js = os.path.join(ROOT, "app.js")
+    if not os.path.exists(app_js):
+        pytest.skip("app.js not present")
+    with io.open(app_js, encoding="utf-8") as fh:
+        src = fh.read()
+    start = src.find("const CHART_META")
+    end = src.find("};", start)
+    block = src[start:end]
+    entries = re.findall(r"^\s{4}(\w+): \{ reviewed: \"(\d{4})-(\d{2})\"", block, re.M)
+    assert entries, "no reviewed: stamps found in CHART_META — staleness gate misconfigured"
+    today = datetime.date.today()
+    stale = []
+    for cid, yy, mm in entries:
+        reviewed = datetime.date(int(yy), int(mm), 1)
+        age = (today - reviewed).days
+        if age > 150:
+            stale.append("%s: reviewed %s-%s (%d days ago)" % (cid, yy, mm, age))
+    assert not stale, (
+        "curated modules past the 150-day re-verification threshold — re-verify their "
+        "figures against sources and bump the reviewed stamp:\n" + "\n".join(stale))
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([os.path.abspath(__file__), "-v"]))
