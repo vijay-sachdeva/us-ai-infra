@@ -170,7 +170,7 @@ const $ = (id) => document.getElementById(id);
     jevonsChart: { reviewed: "2026-07", take: "The cheapest frontier flagship fell ~73% ($30 → $8/M tokens) across ten quarters while industry token volume grew ~22x (100T → 2,180T/quarter) — demand grew far faster than price fell, the Jevons pattern the buildout thesis rests on.", asof: "Q1 2024–Q2 2026 · derived from the two charts above", src: { label: "Derived: price-compression + token-volume series (modeled)" } },
     pjmAuctionChart: { reviewed: "2026-07", take: "PJM capacity prices exploded ~11x from $28.92/MW-day (2024/25) to $269.92 (2025/26), then cleared AT the FERC cap in back-to-back auctions ($329.17, then $333.44 for 2027/28) — data-center load is the primary driver, and the 2028/29 print lands July 14, 2026 under the extended collar.", asof: "by delivery year · through the 2027/28 auction (Dec 2025)", src: { label: "PJM Base Residual Auction reports" } },
     rateImpactChart: { reviewed: "2026-06", take: "Under high-DC-load scenarios, Virginia faces a projected +57% residential rate increase by 2030 vs. 2024 — more than double any other state, with only Texas (+28%) and Ohio (+22%) also above 20%.", asof: "by 2030 vs. 2024 (modeled)", src: { label: "Fortune analysis, utility IRPs (modeled)" } },
-    cumDeficitChart: { reviewed: "2026-06", take: "The standing cumulative shortfall of DC demand added over firm generation committed to DC widens every year to roughly 19 GW by 2030 — conservative against Bloom Energy's ~35 GW gap reference line.", asof: "2024-2030 (modeled)", src: { label: "modeled (GS / Wood Mackenzie / EIA + IRPs)" } },
+    cumDeficitChart: { reviewed: "2026-07", take: "The base path widens to ~19 GW of standing shortfall by 2030 — but the published range brackets it hard: on EPRI's 2024 low case the gap CLOSES entirely, while LBNL's 2028 high end implies a ~100+ GW problem. (The Bloom ~35 GW reference is yet-to-be-ANNOUNCED capacity from its Jan-2025 survey, not a measured shortfall.)", asof: "2024-2030 (modeled + published scenario anchors)", src: { label: "modeled (GS / Wood Mackenzie) · anchors: EPRI 2024, LBNL 2024" } },
     turbineSlots: { reviewed: "2026-06", take: "Gas-turbine order books are effectively sold out near-term: GE Vernova carries ~100 GW combined (44 GW firm backlog + 56 GW deposit-backed slot reservations), with the earliest new delivery slots not opening until 2029-2030 across GE Vernova, Siemens Energy and Mitsubishi.", asof: "Q1 FY2026 (reported Apr 2026)", src: { label: "GE Vernova / Siemens Energy / MHI earnings" } },
     powerSourceMixChart: { reviewed: "2026-06", take: "Gas carries US data-center load growth this decade — grid gas (+130 TWh) plus behind-the-meter on-site gas (+60 TWh) dominate the additional annual generation committed to 2030, ahead of renewables+storage (+110 TWh) and nuclear (+50 TWh, overwhelmingly post-2030 SMRs).", asof: "outlook to 2030 (period split modeled)", src: { label: "IEA, EIA STEO, S&P Global (period split modeled)" } },
     // Tokens tab (drafted from chart data after the tokens agent dropped mid-run; same grounding bar)
@@ -722,6 +722,19 @@ const $ = (id) => document.getElementById(id);
     });
   }
 
+  // Demand scenarios for the cumulative-deficit chart — anchored STRICTLY to published
+  // forecasts (never a homegrown elasticity model). Factors scale the modeled demand-adds
+  // path so its implied TOTAL US DC load hits the named anchor; committed firm generation is
+  // held constant. Baseline pre-2024 load ≈21 GW is inferred from the site's own GS 41 GW
+  // 2026 KPI minus the modeled 20 GW of 2024–26 adds; all arithmetic stated in the method.
+  const DEFICIT_SCENARIOS = {
+    base: { label: "Base — GS / Wood Mackenzie", factor: 1, scenario: false,
+      note: "The modeled base path: cumulative demand adds ~79 GW by 2030 vs ~60 GW of committed firm generation — the ~19 GW standing gap. (LBNL's 2028 LOW end, 325 TWh ≈ 74 GW total load, lands almost exactly on this path.)" },
+    low: { label: "Published low — EPRI '24", factor: 0.30, scenario: true,
+      note: "SCENARIO: EPRI's May-2024 low case holds data centers near ~4.6% of US generation through 2030 — essentially flat vs the 4.4% share LBNL measured for 2023 (~45 GW total load in 2030 at 50% utilization). Demand adds fall to ~0.30x the base and the gap CLOSES — committed generation overshoots instead. This is the published bear case; whoever signed the longest take-or-pay paper owns it (see the commitment book on Capital)." },
+    high: { label: "Published high — LBNL '28", factor: 2.13, scenario: true,
+      note: "SCENARIO: LBNL's 2028 HIGH end — 580 TWh ≈ 132 GW of total DC power demand at the report's stated 50%-utilization assumption — implies ~2.1x the base demand path. The 2030 standing gap becomes ~100+ GW, not 19: on the published high case the grid problem is ~5x the headline." }
+  };
   function renderCumDeficitChart() {
     if (!$("cumDeficitChart") || typeof Chart === "undefined") return;
     if (renderCumDeficitChart._done) return;
@@ -730,13 +743,17 @@ const $ = (id) => document.getElementById(id);
     const dp = DATA.demandProjection;
     const cd = DATA.cumulativeDeficit;
     const cl = getChartColors();
+    const scenKey = renderCumDeficitChart._scenario || "base";
+    const scen = DEFICIT_SCENARIOS[scenKey];
     // Cumulative running deficit, computed live so it can never drift from demandProjection.
     let cumDemand = 0, cumGen = 0;
     const deficit = dp.years.map((_, i) => {
       cumDemand += dp.yoyDemandGrowthGW[i];
       cumGen    += dp.newFirmGenForDC[i];
-      return cumDemand - cumGen;
+      return Math.round((cumDemand * scen.factor - cumGen) * 10) / 10;
     });
+    if (_charts.cumDeficitChart) { try { _charts.cumDeficitChart.destroy(); } catch (_) {} delete _charts.cumDeficitChart; }
+    const lineCol = scenKey === "low" ? CHART_PALETTE.supply : "#c0322b";
     _charts.cumDeficitChart = new Chart($("cumDeficitChart"), {
       type: "line",
       data: {
@@ -744,10 +761,10 @@ const $ = (id) => document.getElementById(id);
         datasets: [{
           label: "Standing cumulative deficit",
           data: deficit,
-          borderColor: "#c0322b",
-          backgroundColor: "rgba(192,50,43,0.12)",
+          borderColor: lineCol,
+          backgroundColor: hexA(lineCol, 0.12),
           fill: true, tension: 0.3,
-          pointRadius: 5, pointBackgroundColor: "#c0322b",
+          pointRadius: 5, pointBackgroundColor: lineCol,
           borderWidth: 2.5
         }]
       },
@@ -757,20 +774,38 @@ const $ = (id) => document.getElementById(id);
         plugins: {
           legend: { display: false },
           datalabels: { display: true, color: cl.label, font: { weight: 700, size: 11 }, align: "top", offset: 6, formatter: v => v + " GW" },
-          annotation: { annotations: { bloom: { type: "line", yMin: 35, yMax: 35, borderColor: "#c2710c", borderWidth: 1, borderDash: [5, 4], label: { display: true, content: "Bloom Energy: ~35 GW gap by 2030", position: "end", backgroundColor: "rgba(194,113,12,0.85)", color: "#fff", font: { size: 9.5, weight: 700 }, padding: 3 } } } },
+          annotation: { annotations: { bloom: { type: "line", yMin: 35, yMax: 35, borderColor: "#c2710c", borderWidth: 1, borderDash: [5, 4], label: { display: true, content: "Bloom '25 survey: ~35 GW of capacity YET TO BE ANNOUNCED by 2030 (not a measured shortfall)", position: "end", backgroundColor: "rgba(194,113,12,0.85)", color: "#fff", font: { size: 8.5, weight: 700 }, padding: 3 } } } },
           tooltip: { callbacks: {
-            label: c => " " + c.parsed.y + " GW standing shortfall",
-            footer: () => "Source: " + cd.src.label
+            label: c => " " + c.parsed.y + " GW " + (c.parsed.y >= 0 ? "standing shortfall" : "surplus vs committed gen (scenario)"),
+            footer: () => scenKey === "base" ? "Source: " + cd.src.label : "Scenario anchor: " + scen.label
           }}
         },
         scales: {
-          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true, suggestedMax: 38, title: { display: true, text: "Cumulative shortfall (GW)" } },
+          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: scenKey !== "low", suggestedMax: scenKey === "high" ? 115 : 38, title: { display: true, text: "Cumulative shortfall (GW)" } },
           x: { grid: { display: false } }
         }
       }
     });
     if ($("cumDeficitMethod")) {
-      $("cumDeficitMethod").innerHTML = "<b>Cumulative deficit (modeled)</b> = &Sigma; DC demand added &minus; &Sigma; new firm generation for DC, from the demand-vs-generation series above. Widens to ~" + deficit[deficit.length - 1] + " GW standing shortfall by 2030. " + cd.crosscheck;
+      const baseMethod = "<b>Cumulative deficit (modeled)</b> = &Sigma; DC demand added &minus; &Sigma; new firm generation for DC, from the demand-vs-generation series above. ";
+      const scenMethod = scenKey === "base" ? ("Widens to ~" + deficit[deficit.length - 1] + " GW standing shortfall by 2030. " + cd.crosscheck + " ") : "";
+      $("cumDeficitMethod").innerHTML = baseMethod + scenMethod + "<b>" + scen.label + ":</b> " + scen.note +
+        (scen.scenario ? " <i>Scenario arithmetic: demand path scaled to the published anchor (baseline ≈21 GW pre-2024 load inferred from the GS 41 GW 2026 total minus modeled adds); firm-gen path unchanged.</i>" : "");
+    }
+    // Wire the scenario toggle once.
+    const tog = $("cumDeficitScenario");
+    if (tog && !tog._wired) {
+      tog._wired = true;
+      tog.querySelectorAll(".map-view-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const v = btn.dataset.scen;
+          if (v === (renderCumDeficitChart._scenario || "base")) return;
+          renderCumDeficitChart._scenario = v;
+          tog.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
+          renderCumDeficitChart._done = false;
+          renderCumDeficitChart();
+        });
+      });
     }
   }
 
