@@ -148,8 +148,8 @@ const $ = (id) => document.getElementById(id);
   // chart's own data — fact-checked, no invented figures. enhanceCharts() renders these under each
   // chart; charts absent from the map simply get no caption (graceful).
   const CHART_META = {
-    coCapexChart: { reviewed: "2026-06", take: "Amazon leads 2026 AI-infra capex at $200B, ahead of Microsoft ($190B), Google ($185B) and Meta ($150B), with AI-native challengers far smaller — Oracle $50B, CoreWeave $33B, Nebius $22B and xAI $18B.", asof: "2026 guidance", src: { label: "company 2026 capex guidance" } },
-    capexAiShareChart: { reviewed: "2026-06", take: "Across ~$808B of tracked operator capex roughly 90% is AI/data-center-attributed, with pure-plays like Oracle and CoreWeave near 100% and diversified operators lower — but the infra-vs-non-core split is an editorial Modeled estimate, not a reported line item.", asof: "2026 guidance", src: { label: "modeled (this dashboard)" } },
+    coCapexChart: { reviewed: "2026-07", take: "Amazon leads 2026 AI-infra capex at $200B, ahead of Microsoft ($190B), Google ($185B) and Meta ($135B — midpoint of its filed $125-145B range), with AI-native challengers far smaller: Oracle $56B (FY26 actual), CoreWeave $33B, Nebius $22B and xAI $18B.", asof: "2026 guidance", src: { label: "company 2026 capex guidance" } },
+    capexAiShareChart: { reviewed: "2026-07", take: "Across ~$799B of tracked operator capex roughly 90% is AI/data-center-attributed, with pure-plays like Oracle and CoreWeave near 100% and diversified operators lower — but the infra-vs-non-core split is an editorial Modeled estimate, not a reported line item.", asof: "2026 guidance", src: { label: "modeled (this dashboard)" } },
     costStack: { reviewed: "2026-06", take: "Building one MW of AI capacity runs ~$42M all-in, with compute ($31M) dwarfing facility ($11M) and GPUs/accelerators alone ($23M) the single largest layer — more than the entire shell, power, cooling and servers combined.", asof: "illustrative", src: { label: "illustrative per-MW build stack (JLL + analyst)" } },
     capexTrendChart: { reviewed: "2026-06", take: "Combined Big-5 hyperscaler capex (Amazon, Microsoft, Alphabet, Meta, Oracle) more than quintupled from $128B in 2021 to a guided ~$684B in 2026, where the 2026 figure is company guidance/estimate rather than reported actuals.", asof: "2021-2025 actuals + 2026 guidance", src: { label: "company 10-Ks / earnings (2026 = guidance)" } },
     capexVsCashflowChart: { reviewed: "2026-06", take: "Through FY2025 combined Big-5 capex ($381B) was ~66% of operating cash flow ($577B), up from ~44% in 2021, and Oracle is already the lone single-name crossover — its FY2026 capex ($55.7B) exceeds operating cash flow ($32.0B) for roughly -$24B free cash flow.", asof: "2021-2025 actuals + 2026 guidance", src: { label: "company 10-Ks / earnings (2026 = guidance)" } },
@@ -2661,7 +2661,7 @@ const $ = (id) => document.getElementById(id);
       const wr = su.whRange || [ex.whPerToken, ex.whPerToken];
       const gwLo = su.aggregate.tokens * wr[0] / 730 / 1e9, gwHi = su.aggregate.tokens * wr[1] / 730 / 1e9;
       const queueGW = (DATA.powerBreakdown && DATA.powerBreakdown.funnel) ? DATA.powerBreakdown.funnel.values[0] : 97;
-      const capexB = DATA.companyCapex ? DATA.companyCapex.values.reduce((a, b) => a + b, 0) : 848;
+      const capexB = DATA.companyCapex ? DATA.companyCapex.values.reduce((a, b) => a + b, 0) : 839;
       const cell = (v, l, n) => `<div class="bridge-cell"><div class="bv">${v}</div><div class="bl">${l}</div><div class="bn">${n}</div></div>`;
       const arrow = `<div class="bridge-arrow">→</div>`;
       $("tjScaleup").innerHTML =
