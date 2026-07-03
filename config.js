@@ -19,7 +19,7 @@ const REGION_CONFIG = {
   // and shows an honest "not yet tracked" placeholder (never fakes parity). Defined now;
   // enforced in the engine-extraction increment.
   capabilities: {
-    overview: true, capital: true, buildout: true, grid: true, tokens: true,
+    overview: true, capital: true, buildout: true, grid: true, tokens: true, players: true,
     map: true, projects: true, gridFeeds: true, queues: true, rateImpacts: true
   },
 
