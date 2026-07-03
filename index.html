@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260703b"></script>
+<script src="config.js?v=20260703c"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -748,6 +748,14 @@
   .cf-leg-item { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
   .cf-leg-swatch { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
   .cf-leg-note { color: var(--muted); font-weight: 500; font-style: italic; }
+  /* Counterparty-exposure sidebar (click a node on the map) */
+  .cf-sidebar { margin-top: 10px; border: 1px solid var(--accent); border-radius: 10px; padding: 12px 14px; background: var(--accent-soft); }
+  .cf-sb-head { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; margin-bottom: 4px; }
+  .cf-sb-close { background: none; border: none; color: var(--ink-2); font-size: 18px; cursor: pointer; line-height: 1; padding: 2px 6px; }
+  .cf-sb-close:hover { color: var(--red); }
+  .cf-sb-tag { font-size: 11.5px; font-weight: 700; color: var(--amber); margin: 4px 0; }
+  .cf-sb-sec { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 10px 0 2px; }
+  .cf-sb-foot { font-size: 10.5px; color: var(--muted); margin-top: 10px; font-style: italic; line-height: 1.45; }
   .cf-ledger { margin-top: 12px; border-top: 1px solid var(--line); }
   .cf-row {
     display: grid;
@@ -1559,6 +1567,22 @@
         <div class="sc-method" id="capexVsCashflowMethod"></div>
       </div>
 
+      <!-- Full-width: committed-vs-generated — who cannot back down -->
+      <div class="stub-card">
+        <h4>The commitment book — years of cash flow pre-committed <span class="cf-tier cf-ok" title="Primary — every figure from an SEC filing (10-K / 10-Q lease-maturity tables, commitments notes, cash-flow statements).">primary</span></h4>
+        <div class="note">Undiscounted future <b>lease payments</b> (commenced + signed-not-yet-commenced) plus disclosed <b>purchase / construction commitments</b>, per operator, against <b>annual operating cash flow</b> &middot; the per-row figure = <b>years of OCF already spoken for</b> &mdash; the single best read on who cannot back down &middot; bases and as-of dates differ per company (tooltip + method note)</div>
+        <div class="chart-box tall"><canvas id="overcommitmentBoard"></canvas></div>
+        <div class="sc-method" id="overcommitmentMethod"></div>
+      </div>
+
+      <!-- Full-width: the three clocks — tenor mismatch -->
+      <div class="stub-card">
+        <h4>The three clocks — assets, obligations, and power run on different time</h4>
+        <div class="note">Chips <b>depreciate</b> on filed useful lives of ~5.5&ndash;6 years &middot; the <b>leases</b> financing them run 12&ndash;25 years &middot; new <b>firm power</b> arrives in ~3&ndash;7 &middot; the tenor mismatch is the structural risk under every take-or-pay signature</div>
+        <div class="chart-box short"><canvas id="tenorClocks"></canvas></div>
+        <div class="sc-method" id="tenorClocksMethod"></div>
+      </div>
+
       <!-- Full-width: capex flow Sankey (after capex totals + cost stack) -->
       <div class="stub-card">
         <h4>Where the capex flows — 2026</h4>
@@ -1603,6 +1627,7 @@
         <div id="circularFinancing" class="chart-hscroll" style="margin-top:8px"></div>
         <div class="hscroll-hint">swipe the chart to explore →</div>
         <div class="cf-legend" id="cfLegend"></div>
+        <div class="cf-sidebar" id="cfSidebar" style="display:none"></div>
         <div class="cf-ledger" id="cfLedger"></div>
         <div class="sc-method" id="cfMethod"></div>
       </div>
@@ -2937,6 +2962,77 @@
       note: "Year-on-year addition of US data center demand vs. new firm generation committed specifically to DC load. Bars exceeding the generation line indicate a widening gap.",
       src: { label: "Goldman Sachs, Wood Mackenzie, EIA + utility IRP filings (modeled)", tier: "analyst" }
     },
+    // The commitment book — every figure from an SEC filing (verified 2026-07-03). Ratios are
+    // computed at render time from these components; bases/as-of dates differ per operator and
+    // are carried per row. RPO (contracted REVENUE) is deliberately excluded from obligations.
+    overcommitment: {
+      ops: [
+        { sym: "MSFT", name: "Microsoft", leasesCommenced: 109.5, leasesNotCommenced: 196.6, purchase: 110.0, construction: 32.1,
+          ocf: 170.1, ocfBasis: "TTM to Mar 2026 (filed components)",
+          detail: "Leases as of Mar 2026 (10-Q): $24.9B operating + $84.6B finance commenced, $196.6B signed-not-commenced (was $92.7B nine months earlier — more than doubled). Purchase ($110.0B) + construction ($32.1B) commitments as of Jun 2025 (10-K; not updated in 10-Qs). CY2026 capex guide ~$190B (call).",
+          accel: "not-yet-commenced leases $92.7B → $196.6B in 9 months",
+          src: { label: "MSFT 10-Q Q3 FY26 · 10-K FY25", url: "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm", tier: "primary" } },
+        { sym: "AMZN", name: "Amazon", leasesCommenced: 126.6, leasesNotCommenced: 106.3, purchase: 103.8, construction: null,
+          ocf: 148.5, ocfBasis: "TTM to Mar 2026 (filed)",
+          detail: "All as of Mar 2026 (10-Q commitments table): $126.6B commenced leases (op + finance incl. interest), $106.3B not-yet-commenced ($69.8B of it post-2030), $103.8B unconditional purchase obligations (was $84.8B at Dec 2025). CY2026 capex guide ~$200B (call).",
+          accel: "purchase obligations +$19B in one quarter",
+          src: { label: "AMZN 10-Q Q1 2026", url: "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000014/amzn-20260331.htm", tier: "primary" } },
+        { sym: "GOOGL", name: "Alphabet", leasesCommenced: 21.4, leasesNotCommenced: 75.6, purchase: 332.4, construction: null,
+          ocf: 174.4, ocfBasis: "TTM to Mar 2026 (filed components)",
+          detail: "All as of Mar 2026 (10-Q): $21.4B commenced leases, $75.6B not-yet-commenced (was $58.5B at Dec 2025), $332.4B purchase commitments — MORE THAN DOUBLED from $149.1B in one quarter (broad basis: technical infrastructure, inventory, content). Excludes $33.3B of DC/energy backstop agreements. CY2026 capex guide $180–190B (call).",
+          accel: "purchase commitments $149.1B → $332.4B in ONE quarter",
+          src: { label: "GOOGL 10-Q Q1 2026", url: "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000048/goog-20260331.htm", tier: "primary" } },
+        { sym: "META", name: "Meta", leasesCommenced: 35.0, leasesNotCommenced: 182.9, purchase: 237.7, construction: null,
+          ocf: 124.0, ocfBasis: "TTM to Mar 2026 (filed components)",
+          detail: "Commenced leases $35.0B as of Dec 2025 (10-K; 10-Q doesn't update the table); not-yet-commenced $182.9B and purchase commitments $237.7B as of Mar 2026 (10-Q) — plus ~$24B added via April 2026 contracts and up to $14.7B contingent cloud capacity, both EXCLUDED here. 2026 capex guide $125–145B (8-K, filed).",
+          accel: "not-yet-commenced $103.8B → $182.9B in one quarter",
+          src: { label: "META 10-Q Q1 2026 · 10-K FY25", url: "https://www.sec.gov/Archives/edgar/data/1326801/000162828026028526/meta-20260331.htm", tier: "primary" } },
+        { sym: "ORCL", name: "Oracle", leasesCommenced: 53.3, leasesNotCommenced: 260.0, purchase: 13.3, construction: null,
+          ocf: 32.0, ocfBasis: "FY2026 (ended May 2026, filed)",
+          detail: "All as of May 2026 (FY26 10-K): $53.3B commenced leases (op wavg 12-yr term), $260B signed-not-commenced ('substantially all data centers'), $13.3B purchase obligations (mostly DC power). FY26 capex $55.7B GAAP → FCF −$23.7B; FY27 guide $90–95B gross. Context: ~14% of FY26 OCF was customer-prepayment financing; RPO $638B (customer revenue, excluded here).",
+          accel: "RPO $138B → $638B in one fiscal year; FCF −$23.7B",
+          src: { label: "ORCL 10-K FY2026", url: "https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm", tier: "primary" } },
+        { sym: "CRWV", name: "CoreWeave", leasesCommenced: 17.2, leasesNotCommenced: 40.7, purchase: null, construction: null,
+          ocf: 6.0, ocfBasis: "TTM to Mar 2026 (filed components; prepayment-heavy)",
+          detail: "As of Mar 2026 (10-Q): $17.2B commenced leases, $40.7B signed-not-commenced — EXCLUDING a 525 MW site lease at $18.7–19.6B contractual rent (16-yr) and 363 MW with indeterminate payments. No aggregate purchase-obligation figure is disclosed (equipment commitments $0.9–1.6B excluded). OCF is prepayment-driven (Q1'26 $3.0B vs $61M a year ago). Debt $25.1B incl. $11.8B GPU/contract-backed DDTLs. 2026 capex guide $31–35B (call).",
+          accel: "excluded 525 MW lease alone adds ~$19B when it commences",
+          src: { label: "CRWV 10-Q Q1 2026 · 10-K FY25", url: "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000222/crwv-20260331.htm", tier: "primary" } }
+      ],
+      methodology: "Undiscounted future lease payments (commenced, from the 10-K/10-Q maturity tables) + leases signed but not yet commenced + disclosed purchase/construction commitments, divided by annual operating cash flow (TTM from filed components where quarters exist; Oracle = FY2026). Every figure is from an SEC filing; sums of separately-disclosed lines are arithmetic, not printed line items. NOT comparable line-for-line: Google's purchase commitments are a broad basis (infrastructure + inventory + content); Microsoft's purchase/construction figures are a year older than its lease figures; Meta's commenced-lease table is as of Dec 2025. Deliberately EXCLUDED to avoid double- or over-counting: RPO/backlog (contracted revenue, not spend), Meta's April-2026 additions and contingent cloud capacity, Google's backstop agreements, CoreWeave's indeterminate-payment leases, and all debt service.",
+      src: { label: "SEC 10-K / 10-Q filings (verified 2026-07-03)", tier: "primary" }
+    },
+    // The three clocks — filed useful lives vs lease tenors vs power timelines (verified 2026-07-03).
+    tenorClocks: {
+      items: [
+        { label: "Chips depreciate", lo: 5.5, hi: 6, color: "constraint",
+          note: "Filed server useful lives: Meta 5.5 yrs (extended Jan 2025); Microsoft, Amazon, Alphabet, Oracle, CoreWeave 6 yrs (several extended from 4–5 during 2022–25 — each extension flattered earnings)." },
+        { label: "Leases & take-or-pay run", lo: 12, hi: 25, color: "pipeline",
+          note: "Oracle weighted-avg remaining lease term 12 yrs (finance 14); Microsoft DC leases 1–21 yrs; Alphabet up to 25; CoreWeave 5–16; Applied Digital-style take-or-pay 15 yrs. The obligations outlive 2–4 generations of the chips inside." },
+        { label: "New firm power arrives", lo: 3, hi: 7, color: "demand",
+          note: "HV transformer lead times up to ~5 yrs; turbine slots effectively sold out through 2029–30; large-load interconnection studies multi-year (see Grid tab). Power ordered today lands mid-buildout." }
+      ],
+      methodology: "Asset lives and lease tenors from the same SEC filings as the commitment book; power timelines from the equipment/interconnection panels on Buildout and Grid. The mismatch: the revenue-bearing asset dies in ~6 years, the obligation financing it runs 12–25, and the power enabling it arrives in 3–7 — every take-or-pay signature is a bet that demand outlives at least two chip refresh cycles.",
+      src: { label: "SEC filings + equipment lead-time panels", tier: "primary" }
+    },
+    // Counterparty concentration — the disclosed numbers behind the circular-financing map
+    // (per-node sidebar). Only filed/disclosed figures; attribution tier carried per row.
+    cfConcentration: {
+      "CoreWeave": [
+        { fact: "Microsoft ≈ 67% of FY2025 revenue (top customer; no other ≥10%). FY2024: top two = 77%.", tier: "primary" },
+        { fact: "Q1 2026: top two customers ≈ 65% of revenue (Customer A 45%, Customer B 20% — unnamed in the 10-Q, which warns letters may not map to prior periods).", tier: "primary" },
+        { fact: "Debt $25.1B principal, incl. $11.8B GPU/contract-collateralized delayed-draw term loans (non-recourse, pledged contract cash flows).", tier: "primary" },
+        { fact: "RPO $98.8B; 98% of revenue from committed contracts.", tier: "primary" }
+      ],
+      "Oracle": [
+        { fact: "10-K: 'No single customer accounted for 10% or more of total revenues' in FY24–26 — the revenue test; Oracle discloses NO customer-level split of its $638B RPO.", tier: "primary" },
+        { fact: "RPO grew $138B → $638B in FY2026; 10-K attributes the jump to 'certain significant... large-scale AI contracts', with prepaid or customer-supplied GPUs in the big Q3/Q4 additions.", tier: "primary" },
+        { fact: "The widely-cited '$300B OpenAI share' of Oracle RPO is press reporting, not an Oracle disclosure — OpenAI is never named in the filings.", tier: "analyst" }
+      ],
+      "Microsoft": [
+        { fact: "Commercial RPO $627B (Mar 2026, +99% YoY, ~2.5-yr weighted duration) — customer commitments TO Microsoft.", tier: "primary" },
+        { fact: "CoreWeave's 10-K names Microsoft as its ≈67% FY2025 customer — the dependency runs both directions on this edge.", tier: "primary" }
+      ]
+    },
     // PJM Base Residual Auction — RTO clearing price by DELIVERY YEAR ($/MW-day, UCAP).
     // All figures from PJM's own auction releases (primary); costs as published by PJM/press.
     pjmAuction: {
@@ -3095,7 +3191,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260703b"></script>
+<script src="app.js?v=20260703c"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
