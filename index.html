@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260703d"></script>
+<script src="config.js?v=20260703e"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1154,6 +1154,31 @@
   nav.tabs a[data-tab="buildout"].active  { color: #c2710c; border-bottom-color: #c2710c; }
   nav.tabs a[data-tab="grid"].active      { color: #c0322b; border-bottom-color: #c0322b; }
   nav.tabs a[data-tab="tokens"].active    { color: #7c3aed; border-bottom-color: #7c3aed; }
+  nav.tabs a[data-tab="players"].active   { color: #0891b2; border-bottom-color: #0891b2; }
+  section[data-tab="players"] .gap-connector { border-left-color: #0891b2; }
+  section[data-tab="players"] .gap-connector .gc-tag { color: #0891b2; }
+
+  /* ---------- Players tab: dossier cards ---------- */
+  .pl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+  @media (max-width: 860px) { .pl-grid { grid-template-columns: 1fr; } }
+  .pl-card { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: var(--card); }
+  .pl-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .pl-head .pl-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .pl-cls { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #0891b2; background: rgba(8,145,178,.1); padding: 2px 8px; border-radius: 999px; margin-left: auto; }
+  .pl-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; margin: 8px 0; }
+  .pl-stat { font-size: 12px; color: var(--ink-2); }
+  .pl-stat b { color: var(--ink); font-size: 13px; }
+  .pl-stat a { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--muted); }
+  .pl-stat a:hover { color: #0891b2; border-bottom-color: #0891b2; }
+  .pl-constraint { font-size: 12px; color: var(--ink-2); line-height: 1.5; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 4px; }
+  .pl-constraint .pl-klabel { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #0891b2; margin-right: 6px; }
+  .pl-signal { font-size: 11px; color: var(--muted); margin-top: 7px; line-height: 1.45; }
+  .pl-signal b { color: var(--ink-2); }
+  /* player feed */
+  .pf-row { display: flex; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; color: var(--ink-2); }
+  .pf-row:last-child { border-bottom: none; }
+  .pf-chips { flex: none; display: flex; gap: 4px; flex-wrap: wrap; max-width: 160px; }
+  .pf-chip { font-size: 9.5px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: rgba(8,145,178,.1); color: #0891b2; white-space: nowrap; }
 
   /* ---------- Theme toggle button ---------- */
   .theme-toggle {
@@ -1489,6 +1514,7 @@
     <li><a href="#buildout" data-tab="buildout">Buildout</a></li>
     <li><a href="#grid"     data-tab="grid">Grid</a></li>
     <li><a href="#tokens"   data-tab="tokens">Tokens</a></li>
+    <li><a href="#players"  data-tab="players">Players</a></li>
   </ul>
 </nav>
 
@@ -2090,6 +2116,30 @@
         <div id="tjMeter"></div>
         <div id="tjScaleup"></div>
         <div class="sc-method" id="tjMethod"></div>
+      </div>
+    </section>
+
+    <!-- ============ PLAYERS (entity index — a join over the other tabs' cited data) ============ -->
+    <section class="tab-content" data-tab="players" data-tab-label="Players">
+      <h2 class="tab-title">Players</h2>
+      <p class="tab-sub">The same cited numbers, indexed by <b>entity</b> instead of theme — who is doing what, under which binding constraint. Every figure on a card is a live join from its home chart (click through); nothing is re-keyed.</p>
+      <div class="gap-connector"><span class="gc-tag">↑ the 19 GW gap</span> Positions differ because constraints differ: some players own megawatts, some own obligations, some own the silicon — the cards below say which.</div>
+
+      <div class="stub-card">
+        <h4>Player dossiers</h4>
+        <div class="note">Capex = company 2026 guidance (analyst-tier headline set) &middot; commitment years = the filing-grade commitment book on Capital &middot; ledger GW = source-verified named builds (announced targets; excludes the Graveyard) &middot; counterparty edges = the circular-financing map &middot; constraint reads are editorial one-liners, tier-tagged</div>
+        <div id="playersCards" class="pl-grid"></div>
+      </div>
+
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Who did what this week</h4>
+        <div class="note">The weekly feed, indexed by player &middot; auto-tagged by the daily refresh</div>
+        <div id="playerFeed"></div>
+      </div>
+
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Go deeper</h4>
+        <div class="note" style="margin-bottom:0">Evidence lives on the theme tabs: <a href="#capital:overcommitmentBoard">the commitment book</a> · <a href="#capital:coCapexChart">capex by operator</a> · <a href="#buildout">the named-project ledger &amp; Graveyard</a> · <a href="#grid:cumDeficitChart">the gap &amp; its scenarios</a> · <a href="#tokens:jevonsChart">token economics</a> · <a href="https://vijay-sachdeva.github.io/ai-infra/eu/" target="_blank" rel="noopener">the Europe dashboard ↗</a> · <a href="data/projects.json" target="_blank" rel="noopener">open dataset ↓</a></div>
       </div>
     </section>
 
@@ -2981,6 +3031,31 @@
       note: "Year-on-year addition of US data center demand vs. new firm generation committed specifically to DC load. Bars exceeding the generation line indicate a widening gap.",
       src: { label: "Goldman Sachs, Wood Mackenzie, EIA + utility IRP filings (modeled)", tier: "analyst" }
     },
+    // Players index — IDENTITY + curated constraint one-liners only. All numbers on the
+    // dossier cards are JOINED at render time from companyCapex / overcommitment /
+    // projects.json / circularFinancing / cfConcentration / the tagged feed — no second copies.
+    players: [
+      { sym: "MSFT", name: "Microsoft", brand: "microsoft", cls: "Hyperscaler", cfNode: "Microsoft", aliases: ["Microsoft"],
+        constraint: { text: "Commissioning, not capital: $196.6B of signed-but-unopened leases (doubled in nine months) waiting on shells and power.", tier: "primary" } },
+      { sym: "AMZN", name: "Amazon (AWS)", brand: "aws", cls: "Hyperscaler", cfNode: "AWS", aliases: ["Amazon", "AWS"],
+        constraint: { text: "Self-build pace: the largest OCF in the set against a $233B lease book + $103.8B purchase obligations; Rainier (2.2 GW, Anthropic) is the anchor bet.", tier: "primary" } },
+      { sym: "GOOGL", name: "Alphabet / Google", brand: "google", cls: "Hyperscaler", cfNode: "Google", aliases: ["Google", "Alphabet"],
+        constraint: { text: "Most optionality of the big four — smallest lease book — but purchase commitments doubled to $332.4B in one quarter; the TPU stack moves its silicon constraint in-house.", tier: "analyst" } },
+      { sym: "META", name: "Meta", brand: "meta", cls: "Hyperscaler", cfNode: null, aliases: ["Meta"],
+        constraint: { text: "Fastest commitment growth relative to cash flow among hyperscalers (~3.7 yrs pre-committed): unopened leases $182.9B + purchase commitments $237.7B, against filed $125–145B capex guidance.", tier: "primary" } },
+      { sym: "ORCL", name: "Oracle", brand: "oracle", cls: "AI cloud", cfNode: "Oracle", aliases: ["Oracle"],
+        constraint: { text: "The leveraged bet: ~10 years of OCF pre-committed, FY26 FCF −$23.7B, ~$40B of planned FY27 external funding — the payoff rests on $638B of RPO converting to revenue.", tier: "primary" } },
+      { sym: "NVDA", name: "NVIDIA", brand: "nvidia", cls: "Silicon", cfNode: "NVIDIA", aliases: ["NVIDIA", "Nvidia"],
+        constraint: { text: "Demand isn't the constraint — its customers' power is. Top-3 direct customers are 54% of revenue; supply allocation is the strategic lever.", tier: "analyst" } },
+      { sym: "OpenAI", name: "OpenAI", brand: "openai", cls: "AI lab", cfNode: "OpenAI", aliases: ["OpenAI"],
+        constraint: { text: "Compute credit: obligations run through the Oracle / Microsoft / CoreWeave / NVIDIA edges rather than an owned balance sheet — see the counterparty map.", tier: "analyst" } },
+      { sym: "Anthropic", name: "Anthropic", brand: "anthropic", cls: "AI lab", cfNode: "Anthropic", aliases: ["Anthropic"],
+        constraint: { text: "Compute via partners, diversified across silicon: Rainier's ~500K Trainium2 chips (AWS) plus Google TPU capacity.", tier: "analyst" } },
+      { sym: "xAI", name: "xAI", brand: "other", cls: "AI lab", cfNode: "xAI", aliases: ["xAI"],
+        constraint: { text: "The BTM playbook: Colossus-scale on-site gas swaps queue risk for permitting and turbine risk.", tier: "analyst" } },
+      { sym: "CRWV", name: "CoreWeave", brand: "coreweave", cls: "Neo-cloud", cfNode: "CoreWeave", aliases: ["CoreWeave"],
+        constraint: { text: "Concentration + tenor: ≈67% of FY25 revenue from Microsoft, $11.8B of GPU-collateralized debt, ~10 years of OCF pre-committed — renewal risk is the survival variable.", tier: "primary" } }
+    ],
     // The commitment book — every figure from an SEC filing (verified 2026-07-03). Ratios are
     // computed at render time from these components; bases/as-of dates differ per operator and
     // are carried per row. RPO (contracted REVENUE) is deliberately excluded from obligations.
@@ -3215,7 +3290,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260703d"></script>
+<script src="app.js?v=20260703e"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

@@ -2948,6 +2948,7 @@ const $ = (id) => document.getElementById(id);
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
     if (DATA.projects && vis($("megaProjectsList"))) renderMegaProjects();   // swap the seed table for the canonical dataset
     if (DATA.projects && vis($("graveyardList"))) renderGraveyard();         // verified retreats from the same dataset
+    if (vis($("playersCards"))) { renderPlayers(); renderPlayerFeed(); }     // dossier joins pick up the fresh feeds
     renderFeedFreshness();
     if (DATA.sources) linkifySources(document.querySelector("section.tab-content.active"));
   }
@@ -3277,6 +3278,67 @@ const $ = (id) => document.getElementById(id);
     renderBottleneckTimeline(); renderBriefing(); renderFeedFreshness();
   }
 
+  /* ----- Players tab: entity index (Wave 2) -----
+     Pure JOIN layer: DATA.players holds identity + tier-tagged constraint one-liners only;
+     every number below is read at render time from its home dataset (companyCapex,
+     overcommitment, projects.json, circularFinancing, cfConcentration, the tagged feed) so
+     no figure ever has a second copy that can drift. Rebuilt on every call (cheap HTML). */
+  function renderPlayers() {
+    const host = $("playersCards");
+    if (!host || !Array.isArray(DATA.players)) return;
+    const cc = DATA.companyCapex || { companies: [], values: [] };
+    const oc = (DATA.overcommitment && DATA.overcommitment.ops) || [];
+    const cf = (DATA.circularFinancing && DATA.circularFinancing.edges) || [];
+    const conc = DATA.cfConcentration || {};
+    const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
+    const feed = DATA.feed || [];
+    const tierCls = t => t === "primary" ? "ok" : (t === "analyst" ? "warn" : "crit");
+    host.innerHTML = DATA.players.map(p => {
+      const rows = [];
+      // 2026 capex guidance (headline set on Capital)
+      const ci = cc.companies.findIndex(n => p.aliases.indexOf(n) !== -1);
+      if (ci !== -1) rows.push('<div class="pl-stat">2026 capex guide <a href="#capital:coCapexChart"><b>$' + cc.values[ci] + 'B</b></a></div>');
+      // Commitment book (filing-grade)
+      const o = oc.find(x => x.sym === p.sym);
+      if (o) {
+        const total = (o.leasesCommenced || 0) + (o.leasesNotCommenced || 0) + (o.purchase || 0) + (o.construction || 0);
+        rows.push('<div class="pl-stat">Pre-committed <a href="#capital:overcommitmentBoard"><b>$' + Math.round(total) + 'B ≈ ' + (total / o.ocf).toFixed(1) + ' yrs of OCF</b></a></div>');
+      }
+      // Named-project ledger (announced targets; graveyard split out)
+      if (pj) {
+        const mine = pj.filter(r => p.aliases.some(a => (r.operator || "").indexOf(a) !== -1));
+        const live = mine.filter(r => GRAVEYARD_STATUSES.indexOf(r.status) === -1);
+        const dead = mine.length - live.length;
+        const mw = live.reduce((s, r) => s + (r.capacity_mw || 0), 0);
+        if (mine.length) rows.push('<div class="pl-stat">Ledger <a href="#buildout"><b>' + live.length + ' build' + (live.length === 1 ? "" : "s") + (mw ? ' · ' + (mw / 1000).toFixed(1) + ' GW announced' : '') + '</b></a>' + (dead ? ' <span class="cf-tier cf-warn" title="stalled / paused / cancelled records in the Graveyard">' + dead + ' shelved</span>' : '') + '</div>');
+      }
+      // Counterparty edges + filed concentration reads
+      if (p.cfNode) {
+        const outN = cf.filter(e => e.from === p.cfNode).length, inN = cf.filter(e => e.to === p.cfNode).length;
+        if (outN + inN) rows.push('<div class="pl-stat">Counterparty edges <a href="#capital"><b>' + outN + ' out · ' + inN + ' in</b></a>' + ((conc[p.cfNode] || []).length ? ' · ' + conc[p.cfNode].length + ' filed reads' : '') + '</div>');
+      }
+      // Latest tagged signal from the weekly feed
+      const sig = feed.find(it => (it.players || []).indexOf(p.sym) !== -1);
+      const sigHtml = sig ? '<div class="pl-signal"><b>' + (sig.date || "") + '</b> · ' + sig.text.slice(0, 150) + (sig.text.length > 150 ? "…" : "") + ' <span class="stack-src">— ' + (sig.src || "") + '</span></div>' : "";
+      return '<div class="pl-card">' +
+        '<div class="pl-head"><span class="brand-mark b-' + (p.brand || "other") + '">' + p.name.charAt(0) + '</span><span class="pl-name">' + p.name + '</span><span class="pl-cls">' + p.cls + '</span></div>' +
+        '<div class="pl-stats">' + rows.join("") + '</div>' +
+        '<div class="pl-constraint"><span class="pl-klabel">Constraint read</span>' + p.constraint.text +
+        ' <span class="cf-tier cf-' + tierCls(p.constraint.tier) + '" title="' + tierTitle(p.constraint.tier) + '">' + p.constraint.tier + '</span></div>' +
+        sigHtml + '</div>';
+    }).join("");
+  }
+
+  function renderPlayerFeed() {
+    const host = $("playerFeed");
+    if (!host) return;
+    const feed = (DATA.feed || []).filter(it => (it.players || []).length);
+    if (!feed.length) { host.innerHTML = '<div class="note">No player-tagged items in the current feed.</div>'; return; }
+    host.innerHTML = feed.map(it =>
+      '<div class="pf-row"><span class="pf-chips">' + it.players.map(s => '<span class="pf-chip">' + s + '</span>').join("") + '</span>' +
+      '<span>' + it.text + ' <span class="stack-src">— ' + (it.src || "") + '</span></span></div>').join("");
+  }
+
   /* ----- Capability manifest (region maturity gating) -----
      REGION_CONFIG.capabilities maps a tab/card key -> bool. A MISSING key defaults to
      ENABLED (back-compat: the US config sets everything true, so all of this is a no-op
@@ -3405,6 +3467,9 @@ const $ = (id) => document.getElementById(id);
       renderPriceCompressionChart();
       renderJevonsChart();
       renderCostPerTaskChart();
+    } else if (name === "players") {
+      renderPlayers();
+      renderPlayerFeed();
     }
   }
 
