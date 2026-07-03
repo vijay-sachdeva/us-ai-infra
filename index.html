@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260703"></script>
+<script src="config.js?v=20260703b"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1435,7 +1435,7 @@
   <div class="tb-wrap">
     <span class="tb-left"><span class="tb-dot"></span> Content updated <span class="tb-date">—</span></span>
     <span class="tb-center">All insights are derived from publicly available information.</span>
-    <span class="tb-right">Contact <a href="mailto:vijaysachdeva@gmail.com">vijaysachdeva@gmail.com</a></span>
+    <span class="tb-right"><a href="https://vijay-sachdeva.github.io/ai-infra/eu/" title="AI Infrastructure Monitor — Europe (pilot)">Europe →</a> &nbsp;·&nbsp; Contact <a href="mailto:vijaysachdeva@gmail.com">vijaysachdeva@gmail.com</a></span>
   </div>
 </div>
 
@@ -1997,6 +1997,14 @@
         <h4>$/token compression — the 100× price drop</h4>
         <div class="note">$ per 1M output tokens at launch &middot; <b>log Y axis</b> (data spans ~125&times; from frontier to OSS-hosted &mdash; linear would hide the cheap end) &middot; lower-right = newer + cheaper</div>
         <div class="chart-box" style="height:320px"><canvas id="priceCompressionChart"></canvas></div>
+      </div>
+
+      <!-- Card 2a: Jevons check — price down vs volume up, on one time axis -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>The Jevons check — does cheaper mean more?</h4>
+        <div class="note">Cheapest <b>frontier flagship</b> price (right axis, step line) against <b>industry token volume</b> (left axis) per quarter &middot; derived from the two series above &middot; if volume outruns the price drop, total spend &mdash; and total power demand &mdash; RISES as tokens get cheaper</div>
+        <div class="chart-box" style="height:320px"><canvas id="jevonsChart"></canvas></div>
+        <div class="sc-method" id="jevonsMethod"></div>
       </div>
 
       <!-- Card 2b: Effective cost per useful task — inverts the price-compression story -->
@@ -3087,7 +3095,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260703"></script>
+<script src="app.js?v=20260703b"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
@@ -3336,6 +3344,7 @@
   <div class="sf-inner">
     <div class="sf-line">US AI Infrastructure Monitor — open &amp; source-linked. Code <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a>, data <a href="https://github.com/vijay-sachdeva/us-ai-infra/blob/main/data/LICENSE" target="_blank" rel="noopener">CC BY 4.0</a>.</div>
     <nav class="sf-nav" aria-label="Data &amp; methods">
+      <a href="https://vijay-sachdeva.github.io/ai-infra/eu/" target="_blank" rel="noopener">🇪🇺 Europe dashboard</a>
       <a href="https://github.com/vijay-sachdeva/us-ai-infra" target="_blank" rel="noopener">GitHub</a>
       <a href="data/projects.json" target="_blank" rel="noopener">Project dataset</a>
       <a href="data/projects.csv" target="_blank" rel="noopener">CSV</a>
