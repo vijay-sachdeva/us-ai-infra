@@ -165,6 +165,7 @@ const $ = (id) => document.getElementById(id);
     demandGapChart: { reviewed: "2026-06", take: "Annual US data-center demand additions outrun new firm generation committed to DC load nearly every year of the projection, with the widest single-year gap of 7 GW in 2027 (17 GW demand added vs. 10 GW firm gen) and demand exceeding new firm gen through 2030.", asof: "2024-2030 projection", src: { label: "modeled (GS / Wood Mackenzie / EIA + IRPs)" } },
     headroomChart: { reviewed: "2026-06", take: "On a derived nameplate-capacity proxy, all nine tracked balancing authorities sit above the 10% 'healthy' line, ranging from Southern Co. (SOCO) tightest at 16.3% to Duke (DUK) loosest at 57.8% spare.", asof: "fetched in CI (see feed stamp)", src: { label: "EIA-930 + EIA-860" } },
     powerPriceBoard: { reviewed: "2026-07", take: "Industrial retail power across the AI data-center corridor spans ~1.6x — Texas and Iowa cheapest near $63/MWh, Georgia ~$68, while Pennsylvania, Virginia and Ohio (the PJM data-center heartland) run ~$98–100/MWh — a standing incentive for megawatts to migrate.", asof: "fetched daily in CI (see method note)", src: { label: "EIA-861 prices" } },
+    playersPowerBank: { reviewed: "2026-07", take: "Among named ledger builds, Amazon leads announced GW (Rainier + Susquehanna) with Meta close behind on Hyperion alone — and the BTM/colocated share shows who is buying power independence rather than queue position.", asof: "source-verified ledger (announced targets)", src: { label: "data/projects.json (per-record citations)" } },
     overcommitmentBoard: { reviewed: "2026-07", take: "Oracle has ~$327B of filed lease + purchase commitments against $32B of annual operating cash flow — ~10 years pre-committed — and CoreWeave ~$58B against ~$6B (~10 yrs, before a $19B excluded lease); the hyperscalers sit at 2.3–3.7 years, but every book is ACCELERATING (Microsoft's unopened leases doubled to $196.6B in nine months; Google's purchase commitments doubled in one quarter).", asof: "latest 10-K/10-Q per operator (Mar–May 2026)", src: { label: "SEC 10-K / 10-Q filings" } },
     tenorClocks: { reviewed: "2026-07", take: "The revenue-bearing asset depreciates over a filed 5.5–6 years, the leases financing it run 12–25 years, and new firm power arrives in 3–7 — every long-tenor take-or-pay signature bets that demand outlives at least two chip refresh cycles.", asof: "filed useful lives + lease terms (2026 filings)", src: { label: "SEC filings + equipment lead-time panels" } },
     jevonsChart: { reviewed: "2026-07", take: "The cheapest frontier flagship fell ~73% ($30 → $8/M tokens) across ten quarters while industry token volume grew ~22x (100T → 2,180T/quarter) — demand grew far faster than price fell, the Jevons pattern the buildout thesis rests on.", asof: "Q1 2024–Q2 2026 · derived from the two charts above", src: { label: "Derived: price-compression + token-volume series (modeled)" } },
@@ -2948,7 +2949,7 @@ const $ = (id) => document.getElementById(id);
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
     if (DATA.projects && vis($("megaProjectsList"))) renderMegaProjects();   // swap the seed table for the canonical dataset
     if (DATA.projects && vis($("graveyardList"))) renderGraveyard();         // verified retreats from the same dataset
-    if (vis($("playersCards"))) { renderPlayers(); renderPlayerFeed(); }     // dossier joins pick up the fresh feeds
+    if (vis($("playersCards"))) { renderPlayers(); renderPowerBank(); renderPlayersGrid(); renderPlayerFeed(); }  // joins pick up the fresh feeds
     renderFeedFreshness();
     if (DATA.sources) linkifySources(document.querySelector("section.tab-content.active"));
   }
@@ -3329,6 +3330,119 @@ const $ = (id) => document.getElementById(id);
     }).join("");
   }
 
+  // Power bank — ledger MW by power-procurement model per player (league) or GW-vs-capex
+  // (scatter). Same joins as the dossier cards; announced targets, coverage-biased (method note).
+  function renderPowerBank() {
+    if (!$("playersPowerBank") || typeof Chart === "undefined" || !Array.isArray(DATA.players)) return;
+    const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
+    if (!pj) return;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const view = renderPowerBank._view || "league";
+    const cc = DATA.companyCapex || { companies: [], values: [] };
+    const rows = DATA.players.map(p => {
+      const live = pj.filter(r => GRAVEYARD_STATUSES.indexOf(r.status) === -1 && p.aliases.some(a => (r.operator || "").indexOf(a) !== -1));
+      const by = { BTM: 0, Colocated: 0, Grid: 0 };
+      live.forEach(r => { const m = r.power && r.power.model; if (by[m] != null) by[m] += (r.capacity_mw || 0); });
+      const ci = cc.companies.findIndex(n => p.aliases.indexOf(n) !== -1);
+      return { name: p.name, sym: p.sym, by: by, mw: by.BTM + by.Colocated + by.Grid, capex: ci !== -1 ? cc.values[ci] : null };
+    }).filter(r => r.mw > 0);
+    rows.sort((a, b) => b.mw - a.mw);
+    if (_charts.playersPowerBank) { try { _charts.playersPowerBank.destroy(); } catch (_) {} delete _charts.playersPowerBank; }
+    if (view === "league") {
+      _charts.playersPowerBank = new Chart($("playersPowerBank"), {
+        type: "bar",
+        data: { labels: rows.map(r => r.name), datasets: [
+          { label: "BTM (on-site generation)", data: rows.map(r => r.by.BTM / 1000), backgroundColor: CHART_PALETTE.pipeline, stack: "s" },
+          { label: "Colocated (adjacent gen)", data: rows.map(r => r.by.Colocated / 1000), backgroundColor: hexA(CHART_PALETTE.demand, 0.85), stack: "s" },
+          { label: "Grid interconnect", data: rows.map(r => r.by.Grid / 1000), backgroundColor: hexA(CHART_PALETTE.context, 0.55), stack: "s" }
+        ]},
+        options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
+          layout: { padding: { right: 64 } },
+          plugins: { legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 12 } },
+            datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: (c) => c.datasetIndex === 2, anchor: "end", align: "end", offset: 6,
+              formatter: (v, c) => rows[c.dataIndex].mw >= 1000 ? (rows[c.dataIndex].mw / 1000).toFixed(1) + " GW" : rows[c.dataIndex].mw + " MW" }),
+            tooltip: { callbacks: { label: c => " " + c.dataset.label + ": " + (c.parsed.x * 1000).toLocaleString() + " MW announced" } } },
+          scales: { x: { stacked: true, grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true },
+                    y: { stacked: true, grid: { display: false } } } }
+      });
+    } else {
+      const pts = rows.filter(r => r.capex != null);
+      _charts.playersPowerBank = new Chart($("playersPowerBank"), {
+        type: "scatter",
+        data: { datasets: [{ label: "players", data: pts.map(r => ({ x: r.capex, y: r.mw / 1000, sym: r.sym })),
+          backgroundColor: CHART_PALETTE.demand, pointRadius: 7 }] },
+        options: { responsive: true, maintainAspectRatio: false,
+          layout: { padding: { top: 18, right: 30 } },
+          plugins: { legend: { display: false },
+            datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, align: "top", offset: 6, formatter: (v) => v.sym }),
+            tooltip: { callbacks: { label: c => " " + c.raw.sym + ": $" + c.parsed.x + "B capex guide · " + c.parsed.y.toFixed(1) + " GW announced" } } },
+          scales: { x: { grid: { color: cl.grid }, ticks: { callback: v => "$" + v + "B" }, title: { display: true, text: "2026 capex guide" }, beginAtZero: true },
+                    y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, title: { display: true, text: "Ledger GW announced" }, beginAtZero: true } } }
+      });
+    }
+    const m = $("powerBankMethod");
+    if (m) m.innerHTML = "<b>Coverage-biased by design.</b> Ledger GW counts only the source-verified named builds (announced/ultimate targets, Graveyard excluded) — operators build far more than the ledger names, and shared campuses count once per named operator. The scatter pairs those GW with the 2026 capex-guide set; players without a named ledger build are absent. Read direction, not magnitude.";
+    const tog = $("powerBankToggle");
+    if (tog && !tog._wired) {
+      tog._wired = true;
+      tog.querySelectorAll(".map-view-btn").forEach(btn => btn.addEventListener("click", () => {
+        if (btn.dataset.pbv === (renderPowerBank._view || "league")) return;
+        renderPowerBank._view = btn.dataset.pbv;
+        tog.querySelectorAll(".map-view-btn").forEach(b => b.classList.toggle("active", b === btn));
+        renderPowerBank();
+      }));
+    }
+  }
+
+  // Player x constraint grid — the dossier joins as one scannable matrix.
+  function renderPlayersGrid() {
+    const host = $("playersGrid");
+    if (!host || !Array.isArray(DATA.players)) return;
+    const cc = DATA.companyCapex || { companies: [], values: [] };
+    const oc = (DATA.overcommitment && DATA.overcommitment.ops) || [];
+    const cf = (DATA.circularFinancing && DATA.circularFinancing.edges) || [];
+    const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
+    const rows = DATA.players.map(p => {
+      const ci = cc.companies.findIndex(n => p.aliases.indexOf(n) !== -1);
+      const o = oc.find(x => x.sym === p.sym);
+      const yrs = o ? (((o.leasesCommenced || 0) + (o.leasesNotCommenced || 0) + (o.purchase || 0) + (o.construction || 0)) / o.ocf) : null;
+      let mw = 0, btm = 0, shelved = 0;
+      if (pj) pj.forEach(r => {
+        if (!p.aliases.some(a => (r.operator || "").indexOf(a) !== -1)) return;
+        if (GRAVEYARD_STATUSES.indexOf(r.status) !== -1) { shelved++; return; }
+        mw += (r.capacity_mw || 0);
+        if (r.power && r.power.model === "BTM") btm += (r.capacity_mw || 0);
+      });
+      const outN = p.cfNode ? cf.filter(e => e.from === p.cfNode).length : 0;
+      const inN = p.cfNode ? cf.filter(e => e.to === p.cfNode).length : 0;
+      return { p: p, capex: ci !== -1 ? cc.values[ci] : null, yrs: yrs, mw: mw, btmPct: mw ? Math.round(100 * btm / mw) : null, shelved: shelved, edges: outN + inN ? outN + "/" + inN : null };
+    }).sort((a, b) => (b.mw - a.mw) || ((b.capex || 0) - (a.capex || 0)));
+    const td = v => "<td>" + (v == null ? "—" : v) + "</td>";
+    host.innerHTML = '<table class="mp-table"><thead><tr><th>Player</th><th>Class</th><th>Capex guide</th><th>Pre-committed</th><th>Ledger GW</th><th>BTM share</th><th>Shelved</th><th>Edges out/in</th></tr></thead><tbody>' +
+      rows.map(r => "<tr><td><span class=\"mp-name\">" + r.p.name + "</span></td><td>" + r.p.cls + "</td>" +
+        td(r.capex != null ? "$" + r.capex + "B" : null) +
+        td(r.yrs != null ? "≈" + r.yrs.toFixed(1) + " yrs OCF" : null) +
+        td(r.mw ? (r.mw / 1000).toFixed(1) : null) +
+        td(r.btmPct != null && r.mw ? r.btmPct + "%" : null) +
+        td(r.shelved || null) + td(r.edges) + "</tr>").join("") +
+      "</tbody></table>";
+  }
+
+  // Neo-cloud scoreboard — cited-figures-only, nullable by design.
+  function renderNeoCloudBoard() {
+    const host = $("neoCloudBoard");
+    if (!host || !DATA.neoCloudBoard) return;
+    const nb = DATA.neoCloudBoard;
+    const tierCls = t => t === "primary" ? "ok" : (t === "analyst" ? "warn" : "crit");
+    host.innerHTML = '<table class="mp-table"><thead><tr><th>Operator</th>' + nb.cols.map(c => "<th>" + c + "</th>").join("") + "</tr></thead><tbody>" +
+      nb.rows.map(r => "<tr><td><span class=\"mp-name\">" + r.name + "</span></td>" +
+        r.cells.map(c => c == null ? "<td>—</td>" :
+          "<td>" + c.v + ' <span class="cf-tier cf-' + tierCls(c.tier) + '" title="' + tierTitle(c.tier) + '">' + c.tier + "</span></td>").join("") + "</tr>").join("") +
+      "</tbody></table>" +
+      '<div class="mp-data-actions">' + nb.methodology + "</div>";
+  }
+
   function renderPlayerFeed() {
     const host = $("playerFeed");
     if (!host) return;
@@ -3469,6 +3583,9 @@ const $ = (id) => document.getElementById(id);
       renderCostPerTaskChart();
     } else if (name === "players") {
       renderPlayers();
+      renderPowerBank();
+      renderPlayersGrid();
+      renderNeoCloudBoard();
       renderPlayerFeed();
     }
   }
@@ -3542,7 +3659,7 @@ const $ = (id) => document.getElementById(id);
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderJevonsChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderPowerPriceBoard","renderPjmAuction","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderOvercommitment","renderTenorClocks","renderFunnel"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderJevonsChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderPowerPriceBoard","renderPjmAuction","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderOvercommitment","renderTenorClocks","renderPowerBank","renderFunnel"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
