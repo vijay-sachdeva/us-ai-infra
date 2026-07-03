@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260703e"></script>
+<script src="config.js?v=20260703f"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1538,7 +1538,7 @@
       <div class="ov-lens-label">Why the power gap opens — follow the chain</div>
       <div class="ov-lenses ov-causal">
         <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span></a>
-        <a class="ov-lens" href="#capital"><span class="ov-step">2 · Capital</span><b>$848B</b><span class="ov-lens-stat">2026 hyperscaler capex chasing that demand · ~75% AI. Money isn't the constraint.</span></a>
+        <a class="ov-lens" href="#capital"><span class="ov-step">2 · Capital</span><b>$839B</b><span class="ov-lens-stat">2026 hyperscaler capex chasing that demand · ~75% AI. Money isn't the constraint.</span></a>
         <a class="ov-lens" href="#buildout"><span class="ov-step">3 · Buildout</span><b>97 GW queued</b><span class="ov-lens-stat">but only ~24 GW truly buildable · transformers 36–60 months. Queued ≠ buildable.</span></a>
         <a class="ov-lens" href="#grid"><span class="ov-step">4 · Grid</span><b>~19 GW short</b><span class="ov-lens-stat">firm power can't keep up · unmet load lands on ratepayers (6 states at &gt;25% rate-hike risk).</span></a>
       </div>
@@ -1562,11 +1562,11 @@
     <section class="tab-content" data-tab="capital">
       <h2 class="tab-title">Capital</h2>
       <p class="tab-sub">Where the money goes — capex, vacancy, returns, M&amp;A. For capital allocators, VCs, corp dev, public-market investors.</p>
-      <p class="gap-connector"><span class="gc-tag">↑ the 19 GW gap</span>Money isn't the constraint — <b>power is</b>. $848B is chasing a market that's ~19 GW short on firm power by 2030; the winners own the megawatts, not the capex.</p>
+      <p class="gap-connector"><span class="gc-tag">↑ the 19 GW gap</span>Money isn't the constraint — <b>power is</b>. $839B is chasing a market that's ~19 GW short on firm power by 2030; the winners own the megawatts, not the capex.</p>
 
       <div class="so-what">
         <label>So what</label>
-        <h3>~$848B of capex is chasing a supply-constrained market. The bottleneck is power, not demand — winners will own the megawatts.</h3>
+        <h3>~$839B of capex is chasing a supply-constrained market. The bottleneck is power, not demand — winners will own the megawatts.</h3>
       </div>
 
       <div class="stub-grid">
@@ -1626,7 +1626,7 @@
       <!-- Full-width: capex flow Sankey (after capex totals + cost stack) -->
       <div class="stub-card">
         <h4>Where the capex flows — 2026</h4>
-        <div class="note">~$808B across the <b>six</b> operators with disclosed spend buckets — the ~$848B headline adds xAI + Nebius (~$40B) · totals are each company's 2026 guidance (primary) · the bucket split is <b>modeled</b> · select a company to drill in</div>
+        <div class="note">~$799B across the <b>six</b> operators with disclosed spend buckets — the ~$839B headline adds xAI + Nebius (~$40B) · totals are each company's 2026 guidance (primary) · the bucket split is <b>modeled</b> · select a company to drill in</div>
         <div class="map-view-toggle" id="capexViewToggle" role="tablist">
           <button class="map-view-btn active" data-cview="all"       type="button">All</button>
           <button class="map-view-btn"        data-cview="Amazon"    type="button">Amazon</button>
@@ -2175,7 +2175,7 @@
         sub: "All US data centers · facility-level load",
         delta: "<b class='up'>+32%</b> vs. 31 GW in 2025",
         src: { label: "Goldman Sachs Research", tier: "analyst" } },
-      { label: "Major operators capex", value: "$848", unit: "B",
+      { label: "Major operators capex", value: "$839", unit: "B",
         sub: "Eight largest operators · projected 2026 spend",
         delta: "<b class='up'>~75% AI-related</b> · up sharply on the AI buildout",
         src: { label: "Company 2026 guidance", tier: "analyst" } },
@@ -2196,14 +2196,14 @@
     /* ----- Investor tab ----- */
     companyCapex: {
       companies: ["Amazon", "Microsoft", "Google", "Meta", "Oracle", "CoreWeave", "Nebius", "xAI"],
-      values:    [200, 190, 185, 150, 50, 33, 22, 18],
+      values:    [200, 190, 185, 135, 56, 33, 22, 18],
       colors:    ["#ff9900", "#0078d4", "#34a853", "#0866ff", "#c74634", "#7c3aed", "#84cc16", "#64748b"],
       srcs: [
         { label: "Amazon 2026 guidance" },
         { label: "Microsoft 2026 guidance" },
         { label: "Alphabet 2026 guidance" },
-        { label: "Meta 2026 guidance" },
-        { label: "Oracle FY2026 guidance" },
+        { label: "Meta 2026 guidance — $125–145B filed range (8-K, Apr 2026); midpoint shown" },
+        { label: "Oracle FY2026 actual capex — $55.7B GAAP (10-K, FYE May 2026)" },
         { label: "CoreWeave 2026 guidance" },
         { label: "Nebius FY2026 capex guidance ($20–25B range)" },
         { label: "xAI 2026 est. — private (Colossus ~$18B GPUs; $20B Series E)" }
@@ -2240,7 +2240,7 @@
         "<b>Fiscal years aren't aligned.</b> Amazon/Alphabet/Meta close in December, Microsoft in June, Oracle in May — combined sums add overlapping but not identical 12-month windows.",
         "<b>Capex definitions differ.</b> Meta's headline figure includes finance-lease principal; the others are cash purchases of PP&amp;E — this modestly overstates Meta's relative share.",
         "<b>2026 combined OCF is blank by design.</b> Amazon, Alphabet and Meta issue no 2026 cash-flow guidance, so a five-company 2026 OCF total (and a 2026 crossover) can't be sourced.",
-        "Excludes AI-native challengers (CoreWeave, xAI, Nebius) — this is the Big-5 <i>public-hyperscaler</i> curve, a narrower scope than the ~$848B all-in capex headline."
+        "Excludes AI-native challengers (CoreWeave, xAI, Nebius) — this is the Big-5 <i>public-hyperscaler</i> curve, a narrower scope than the ~$839B all-in capex headline."
       ]
     },
 
@@ -2294,20 +2294,20 @@
             { label: "Other cloud infra",          lane: "infra",   cat: "otherinfra", value: 5  },
             { label: "Other Bets / devices",       lane: "noncore", cat: "noncore",    value: 16 }
           ] },
-        { name: "Meta",      color: "#0866ff", total: 150, src: { label: "Meta 2026 guidance", tier: "primary" },
+        { name: "Meta",      color: "#0866ff", total: 135, src: { label: "Meta 2026 guidance ($125–145B filed; midpoint)", tier: "primary" },
           buckets: [
-            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 60 },
-            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 26 },
-            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 44 },
-            { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 8  },
+            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 54 },
+            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 23 },
+            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 40 },
+            { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 7  },
             { label: "Other infra",                lane: "infra",   cat: "otherinfra", value: 4  },
-            { label: "Reality Labs / other",       lane: "noncore", cat: "noncore",    value: 8  }
+            { label: "Reality Labs / other",       lane: "noncore", cat: "noncore",    value: 7  }
           ] },
-        { name: "Oracle",    color: "#c74634", total: 50,  src: { label: "Oracle FY2026 guidance", tier: "primary" },
+        { name: "Oracle",    color: "#c74634", total: 56,  src: { label: "Oracle FY2026 actual ($55.7B GAAP, FYE May 2026)", tier: "primary" },
           buckets: [
-            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 21 },
-            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 9  },
-            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 15 },
+            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 24 },
+            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 10 },
+            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 17 },
             { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 3  },
             { label: "Other OCI infra",            lane: "infra",   cat: "otherinfra", value: 1  },
             { label: "Corporate / other",          lane: "noncore", cat: "noncore",    value: 1  }
@@ -2320,7 +2320,7 @@
             { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 2  }
           ] }
       ],
-      methodology: "Totals = each company's 2026 capex guidance (primary). The bucket split is modeled from disclosed signals (custom-silicon mix, merchant-GPU allocation, non-core capex) — estimates, not reported line items. Amazon calibrated to the $200B midpoint; networking trimmed for AWS's flatter RNG mesh."
+      methodology: "Totals = each company's 2026 capex guidance (primary). The bucket split is modeled from disclosed signals (custom-silicon mix, merchant-GPU allocation, non-core capex) — estimates, not reported line items. Amazon calibrated to the $200B midpoint; Meta at the midpoint of its filed $125–145B range; Oracle at FY2026 actual ($55.7B GAAP); networking trimmed for AWS's flatter RNG mesh."
     },
     costStack: {
       layers: [
@@ -2738,7 +2738,7 @@
     },
 
     /* ----- Offtake coverage (Capital) — is 2026 capex demand-pulled or supply-pushed? -----
-       Of the headline ~$848B major-operator capex + named GW pipeline, what share is
+       Of the headline ~$839B major-operator capex + named GW pipeline, what share is
        backed by a SIGNED long-term offtake (hyperscaler lease, AI-lab take-or-pay, cloud
        RPO/backlog) vs partially-disclosed vs speculative/merchant build?
        Backlog/RPO + lease terms = PRIMARY (company filings/IR press). The coverage SHARE
@@ -2790,7 +2790,7 @@
           note: "Hyperscaler builds for OWN demand — no external offtake; demand is internal, not a signed third-party lease.",
           src: { label: "Meta + Entergy 5 GW (megaProjects)", tier: "primary" } }
       ],
-      method: "Segments are a MODELED band: numerator = sum of disclosed long-term offtake (cloud RPO/backlog + named take-or-pay leases above); denominator = the modeled ~$848B major-operator 2026 capex plus the named GW pipeline. RPO/backlog and lease terms are PRIMARY (filings/IR). The contracted SHARE is an estimate — shown as a band, not a precise %. Self-built hyperscaler GW (e.g. Meta Hyperion) is demand-pulled by internal need but carries no external offtake, so it sits in 'speculative/merchant' for offtake-coverage purposes."
+      method: "Segments are a MODELED band: numerator = sum of disclosed long-term offtake (cloud RPO/backlog + named take-or-pay leases above); denominator = the modeled ~$839B major-operator 2026 capex plus the named GW pipeline. RPO/backlog and lease terms are PRIMARY (filings/IR). The contracted SHARE is an estimate — shown as a band, not a precise %. Self-built hyperscaler GW (e.g. Meta Hyperion) is demand-pulled by internal need but carries no external offtake, so it sits in 'speculative/merchant' for offtake-coverage purposes."
     },
 
     /* ----- Circular-financing & counterparty map (Capital) -----
@@ -3290,7 +3290,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260703e"></script>
+<script src="app.js?v=20260703f"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
@@ -3440,7 +3440,7 @@
     if (has("power demand", "41 gw", "how much power", "load"))
       return "US data center power demand is ~41 GW in 2026 (vs 31 GW in 2025), projected to grow to ~100 GW by 2030. See Overview tab.";
     if (has("capex", "spending", "808", "200b", "190b"))
-      return "Major operators' 2026 capex totals ~$808B: AWS $200B, Microsoft $190B, Google $185B, Meta $150B, Oracle $50B, CoreWeave $33B. See Investor tab.";
+      return "Major operators' 2026 capex totals ~$799B: AWS $200B, Microsoft $190B, Google $185B, Meta $135B (midpoint of the filed $125-145B range), Oracle $56B (FY26 actual), CoreWeave $33B. See Investor tab.";
     if (has("cost", "/mw", "per mw", "build cost"))
       return "Building one MW of AI capacity costs ~$42M all-in (illustrative): $11M facility (shell, power, cooling) + $31M compute (servers + GPUs). GPUs are ~$23M — the largest single layer. See Investor or Engineer tab.";
     if (has("vacancy"))
