@@ -29,6 +29,7 @@ jobs:
           python fetch_power_econ.py
           python build_queues.py
           python build_siting.py
+          python fetch_gpu_prices.py
       - name: Archive history (append today's snapshot)
         run: python scripts/archive_history.py
       - name: Commit data
