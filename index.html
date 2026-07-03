@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260703f"></script>
+<script src="config.js?v=20260703g"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -2132,6 +2132,29 @@
       </div>
 
       <div class="stub-card" style="margin-top:14px">
+        <h4>The power bank — who holds the megawatts</h4>
+        <div class="note">Named-build MW from the source-verified ledger, by <b>power-procurement model</b> (BTM = on-site generation &middot; Colocated = adjacent nuclear/gas &middot; Grid = utility interconnect) &middot; announced targets, not current draw &middot; shared campuses (e.g. Stargate Abilene) count once per named operator &middot; toggle to plot GW against 2026 capex</div>
+        <div class="map-view-toggle" id="powerBankToggle" role="tablist" style="margin:6px 0 4px">
+          <button class="map-view-btn active" data-pbv="league" role="tab">League table</button>
+          <button class="map-view-btn" data-pbv="scatter" role="tab">GW vs capex</button>
+        </div>
+        <div class="chart-box short"><canvas id="playersPowerBank"></canvas></div>
+        <div class="sc-method" id="powerBankMethod"></div>
+      </div>
+
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Player &times; constraint grid</h4>
+        <div class="note">The dossier numbers as one scannable matrix &middot; every cell is the same live join (nothing re-keyed) &middot; dashes = not applicable or not disclosed</div>
+        <div id="playersGrid" style="overflow-x:auto"></div>
+      </div>
+
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Neo-cloud scoreboard <span class="cf-tier cf-warn" title="Sparse by design: only figures already cited on this dashboard appear; blank cells mean not-yet-verified, never zero.">nullable</span></h4>
+        <div class="note">The AI-native challengers, cited-figures-only &middot; blank &ne; zero — cells fill as filings passes land &middot; concentration and debt cells live canonically in the counterparty sidebar on Capital</div>
+        <div id="neoCloudBoard" style="overflow-x:auto"></div>
+      </div>
+
+      <div class="stub-card" style="margin-top:14px">
         <h4>Who did what this week</h4>
         <div class="note">The weekly feed, indexed by player &middot; auto-tagged by the daily refresh</div>
         <div id="playerFeed"></div>
@@ -3056,6 +3079,39 @@
       { sym: "CRWV", name: "CoreWeave", brand: "coreweave", cls: "Neo-cloud", cfNode: "CoreWeave", aliases: ["CoreWeave"],
         constraint: { text: "Concentration + tenor: ≈67% of FY25 revenue from Microsoft, $11.8B of GPU-collateralized debt, ~10 years of OCF pre-committed — renewal risk is the survival variable.", tier: "primary" } }
     ],
+    // Neo-cloud scoreboard — cited-figures-only, NULLABLE BY DESIGN (blank = not-yet-verified,
+    // never zero). CRWV cells cite its filings (canonical home: the counterparty sidebar);
+    // APLD/IREN cells cite feed items already on the dashboard; Nebius from the capex set.
+    neoCloudBoard: {
+      cols: ["Contracted / backlog", "Top-customer concentration", "Debt structure", "2026 capex", "Model note"],
+      rows: [
+        { name: "CoreWeave", sym: "CRWV", cells: [
+          { v: "$98.8B RPO · 98% of revenue committed", tier: "primary" },
+          { v: "MSFT ≈67% of FY25 revenue · top-2 = 65% (Q1'26)", tier: "primary" },
+          { v: "$25.1B principal incl. $11.8B GPU-collateralized DDTLs", tier: "primary" },
+          { v: "$31–35B (call)", tier: "analyst" },
+          { v: "~10 yrs of OCF pre-committed (see commitment book)", tier: "primary" } ] },
+        { name: "Applied Digital", sym: "APLD", cells: [
+          { v: "~$36B contracted portfolio across 5 campuses", tier: "primary" },
+          null,
+          null,
+          null,
+          { v: "15-yr take-or-pay AI-factory leases (Delta/Polaris Forge)", tier: "primary" } ] },
+        { name: "Nebius", sym: "NBIS", cells: [
+          null,
+          null,
+          null,
+          { v: "$20–25B guided", tier: "analyst" },
+          null ] },
+        { name: "IREN", sym: "IREN", cells: [
+          null,
+          null,
+          null,
+          null,
+          { v: "Up to 5 GW Nvidia partnership · Sweetwater TX flagship (DSX design)", tier: "analyst" } ] }
+      ],
+      methodology: "Only figures already cited elsewhere on this dashboard appear; blank cells mean not-yet-verified, never zero. CoreWeave figures are from its 10-K/10-Q (canonical home: click CoreWeave on the counterparty map); Applied Digital and IREN rows cite this week's sourced feed items; a full filings pass for the challengers lands in a later increment."
+    },
     // The commitment book — every figure from an SEC filing (verified 2026-07-03). Ratios are
     // computed at render time from these components; bases/as-of dates differ per operator and
     // are carried per row. RPO (contracted REVENUE) is deliberately excluded from obligations.
@@ -3290,7 +3346,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260703f"></script>
+<script src="app.js?v=20260703g"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
