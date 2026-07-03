@@ -165,6 +165,8 @@ const $ = (id) => document.getElementById(id);
     demandGapChart: { reviewed: "2026-06", take: "Annual US data-center demand additions outrun new firm generation committed to DC load nearly every year of the projection, with the widest single-year gap of 7 GW in 2027 (17 GW demand added vs. 10 GW firm gen) and demand exceeding new firm gen through 2030.", asof: "2024-2030 projection", src: { label: "modeled (GS / Wood Mackenzie / EIA + IRPs)" } },
     headroomChart: { reviewed: "2026-06", take: "On a derived nameplate-capacity proxy, all nine tracked balancing authorities sit above the 10% 'healthy' line, ranging from Southern Co. (SOCO) tightest at 16.3% to Duke (DUK) loosest at 57.8% spare.", asof: "fetched in CI (see feed stamp)", src: { label: "EIA-930 + EIA-860" } },
     powerPriceBoard: { reviewed: "2026-07", take: "Industrial retail power across the AI data-center corridor spans ~1.6x — Texas and Iowa cheapest near $63/MWh, Georgia ~$68, while Pennsylvania, Virginia and Ohio (the PJM data-center heartland) run ~$98–100/MWh — a standing incentive for megawatts to migrate.", asof: "fetched daily in CI (see method note)", src: { label: "EIA-861 prices" } },
+    overcommitmentBoard: { reviewed: "2026-07", take: "Oracle has ~$327B of filed lease + purchase commitments against $32B of annual operating cash flow — ~10 years pre-committed — and CoreWeave ~$58B against ~$6B (~10 yrs, before a $19B excluded lease); the hyperscalers sit at 2.3–3.7 years, but every book is ACCELERATING (Microsoft's unopened leases doubled to $196.6B in nine months; Google's purchase commitments doubled in one quarter).", asof: "latest 10-K/10-Q per operator (Mar–May 2026)", src: { label: "SEC 10-K / 10-Q filings" } },
+    tenorClocks: { reviewed: "2026-07", take: "The revenue-bearing asset depreciates over a filed 5.5–6 years, the leases financing it run 12–25 years, and new firm power arrives in 3–7 — every long-tenor take-or-pay signature bets that demand outlives at least two chip refresh cycles.", asof: "filed useful lives + lease terms (2026 filings)", src: { label: "SEC filings + equipment lead-time panels" } },
     jevonsChart: { reviewed: "2026-07", take: "The cheapest frontier flagship fell ~73% ($30 → $8/M tokens) across ten quarters while industry token volume grew ~22x (100T → 2,180T/quarter) — demand grew far faster than price fell, the Jevons pattern the buildout thesis rests on.", asof: "Q1 2024–Q2 2026 · derived from the two charts above", src: { label: "Derived: price-compression + token-volume series (modeled)" } },
     pjmAuctionChart: { reviewed: "2026-07", take: "PJM capacity prices exploded ~11x from $28.92/MW-day (2024/25) to $269.92 (2025/26), then cleared AT the FERC cap in back-to-back auctions ($329.17, then $333.44 for 2027/28) — data-center load is the primary driver, and the 2028/29 print lands July 14, 2026 under the extended collar.", asof: "by delivery year · through the 2027/28 auction (Dec 2025)", src: { label: "PJM Base Residual Auction reports" } },
     rateImpactChart: { reviewed: "2026-06", take: "Under high-DC-load scenarios, Virginia faces a projected +57% residential rate increase by 2030 vs. 2024 — more than double any other state, with only Texas (+28%) and Ohio (+22%) also above 20%.", asof: "by 2030 vs. 2024 (modeled)", src: { label: "Fortune analysis, utility IRPs (modeled)" } },
@@ -913,6 +915,39 @@ const $ = (id) => document.getElementById(id);
     if ($("offtakeMethod")) $("offtakeMethod").textContent = oc.method;
   }
 
+  // Counterparty-exposure sidebar — click a node on the circular-financing map to see its
+  // disclosed commitments in/out (from the same cited edge set), a mutual-vs-one-sided
+  // dependence read, and any filed concentration figures (DATA.cfConcentration; tiered).
+  function renderCfSidebar(nodeId) {
+    const host = $("cfSidebar");
+    if (!host || !DATA.circularFinancing) return;
+    const cf = DATA.circularFinancing;
+    const outE = cf.edges.filter(e => e.from === nodeId);
+    const inE = cf.edges.filter(e => e.to === nodeId);
+    const partners = {};
+    outE.forEach(e => { (partners[e.to] = partners[e.to] || { out: 0, inn: 0 }).out++; });
+    inE.forEach(e => { (partners[e.from] = partners[e.from] || { out: 0, inn: 0 }).inn++; });
+    const fmt = e => '<div class="cf-row" style="grid-template-columns:1fr auto">' +
+      '<span class="cf-row-lbl"><b>' + e.from + '</b> → <b>' + e.to + '</b> · ' + e.label + '</span>' +
+      '<span class="cf-row-amt">' + (e.v == null ? "qual." : "$" + e.v + "B") + '</span></div>';
+    const mutual = Object.keys(partners).filter(p => partners[p].out && partners[p].inn);
+    const conc = (DATA.cfConcentration || {})[nodeId] || [];
+    const tierCls = t => t === "primary" ? "ok" : (t === "analyst" ? "warn" : "crit");
+    host.style.display = "";
+    host.innerHTML =
+      '<div class="cf-sb-head"><b>' + nodeId + '</b> — disclosed counterparty exposure ' +
+      '<button class="cf-sb-close" aria-label="close">×</button></div>' +
+      (mutual.length ? '<div class="cf-sb-tag">Mutual dependence with: ' + mutual.join(", ") + ' (commitments run BOTH directions — the circularity)</div>' : '') +
+      (outE.length ? '<div class="cf-sb-sec">Commitments / capital OUT (' + outE.length + ')</div>' + outE.map(fmt).join("") : '') +
+      (inE.length ? '<div class="cf-sb-sec">Commitments / capital IN (' + inE.length + ')</div>' + inE.map(fmt).join("") : '') +
+      (conc.length ? '<div class="cf-sb-sec">Filed concentration & balance-sheet reads</div>' + conc.map(c =>
+        '<div class="cf-row" style="grid-template-columns:1fr auto"><span class="cf-row-lbl">' + c.fact + '</span>' +
+        '<span class="cf-tier cf-' + tierCls(c.tier) + '" title="' + tierTitle(c.tier) + '">' + c.tier + '</span></div>').join("") : '') +
+      '<div class="cf-sb-foot">Edges inherit the map\'s per-edge citations (ledger below) · concentration rows cite the counterparty\'s own filings · anonymized filing labels ("Customer A") are never name-attributed here beyond what a filing states.</div>';
+    const closeBtn = host.querySelector(".cf-sb-close");
+    if (closeBtn) closeBtn.addEventListener("click", () => { host.style.display = "none"; });
+  }
+
   function renderCircularFinancing(view) {
     const host = $("circularFinancing");
     if (!host || !DATA.circularFinancing) return;
@@ -997,16 +1032,18 @@ const $ = (id) => document.getElementById(id);
     present.forEach(n => {
       const p = pos[n.id];
       const col = (cf.roles[n.role] || {}).color || "#64748b";
-      const g = nodeG.append("g");
+      const g = nodeG.append("g").style("cursor", "pointer")
+        .on("click", () => renderCfSidebar(n.id));
       g.append("circle").attr("cx", p.x).attr("cy", p.y).attr("r", radius)
         .attr("fill", col).attr("stroke", isDark ? "#0f172a" : "#ffffff").attr("stroke-width", 2)
-        .append("title").text(n.id + " — " + (cf.roles[n.role] || {}).label);
+        .append("title").text(n.id + " — " + (cf.roles[n.role] || {}).label + " · click for counterparty exposure");
       const right = Math.cos(p.ang) >= -0.01;
       const lx = p.x + Math.cos(p.ang) * 16;
       const ly = p.y + Math.sin(p.ang) * 16;
       g.append("text").attr("x", lx).attr("y", ly).attr("dy", "0.34em")
         .attr("text-anchor", right ? "start" : "end")
         .attr("fill", txt).attr("font-size", "11.5px").attr("font-weight", "700")
+        .style("cursor", "pointer").on("click", () => renderCfSidebar(n.id))
         .text(n.id);
     });
 
@@ -1546,6 +1583,92 @@ const $ = (id) => document.getElementById(id);
     });
     const m = $("capexVsCashflowMethod");
     if (m) m.innerHTML = "<b>The crossover watch.</b> " + t.crossover + " <b>" + t.oracleCrossover + "</b> Source: " + t.src.label + ".";
+  }
+
+  // The commitment book — undiscounted lease payments (commenced + not-yet-commenced) +
+  // disclosed purchase/construction commitments, stacked per operator, with the per-row
+  // ratio "years of operating cash flow pre-committed". Every figure filed; see DATA block.
+  function renderOvercommitment() {
+    if (!$("overcommitmentBoard") || typeof Chart === "undefined" || !DATA.overcommitment) return;
+    if (renderOvercommitment._done) return;
+    renderOvercommitment._done = true;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const oc = DATA.overcommitment;
+    const rows = oc.ops.map(o => {
+      const total = (o.leasesCommenced || 0) + (o.leasesNotCommenced || 0) + (o.purchase || 0) + (o.construction || 0);
+      return Object.assign({}, o, { total: total, years: total / o.ocf });
+    }).sort((a, b) => b.years - a.years);
+    const seg = (key) => rows.map(r => r[key] || 0);
+    _charts.overcommitmentBoard = new Chart($("overcommitmentBoard"), {
+      type: "bar",
+      data: { labels: rows.map(r => r.name), datasets: [
+        { label: "Leases — commenced (undiscounted)", data: seg("leasesCommenced"), backgroundColor: hexA(CHART_PALETTE.context, 0.55), stack: "s" },
+        { label: "Leases — signed, not yet commenced", data: seg("leasesNotCommenced"), backgroundColor: CHART_PALETTE.pipeline, stack: "s" },
+        { label: "Purchase commitments", data: seg("purchase"), backgroundColor: hexA(CHART_PALETTE.demand, 0.85), stack: "s" },
+        { label: "Construction commitments", data: seg("construction"), backgroundColor: hexA(CHART_PALETTE.supply, 0.7), stack: "s" }
+      ]},
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 96 } },
+        plugins: {
+          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 12 } },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: (c) => c.datasetIndex === 3, anchor: "end", align: "end", offset: 6,
+            formatter: (v, c) => { const r = rows[c.dataIndex]; return "$" + Math.round(r.total) + "B ≈ " + r.years.toFixed(1) + " yrs of OCF"; } }),
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": $" + (c.parsed.x || 0).toLocaleString() + "B",
+            afterBody: (items) => { const r = rows[items[0].dataIndex];
+              return ["", "OCF: $" + r.ocf + "B (" + r.ocfBasis + ") → ≈" + r.years.toFixed(1) + " years pre-committed",
+                      r.accel ? "Inflection: " + r.accel : ""].filter(Boolean); },
+            footer: (items) => { const r = rows[items[0].dataIndex]; return (r.detail || "").match(/.{1,90}(\s|$)/g) || []; }
+          } }
+        },
+        scales: {
+          x: { stacked: true, grid: { color: cl.grid }, ticks: { callback: v => "$" + v + "B" }, beginAtZero: true },
+          y: { stacked: true, grid: { display: false } }
+        }
+      }
+    });
+    const m = $("overcommitmentMethod");
+    if (m) m.innerHTML = "<b>Method & honesty notes.</b> " + oc.methodology + " Source: " + oc.src.label + ".";
+  }
+
+  // The three clocks — floating range bars: asset life vs obligation tenor vs power arrival.
+  function renderTenorClocks() {
+    if (!$("tenorClocks") || typeof Chart === "undefined" || !DATA.tenorClocks) return;
+    if (renderTenorClocks._done) return;
+    renderTenorClocks._done = true;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const tc = DATA.tenorClocks;
+    _charts.tenorClocks = new Chart($("tenorClocks"), {
+      type: "bar",
+      data: { labels: tc.items.map(i => i.label), datasets: [{
+        label: "years",
+        data: tc.items.map(i => [i.lo, i.hi]),
+        backgroundColor: tc.items.map(i => hexA(CHART_PALETTE[i.color] || CHART_PALETTE.context, 0.8)),
+        borderWidth: 0, barThickness: 26, borderRadius: 4
+      }]},
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 70 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, anchor: "end", align: "end", offset: 6,
+            formatter: (v, c) => { const i = tc.items[c.dataIndex]; return i.lo + "–" + i.hi + " yrs"; } }),
+          tooltip: { callbacks: {
+            label: c => " " + tc.items[c.dataIndex].lo + "–" + tc.items[c.dataIndex].hi + " years",
+            afterBody: (items) => (tc.items[items[0].dataIndex].note || "").match(/.{1,90}(\s|$)/g) || []
+          } }
+        },
+        scales: {
+          x: { grid: { color: cl.grid }, ticks: { callback: v => v + " yrs" }, beginAtZero: true, max: 26 },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+    const m = $("tenorClocksMethod");
+    if (m) m.innerHTML = "<b>The mismatch.</b> " + tc.methodology + " Source: " + tc.src.label + ".";
   }
 
   function renderCapexChart() {
@@ -3199,6 +3322,8 @@ const $ = (id) => document.getElementById(id);
       renderCapexAiShare();
       renderCapexTrend();
       renderCapexVsCashflow();
+      renderOvercommitment();
+      renderTenorClocks();
       renderVacancyChart();
       renderOfftakeCoverage();
       renderCircularFinancing("all");
@@ -3317,7 +3442,7 @@ const $ = (id) => document.getElementById(id);
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderJevonsChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderPowerPriceBoard","renderPjmAuction","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderFunnel"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderJevonsChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderPowerPriceBoard","renderPjmAuction","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderOvercommitment","renderTenorClocks","renderFunnel"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
