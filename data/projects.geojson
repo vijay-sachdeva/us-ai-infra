@@ -311,6 +311,116 @@
     "confidence": "high",
     "source_url": "https://www.caterpillar.com/en/news/corporate-press-releases/h/joule-caterpillar-wheeler.html"
    }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -86.5089,
+     41.7003
+    ]
+   },
+   "properties": {
+    "id": "rainier-aws-in",
+    "name": "Project Rainier (AWS New Carlisle campus)",
+    "operator": "Amazon (AWS)",
+    "state": "IN",
+    "capacity_mw": 2250,
+    "capacity_type": "total_power",
+    "status": "operational",
+    "power_model": "Grid",
+    "confidence": "medium",
+    "source_url": "https://www.aboutamazon.com/news/aws/aws-project-rainier-ai-trainium-chips-compute-cluster"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -104.82,
+     41.14
+    ]
+   },
+   "properties": {
+    "id": "project-jade-cheyenne-wy",
+    "name": "Project Jade (Cheyenne, WY)",
+    "operator": "Crusoe (developer — exited); Black Hills (utility partner)",
+    "state": "WY",
+    "capacity_mw": 1800,
+    "capacity_type": "total_power",
+    "status": "paused",
+    "power_model": null,
+    "confidence": "high",
+    "source_url": "https://www.datacenterdynamics.com/en/news/crusoe-pauses-work-on-18gw-cheyenne-wyoming-data-center-at-the-request-of-our-customer/"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -82.44,
+     40.06
+    ]
+   },
+   "properties": {
+    "id": "microsoft-licking-county-oh",
+    "name": "Microsoft Licking County sites (New Albany / Heath / Hebron)",
+    "operator": "Microsoft",
+    "state": "OH",
+    "capacity_mw": null,
+    "capacity_type": "unspecified",
+    "status": "paused",
+    "power_model": null,
+    "confidence": "high",
+    "source_url": "https://www.datacenterdynamics.com/en/news/microsoft-backs-away-from-1bn-data-center-plans-in-licking-county-ohio/"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -110.97,
+     32.22
+    ]
+   },
+   "properties": {
+    "id": "project-blue-tucson-az",
+    "name": "Project Blue (Tucson, AZ)",
+    "operator": "Beale Infrastructure (Blue Owl); anchor operator (reportedly AWS) exited",
+    "state": "AZ",
+    "capacity_mw": 600,
+    "capacity_type": "total_power",
+    "status": "stalled",
+    "power_model": null,
+    "confidence": "medium",
+    "source_url": "https://azluminaria.org/2025/08/06/tucson-city-council-rejects-project-blue-amid-intense-community-pressure/"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -99.8009,
+     32.4942
+    ]
+   },
+   "properties": {
+    "id": "stargate-abilene-expansion-tx",
+    "name": "Stargate Abilene — expansion phase",
+    "operator": "Oracle / OpenAI / Crusoe",
+    "state": "TX",
+    "capacity_mw": 600,
+    "capacity_type": "total_power",
+    "status": "cancelled",
+    "power_model": null,
+    "confidence": "medium",
+    "source_url": "https://www.datacenterdynamics.com/en/news/oracleopenai-drop-plans-to-expand-flagship-abilene-stargate-site-meta-in-talks-to-pick-up-crusoe-capacity-with-nvidias-help/"
+   }
   }
  ]
 }

@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260701"></script>
+<script src="config.js?v=20260703"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1760,6 +1760,14 @@
         <div id="megaProjectsList" style="margin-top:6px"></div>
       </div>
 
+      <!-- Full-width: Graveyard & stalls — verified retreats (the counterweight to announcement bias) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Graveyard &amp; stalls — verified retreats</h4>
+        <div class="note">Announced projects later <b>paused, stalled, or cancelled</b> — the counterweight to announcement bias, from the same cited open dataset (status changes carry their own sources; the <b>stated reason</b> is tiered separately from the status fact). Excluded from the headline GW totals above.</div>
+        <div id="graveyardList" style="margin-top:6px"></div>
+        <div class="mp-data-actions" id="graveyardFoot"></div>
+      </div>
+
       <div class="stub-grid" style="margin-top:14px">
         <!-- Card 2: Lead time by region (chart) -->
         <div class="stub-card">
@@ -1874,11 +1882,27 @@
           <div class="chart-box short"><canvas id="headroomChart"></canvas></div>
         </div>
 
+        <!-- Card: What power costs, by state (EIA-861 feed, fetched daily in CI) -->
+        <div class="stub-card">
+          <h4>What power costs, by state <span class="cf-tier cf-ok" title="Primary — directly reported by a government source.">primary</span><span class="feed-stamp" data-feed="power_econ"></span></h4>
+          <div class="note">Industrial retail electricity price ($/MWh) across the AI data-center corridor &middot; a rough proxy for the power-cost term in siting decisions (large DCs often negotiate below-tariff rates) &middot; fetched daily in CI</div>
+          <div class="chart-box short"><canvas id="powerPriceBoard"></canvas></div>
+          <div class="sc-method" id="powerPriceMethod"></div>
+        </div>
+
         <!-- Card 2: Retail rate impact by state (chart) -->
         <div class="stub-card">
           <h4>Projected retail rate increase by 2030</h4>
           <div class="note">Residential rate impact under high-DC-load scenarios &middot; vs. 2024</div>
           <div class="chart-box short"><canvas id="rateImpactChart"></canvas></div>
+        </div>
+
+        <!-- Card: PJM capacity auction — the market price of the power squeeze -->
+        <div class="stub-card">
+          <h4>PJM capacity auction — the price of the squeeze</h4>
+          <div class="note">Base Residual Auction RTO clearing price by <b>delivery year</b> (auction timing has been irregular) &middot; data-center load is the primary driver of the run-up &middot; the 2028/29 result lands <b>July 14, 2026</b> under the extended price collar</div>
+          <div class="chart-box short"><canvas id="pjmAuctionChart"></canvas></div>
+          <div class="sc-method" id="pjmAuctionMethod"></div>
         </div>
 
         <!-- Card 3: ISO / transmission constraints (table) -->
@@ -2294,17 +2318,17 @@
       { name: "Childress",        operator: "IREN",                     state: "TX", mw:  750, status: "operational", power: { gen: "Grid (ERCOT)", model: "Grid" },
         keyRisk: { text: "Energized — expansion power procurement in ERCOT", gate: "power" },
         src: { label: "IREN 10-Q",                                   tier: "primary" } },
-      { name: "Delta Forge",      operator: "Applied Digital",          state: "TX", mw:  640, status: "construction", power: { gen: "Grid (ERCOT)", model: "Grid" },
-        keyRisk: { text: "ERCOT interconnection + power-contract timing", gate: "interconnection" },
+      { name: "Delta Forge 1",    operator: "Applied Digital",          state: "LA", mw:  430, status: "construction", power: { gen: "Grid (Cleco)", model: "Grid" },
+        keyRisk: { text: "Cleco interconnection + power-contract timing", gate: "interconnection" },
         src: { label: "Applied Digital IR — Delta Forge 1+2",        tier: "primary" } },
-      { name: "Hale County",      operator: "Aligned Data Centers",     state: "TX", mw:  540, status: "construction", power: { gen: "Grid (ERCOT)", model: "Grid" },
-        keyRisk: { text: "ERCOT interconnection ramp", gate: "interconnection" },
+      { name: "Hale County",      operator: "Aligned Data Centers",     state: "TX", mw:  540, status: "construction", power: { gen: "Grid (Xcel / SPP)", model: "Grid" },
+        keyRisk: { text: "SPP interconnection ramp", gate: "interconnection" },
         src: { label: "Aligned Hale County TX 540 MW campus",        tier: "primary" } },
       { name: "Fairwater",        operator: "Microsoft",                state: "WI", mw:  500, status: "operational", power: { gen: "Grid (MISO)", model: "Grid" },
         keyRisk: { text: "Energized — MISO / ATC transmission for expansion", gate: "power" },
         src: { label: "MSFT Mount Pleasant WI press release",        tier: "primary" } },
-      { name: "Polaris Forge",    operator: "Applied Digital",          state: "ND", mw:  500, status: "construction", power: { gen: "On-site gas", model: "BTM" },
-        keyRisk: { text: "Ellendale ND on-site power ramp", gate: "power" },
+      { name: "Polaris Forge 1",  operator: "Applied Digital",          state: "ND", mw:  400, status: "construction", power: { gen: "Grid (MDU)", model: "Grid" },
+        keyRisk: { text: "Ellendale ND grid-power ramp", gate: "power" },
         src: { label: "Applied Digital IR — Ellendale ND",           tier: "primary" } },
       { name: "Homer City Energy Campus", operator: "Homer City / Kiewit", state: "PA", mw: 4500, status: "construction", power: { gen: "Gas (coal→NG)", model: "BTM" },
         keyRisk: { text: "GE Vernova 7 H₂-capable turbines (first deliveries 2026); largest US gas-for-DC campus; first power ~2027", gate: "generation" },
@@ -2905,6 +2929,20 @@
       note: "Year-on-year addition of US data center demand vs. new firm generation committed specifically to DC load. Bars exceeding the generation line indicate a widening gap.",
       src: { label: "Goldman Sachs, Wood Mackenzie, EIA + utility IRP filings (modeled)", tier: "analyst" }
     },
+    // PJM Base Residual Auction — RTO clearing price by DELIVERY YEAR ($/MW-day, UCAP).
+    // All figures from PJM's own auction releases (primary); costs as published by PJM/press.
+    pjmAuction: {
+      series: [
+        { dy: "2024/25", price: 28.92,  note: "Results Feb 27, 2023 · total auction cost ≈$2.2B" },
+        { dy: "2025/26", price: 269.92, note: "Results Jul 30, 2024 · ≈$14.7B · zonal peaks: BGE $466.35, Dominion $444.26" },
+        { dy: "2026/27", price: 329.17, atCap: true, note: "Cleared AT the FERC cap ($329.17 UCAP) · results Jul 22, 2025 · ≈$16.1B" },
+        { dy: "2027/28", price: 333.44, atCap: true, note: "Cleared AT the cap ($333.44 UCAP) · results Dec 17, 2025 · ≈$16.4B cleared×price (PJM)" },
+        { dy: "2028/29", price: null, pending: "→ Jul 14", note: "Auction ran Jun 30–Jul 7, 2026 · results Jul 14 after 4pm ET · same ~$325/$175 nominal collar, extended by FERC Apr 2026" }
+      ],
+      collar: null,   // drawn per-bar via atCap — the nominal $325 cap maps to different UCAP values per year
+      methodology: "PJM Base Residual Auction reports — RTO-wide clearing price in $/MW-day (UCAP), labeled by delivery year because auction timing has been irregular (the 2024/25 auction ran Feb 2023; 2027/28 ran Dec 2025). 2026/27 and 2027/28 cleared AT the FERC-approved collar cap: nominal ~$325/MW-day, which translates to $329.17 and $333.44 in UCAP terms respectively. FERC extended the same nominal collar (~$325 cap / $175 floor) to the 2028/29 and 2029/30 auctions in April 2026. Data-center load is the primary driver of the price run-up per PJM's independent market monitor.",
+      src: { label: "PJM Base Residual Auction reports", tier: "primary" }
+    },
     rateImpacts: {
       states: [
         { state: "Virginia",       increase: 57 },
@@ -3049,7 +3087,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260701"></script>
+<script src="app.js?v=20260703"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

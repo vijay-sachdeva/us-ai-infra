@@ -1,30 +1,67 @@
 {
   "name": "US AI data-center project + power-deal ledger",
-  "version": "0.1.0",
-  "generated": "2026-06-24",
+  "version": "0.2.0",
+  "generated": "2026-07-03",
   "license": "CC-BY-4.0",
   "schema": "schemas/projects.schema.json",
   "attribution": "US AI Infrastructure Monitor — data CC BY 4.0, https://vijay-sachdeva.github.io/us-ai-infra",
-  "notes": "Named US AI data-center campuses and their power arrangements. Each record's source URLs were opened and checked: supports_claim=true means the page was confirmed to state this operator + ~MW + status. Several headline MW figures are ultimate/announced targets, not confirmed current draw — see capacity_type, transformation, confidence, and note per record. Analyst-sourced records remain under their owners' terms (see data/LICENSE).",
-  "record_count": 15,
+  "notes": "Named US AI data-center campuses and their power arrangements. Each record's source URLs were opened and checked: supports_claim=true means the page was confirmed to state this operator + ~MW + status. Several headline MW figures are ultimate/announced targets, not confirmed current draw — see capacity_type, transformation, confidence, and note per record. Analyst-sourced records remain under their owners' terms (see data/LICENSE). v0.2.0 adds Project Rainier (closing the largest per-operator coverage gap) and introduces GRAVEYARD records — status stalled/paused/cancelled with status_history — as the verified counterweight to announcement bias; graveyard records are excluded from headline GW totals, and stated REASONS are attribution-tagged (company on-record vs analyst vs anonymous-source) separately from the status fact.",
+  "record_count": 20,
   "records": [
     {
       "id": "hyperion-meta-la",
       "name": "Hyperion (Meta Richland Parish)",
       "operator": "Meta",
       "state": "LA",
-      "location": { "lat": 32.477149, "lon": -91.632333, "precision": "site" },
+      "location": {
+        "lat": 32.477149,
+        "lon": -91.632333,
+        "precision": "site"
+      },
       "capacity_mw": 5000,
       "capacity_type": "it_critical_load",
       "status": "construction",
       "status_as_of": "2026-06",
-      "power": { "generation": "Gas (Entergy) + up to 1.5 GW solar", "model": "Colocated" },
+      "power": {
+        "generation": "Gas (Entergy) + up to 1.5 GW solar",
+        "model": "Colocated"
+      },
       "note": "~$27B JV with Blue Owl. The 5 GW is Zuckerberg's ultimate-compute target; Meta's own page states 'over 2 GW of compute'. Entergy building up to ~3.8–7.5 GW of LPSC-approved gas to serve it.",
-      "provenance": "operator", "transformation": "forecast", "confidence": "high", "revision": 1,
+      "provenance": "operator",
+      "transformation": "forecast",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "meta-ir-hyperion-jv", "url": "https://investor.atmeta.com/investor-news/press-release-details/2025/Meta-Announces-Joint-Venture-with-Funds-Managed-by-Blue-Owl-Capital-to-Develop-Hyperion-Data-Center/default.aspx", "label": "Meta IR: Blue Owl JV to develop Hyperion", "publisher": "Meta Platforms (IR)", "provenance": "operator", "published": "2025-10-21", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "meta-dc-richland-parish", "url": "https://datacenters.atmeta.com/richland-parish-data-center/", "label": "Meta Data Centers: Richland Parish ('over two gigawatts of compute')", "publisher": "Meta Platforms", "provenance": "operator", "published": "2024-12", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "entergy-lpsc-approval", "url": "https://www.entergy.com/news/entergy-louisiana-receives-lpsc-approval-for-major-infrastructure-investments-to-support-metas-data-center-and-improve-reliability", "label": "Entergy: LPSC approval of gas + transmission + solar for Meta", "publisher": "Entergy Louisiana", "provenance": "operator", "published": "2025-08-20", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "meta-ir-hyperion-jv",
+          "url": "https://investor.atmeta.com/investor-news/press-release-details/2025/Meta-Announces-Joint-Venture-with-Funds-Managed-by-Blue-Owl-Capital-to-Develop-Hyperion-Data-Center/default.aspx",
+          "label": "Meta IR: Blue Owl JV to develop Hyperion",
+          "publisher": "Meta Platforms (IR)",
+          "provenance": "operator",
+          "published": "2025-10-21",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "meta-dc-richland-parish",
+          "url": "https://datacenters.atmeta.com/richland-parish-data-center/",
+          "label": "Meta Data Centers: Richland Parish ('over two gigawatts of compute')",
+          "publisher": "Meta Platforms",
+          "provenance": "operator",
+          "published": "2024-12",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "entergy-lpsc-approval",
+          "url": "https://www.entergy.com/news/entergy-louisiana-receives-lpsc-approval-for-major-infrastructure-investments-to-support-metas-data-center-and-improve-reliability",
+          "label": "Entergy: LPSC approval of gas + transmission + solar for Meta",
+          "publisher": "Entergy Louisiana",
+          "provenance": "operator",
+          "published": "2025-08-20",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -32,18 +69,55 @@
       "name": "Stargate Abilene (Crusoe / Lancium)",
       "operator": "OpenAI / Oracle / Crusoe",
       "state": "TX",
-      "location": { "lat": 32.4942, "lon": -99.8009, "precision": "site" },
+      "location": {
+        "lat": 32.4942,
+        "lon": -99.8009,
+        "precision": "site"
+      },
       "capacity_mw": 1200,
       "capacity_type": "total_power",
       "status": "construction",
       "status_as_of": "2025-11",
-      "power": { "generation": "Gas (on-site turbines)", "model": "BTM" },
+      "power": {
+        "generation": "Gas (on-site turbines)",
+        "model": "BTM"
+      },
       "note": "Stargate flagship site; 8 buildings / 1.2 GW total. Phase 1 (200 MW+ IT) live on Oracle OCI for OpenAI since Sep 2025; full buildout targeted mid-2026.",
-      "provenance": "operator", "transformation": "reported", "confidence": "high", "revision": 1,
+      "provenance": "operator",
+      "transformation": "reported",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "crusoe-abilene-1-2gw", "url": "https://www.crusoe.ai/resources/newsroom/crusoe-expands-ai-data-center-campus-in-abilene-to-1-2-gigawatts", "label": "Crusoe expands Abilene campus to 1.2 GW", "publisher": "Crusoe", "provenance": "operator", "published": "2025-03-18", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "crusoe-abilene-live", "url": "https://www.crusoe.ai/resources/newsroom/crusoe-announces-flagship-abilene-data-center-is-live", "label": "Crusoe: flagship Abilene data center live on Oracle OCI", "publisher": "Crusoe", "provenance": "operator", "published": "2025-09-30", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "dcd-abilene-topout", "url": "https://www.datacenterdynamics.com/en/news/crusoe-tops-out-final-building-at-openai-stargate-data-center-campus-in-abilene-texas/", "label": "Crusoe tops out final building at Abilene Stargate campus", "publisher": "Data Center Dynamics", "provenance": "trade_press", "published": "2025-11-17", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "crusoe-abilene-1-2gw",
+          "url": "https://www.crusoe.ai/resources/newsroom/crusoe-expands-ai-data-center-campus-in-abilene-to-1-2-gigawatts",
+          "label": "Crusoe expands Abilene campus to 1.2 GW",
+          "publisher": "Crusoe",
+          "provenance": "operator",
+          "published": "2025-03-18",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "crusoe-abilene-live",
+          "url": "https://www.crusoe.ai/resources/newsroom/crusoe-announces-flagship-abilene-data-center-is-live",
+          "label": "Crusoe: flagship Abilene data center live on Oracle OCI",
+          "publisher": "Crusoe",
+          "provenance": "operator",
+          "published": "2025-09-30",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcd-abilene-topout",
+          "url": "https://www.datacenterdynamics.com/en/news/crusoe-tops-out-final-building-at-openai-stargate-data-center-campus-in-abilene-texas/",
+          "label": "Crusoe tops out final building at Abilene Stargate campus",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2025-11-17",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -51,17 +125,45 @@
       "name": "Nebius Pennsylvania",
       "operator": "Nebius",
       "state": "PA",
-      "location": { "lat": null, "lon": null, "precision": "unknown" },
+      "location": {
+        "lat": null,
+        "lon": null,
+        "precision": "unknown"
+      },
       "capacity_mw": 1200,
       "capacity_type": "total_power",
       "status": "planned",
       "status_as_of": "2026-05",
-      "power": { "generation": "Grid (PJM)", "model": "Grid" },
+      "power": {
+        "generation": "Grid (PJM)",
+        "model": "Grid"
+      },
       "note": "Nebius secured up to 1.2 GW of power + land for an owned AI factory at an undisclosed PA site; 'lights up' end-2027 at 250–350 MW, +300 MW/yr to 1.2 GW. Exact location not disclosed.",
-      "provenance": "operator", "transformation": "reported", "confidence": "high", "revision": 1,
+      "provenance": "operator",
+      "transformation": "reported",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "nebius-q1-2026-results", "url": "https://nebius.com/newsroom/nebius-reports-first-quarter-2026-financial-results", "label": "Nebius Q1 2026 results — 'up to 1.2 GW of power and land ... in Pennsylvania'", "publisher": "Nebius Group N.V.", "provenance": "operator", "published": "2026-05-13", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "dcd-nebius-pa", "url": "https://www.datacenterdynamics.com/en/news/nebius-plans-second-us-gigawatt-scale-data-center-campus-in-pennsylvania/", "label": "Nebius plans 1.2 GW PA campus; location undisclosed", "publisher": "Data Center Dynamics", "provenance": "trade_press", "published": "2026-05-14", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "nebius-q1-2026-results",
+          "url": "https://nebius.com/newsroom/nebius-reports-first-quarter-2026-financial-results",
+          "label": "Nebius Q1 2026 results — 'up to 1.2 GW of power and land ... in Pennsylvania'",
+          "publisher": "Nebius Group N.V.",
+          "provenance": "operator",
+          "published": "2026-05-13",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcd-nebius-pa",
+          "url": "https://www.datacenterdynamics.com/en/news/nebius-plans-second-us-gigawatt-scale-data-center-campus-in-pennsylvania/",
+          "label": "Nebius plans 1.2 GW PA campus; location undisclosed",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2026-05-14",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -69,17 +171,45 @@
       "name": "Prometheus (Meta New Albany)",
       "operator": "Meta",
       "state": "OH",
-      "location": { "lat": 40.0583, "lon": -82.7551, "precision": "site" },
+      "location": {
+        "lat": 40.0583,
+        "lon": -82.7551,
+        "precision": "site"
+      },
       "capacity_mw": 1000,
       "capacity_type": "total_power",
       "status": "construction",
       "status_as_of": "2026-05",
-      "power": { "generation": "Grid (AEP Ohio) + BTM gas (Socrates) + contracted nuclear", "model": "Grid" },
+      "power": {
+        "generation": "Grid (AEP Ohio) + BTM gas (Socrates) + contracted nuclear",
+        "model": "Grid"
+      },
       "note": "Meta's first 1 GW AI supercluster; >500 MW already installed. The '1 GW' is an announced target reported by trade press; Meta's own New Albany page does not state it.",
-      "provenance": "trade_press", "transformation": "forecast", "confidence": "high", "revision": 1,
+      "provenance": "trade_press",
+      "transformation": "forecast",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "techcrunch-prometheus", "url": "https://techcrunch.com/2025/07/14/mark-zuckerberg-says-meta-is-building-a-5gw-ai-data-center/", "label": "Zuckerberg: 1 GW Prometheus online 2026, New Albany OH", "publisher": "TechCrunch", "provenance": "trade_press", "published": "2025-07-14", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "dcf-hyperion-prometheus", "url": "https://www.datacenterfrontier.com/hyperscale/article/55310441/ownership-and-power-challenges-in-metas-hyperion-and-prometheus-data-centers", "label": "Prometheus campus, New Albany (740 acres); Socrates South 200 MW gas", "publisher": "Data Center Frontier", "provenance": "trade_press", "published": "2025-08-22", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "techcrunch-prometheus",
+          "url": "https://techcrunch.com/2025/07/14/mark-zuckerberg-says-meta-is-building-a-5gw-ai-data-center/",
+          "label": "Zuckerberg: 1 GW Prometheus online 2026, New Albany OH",
+          "publisher": "TechCrunch",
+          "provenance": "trade_press",
+          "published": "2025-07-14",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcf-hyperion-prometheus",
+          "url": "https://www.datacenterfrontier.com/hyperscale/article/55310441/ownership-and-power-challenges-in-metas-hyperion-and-prometheus-data-centers",
+          "label": "Prometheus campus, New Albany (740 acres); Socrates South 200 MW gas",
+          "publisher": "Data Center Frontier",
+          "provenance": "trade_press",
+          "published": "2025-08-22",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -87,18 +217,55 @@
       "name": "Meta Lebanon (Indiana)",
       "operator": "Meta",
       "state": "IN",
-      "location": { "lat": 40.06, "lon": -86.55, "precision": "city" },
+      "location": {
+        "lat": 40.06,
+        "lon": -86.55,
+        "precision": "city"
+      },
       "capacity_mw": 1000,
       "capacity_type": "unspecified",
       "status": "construction",
       "status_as_of": "2026-02",
-      "power": { "generation": "Grid (MISO)", "model": "Grid" },
+      "power": {
+        "generation": "Grid (MISO)",
+        "model": "Grid"
+      },
       "note": "Broke ground Feb 2026 — $10B+, ~4M sq ft, 1,500-acre, 13-building campus in the LEAP District; first phase late 2027/early 2028. '1 GW of capacity' per Meta; total-vs-IT split not disclosed.",
-      "provenance": "operator", "transformation": "forecast", "confidence": "high", "revision": 1,
+      "provenance": "operator",
+      "transformation": "forecast",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "meta-fb-lebanon", "url": "https://about.fb.com/news/2026/02/metas-new-data-center-lebanon-indiana-marks-milestone-ai-investment/", "label": "Meta: new Lebanon, Indiana data center", "publisher": "Meta (newsroom)", "provenance": "operator", "published": "2026-02-11", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "lebanon-gov-meta", "url": "https://lebanon.in.gov/2026/02/11/meta-makes-lebanon-data-center-announcement-official/", "label": "City of Lebanon, IN: Meta announcement official", "publisher": "City of Lebanon, Indiana", "provenance": "government", "published": "2026-02-11", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "dcd-meta-indiana", "url": "https://www.datacenterdynamics.com/en/news/meta-announces-1gw-data-center-campus-in-indiana/", "label": "Meta announces 1 GW campus in Indiana", "publisher": "Data Center Dynamics", "provenance": "trade_press", "published": "2026-02-11", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "meta-fb-lebanon",
+          "url": "https://about.fb.com/news/2026/02/metas-new-data-center-lebanon-indiana-marks-milestone-ai-investment/",
+          "label": "Meta: new Lebanon, Indiana data center",
+          "publisher": "Meta (newsroom)",
+          "provenance": "operator",
+          "published": "2026-02-11",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "lebanon-gov-meta",
+          "url": "https://lebanon.in.gov/2026/02/11/meta-makes-lebanon-data-center-announcement-official/",
+          "label": "City of Lebanon, IN: Meta announcement official",
+          "publisher": "City of Lebanon, Indiana",
+          "provenance": "government",
+          "published": "2026-02-11",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcd-meta-indiana",
+          "url": "https://www.datacenterdynamics.com/en/news/meta-announces-1gw-data-center-campus-in-indiana/",
+          "label": "Meta announces 1 GW campus in Indiana",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2026-02-11",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -106,17 +273,45 @@
       "name": "IREN Childress",
       "operator": "IREN",
       "state": "TX",
-      "location": { "lat": 34.4265, "lon": -100.2038, "precision": "city" },
+      "location": {
+        "lat": 34.4265,
+        "lon": -100.2038,
+        "precision": "city"
+      },
       "capacity_mw": 750,
       "capacity_type": "total_power",
       "status": "operational",
       "status_as_of": "2025-09",
-      "power": { "generation": "Grid (ERCOT)", "model": "Grid" },
+      "power": {
+        "generation": "Grid (ERCOT)",
+        "model": "Grid"
+      },
       "note": "SEC 10-Q (9/30/2025): 750 MW site operating since Apr 2023, ~650 MW of operating data-center capacity as of Sep 30 2025. 750 MW = total ERCOT-connected power.",
-      "provenance": "filing", "transformation": "reported", "confidence": "high", "revision": 1,
+      "provenance": "filing",
+      "transformation": "reported",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "sec-iren-10q", "url": "https://www.sec.gov/Archives/edgar/data/0001878848/000187884825000081/iren-20250930.htm", "label": "IREN 10-Q: '750MW Childress site ... ~650MW of operating data center capacity'", "publisher": "SEC EDGAR", "provenance": "filing", "published": "2025-11-06", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "iren-childress-page", "url": "https://iren.com/data-centers/childress", "label": "IREN Childress page — 750 MW, 576 acres, ERCOT-connected", "publisher": "IREN Ltd", "provenance": "operator", "published": "", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "sec-iren-10q",
+          "url": "https://www.sec.gov/Archives/edgar/data/0001878848/000187884825000081/iren-20250930.htm",
+          "label": "IREN 10-Q: '750MW Childress site ... ~650MW of operating data center capacity'",
+          "publisher": "SEC EDGAR",
+          "provenance": "filing",
+          "published": "2025-11-06",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "iren-childress-page",
+          "url": "https://iren.com/data-centers/childress",
+          "label": "IREN Childress page — 750 MW, 576 acres, ERCOT-connected",
+          "publisher": "IREN Ltd",
+          "provenance": "operator",
+          "published": "",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -124,18 +319,55 @@
       "name": "Delta Forge 1 (Applied Digital)",
       "operator": "Applied Digital",
       "state": "LA",
-      "location": { "lat": 31.3905, "lon": -92.6693, "precision": "city" },
+      "location": {
+        "lat": 31.3905,
+        "lon": -92.6693,
+        "precision": "city"
+      },
       "capacity_mw": 430,
       "capacity_type": "total_power",
       "status": "construction",
       "status_as_of": "2026-05",
-      "power": { "generation": "Grid (Cleco)", "model": "Grid" },
+      "power": {
+        "generation": "Grid (Cleco)",
+        "model": "Grid"
+      },
       "note": "CORRECTION: this campus is in Boyce, Rapides Parish, LA (Cleco), NOT Texas/ERCOT. 430 MW total / 300 MW IT. The prior 640 MW conflated Delta Forge 1 (430) + a separate Delta Forge 2 (210 MW IT). 'Harwood' is Applied Digital's Polaris Forge 2 in North Dakota.",
-      "provenance": "operator", "transformation": "reported", "confidence": "high", "revision": 1,
+      "provenance": "operator",
+      "transformation": "reported",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "apld-ir-delta-forge-1", "url": "https://ir.applieddigital.com/news-events/press-releases/detail/144/applied-digital-breaks-ground-on-delta-forge-1-a-430-mw-ai", "label": "Applied Digital breaks ground on Delta Forge 1 (430 MW)", "publisher": "Applied Digital (IR)", "provenance": "operator", "published": "2026-01-22", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "led-applied-digital-3-6b", "url": "https://www.opportunitylouisiana.gov/news/central-louisiana-secures-3-6-billion-applied-digital-ai-factory-campus", "label": "Louisiana Economic Development: $3.6B Applied Digital campus in central LA", "publisher": "Louisiana Economic Development", "provenance": "government", "published": "2026-05-26", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "dcd-applied-digital-430mw", "url": "https://www.datacenterdynamics.com/en/news/applied-digital-starts-work-on-430mw-data-center-campus/", "label": "Applied Digital starts work on 430 MW campus", "publisher": "Data Center Dynamics", "provenance": "trade_press", "published": "2026-01-22", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "apld-ir-delta-forge-1",
+          "url": "https://ir.applieddigital.com/news-events/press-releases/detail/144/applied-digital-breaks-ground-on-delta-forge-1-a-430-mw-ai",
+          "label": "Applied Digital breaks ground on Delta Forge 1 (430 MW)",
+          "publisher": "Applied Digital (IR)",
+          "provenance": "operator",
+          "published": "2026-01-22",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "led-applied-digital-3-6b",
+          "url": "https://www.opportunitylouisiana.gov/news/central-louisiana-secures-3-6-billion-applied-digital-ai-factory-campus",
+          "label": "Louisiana Economic Development: $3.6B Applied Digital campus in central LA",
+          "publisher": "Louisiana Economic Development",
+          "provenance": "government",
+          "published": "2026-05-26",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcd-applied-digital-430mw",
+          "url": "https://www.datacenterdynamics.com/en/news/applied-digital-starts-work-on-430mw-data-center-campus/",
+          "label": "Applied Digital starts work on 430 MW campus",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2026-01-22",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -143,17 +375,45 @@
       "name": "Project Caprock (Aligned, Hale County)",
       "operator": "Aligned Data Centers",
       "state": "TX",
-      "location": { "lat": 33.855, "lon": -101.828, "precision": "city" },
+      "location": {
+        "lat": 33.855,
+        "lon": -101.828,
+        "precision": "city"
+      },
       "capacity_mw": 540,
       "capacity_type": "total_power",
       "status": "construction",
       "status_as_of": "2026-04",
-      "power": { "generation": "Grid (Xcel Energy, SPP)", "model": "Grid" },
+      "power": {
+        "generation": "Grid (Xcel Energy, SPP)",
+        "model": "Grid"
+      },
       "note": "CORRECTION: powered by Xcel Energy in the SPP region, NOT ERCOT. 540 MW, 313 acres, 6 facilities near Abernathy, TX (1498 County Road 315); first facility LBB-01 targeted Q1 2027.",
-      "provenance": "operator", "transformation": "reported", "confidence": "high", "revision": 1,
+      "provenance": "operator",
+      "transformation": "reported",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "aligned-caprock-pr", "url": "https://aligneddc.com/press-release/aligned-breaks-ground-on-project-caprock/", "label": "Aligned breaks ground on Project Caprock (540 MW, Xcel Energy)", "publisher": "Aligned Data Centers", "provenance": "operator", "published": "2026-04-09", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "dcd-caprock-540mw", "url": "https://www.datacenterdynamics.com/en/news/aligned-breaks-ground-on-540mw-data-center-campus-in-texas/", "label": "Aligned breaks ground on 540 MW TX campus (Abernathy/Hale, Xcel)", "publisher": "Data Center Dynamics", "provenance": "trade_press", "published": "2026-04-10", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "aligned-caprock-pr",
+          "url": "https://aligneddc.com/press-release/aligned-breaks-ground-on-project-caprock/",
+          "label": "Aligned breaks ground on Project Caprock (540 MW, Xcel Energy)",
+          "publisher": "Aligned Data Centers",
+          "provenance": "operator",
+          "published": "2026-04-09",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcd-caprock-540mw",
+          "url": "https://www.datacenterdynamics.com/en/news/aligned-breaks-ground-on-540mw-data-center-campus-in-texas/",
+          "label": "Aligned breaks ground on 540 MW TX campus (Abernathy/Hale, Xcel)",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2026-04-10",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -161,18 +421,55 @@
       "name": "Fairwater (Microsoft Mount Pleasant)",
       "operator": "Microsoft",
       "state": "WI",
-      "location": { "lat": 42.716, "lon": -87.926, "precision": "site" },
+      "location": {
+        "lat": 42.716,
+        "lon": -87.926,
+        "precision": "site"
+      },
       "capacity_mw": 500,
       "capacity_type": "unspecified",
       "status": "operational",
       "status_as_of": "2026-06",
-      "power": { "generation": "Grid (We Energies)", "model": "Grid" },
+      "power": {
+        "generation": "Grid (We Energies)",
+        "model": "Grid"
+      },
       "note": "Operator + operational status are primary-source confirmed (Microsoft, Jun 23 2026). The 500 MW figure is NOT stated by any primary source — Microsoft frames power only as a share of We Energies capacity — so MW is the weak point here.",
-      "provenance": "operator", "transformation": "estimated", "confidence": "medium", "revision": 1,
+      "provenance": "operator",
+      "transformation": "estimated",
+      "confidence": "medium",
+      "revision": 1,
       "sources": [
-        { "source_id": "ms-fairwater-complete", "url": "https://news.microsoft.com/source/2026/06/23/microsoft-completes-construction-on-first-datacenter-facility-in-mount-pleasant-wisconsin/", "label": "Microsoft completes first Mount Pleasant (Fairwater) facility — operational", "publisher": "Microsoft", "provenance": "operator", "published": "2026-06-23", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "ms-fairwater-blog", "url": "https://blogs.microsoft.com/on-the-issues/2025/09/18/made-in-wisconsin-the-worlds-most-powerful-ai-datacenter/", "label": "Microsoft: 'most powerful AI datacenter', Mount Pleasant, $7.3B (no MW stated)", "publisher": "Microsoft", "provenance": "operator", "published": "2025-09-18", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "siliconreport-fairwater", "url": "https://www.siliconreport.com/datacenters/facility/microsoft-mount-pleasant", "label": "Aggregator estimate ~555 MW IT (not primary)", "publisher": "Silicon Report", "provenance": "analyst", "published": "2026-04", "retrieved": "2026-06-24", "supports_claim": false }
+        {
+          "source_id": "ms-fairwater-complete",
+          "url": "https://news.microsoft.com/source/2026/06/23/microsoft-completes-construction-on-first-datacenter-facility-in-mount-pleasant-wisconsin/",
+          "label": "Microsoft completes first Mount Pleasant (Fairwater) facility — operational",
+          "publisher": "Microsoft",
+          "provenance": "operator",
+          "published": "2026-06-23",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "ms-fairwater-blog",
+          "url": "https://blogs.microsoft.com/on-the-issues/2025/09/18/made-in-wisconsin-the-worlds-most-powerful-ai-datacenter/",
+          "label": "Microsoft: 'most powerful AI datacenter', Mount Pleasant, $7.3B (no MW stated)",
+          "publisher": "Microsoft",
+          "provenance": "operator",
+          "published": "2025-09-18",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "siliconreport-fairwater",
+          "url": "https://www.siliconreport.com/datacenters/facility/microsoft-mount-pleasant",
+          "label": "Aggregator estimate ~555 MW IT (not primary)",
+          "publisher": "Silicon Report",
+          "provenance": "analyst",
+          "published": "2026-04",
+          "retrieved": "2026-06-24",
+          "supports_claim": false
+        }
       ]
     },
     {
@@ -180,17 +477,45 @@
       "name": "Polaris Forge 1 (Applied Digital Ellendale)",
       "operator": "Applied Digital",
       "state": "ND",
-      "location": { "lat": 46.0214, "lon": -98.5685, "precision": "site" },
+      "location": {
+        "lat": 46.0214,
+        "lon": -98.5685,
+        "precision": "site"
+      },
       "capacity_mw": 400,
       "capacity_type": "it_critical_load",
       "status": "construction",
       "status_as_of": "2026-06",
-      "power": { "generation": "Grid (Montana-Dakota Utilities)", "model": "Grid" },
+      "power": {
+        "generation": "Grid (Montana-Dakota Utilities)",
+        "model": "Grid"
+      },
       "note": "CORRECTION: 400 MW critical IT load (was 500), fully contracted to CoreWeave, scalable to 1 GW; Building 1 (100 MW) operational Dec 2025. Grid-served by Montana-Dakota Utilities — the prior 'on-site gas / BTM' tag is NOT confirmed for Ellendale (the B&W >1 GW gas deal did not name this site).",
-      "provenance": "operator", "transformation": "reported", "confidence": "high", "revision": 1,
+      "provenance": "operator",
+      "transformation": "reported",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "apld-ir-polaris-phase2", "url": "https://ir.applieddigital.com/news-events/press-releases/detail/137/applied-digital-completes-phase-ii-ready-for-service-at", "label": "Applied Digital energizes first 100 MW building at Polaris Forge 1", "publisher": "Applied Digital (IR)", "provenance": "operator", "published": "2025-11-24", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "dcd-polaris-first-building", "url": "https://www.datacenterdynamics.com/en/news/applied-digital-completes-first-data-center-building-at-north-dakota-campus/", "label": "Applied Digital completes first ND building (400 MW total, 100 MW live)", "publisher": "Data Center Dynamics", "provenance": "trade_press", "published": "2025-12-01", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "apld-ir-polaris-phase2",
+          "url": "https://ir.applieddigital.com/news-events/press-releases/detail/137/applied-digital-completes-phase-ii-ready-for-service-at",
+          "label": "Applied Digital energizes first 100 MW building at Polaris Forge 1",
+          "publisher": "Applied Digital (IR)",
+          "provenance": "operator",
+          "published": "2025-11-24",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcd-polaris-first-building",
+          "url": "https://www.datacenterdynamics.com/en/news/applied-digital-completes-first-data-center-building-at-north-dakota-campus/",
+          "label": "Applied Digital completes first ND building (400 MW total, 100 MW live)",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2025-12-01",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -198,17 +523,45 @@
       "name": "Homer City Energy Campus",
       "operator": "Homer City Redevelopment / Kiewit",
       "state": "PA",
-      "location": { "lat": 40.51083, "lon": -79.19361, "precision": "site" },
+      "location": {
+        "lat": 40.51083,
+        "lon": -79.19361,
+        "precision": "site"
+      },
       "capacity_mw": 4500,
       "capacity_type": "total_power",
       "status": "construction",
       "status_as_of": "2026-06",
-      "power": { "generation": "Gas (7× GE Vernova 7HA.02 turbines)", "model": "BTM" },
+      "power": {
+        "generation": "Gas (7× GE Vernova 7HA.02 turbines)",
+        "model": "BTM"
+      },
       "note": "Former Homer City coal plant (largest in PA, retired 2023) being converted to a ~4.5 GW behind-the-meter gas campus for AI/HPC; first power expected ~2027. 4.5 GW is total facility power.",
-      "provenance": "operator", "transformation": "forecast", "confidence": "high", "revision": 1,
+      "provenance": "operator",
+      "transformation": "forecast",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "gevernova-homer-city", "url": "https://www.gevernova.com/news/press-releases/homer-city-redevelopment-kiewit-announce-country-largest-natural-gas-powered-data-center-support-ai-hpc-demand", "label": "GE Vernova / Homer City / Kiewit: largest US gas-powered DC campus", "publisher": "GE Vernova", "provenance": "operator", "published": "2025-04-02", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "utilitydive-homer-city", "url": "https://www.utilitydive.com/news/homer-city-gas-fired-power-station-data-center-firstenergy/744332/", "label": "Largest US gas-fired plant planned for data centers in PA", "publisher": "Utility Dive", "provenance": "trade_press", "published": "2025-04-03", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "gevernova-homer-city",
+          "url": "https://www.gevernova.com/news/press-releases/homer-city-redevelopment-kiewit-announce-country-largest-natural-gas-powered-data-center-support-ai-hpc-demand",
+          "label": "GE Vernova / Homer City / Kiewit: largest US gas-powered DC campus",
+          "publisher": "GE Vernova",
+          "provenance": "operator",
+          "published": "2025-04-02",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "utilitydive-homer-city",
+          "url": "https://www.utilitydive.com/news/homer-city-gas-fired-power-station-data-center-firstenergy/744332/",
+          "label": "Largest US gas-fired plant planned for data centers in PA",
+          "publisher": "Utility Dive",
+          "provenance": "trade_press",
+          "published": "2025-04-03",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -216,18 +569,55 @@
       "name": "Susquehanna (AWS / Talen)",
       "operator": "Amazon (AWS) / Talen",
       "state": "PA",
-      "location": { "lat": 41.08889, "lon": -76.14889, "precision": "site" },
+      "location": {
+        "lat": 41.08889,
+        "lon": -76.14889,
+        "precision": "site"
+      },
       "capacity_mw": 1920,
       "capacity_type": "total_power",
       "status": "construction",
       "status_as_of": "2025-06",
-      "power": { "generation": "Nuclear (Talen Susquehanna)", "model": "Colocated" },
+      "power": {
+        "generation": "Nuclear (Talen Susquehanna)",
+        "model": "Colocated"
+      },
       "note": "AWS campus adjacent to Talen's Susquehanna nuclear plant (Luzerne County). June 2025 PPA supplies up to 1,920 MW ramping to full by 2032; after FERC rejected the behind-the-meter ISA (Nov 2024) the deal shifted to front-of-the-meter in spring 2026.",
-      "provenance": "trade_press", "transformation": "reported", "confidence": "high", "revision": 1,
+      "provenance": "trade_press",
+      "transformation": "reported",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "utilitydive-talen-aws-1-9gw", "url": "https://www.utilitydive.com/news/talen-amazon-aws-susquehanna-nuclear-data-centert/750440/", "label": "Talen to sell Amazon 1.9 GW from Susquehanna nuclear plant", "publisher": "Utility Dive", "provenance": "trade_press", "published": "2025-06-11", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "wnn-talen-amazon", "url": "https://www.world-nuclear-news.org/articles/new-supply-agreement-expands-talen-amazon-partnership", "label": "New supply agreement expands Talen–Amazon partnership", "publisher": "World Nuclear News", "provenance": "trade_press", "published": "2025-06-12", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "utilitydive-ferc-reject-isa", "url": "https://www.utilitydive.com/news/ferc-interconnection-isa-talen-amazon-data-center-susquehanna-exelon/731841/", "label": "FERC rejects the behind-the-meter ISA for the Talen–Amazon deal", "publisher": "Utility Dive", "provenance": "trade_press", "published": "2024-11-04", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "utilitydive-talen-aws-1-9gw",
+          "url": "https://www.utilitydive.com/news/talen-amazon-aws-susquehanna-nuclear-data-centert/750440/",
+          "label": "Talen to sell Amazon 1.9 GW from Susquehanna nuclear plant",
+          "publisher": "Utility Dive",
+          "provenance": "trade_press",
+          "published": "2025-06-11",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "wnn-talen-amazon",
+          "url": "https://www.world-nuclear-news.org/articles/new-supply-agreement-expands-talen-amazon-partnership",
+          "label": "New supply agreement expands Talen–Amazon partnership",
+          "publisher": "World Nuclear News",
+          "provenance": "trade_press",
+          "published": "2025-06-12",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "utilitydive-ferc-reject-isa",
+          "url": "https://www.utilitydive.com/news/ferc-interconnection-isa-talen-amazon-data-center-susquehanna-exelon/731841/",
+          "label": "FERC rejects the behind-the-meter ISA for the Talen–Amazon deal",
+          "publisher": "Utility Dive",
+          "provenance": "trade_press",
+          "published": "2024-11-04",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -235,17 +625,45 @@
       "name": "Duane Arnold (Google / NextEra)",
       "operator": "Google / NextEra",
       "state": "IA",
-      "location": { "lat": 42.10125, "lon": -91.77764, "precision": "site" },
+      "location": {
+        "lat": 42.10125,
+        "lon": -91.77764,
+        "precision": "site"
+      },
       "capacity_mw": 615,
       "capacity_type": "total_power",
       "status": "planned",
       "status_as_of": "2025-10",
-      "power": { "generation": "Nuclear (restart)", "model": "Colocated" },
+      "power": {
+        "generation": "Nuclear (restart)",
+        "model": "Colocated"
+      },
       "note": "NextEra restarting the 615 MW Duane Arnold nuclear plant (Linn County, IA); Google has a 25-yr PPA for AI/cloud and plans colocated data centers nearby. Restart targeted early 2029, pending NRC relicensing.",
-      "provenance": "operator", "transformation": "forecast", "confidence": "high", "revision": 1,
+      "provenance": "operator",
+      "transformation": "forecast",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "nextera-google-nuclear", "url": "https://newsroom.nexteraenergy.com/NextEra-Energy-and-Google-Announce-New-Collaboration-to-Accelerate-Nuclear-Energy-Deployment-in-the-U-S?l=12", "label": "NextEra + Google nuclear collaboration", "publisher": "NextEra Energy", "provenance": "operator", "published": "2025-10-27", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "dcd-duane-arnold", "url": "https://www.datacenterdynamics.com/en/news/google-signs-power-deal-with-nextenergy-to-restart-iowas-615mw-duane-arnold-nuclear-plant-for-ai-data-centers/", "label": "Google–NextEra deal to restart Iowa's 615 MW Duane Arnold for AI", "publisher": "Data Center Dynamics", "provenance": "trade_press", "published": "2025-10-28", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "nextera-google-nuclear",
+          "url": "https://newsroom.nexteraenergy.com/NextEra-Energy-and-Google-Announce-New-Collaboration-to-Accelerate-Nuclear-Energy-Deployment-in-the-U-S?l=12",
+          "label": "NextEra + Google nuclear collaboration",
+          "publisher": "NextEra Energy",
+          "provenance": "operator",
+          "published": "2025-10-27",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcd-duane-arnold",
+          "url": "https://www.datacenterdynamics.com/en/news/google-signs-power-deal-with-nextenergy-to-restart-iowas-615mw-duane-arnold-nuclear-plant-for-ai-data-centers/",
+          "label": "Google–NextEra deal to restart Iowa's 615 MW Duane Arnold for AI",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2025-10-28",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -253,17 +671,45 @@
       "name": "Colossus 2 (xAI)",
       "operator": "xAI / Solaris",
       "state": "TN",
-      "location": { "lat": 34.9997, "lon": -90.043, "precision": "site" },
+      "location": {
+        "lat": 34.9997,
+        "lon": -90.043,
+        "precision": "site"
+      },
       "capacity_mw": 1000,
       "capacity_type": "total_power",
       "status": "operational",
       "status_as_of": "2026-01",
-      "power": { "generation": "Gas (on-site turbines, xAI–Solaris JV)", "model": "BTM" },
+      "power": {
+        "generation": "Gas (on-site turbines, xAI–Solaris JV)",
+        "model": "BTM"
+      },
       "note": "DISPUTED: xAI declared Colossus 2 online Jan 2026 as a '1 GW AI cluster', but SemiAnalysis satellite analysis found only ~350 MW of cooling installed — so 1 GW is aspirational/contested. Gas turbines partly sited in Southaven, MS.",
-      "provenance": "analyst", "transformation": "estimated", "confidence": "medium", "revision": 1,
+      "provenance": "analyst",
+      "transformation": "estimated",
+      "confidence": "medium",
+      "revision": 1,
       "sources": [
-        { "source_id": "semianalysis-colossus2", "url": "https://newsletter.semianalysis.com/p/xais-colossus-2-first-gigawatt-datacenter", "label": "SemiAnalysis: Colossus 2 — satellite analysis (~350 MW cooling vs 1 GW claim)", "publisher": "SemiAnalysis", "provenance": "analyst", "published": "2025-09-16", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "dcd-xai-41-turbines", "url": "https://www.datacenterdynamics.com/en/news/musks-xai-gets-go-ahead-for-41-natural-gas-turbines-in-mississippi-to-power-colossus-data-centers/", "label": "xAI cleared for 41 gas turbines in Mississippi to power Colossus", "publisher": "Data Center Dynamics", "provenance": "trade_press", "published": "2026-03-11", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "semianalysis-colossus2",
+          "url": "https://newsletter.semianalysis.com/p/xais-colossus-2-first-gigawatt-datacenter",
+          "label": "SemiAnalysis: Colossus 2 — satellite analysis (~350 MW cooling vs 1 GW claim)",
+          "publisher": "SemiAnalysis",
+          "provenance": "analyst",
+          "published": "2025-09-16",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcd-xai-41-turbines",
+          "url": "https://www.datacenterdynamics.com/en/news/musks-xai-gets-go-ahead-for-41-natural-gas-turbines-in-mississippi-to-power-colossus-data-centers/",
+          "label": "xAI cleared for 41 gas turbines in Mississippi to power Colossus",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2026-03-11",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
       ]
     },
     {
@@ -271,17 +717,321 @@
       "name": "Joule HPC / BetterGrid Campus",
       "operator": "Joule Capital / Caterpillar",
       "state": "UT",
-      "location": { "lat": 39.216, "lon": -112.408, "precision": "county" },
+      "location": {
+        "lat": 39.216,
+        "lon": -112.408,
+        "precision": "county"
+      },
       "capacity_mw": 4000,
       "capacity_type": "total_power",
       "status": "construction",
       "status_as_of": "2026-01",
-      "power": { "generation": "Gas CCHP gensets + 1.1 GWh BESS", "model": "BTM" },
+      "power": {
+        "generation": "Gas CCHP gensets + 1.1 GWh BESS",
+        "model": "BTM"
+      },
       "note": "4 GW total-energy off-grid/islanded campus near Holden, Millard County, UT; CAT G3520K gensets + grid-forming BESS. Groundbreaking Nov 2025; first 25 MW targeted Q4 2026. 4 GW is total facility energy (gen + CCHP), not IT/critical load.",
-      "provenance": "operator", "transformation": "forecast", "confidence": "high", "revision": 1,
+      "provenance": "operator",
+      "transformation": "forecast",
+      "confidence": "high",
+      "revision": 1,
       "sources": [
-        { "source_id": "caterpillar-joule", "url": "https://www.caterpillar.com/en/news/corporate-press-releases/h/joule-caterpillar-wheeler.html", "label": "Caterpillar: Joule / Caterpillar / Wheeler agreement to power DC energy needs", "publisher": "Caterpillar Inc.", "provenance": "operator", "published": "2025-08-07", "retrieved": "2026-06-24", "supports_claim": true },
-        { "source_id": "dcf-joule-utah", "url": "https://www.datacenterfrontier.com/site-selection/article/55313620/joule-capital-caterpillar-team-on-ai-hpc-in-utah", "label": "Joule Capital taps Caterpillar to power AI/HPC in Utah", "publisher": "Data Center Frontier", "provenance": "trade_press", "published": "2025-09-02", "retrieved": "2026-06-24", "supports_claim": true }
+        {
+          "source_id": "caterpillar-joule",
+          "url": "https://www.caterpillar.com/en/news/corporate-press-releases/h/joule-caterpillar-wheeler.html",
+          "label": "Caterpillar: Joule / Caterpillar / Wheeler agreement to power DC energy needs",
+          "publisher": "Caterpillar Inc.",
+          "provenance": "operator",
+          "published": "2025-08-07",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcf-joule-utah",
+          "url": "https://www.datacenterfrontier.com/site-selection/article/55313620/joule-capital-caterpillar-team-on-ai-hpc-in-utah",
+          "label": "Joule Capital taps Caterpillar to power AI/HPC in Utah",
+          "publisher": "Data Center Frontier",
+          "provenance": "trade_press",
+          "published": "2025-09-02",
+          "retrieved": "2026-06-24",
+          "supports_claim": true
+        }
+      ]
+    },
+    {
+      "id": "rainier-aws-in",
+      "name": "Project Rainier (AWS New Carlisle campus)",
+      "operator": "Amazon (AWS)",
+      "state": "IN",
+      "location": {
+        "lat": 41.7003,
+        "lon": -86.5089,
+        "precision": "city"
+      },
+      "capacity_mw": 2250,
+      "capacity_type": "total_power",
+      "status": "operational",
+      "status_as_of": "2025-10",
+      "power": {
+        "generation": "Grid (Indiana Michigan Power / AEP, PJM)",
+        "model": "Grid"
+      },
+      "note": "$11B announced Apr 2024 — Indiana's largest-ever capex commitment. Anchor customer Anthropic: Claude trains on ~500K Trainium2 chips; AWS declared the Rainier cluster 'fully operational' Oct 29, 2025 with ~7 of ~30 planned buildings live (Phase 2 from 2026) — so campus MW is a buildout target, not current draw. 2,250 MW is AWS's IURC-filed contract capacity (an AWS energy executive cited '2.2 GW' on record, Jun 2026); Amazon's own press releases contain no MW figure. The Rainier cluster spans multiple US sites; this record covers the New Carlisle anchor campus only.",
+      "provenance": "operator",
+      "transformation": "reported",
+      "confidence": "medium",
+      "revision": 1,
+      "sources": [
+        {
+          "source_id": "aws-rainier-operational",
+          "url": "https://www.aboutamazon.com/news/aws/aws-project-rainier-ai-trainium-chips-compute-cluster",
+          "label": "AWS: Project Rainier fully operational — nearly 500K Trainium2 chips, Anthropic anchor",
+          "publisher": "Amazon (About Amazon)",
+          "provenance": "operator",
+          "published": "2025-10-29",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        },
+        {
+          "source_id": "iedc-aws-11b",
+          "url": "https://iedc.in.gov/events/news/details/2024/04/25/gov.-holcomb-announces-amazon-web-services-plans-to-invest-11b-to-create-a-new-data-center-campus-in-northern-indiana",
+          "label": "Indiana EDC: AWS to invest $11B in a New Carlisle data-center campus",
+          "publisher": "Indiana Economic Development Corporation",
+          "provenance": "government",
+          "published": "2024-04-25",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        },
+        {
+          "source_id": "govtech-iurc-2250mw",
+          "url": "https://www.govtech.com/artificial-intelligence/indiana-data-center-could-bring-significant-power-use",
+          "label": "AWS IURC filings put the New Carlisle campus at 2,250 MW of contract capacity",
+          "publisher": "Government Technology",
+          "provenance": "trade_press",
+          "published": "2024",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        },
+        {
+          "source_id": "amazon-sustainability-2-2gw",
+          "url": "https://sustainability.aboutamazon.com/stories/inside-amazons-approach-to-data-center-sustainability",
+          "label": "AWS Director of Energy and Water, on record: the Indiana campus is 2.2 GW",
+          "publisher": "Amazon Sustainability",
+          "provenance": "operator",
+          "published": "2026-06",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        }
+      ]
+    },
+    {
+      "id": "project-jade-cheyenne-wy",
+      "name": "Project Jade (Cheyenne, WY)",
+      "operator": "Crusoe (developer — exited); Black Hills (utility partner)",
+      "state": "WY",
+      "location": {
+        "lat": 41.14,
+        "lon": -104.82,
+        "precision": "city"
+      },
+      "capacity_mw": 1800,
+      "capacity_type": "total_power",
+      "status": "paused",
+      "status_as_of": "2026-06",
+      "status_history": [
+        {
+          "date": "2026-06",
+          "from": "construction",
+          "to": "paused",
+          "note": "Crusoe on record: 'At the request of our customer, Crusoe has paused its development activities' — and had demobilized from the site ~Apr 2026 per Tallgrass. The campus itself 'has not been paused' per Black Hills' CEO (on record); the widely reported Google-as-customer framing is anonymous-source (Bloomberg) reporting only.",
+          "source_id": "dcd-crusoe-jade-pause"
+        }
+      ],
+      "note": "Crusoe's planned 1.8 GW AI campus. Status is a DEVELOPER EXIT / pause of development activity, not a cancellation of the campus: Laramie County approved the project Jan 2026, Black Hills entered equipment procurement Apr 2026 and says the opportunity continues. No signed customer agreement existed — the parties were in exclusive talks (Crusoe, on record).",
+      "provenance": "trade_press",
+      "transformation": "reported",
+      "confidence": "high",
+      "revision": 1,
+      "sources": [
+        {
+          "source_id": "dcd-crusoe-jade-pause",
+          "url": "https://www.datacenterdynamics.com/en/news/crusoe-pauses-work-on-18gw-cheyenne-wyoming-data-center-at-the-request-of-our-customer/",
+          "label": "Crusoe pauses work on 1.8GW Cheyenne campus 'at the request of our customer'",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2026-06",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        },
+        {
+          "source_id": "yahoo-jade-exit",
+          "url": "https://finance.yahoo.com/sectors/technology/articles/crusoe-exited-1-8-gw-180819575.html",
+          "label": "Crusoe exited the 1.8 GW project; Black Hills CEO: project 'has not been paused'; Google framing per unnamed sources",
+          "publisher": "Yahoo Finance (Blockspace, summarizing Bloomberg)",
+          "provenance": "trade_press",
+          "published": "2026-06",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        }
+      ]
+    },
+    {
+      "id": "microsoft-licking-county-oh",
+      "name": "Microsoft Licking County sites (New Albany / Heath / Hebron)",
+      "operator": "Microsoft",
+      "state": "OH",
+      "location": {
+        "lat": 40.06,
+        "lon": -82.44,
+        "precision": "county"
+      },
+      "capacity_mw": null,
+      "capacity_type": "unspecified",
+      "status": "paused",
+      "status_as_of": "2025-04",
+      "status_history": [
+        {
+          "date": "2025-04",
+          "from": "planned",
+          "to": "paused",
+          "note": "Company on record — cloud-operations president Noelle Walsh: Microsoft is 'slowing or pausing some early-stage projects.' Two of the three sites were released to farm use; Microsoft retains the land and committed road/utility upgrades. Context: the same spring, TD Cowen estimated ~2 GW of Microsoft lease cancellations + deferrals across US/Europe — an analyst channel-check estimate Microsoft never confirmed.",
+          "source_id": "dcd-msft-licking-pause"
+        }
+      ],
+      "note": "The $1B, three-site early-stage development in Licking County, Ohio paused indefinitely (Apr 2025) — the strongest on-record example of the 2025 Microsoft pullback. No MW was ever disclosed; capacity_mw is null rather than estimated.",
+      "provenance": "operator",
+      "transformation": "reported",
+      "confidence": "high",
+      "revision": 1,
+      "sources": [
+        {
+          "source_id": "dcd-msft-licking-pause",
+          "url": "https://www.datacenterdynamics.com/en/news/microsoft-backs-away-from-1bn-data-center-plans-in-licking-county-ohio/",
+          "label": "Microsoft backs away from $1bn Licking County plans; Walsh: 'slowing or pausing some early-stage projects'",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2025-04-08",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        },
+        {
+          "source_id": "dcd-msft-2gw-cowen",
+          "url": "https://www.datacenterdynamics.com/en/news/microsoft-cancels-up-to-2gw-of-data-center-projects-says-td-cowen/",
+          "label": "TD Cowen: Microsoft walked away from up to 2GW of leases/deferrals (analyst estimate; Microsoft did not confirm)",
+          "publisher": "Data Center Dynamics",
+          "provenance": "analyst",
+          "published": "2025-03",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        }
+      ]
+    },
+    {
+      "id": "project-blue-tucson-az",
+      "name": "Project Blue (Tucson, AZ)",
+      "operator": "Beale Infrastructure (Blue Owl); anchor operator (reportedly AWS) exited",
+      "state": "AZ",
+      "location": {
+        "lat": 32.22,
+        "lon": -110.97,
+        "precision": "city"
+      },
+      "capacity_mw": 600,
+      "capacity_type": "total_power",
+      "status": "stalled",
+      "status_as_of": "2025-12",
+      "status_history": [
+        {
+          "date": "2025-08",
+          "from": "planned",
+          "to": "stalled",
+          "note": "Tucson City Council unanimously rejected the annexation/development agreement. On-record reasons (elected officials): water consumption in a drought-stressed city and sustainability of DC growth.",
+          "source_id": "azlum-project-blue-rejected"
+        },
+        {
+          "date": "2025-12",
+          "to": "stalled",
+          "note": "Project proceeding in unincorporated Pima County — the Arizona Corporation Commission approved a Tucson Electric Power sale agreement 4-1 — but AWS's exit as operating partner is journalist-reported (not company-confirmed) and no operator is named; developer says it is 'confident' of an operator before a 2027 go-live.",
+          "source_id": "kjzz-project-blue-forward"
+        }
+      ],
+      "note": "Up to 10 buildings / ~600 MW ultimate target on ~290 acres. Recorded as a stall + anchor-operator loss, not a cancellation: the shell project continues in the county after the city's unanimous rejection.",
+      "provenance": "government",
+      "transformation": "reported",
+      "confidence": "medium",
+      "revision": 1,
+      "sources": [
+        {
+          "source_id": "azlum-project-blue-rejected",
+          "url": "https://azluminaria.org/2025/08/06/tucson-city-council-rejects-project-blue-amid-intense-community-pressure/",
+          "label": "Tucson council unanimously rejects Project Blue; officials' on-record water/sustainability reasons",
+          "publisher": "AZ Luminaria",
+          "provenance": "trade_press",
+          "published": "2025-08-06",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        },
+        {
+          "source_id": "kjzz-project-blue-forward",
+          "url": "https://www.kjzz.org/the-show/2025-12-09/rejected-by-tucson-and-abandoned-by-amazon-project-blue-data-center-moves-forward",
+          "label": "Project Blue moves forward in Pima County; ACC approves TEP power deal 4-1; AWS exit journalist-reported",
+          "publisher": "KJZZ (Arizona Daily Star reporting)",
+          "provenance": "trade_press",
+          "published": "2025-12-09",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        }
+      ]
+    },
+    {
+      "id": "stargate-abilene-expansion-tx",
+      "name": "Stargate Abilene — expansion phase",
+      "operator": "Oracle / OpenAI / Crusoe",
+      "state": "TX",
+      "location": {
+        "lat": 32.4942,
+        "lon": -99.8009,
+        "precision": "site"
+      },
+      "capacity_mw": 600,
+      "capacity_type": "total_power",
+      "status": "cancelled",
+      "status_as_of": "2026-03",
+      "status_history": [
+        {
+          "date": "2026-03",
+          "from": "planned",
+          "to": "cancelled",
+          "note": "OpenAI compute-scaling exec Sachin Katti on record: 'We considered expanding it further, but ultimately chose to put that additional capacity in other locations.' Oracle on record that the existing campus and the 4.5 GW Oracle-OpenAI program continue; the financing/reliability explanations for the drop are anonymous-source (Bloomberg) reporting.",
+          "source_id": "dcd-abilene-expansion-dropped"
+        }
+      ],
+      "note": "The ~600 MW growth phase beyond the flagship 1.2 GW Abilene campus (see active record stargate-abilene-tx) was dropped in Mar 2026; capacity moved to other locations per OpenAI. The core campus remains operational/under buildout and is unaffected in this ledger.",
+      "provenance": "trade_press",
+      "transformation": "reported",
+      "confidence": "medium",
+      "revision": 1,
+      "sources": [
+        {
+          "source_id": "dcd-abilene-expansion-dropped",
+          "url": "https://www.datacenterdynamics.com/en/news/oracleopenai-drop-plans-to-expand-flagship-abilene-stargate-site-meta-in-talks-to-pick-up-crusoe-capacity-with-nvidias-help/",
+          "label": "Oracle/OpenAI drop plans to expand the flagship Abilene Stargate site; Katti on record",
+          "publisher": "Data Center Dynamics",
+          "provenance": "trade_press",
+          "published": "2026-03-06",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        },
+        {
+          "source_id": "yahoo-oracle-rebuttal",
+          "url": "https://finance.yahoo.com/news/oracle-hits-back-stargate-data-172802489.html",
+          "label": "Oracle rebuttal: Abilene delivery 'in lockstep', 4.5 GW leasing completed — expansion lease not proceeding",
+          "publisher": "Yahoo Finance",
+          "provenance": "operator",
+          "published": "2026-03",
+          "retrieved": "2026-07-03",
+          "supports_claim": true
+        }
       ]
     }
   ]

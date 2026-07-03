@@ -5,11 +5,11 @@
   "license": "CC-BY-4.0",
   "note": "Every source label cited across the dashboard, mapped to its verified canonical public URL + provenance class (government / filing / operator / trade_press / analyst). Modeled, derived, or composite references carry no external URL (linkable=false) — they point to methodology, not a single document. Analyst sources retain their own terms.",
   "coverage": {
-    "total": 108,
-    "linkable": 79,
-    "withUrl": 79,
+    "total": 109,
+    "linkable": 80,
+    "withUrl": 80,
     "modeledOrVague": 29,
-    "note": "After de-duplicating exact-duplicate labels, 108 distinct labels remain: 79 are linkable with researcher-verified canonical URLs (operator / filing / government / trade_press / analyst), and 29 are modeled or vague composites with no single citeable document. Several authoritative hosts (SEC EDGAR, IEA, LBNL, Oracle, OpenAI) 403 the automated fetcher but their identities were confirmed via search. No URLs were invented for the 29 modeled entries. The four grid-feed forms (EIA-930, EIA-860, EIA-861, LBNL Queued Up) were added so grid charts linkify their cited sources."
+    "note": "After de-duplicating exact-duplicate labels, 109 distinct labels remain: 80 are linkable with researcher-verified canonical URLs (operator / filing / government / trade_press / analyst), and 29 are modeled or vague composites with no single citeable document. Several authoritative hosts (SEC EDGAR, IEA, LBNL, Oracle, OpenAI) 403 the automated fetcher but their identities were confirmed via search. No URLs were invented for the 29 modeled entries. The four grid-feed forms (EIA-930, EIA-860, EIA-861, LBNL Queued Up) were added so grid charts linkify their cited sources."
   },
   "ledger": [
     {
@@ -794,6 +794,13 @@
       "url": "https://emp.lbl.gov/publications/queued-2025-edition-characteristics",
       "publisher": "Lawrence Berkeley National Laboratory (LBNL), Energy Markets & Policy",
       "provenance": "analyst",
+      "linkable": true
+    },
+    {
+      "label": "PJM Base Residual Auction reports",
+      "url": "https://www.pjm.com/markets-and-operations/rpm",
+      "publisher": "PJM Interconnection",
+      "provenance": "government",
       "linkable": true
     }
   ]

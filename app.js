@@ -164,6 +164,8 @@ const $ = (id) => document.getElementById(id);
     perfPerWattChart: { take: "On a pinned dense FP16/BF16 silicon metric, per-watt efficiency only rose ~3x from A100 (index 100) to B200 (289) — but separate modeled effective-inference markers (FP4 + NVL72 rack-scale) reach 1,000 for GB200 NVL72 and ~3,500 for Rubin, showing the real deployment gains come from lower precision and rack design, not raw FP16 FLOPS/W.", asof: "2020–2025 GPU generations · markers modeled", src: { label: "NVIDIA datasheets (A100/H100/H200/Blackwell)" } },
     demandGapChart: { take: "Annual US data-center demand additions outrun new firm generation committed to DC load nearly every year of the projection, with the widest single-year gap of 7 GW in 2027 (17 GW demand added vs. 10 GW firm gen) and demand exceeding new firm gen through 2030.", asof: "2024-2030 projection", src: { label: "modeled (GS / Wood Mackenzie / EIA + IRPs)" } },
     headroomChart: { take: "On a derived nameplate-capacity proxy, all nine tracked balancing authorities sit above the 10% 'healthy' line, ranging from Southern Co. (SOCO) tightest at 16.3% to Duke (DUK) loosest at 57.8% spare.", asof: "fetched in CI (see feed stamp)", src: { label: "EIA-930 + EIA-860" } },
+    powerPriceBoard: { take: "Industrial retail power across the AI data-center corridor spans ~1.6x — Texas and Iowa cheapest near $63/MWh, Georgia ~$68, while Pennsylvania, Virginia and Ohio (the PJM data-center heartland) run ~$98–100/MWh — a standing incentive for megawatts to migrate.", asof: "fetched daily in CI (see method note)", src: { label: "EIA-861 prices" } },
+    pjmAuctionChart: { take: "PJM capacity prices exploded ~11x from $28.92/MW-day (2024/25) to $269.92 (2025/26), then cleared AT the FERC cap in back-to-back auctions ($329.17, then $333.44 for 2027/28) — data-center load is the primary driver, and the 2028/29 print lands July 14, 2026 under the extended collar.", asof: "by delivery year · through the 2027/28 auction (Dec 2025)", src: { label: "PJM Base Residual Auction reports" } },
     rateImpactChart: { take: "Under high-DC-load scenarios, Virginia faces a projected +57% residential rate increase by 2030 vs. 2024 — more than double any other state, with only Texas (+28%) and Ohio (+22%) also above 20%.", asof: "by 2030 vs. 2024 (modeled)", src: { label: "Fortune analysis, utility IRPs (modeled)" } },
     cumDeficitChart: { take: "The standing cumulative shortfall of DC demand added over firm generation committed to DC widens every year to roughly 19 GW by 2030 — conservative against Bloom Energy's ~35 GW gap reference line.", asof: "2024-2030 (modeled)", src: { label: "modeled (GS / Wood Mackenzie / EIA + IRPs)" } },
     turbineSlots: { take: "Gas-turbine order books are effectively sold out near-term: GE Vernova carries ~100 GW combined (44 GW firm backlog + 56 GW deposit-backed slot reservations), with the earliest new delivery slots not opening until 2029-2030 across GE Vernova, Siemens Energy and Mitsubishi.", asof: "Q1 FY2026 (reported Apr 2026)", src: { label: "GE Vernova / Siemens Energy / MHI earnings" } },
@@ -2052,7 +2054,10 @@ const $ = (id) => document.getElementById(id);
     const anyNullMw = pj ? pj.some(p => p.capacity_mw == null) : false;
     if (pj) {
       const conf = { high: "ok", medium: "warn", low: "crit" };
-      const sorted = [...pj].sort((a, b) => (b.capacity_mw || 0) - (a.capacity_mw || 0));
+      // Active builds only — stalled/paused/cancelled records render in the Graveyard panel
+      // instead, and never count toward the headline GW total.
+      const live = pj.filter(p => GRAVEYARD_STATUSES.indexOf(p.status) === -1);
+      const sorted = [...live].sort((a, b) => (b.capacity_mw || 0) - (a.capacity_mw || 0));
       totalMW = sorted.reduce((s, p) => s + (p.capacity_mw || 0), 0); count = sorted.length;
       rows = sorted.map(p => {
         const src = (p.sources || []).find(s => s.url && s.supports_claim) || (p.sources || []).find(s => s.url);
@@ -2547,6 +2552,123 @@ const $ = (id) => document.getElementById(id);
     });
   }
 
+  // "What power costs, by state" — renders the daily EIA-861 industrial-price feed
+  // (data/power_econ.json) that was previously collected but never displayed.
+  function renderPowerPriceBoard() {
+    if (!$("powerPriceBoard") || typeof Chart === "undefined") return;
+    if (!DATA.power_econ || !DATA.power_econ.states) return;   // no feed yet -> skip
+    if (renderPowerPriceBoard._done) return;
+    renderPowerPriceBoard._done = true;
+    // Major AI data-center corridor states (grounded in the project ledger + CBRE primary markets)
+    const CORRIDOR = ["VA", "TX", "GA", "OH", "PA", "AZ", "IA", "OR", "WY", "ND", "IN", "LA", "MS", "TN"];
+    const st = DATA.power_econ.states;
+    const rows = CORRIDOR
+      .filter(s => st[s] && st[s].ind_usd_mwh != null)
+      .map(s => ({ label: s, value: Math.round(st[s].ind_usd_mwh) }))
+      .sort((a, b) => a.value - b.value);
+    if (!rows.length) return;
+    const col = v => v <= 70 ? CHART_PALETTE.supply : (v <= 90 ? CHART_PALETTE.pipeline : CHART_PALETTE.constraint);
+    renderLollipop("powerPriceBoard", rows.map(r => ({ label: r.label, value: r.value, color: col(r.value) })), {
+      seriesLabel: "Industrial power price ($/MWh)",
+      fmt: v => "$" + v, rightPad: 48,
+      tooltipCallbacks: {
+        label: c => " $" + c.parsed.x + "/MWh industrial retail",
+        afterLabel: () => "EIA retail sales (sector IND) · " + (DATA.power_econ.period || "")
+      }
+    });
+    const m = $("powerPriceMethod");
+    if (m) {
+      const all = Object.values(st).map(v => v.ind_usd_mwh).filter(v => v != null);
+      const lo = Math.round(Math.min.apply(null, all)), hi = Math.round(Math.max.apply(null, all));
+      m.innerHTML = "<b>Live feed.</b> EIA retail-sales industrial price, data " + (DATA.power_econ.period || "n/a") +
+        " · corridor states shown; national range $" + lo + "–$" + hi + "/MWh · refreshed daily in CI.";
+    }
+  }
+
+  // PJM capacity-auction clearing prices by DELIVERY YEAR (labels by delivery year, not
+  // auction date — auction timing has been irregular). Curated DATA.pjmAuction; primary source.
+  function renderPjmAuction() {
+    if (!$("pjmAuctionChart") || typeof Chart === "undefined") return;
+    if (!DATA.pjmAuction || !Array.isArray(DATA.pjmAuction.series)) return;
+    if (renderPjmAuction._done) return;
+    renderPjmAuction._done = true;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const pa = DATA.pjmAuction;
+    const col = d => d.price == null ? hexA(CHART_PALETTE.context, 0.25)
+      : (d.atCap ? CHART_PALETTE.constraint : (d.price >= 200 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply));
+    const ann = {};
+    if (pa.collar) {
+      ann.cap = { type: "line", yMin: pa.collar.cap, yMax: pa.collar.cap, borderColor: hexA(CHART_PALETTE.constraint, 0.75), borderWidth: 1, borderDash: [5, 4],
+        label: { display: true, content: "price cap $" + pa.collar.cap + "/MW-day", position: "end", backgroundColor: hexA(CHART_PALETTE.constraint, 0.85), color: "#fff", font: { size: 9, weight: 700 }, padding: 3 } };
+      ann.floor = { type: "line", yMin: pa.collar.floor, yMax: pa.collar.floor, borderColor: hexA(CHART_PALETTE.context, 0.6), borderWidth: 1, borderDash: [5, 4],
+        label: { display: true, content: "floor $" + pa.collar.floor, position: "end", backgroundColor: hexA(CHART_PALETTE.context, 0.7), color: "#fff", font: { size: 9, weight: 700 }, padding: 3 } };
+    }
+    _charts.pjmAuctionChart = new Chart($("pjmAuctionChart"), {
+      type: "bar",
+      data: { labels: pa.series.map(d => d.dy), datasets: [{
+        label: "RTO clearing price ($/MW-day)",
+        data: pa.series.map(d => d.price),
+        backgroundColor: pa.series.map(col), borderWidth: 0
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, anchor: "end", align: "end",
+            formatter: (v, c) => v == null ? (pa.series[c.dataIndex].pending || "") : "$" + v.toLocaleString() }),
+          tooltip: { callbacks: {
+            label: c => c.parsed.y == null ? " results pending" : " $" + c.parsed.y.toLocaleString() + "/MW-day RTO clearing price",
+            afterLabel: c => pa.series[c.dataIndex].note || ""
+          } },
+          annotation: { annotations: ann }
+        },
+        scales: {
+          y: { grid: { color: cl.grid }, ticks: { callback: v => "$" + v }, beginAtZero: true },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+    const m = $("pjmAuctionMethod");
+    if (m && pa.methodology) m.innerHTML = "<b>Primary.</b> " + pa.methodology;
+  }
+
+  // Graveyard & stalls — verified retreats from the project ledger (status stalled / paused /
+  // cancelled). The honest counterweight to announcement bias: nobody else publishes a cited
+  // graveyard of AI-DC projects. Records live in data/projects.json like everything else.
+  const GRAVEYARD_STATUSES = ["stalled", "paused", "cancelled"];
+  function renderGraveyard() {
+    if (!$("graveyardList")) return;
+    const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
+    if (!pj) { $("graveyardList").closest(".stub-card") && ($("graveyardList").closest(".stub-card").style.display = "none"); return; }
+    const dead = pj.filter(p => GRAVEYARD_STATUSES.indexOf(p.status) !== -1)
+      .sort((a, b) => String(b.status_as_of || "").localeCompare(String(a.status_as_of || "")));
+    const host = $("graveyardList");
+    const card = host.closest(".stub-card");
+    if (!dead.length) { if (card) card.style.display = "none"; return; }
+    if (card) card.style.display = "";
+    const conf = { high: "ok", medium: "warn", low: "crit" };
+    host.innerHTML = dead.map(p => {
+      const src = (p.sources || []).find(s => s.url && s.supports_claim) || (p.sources || []).find(s => s.url);
+      const srcHtml = src ? '<a class="mp-src" href="' + src.url + '" target="_blank" rel="noopener">— ' + src.publisher + ' ↗</a>' : "";
+      const hist = (p.status_history || []).slice(-1)[0];
+      const note = hist && hist.note ? hist.note : (p.note || "");
+      const mw = p.capacity_mw != null ? '<span class="mp-mw" style="text-align:left">' + p.capacity_mw.toLocaleString() + ' MW</span>' : "";
+      return '<div class="stack-row">' +
+        '<div class="stack-head"><span class="stack-name">' + p.name + ' · ' + p.operator + ' · ' + p.state + '</span>' +
+        '<span class="mp-status ' + p.status + '">' + p.status + '</span></div>' +
+        '<div class="stack-evidence">' + mw + (mw ? ' · ' : '') + note +
+        ' <span class="cf-tier cf-' + (conf[p.confidence] || "warn") + '" title="confidence in this record">' + (p.confidence || "medium") + '</span>' + srcHtml + '</div></div>';
+    }).join("");
+    const foot = $("graveyardFoot");
+    if (foot) {
+      const gw = dead.reduce((s, p) => s + (p.capacity_mw || 0), 0);
+      foot.innerHTML = dead.length + " verified retreat" + (dead.length > 1 ? "s" : "") + " tracked · " +
+        (gw ? "≈ " + (gw / 1000).toFixed(1) + " GW shelved or on hold · " : "") +
+        'stated reasons are tiered separately from the status fact — see each source.';
+    }
+  }
+
   function renderQueueChart() {
     if (!$("queueChart") || typeof Chart === "undefined") return;
     if (!DATA.queues || !Array.isArray(DATA.queues.iso)) return;
@@ -2599,9 +2721,11 @@ const $ = (id) => document.getElementById(id);
     } catch (_) {}
     const vis = el => !!(el && el.offsetParent !== null);          // only paint into a visible canvas
     if (DATA.grid && vis($("headroomChart")))  { renderHeadroomChart._done = false; renderHeadroomChart(); }
+    if (DATA.power_econ && vis($("powerPriceBoard"))) { renderPowerPriceBoard._done = false; renderPowerPriceBoard(); }
     if (DATA.queues && vis($("queueChart")))    { renderQueueChart._done = false; renderQueueChart(); }
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
     if (DATA.projects && vis($("megaProjectsList"))) renderMegaProjects();   // swap the seed table for the canonical dataset
+    if (DATA.projects && vis($("graveyardList"))) renderGraveyard();         // verified retreats from the same dataset
     renderFeedFreshness();
     if (DATA.sources) linkifySources(document.querySelector("section.tab-content.active"));
   }
@@ -3028,6 +3152,7 @@ const $ = (id) => document.getElementById(id);
       renderBuildoutChart();
       renderMap();
       renderMegaProjects();
+      renderGraveyard();
       renderBuildabilityMovements();
       renderPhantomWaterfall();
       wirePhantomScenario();
@@ -3041,6 +3166,8 @@ const $ = (id) => document.getElementById(id);
       renderDrList();
       renderDemandGapChart();
       renderRateImpactChart();
+      renderPowerPriceBoard();
+      renderPjmAuction();
       renderCumDeficitChart();
       renderTurbineSlots();
       renderPowerSourceMixChart();
@@ -3125,7 +3252,7 @@ const $ = (id) => document.getElementById(id);
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderFunnel"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderPowerPriceBoard","renderPjmAuction","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderFunnel"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
