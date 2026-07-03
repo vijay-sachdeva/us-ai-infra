@@ -34,8 +34,24 @@
         },
         "capacity_mw": { "type": ["number", "null"] },
         "capacity_type": { "type": "string", "enum": ["total_power", "it_critical_load", "unspecified"], "description": "what the MW figure measures" },
-        "status": { "type": "string", "enum": ["operational", "construction", "planned", "announced", "unknown"] },
+        "status": { "type": "string", "enum": ["operational", "construction", "planned", "announced", "stalled", "paused", "cancelled", "unknown"], "description": "Current lifecycle status. stalled/paused/cancelled represent verified retreats (the graveyard) — the honest counterweight to announcement bias." },
         "status_as_of": { "type": "string", "description": "YYYY-MM the status was observed" },
+        "status_history": {
+          "type": "array",
+          "description": "Chronological status transitions (append-only). Each entry records a verified change with its source; keep the stated REASON attribution-tagged (company on-record vs analyst vs anonymous-source reporting).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string", "description": "YYYY-MM or YYYY-MM-DD the change became known" },
+              "from": { "type": "string" },
+              "to": { "type": "string" },
+              "note": { "type": "string" },
+              "source_id": { "type": "string", "description": "id of the record source substantiating the change" }
+            },
+            "required": ["date", "to"],
+            "additionalProperties": false
+          }
+        },
         "power": {
           "type": "object",
           "properties": {
