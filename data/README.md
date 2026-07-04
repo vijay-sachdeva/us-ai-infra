@@ -53,3 +53,7 @@ annual). Treat `lastUpdated` as retrieval, not observation.
 
 `projects.json.version` is bumped on schema/record changes; see [`../CHANGELOG.md`](../CHANGELOG.md)
 and [`../CITATION.cff`](../CITATION.cff). Cite a specific build by its version + retrieval date.
+
+## sec_filings.json (generated daily)
+
+Latest disclosure-relevant SEC filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked player, from the EDGAR submissions API via scripts/fetch_sec_filings.py — primary metadata with direct document links. Feeds the Players tab Filings-watch module, which flags periodic filings dated after the commitment book last-review stamp.

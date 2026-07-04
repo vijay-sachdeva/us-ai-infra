@@ -2949,7 +2949,7 @@ const $ = (id) => document.getElementById(id);
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
     if (DATA.projects && vis($("megaProjectsList"))) renderMegaProjects();   // swap the seed table for the canonical dataset
     if (DATA.projects && vis($("graveyardList"))) renderGraveyard();         // verified retreats from the same dataset
-    if (vis($("playersCards"))) { renderPlayers(); renderPowerBank(); renderPlayersGrid(); renderPlayerFeed(); }  // joins pick up the fresh feeds
+    if (vis($("playersCards"))) { renderPlayers(); renderPowerBank(); renderPlayersGrid(); renderFilingsWatch(); renderPlayerFeed(); }  // joins pick up the fresh feeds
     renderFeedFreshness();
     if (DATA.sources) linkifySources(document.querySelector("section.tab-content.active"));
   }
@@ -3443,6 +3443,34 @@ const $ = (id) => document.getElementById(id);
       '<div class="mp-data-actions">' + nb.methodology + "</div>";
   }
 
+  // Filings watch — latest SEC filings per tracked player (data/sec_filings.json, EDGAR
+  // submissions API, daily CI). Periodic filings (10-K/10-Q/20-F) dated AFTER the commitment
+  // book's last review stamp get a "filed after last review" flag: the visible trigger to
+  // re-verify the filed numbers on Capital (companion to the staleness gate).
+  function renderFilingsWatch() {
+    const host = $("filingsWatch");
+    if (!host || !DATA.sec_filings || !DATA.sec_filings.companies) return;
+    const sf = DATA.sec_filings;
+    const PERIODIC = { "10-K": 1, "10-Q": 1, "10-K/A": 1, "10-Q/A": 1, "20-F": 1 };
+    const reviewed = (typeof CHART_META !== "undefined" && CHART_META.overcommitmentBoard && CHART_META.overcommitmentBoard.reviewed) || null;
+    const reviewedTs = reviewed ? new Date(reviewed + "-01T00:00:00Z").getTime() : null;
+    const tickers = Object.keys(sf.companies).sort();
+    host.innerHTML = '<table class="mp-table"><thead><tr><th>Company</th><th>Latest periodic</th><th>Recent filings</th></tr></thead><tbody>' +
+      tickers.map(t => {
+        const fl = sf.companies[t].filings || [];
+        const periodic = fl.find(f => PERIODIC[f.form]);
+        const isNew = periodic && reviewedTs && new Date(periodic.filed + "T00:00:00Z").getTime() >= reviewedTs;
+        const pHtml = periodic
+          ? '<a class="mp-src" style="display:inline;font-style:normal" href="' + periodic.url + '" target="_blank" rel="noopener">' + periodic.form + ' · ' + periodic.filed + ' ↗</a>' +
+            (isNew ? ' <span class="cf-tier cf-crit" title="Filed on/after the commitment book\u2019s last review (' + reviewed + ') — re-verify the filed numbers on Capital, then bump the review stamp.">filed after last review</span>' : '')
+          : "—";
+        const recent = fl.slice(0, 4).map(f =>
+          '<a class="mp-src" style="display:inline;font-style:normal;margin-right:10px" href="' + f.url + '" target="_blank" rel="noopener">' + f.form + ' ' + f.filed + '</a>').join("");
+        return '<tr><td><span class="mp-name">' + t + '</span></td><td>' + pHtml + '</td><td>' + recent + '</td></tr>';
+      }).join("") + "</tbody></table>" +
+      '<div class="mp-data-actions">Source: <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany" target="_blank" rel="noopener">SEC EDGAR</a> submissions API (primary) · refreshed daily in CI · feed: <a href="data/sec_filings.json" target="_blank" rel="noopener">sec_filings.json ↓</a></div>';
+  }
+
   function renderPlayerFeed() {
     const host = $("playerFeed");
     if (!host) return;
@@ -3586,6 +3614,7 @@ const $ = (id) => document.getElementById(id);
       renderPowerBank();
       renderPlayersGrid();
       renderNeoCloudBoard();
+      renderFilingsWatch();
       renderPlayerFeed();
     }
   }

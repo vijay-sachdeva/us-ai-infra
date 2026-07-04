@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260703g"></script>
+<script src="config.js?v=20260704"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -2155,6 +2155,12 @@
       </div>
 
       <div class="stub-card" style="margin-top:14px">
+        <h4>Filings watch <span class="cf-tier cf-ok" title="Primary — SEC EDGAR submissions API, refreshed daily in CI.">primary</span><span class="feed-stamp" data-feed="sec_filings"></span></h4>
+        <div class="note">Latest disclosure-relevant SEC filings per tracked player (10-K / 10-Q / 8-K; 20-F / 6-K for foreign filers) &middot; direct EDGAR links &middot; a periodic filing dated <b>after</b> the commitment book&rsquo;s last review is flagged — that is the signal to re-verify the filed numbers on Capital</div>
+        <div id="filingsWatch" style="overflow-x:auto"></div>
+      </div>
+
+      <div class="stub-card" style="margin-top:14px">
         <h4>Who did what this week</h4>
         <div class="note">The weekly feed, indexed by player &middot; auto-tagged by the daily refresh</div>
         <div id="playerFeed"></div>
@@ -3346,7 +3352,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260703g"></script>
+<script src="app.js?v=20260704"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
