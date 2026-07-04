@@ -1,0 +1,86 @@
+{
+  "name": "Candidate connections — PROPOSED, not published",
+  "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
+  "generated_at": "2026-07-04T23:46:16+00:00",
+  "counts": {
+    "co_mention": 5,
+    "recurring_player": 1,
+    "filing_after_review": 0
+  },
+  "candidates": [
+    {
+      "reason": "co-mention",
+      "players": [
+        "CRWV",
+        "META",
+        "MSFT",
+        "NVDA",
+        "OpenAI"
+      ],
+      "date": "Jun 2026",
+      "src": "Yahoo Finance",
+      "evidence_text": "CoreWeave disclosed a $99B contract backlog tied to long-term AI-infrastructure commitments from Nvidia, Meta, Microsoft and OpenAI — underscoring the AI cloud's central role in supplying GPU capacity as hyperscalers and",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "co-mention",
+      "players": [
+        "KKR",
+        "NVDA",
+        "Vistra"
+      ],
+      "date": "Jun 2026",
+      "src": "KKR / Data Center Dynamics",
+      "evidence_text": "KKR launched Helix Digital Infrastructure — a new hyperscale data-center developer with $10B+ committed from KKR, Nvidia, Vistra and the Kuwait Investment Authority, led by ex-AWS chief Adam Selipsky — pairing campuses w",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "co-mention",
+      "players": [
+        "Chevron",
+        "MSFT"
+      ],
+      "date": "Jun 2026",
+      "src": "Microsoft / Data Center Dynamics",
+      "evidence_text": "Microsoft unveiled a multibillion-dollar campus in Pecos (Reeves County), West Texas that will add about 2 GW of capacity — one of its largest single expansions — powered initially by an on-site, behind-the-meter natural",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "co-mention",
+      "players": [
+        "Sunrun",
+        "Tesla"
+      ],
+      "date": "Jun 2026",
+      "src": "24/7 Wall St. / TechTimes",
+      "evidence_text": "Sunrun, Tesla and Renew Home agreed to pool more than 16 GW of home batteries and smart thermostats into the largest US virtual power plant and sell that capacity to AI data centers — a demand-side alternative to new gen",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "co-mention",
+      "players": [
+        "META",
+        "MSFT",
+        "ORCL",
+        "OpenAI"
+      ],
+      "date": "Jun 2026",
+      "src": "Bloomberg",
+      "evidence_text": "Big Tech's aggregate future data-center lease commitments topped $850B, a Bloomberg analysis of filings found — Meta added about $79B last quarter (to $182.9B) and Microsoft about $41B (to $196.6B), with Oracle still the",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "recurring-player",
+      "players": [
+        "NVDA"
+      ],
+      "count": 3,
+      "items": [
+        "CoreWeave disclosed a $99B contract backlog tied to long-term AI-infrastructure ",
+        "KKR launched Helix Digital Infrastructure — a new hyperscale data-center develop",
+        "Nvidia and AI-cloud operator IREN unveiled a partnership to deploy up to 5 GW of"
+      ],
+      "suggestion": "NVDA appears in 3 feed items — candidate for a narrative thread (one motion across weeks)."
+    }
+  ]
+}
