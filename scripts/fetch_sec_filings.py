@@ -30,7 +30,14 @@ OUT = ROOT / "data" / "sec_filings.json"
 UA = {"User-Agent": "us-ai-infra-monitor (vijaysachdeva@gmail.com)"}
 
 # Tracked players (public filers only). Keep in sync with DATA.players where applicable.
-TICKERS = ["MSFT", "AMZN", "GOOGL", "META", "ORCL", "NVDA", "CRWV", "APLD", "IREN", "NBIS"]
+#   buildout layer : hyperscalers / labs / neoclouds / chip vendors
+#   supply layer   : the picks-and-shovels beneath the buildout — memory (MU), NAND storage
+#                    (SNDK), precision timing (SITM), advanced PCBs & substrates (TTMI),
+#                    wafer-level burn-in test (AEHR). AMD/AVGO are major connection-map vendors.
+TICKERS = [
+    "MSFT", "AMZN", "GOOGL", "META", "ORCL", "NVDA", "CRWV", "APLD", "IREN", "NBIS",
+    "AMD", "AVGO", "MU", "SNDK", "SITM", "TTMI", "AEHR",
+]
 # Disclosure-relevant forms (incl. amendments); NBIS is a foreign private issuer (20-F/6-K).
 FORMS = {"10-K", "10-Q", "8-K", "10-K/A", "10-Q/A", "20-F", "6-K"}
 PER_COMPANY = 6   # latest N relevant filings kept per company
