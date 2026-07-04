@@ -1,12 +1,12 @@
 {
-  "lastUpdated": "2026-07-03",
+  "lastUpdated": "2026-07-04",
   "topStory": {
-    "date": "July 2, 2026",
-    "text": "Microsoft opened its $3.3 billion Mount Pleasant, Wisconsin data center, the first facility at the campus that has become one of the company's highest-profile AI infrastructure developments. The facility is now fully online after beginning limited operations earlier this year.",
-    "src": "Data Center Knowledge",
-    "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-july-2026",
+    "date": "July 1, 2026",
+    "text": "Meta is developing plans for a cloud infrastructure business to sell excess AI compute capacity and models to outside customers, competing directly with AWS, Google Cloud, and Microsoft Azure. The move follows similar strategies by SpaceX's xAI, which signed compute capacity deals with Anthropic, Google, and others.",
+    "src": "TechCrunch",
+    "url": "https://techcrunch.com/2026/07/01/meta-like-spacex-looks-to-turn-excess-ai-compute-into-cash/",
     "players": [
-      "MSFT"
+      "META"
     ]
   },
   "feed": [
