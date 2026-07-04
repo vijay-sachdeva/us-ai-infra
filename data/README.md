@@ -62,3 +62,7 @@ Latest disclosure-relevant SEC filings (10-K/10-Q/8-K; 20-F/6-K for foreign file
 
 The connect-the-dots layer — verified edges between facts already published elsewhere on the dashboard (no new figures). Each connection carries a **connectionTier** (`both_sides` / `one_side` / `inference`) — the cross-document *link* confidence, distinct from each source''''s own primary/analyst/modeled tier — so an unverified link cannot render untiered (enforced by schemas/connections.schema.json + tests/test_data_quality.py). Curated by hand and honours the same 150-day staleness gate; the daily refresh only *proposes* candidates for human verification. Powers the "Connecting the dots" module on Overview.
 
+## connections.proposals.json (auto-generated, NOT published)
+
+The sustainability half of the connections model. `scripts/propose_connections.py` mines the existing feeds (current.json, sec_filings.json, published connections) for **candidate** links — feed co-mentions, recurring players (thread candidates), and connections whose player filed after the ledger''''s review stamp — and writes them here for a maintainer to verify. **The dashboard never loads this file.** Verified candidates are promoted BY HAND into connections.json with a connectionTier; it proposes, it never publishes.
+

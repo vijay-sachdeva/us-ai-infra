@@ -6,6 +6,68 @@
   "reviewed": "2026-07",
   "items": [
     {
+      "id": "openai-nvidia-roundtrip",
+      "kind": "circular",
+      "title": "NVIDIA invests up to $100B in OpenAI; OpenAI commits ~$100B back for compute — the round-trip",
+      "insight": "NVIDIA committed up to $100B to OpenAI (Sep 2025, ~$30B initial tranche); OpenAI committed roughly the same amount back to NVIDIA for ~10 GW of GPU compute. The capital going out and the revenue coming back are nearly the same figure — the clearest single instance of a chip vendor funding its own demand. Both parties are on record naming the other; what stays undisclosed is the timing and NVIDIA's net cash exposure once the compute revenue is netted against the investment.",
+      "players": ["NVDA", "OpenAI"],
+      "connectionTier": "both_sides",
+      "date": "Sep 2025",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "side": "investor", "label": "NVIDIA → OpenAI: up to $100B LOI (≈$30B initial tranche)", "src": "NVIDIA / OpenAI announcement, Sep 2025", "srcTier": "primary", "href": "#capital" },
+        { "side": "customer", "label": "OpenAI → NVIDIA: ≈$100B GPU compute (10 GW)", "src": "OpenAI compute-commitment disclosure", "srcTier": "analyst", "href": "#capital" }
+      ]
+    },
+    {
+      "id": "amd-openai-warrant",
+      "kind": "circular",
+      "title": "AMD hands OpenAI a ~10% warrant to win a ~$90B compute deal — the round-trip repeats",
+      "insight": "AMD granted OpenAI a warrant for up to 160M shares (~10% of AMD) tied to OpenAI deploying ~6 GW of Instinct GPUs (~$90B potential). Same structure as the NVIDIA round-trip: the vendor gives its customer equity to secure the compute commitment. Two chip vendors now bind their largest customer with their own stock — a competitive norm forming, not a one-off. The share count is filed (AMD 8-K); the $90B is an analyst scaling of the GW commitment.",
+      "players": ["OpenAI"],
+      "connectionTier": "both_sides",
+      "date": "Oct 2025",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "side": "vendor", "label": "AMD → OpenAI: warrant for up to 160M shares (~10%)", "src": "AMD 8-K warrant disclosure", "srcTier": "primary", "href": "#capital" },
+        { "side": "customer", "label": "OpenAI → AMD: ~6 GW Instinct (~$90B potential)", "src": "AMD / OpenAI release, Oct 2025", "srcTier": "analyst", "href": "#capital" }
+      ]
+    },
+    {
+      "id": "openai-cloud-diversification",
+      "kind": "supersedes",
+      "title": "OpenAI's compute is no longer Azure-exclusive — it now spans Oracle, AWS and CoreWeave",
+      "insight": "Microsoft still owns ~27% of OpenAI (~$135B) and holds a ~$250B Azure commitment, but OpenAI's compute now also runs on Oracle ($300B Stargate), AWS ($38B) and CoreWeave (~$22B). The exclusive-cloud era ended with the 2025 recapitalization. For a CSO the read is blunt: even the deepest lab-to-hyperscaler tie now multi-sources its supply — single-cloud lock-in is over at the frontier. The 'end of exclusivity' is our framing over separately-disclosed commitments.",
+      "players": ["OpenAI", "MSFT", "ORCL"],
+      "connectionTier": "inference",
+      "date": "2025–2026",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "label": "Microsoft → OpenAI: ~27% stake (~$135B)", "src": "Microsoft / OpenAI recapitalization, 2025", "srcTier": "primary", "href": "#capital" },
+        { "label": "OpenAI → Microsoft: ~$250B Azure commitment", "src": "Microsoft / OpenAI restructuring, 2025", "srcTier": "analyst", "href": "#capital" },
+        { "label": "OpenAI → Oracle $300B · AWS $38B · CoreWeave ~$22B", "src": "Oracle / Amazon / CoreWeave disclosures", "srcTier": "analyst", "href": "#capital" }
+      ]
+    },
+    {
+      "id": "coreweave-quintuple-bind",
+      "kind": "circular",
+      "title": "CoreWeave is tied to the same three names five ways — equity, backstop, debt collateral, revenue, contract",
+      "insight": "NVIDIA holds ~7% of CoreWeave and backstops $6.3B of its capacity; Blackstone lent it $8.5B collateralized by NVIDIA chips; Microsoft is ~45–67% of its revenue; OpenAI contracted ~$22B. So the chips CoreWeave buys, the demand that fills them, the debt that funds them, and the revenue that services that debt all trace back to NVIDIA, Microsoft and OpenAI. Concentration this tight — every link individually filed — is the structural fragility beneath the neocloud model.",
+      "players": ["CRWV", "NVDA", "MSFT", "OpenAI"],
+      "connectionTier": "one_side",
+      "date": "2025–2026",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "side": "vendor", "label": "NVIDIA → CoreWeave: ~7% equity + $6.3B take-or-pay backstop", "src": "NVIDIA SC 13G + CoreWeave 8-K", "srcTier": "primary", "href": "#capital" },
+        { "side": "credit", "label": "Blackstone → CoreWeave: $8.5B loan vs NVIDIA chips", "src": "Blackstone-anchored CoreWeave DDTL", "srcTier": "primary", "href": "#capital" },
+        { "side": "customer", "label": "Microsoft ~45–67% of revenue · OpenAI ~$22B contracted", "src": "CoreWeave 10-Q + 8-K filings", "srcTier": "primary", "href": "#players" }
+      ]
+    },
+    {
       "id": "meta-coreweave-capacity",
       "kind": "two_sider",
       "title": "CoreWeave names Meta as a committed customer — Meta's own filings name no provider",
