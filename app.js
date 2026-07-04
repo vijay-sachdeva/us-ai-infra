@@ -461,6 +461,22 @@ const $ = (id) => document.getElementById(id);
   // Deep-link target: after a tab renders, scroll to (and briefly flash) the linked chart.
   function scrollToChartAnchor(anchor) {
     if (!anchor) return;
+    if (anchor === "connections") {   // the Overview connections module isn't a chart-box
+      const mod = document.getElementById("ov-connections");
+      if (!mod) return;
+      // Re-assert the scroll a few times: the hero chart above renders late and would push the
+      // module past the fold if we scrolled only once. Compute absolute target each pass and
+      // correct for reflow (first smooth, then instant to nail the final position).
+      let n = 0;
+      const settle = () => {
+        const target = window.scrollY + mod.getBoundingClientRect().top - 12;
+        window.scrollTo({ top: Math.max(0, target), behavior: n === 0 ? "smooth" : "auto" });
+        if (++n < 5) setTimeout(settle, 180);
+        else { mod.classList.remove("ov-conn-flash"); void mod.offsetWidth; mod.classList.add("ov-conn-flash"); }
+      };
+      settle();
+      return;
+    }
     const tryScroll = () => {
       const box = document.querySelector('.chart-box[data-chart-anchor="' + (window.CSS && CSS.escape ? CSS.escape(anchor) : anchor) + '"]');
       if (!box) return false;
@@ -3405,12 +3421,20 @@ const $ = (id) => document.getElementById(id);
       // Latest tagged signal from the weekly feed
       const sig = feed.find(it => (it.players || []).indexOf(p.sym) !== -1);
       const sigHtml = sig ? '<div class="pl-signal"><b>' + (sig.date || "") + '</b> · ' + sig.text.slice(0, 150) + (sig.text.length > 150 ? "…" : "") + ' <span class="stack-src">— ' + (sig.src || "") + '</span></div>' : "";
+      // Connections this player is in — surface the dot-connecting where the CSO drills in.
+      const shortTier = { both_sides: "2-sided", one_side: "1-sided", inference: "inferred" };
+      const myConns = connectionsPublished().filter(c => (c.players || []).indexOf(p.sym) !== -1);
+      const connHtml = myConns.length ? '<div class="pl-conns"><span class="pl-klabel">Connected · ' + myConns.length + '</span>' +
+        myConns.map(c => {
+          const t = CONN_TIER[c.connectionTier] || { cls: "warn" };
+          return '<a class="pl-conn" href="#overview:connections" title="' + (c.insight || "").replace(/"/g, "&quot;") + '"><span class="pl-conn-kind">' + ((CONN_KIND[c.kind] || {}).label || c.kind) + '</span>' + c.title + ' <span class="cf-tier cf-' + t.cls + '">' + (shortTier[c.connectionTier] || c.connectionTier) + '</span></a>';
+        }).join("") + '</div>' : "";
       return '<div class="pl-card">' +
         '<div class="pl-head"><span class="brand-mark b-' + (p.brand || "other") + '">' + p.name.charAt(0) + '</span><span class="pl-name">' + p.name + '</span><span class="pl-cls">' + p.cls + '</span></div>' +
         '<div class="pl-stats">' + rows.join("") + '</div>' +
         '<div class="pl-constraint"><span class="pl-klabel">Constraint read</span>' + p.constraint.text +
         ' <span class="cf-tier cf-' + tierCls(p.constraint.tier) + '" title="' + tierTitle(p.constraint.tier) + '">' + p.constraint.tier + '</span></div>' +
-        sigHtml + '</div>';
+        sigHtml + connHtml + '</div>';
     }).join("");
   }
 
@@ -3860,6 +3884,14 @@ const $ = (id) => document.getElementById(id);
   motionObserveAll();           // wire up fade-ins + KPI counters
   hydrate();                    // pull live public-data feeds (data/*.json); additive + graceful
   window.addEventListener('hashchange', function () { const h = parseHash(); showTab(h.tab, h.anchor); });
+  // Cross-tab deep-links to the connections module (e.g. from a Players dossier card): drive the
+  // switch ourselves so the browser's native fragment scroll can't race the router's scroll.
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href="#overview:connections"]');
+    if (!a) return;
+    e.preventDefault();
+    showTab('overview', 'connections');
+  });
   // If the page rendered/updated while backgrounded (rAF + timers throttled), charts can be
   // left at 0-width; repaint the visible ones once the tab regains focus.
   document.addEventListener('visibilitychange', function () { if (!document.hidden) scheduleChartResize(); });
