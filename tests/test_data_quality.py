@@ -400,5 +400,92 @@ def test_curated_modules_not_stale():
         "figures against sources and bump the reviewed stamp:\n" + "\n".join(stale))
 
 
+# --------------------------------------------------------------------------- #
+# (h) Connections ledger — the connect-the-dots layer. Every published edge MUST
+#     carry a connectionTier (the cross-document link confidence, distinct from
+#     each source's own tier) so an unverified link cannot ship untiered. The
+#     ledger validates against its schema and honours the same staleness gate.
+# --------------------------------------------------------------------------- #
+CONNECTIONS_JSON = os.path.join(DATA, "connections.json")
+CONNECTIONS_SCHEMA = os.path.join(SCHEMAS, "connections.schema.json")
+
+_VALID_CONN_TIERS = {"both_sides", "one_side", "inference"}
+
+
+@pytest.fixture(scope="module")
+def connections():
+    if not os.path.exists(CONNECTIONS_JSON):
+        pytest.skip("connections.json not present")
+    return _load_json(CONNECTIONS_JSON)
+
+
+def test_connections_validate_against_schema(connections):
+    if not os.path.exists(CONNECTIONS_SCHEMA):
+        pytest.skip("connections.schema.json not present")
+    jsonschema = pytest.importorskip("jsonschema", reason="pip install jsonschema")
+    schema = _load_json(CONNECTIONS_SCHEMA)
+    validator_cls = jsonschema.validators.validator_for(schema)
+    validator_cls.check_schema(schema)
+    validator = validator_cls(schema)
+    errors = sorted(validator.iter_errors(connections), key=lambda e: list(e.path))
+    assert not errors, "connections.json failed schema validation:\n" + "\n".join(
+        "  at %s: %s" % ("/".join(str(p) for p in e.path) or "<root>", e.message)
+        for e in errors
+    )
+
+
+def test_every_connection_is_tiered(connections):
+    """The anti-fabrication guardrail: no published connection without a valid tier."""
+    offenders = []
+    for c in connections.get("items", []):
+        if c.get("status", "published") not in ("published", "downgraded"):
+            continue
+        if c.get("connectionTier") not in _VALID_CONN_TIERS:
+            offenders.append("%s: connectionTier=%r" % (c.get("id", "<no id>"), c.get("connectionTier")))
+    assert not offenders, (
+        "published connections missing a valid connectionTier "
+        "(both_sides / one_side / inference):\n" + "\n".join(offenders))
+
+
+def test_connection_evidence_is_sourced(connections):
+    """Every connection rests on >=1 evidence record, each with a source + source tier."""
+    tiers = {"primary", "analyst", "modeled"}
+    offenders = []
+    for c in connections.get("items", []):
+        ev = c.get("evidence", [])
+        if not ev:
+            offenders.append("%s: no evidence" % c.get("id"))
+            continue
+        for e in ev:
+            if not e.get("label") or not e.get("src") or e.get("srcTier") not in tiers:
+                offenders.append("%s: weak evidence %r" % (c.get("id"), e.get("label", "")[:40]))
+    assert not offenders, "connections with unsourced/untiered evidence:\n" + "\n".join(offenders)
+
+
+def test_both_sides_connections_have_two_evidence(connections):
+    """A both_sides claim needs one evidence record per party — at least two."""
+    offenders = [
+        c.get("id") for c in connections.get("items", [])
+        if c.get("connectionTier") == "both_sides" and len(c.get("evidence", [])) < 2
+    ]
+    assert not offenders, (
+        "both_sides connections with <2 evidence records (one per party required): "
+        + ", ".join(offenders))
+
+
+def test_connections_not_stale(connections):
+    """Same 150-day re-verification gate the curated modules honour."""
+    import datetime
+    import re
+    reviewed = connections.get("reviewed")
+    assert reviewed and re.match(r"^\d{4}-\d{2}$", reviewed), (
+        "connections.json needs a top-level reviewed: 'YYYY-MM' stamp")
+    yy, mm = reviewed.split("-")
+    age = (datetime.date.today() - datetime.date(int(yy), int(mm), 1)).days
+    assert age <= 150, (
+        "connections ledger past the 150-day re-verification threshold "
+        "(reviewed %s, %d days ago) — re-verify every link and bump the stamp." % (reviewed, age))
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([os.path.abspath(__file__), "-v"]))
