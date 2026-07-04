@@ -31,6 +31,7 @@ jobs:
           python build_siting.py
           python fetch_gpu_prices.py
           python fetch_sec_filings.py
+          python propose_connections.py
       - name: Archive history (append today's snapshot)
         run: python scripts/archive_history.py
       - name: Commit data
