@@ -24,8 +24,8 @@ const REGION_CONFIG = {
   },
 
   // Live public-data feeds this region publishes (data/<feed>.json) + their short source labels.
-  feeds: ["grid", "power_econ", "queues", "siting", "projects", "sources"],
-  feedMeta: { grid: "EIA-930/860", power_econ: "EIA-861 prices", queues: "LBNL queue", siting: "Modeled siting" },
+  feeds: ["grid", "power_econ", "queues", "siting", "projects", "sources", "sec_filings"],
+  feedMeta: { grid: "EIA-930/860", power_econ: "EIA-861 prices", queues: "LBNL queue", siting: "Modeled siting", sec_filings: "SEC EDGAR" },
 
   // Operator monograms: ticker / company-name -> { brand, letter }. Region-specific operators.
   operators: {
