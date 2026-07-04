@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260704b"></script>
+<script src="config.js?v=20260704e"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1174,6 +1174,12 @@
   .pl-constraint .pl-klabel { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #0891b2; margin-right: 6px; }
   .pl-signal { font-size: 11px; color: var(--muted); margin-top: 7px; line-height: 1.45; }
   .pl-signal b { color: var(--ink-2); }
+  /* dossier-card connections footer — surfaces the dot-connecting where the CSO drills in */
+  .pl-conns { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+  .pl-conns .pl-klabel { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #0891b2; }
+  .pl-conn { font-size: 11px; line-height: 1.4; color: var(--ink-2); text-decoration: none; display: block; }
+  .pl-conn:hover { color: var(--accent); }
+  .pl-conn-kind { display: inline-block; font-size: 8.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: #0891b2; border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; margin-right: 5px; vertical-align: middle; }
   /* player feed */
   .pf-row { display: flex; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; color: var(--ink-2); }
   .pf-row:last-child { border-bottom: none; }
@@ -3388,7 +3394,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260704b"></script>
+<script src="app.js?v=20260704e"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
