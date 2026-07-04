@@ -20,12 +20,12 @@ const REGION_CONFIG = {
   // enforced in the engine-extraction increment.
   capabilities: {
     overview: true, capital: true, buildout: true, grid: true, tokens: true, players: true,
-    map: true, projects: true, gridFeeds: true, queues: true, rateImpacts: true
+    map: true, projects: true, gridFeeds: true, queues: true, rateImpacts: true, connections: true
   },
 
   // Live public-data feeds this region publishes (data/<feed>.json) + their short source labels.
-  feeds: ["grid", "power_econ", "queues", "siting", "projects", "sources", "sec_filings"],
-  feedMeta: { grid: "EIA-930/860", power_econ: "EIA-861 prices", queues: "LBNL queue", siting: "Modeled siting", sec_filings: "SEC EDGAR" },
+  feeds: ["grid", "power_econ", "queues", "siting", "projects", "sources", "sec_filings", "connections"],
+  feedMeta: { grid: "EIA-930/860", power_econ: "EIA-861 prices", queues: "LBNL queue", siting: "Modeled siting", sec_filings: "SEC EDGAR", connections: "Curated links" },
 
   // Operator monograms: ticker / company-name -> { brand, letter }. Region-specific operators.
   operators: {

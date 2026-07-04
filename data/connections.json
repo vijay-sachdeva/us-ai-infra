@@ -1,0 +1,89 @@
+{
+  "name": "Connecting the dots — verified links across filings, deals and time",
+  "tier": "analyst",
+  "note": "Each connection is an edge between facts ALREADY published elsewhere on this dashboard — no figure here is new. connectionTier states the link's confidence: both_sides (both parties on record), one_side (only one party names it), inference (analyst framing over sourced facts). This week nothing clears the both_sides bar — an honesty signal, not a gap. Curated by hand; the daily news refresh only proposes candidates.",
+  "lastUpdated": "2026-07-04",
+  "reviewed": "2026-07",
+  "items": [
+    {
+      "id": "meta-coreweave-capacity",
+      "kind": "two_sider",
+      "title": "CoreWeave names Meta as a committed customer — Meta's own filings name no provider",
+      "insight": "CoreWeave's ~$99B backlog disclosure lists Meta among its committed customers. Meta separately discloses $182.9B of not-yet-commenced leases and $237.7B of purchase commitments — but names no counterparty. Only the seller's filing reveals the relationship, so how much of Meta's book is CoreWeave capacity stays undisclosed. A search of Meta's filings alone would never surface this link.",
+      "players": ["META", "CRWV"],
+      "connectionTier": "one_side",
+      "namedBy": "Seller only — CoreWeave names Meta; Meta does not name CoreWeave.",
+      "date": "Jun 2026",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "side": "seller", "label": "CoreWeave ~$99B backlog tied to commitments from Nvidia, Meta, Microsoft, OpenAI", "src": "Yahoo Finance", "srcTier": "analyst", "href": "#players" },
+        { "side": "buyer", "label": "Meta: $182.9B not-yet-commenced leases + $237.7B purchase commitments", "src": "Bloomberg / filings", "srcTier": "analyst", "href": "#capital:overcommitmentBoard" }
+      ]
+    },
+    {
+      "id": "msft-commissioning-thread",
+      "kind": "thread",
+      "title": "Microsoft's unopened lease book, the Pecos build and the Mount Pleasant opening are one motion",
+      "insight": "$196.6B of not-yet-commenced leases is paper capacity; the 2 GW Pecos campus is that paper turning into steel; the $3.3B Mount Pleasant opening (Jul 2) is it turning into live load. Read as a sequence — contract, build, commission — three separate press releases become one strategy: converting the largest unopened lease book in the sector into operating megawatts.",
+      "players": ["MSFT"],
+      "connectionTier": "inference",
+      "date": "Jul 2026",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "label": "Microsoft: $196.6B not-yet-commenced leases — the largest disclosed book", "src": "Bloomberg / filings", "srcTier": "analyst", "href": "#capital:overcommitmentBoard" },
+        { "label": "Pecos 2 GW campus + Chevron 2.67 GW behind-the-meter supply", "src": "Microsoft / Data Center Dynamics", "srcTier": "analyst", "href": "#buildout" },
+        { "label": "Mount Pleasant $3.3B data center opened Jul 2", "src": "Data Center Knowledge", "srcTier": "analyst" }
+      ]
+    },
+    {
+      "id": "oracle-openai-stargate",
+      "kind": "two_sider",
+      "title": "Oracle's filed backlog, the $300B OpenAI contract and the Abilene builds are one deal seen three ways",
+      "insight": "Oracle carries $260B of not-yet-commenced leases on ~$32B of annual operating cash flow — roughly a decade pre-committed. The reported $300B OpenAI Stargate contract is the customer side of that obligation; the Abilene ledger records (1.2 GW under construction) are the concrete. But even here the book is being trimmed — the 600 MW Abilene expansion is cancelled — so the filed backlog slightly overstates what will physically land.",
+      "players": ["ORCL", "OpenAI"],
+      "connectionTier": "one_side",
+      "namedBy": "Oracle side filed and reported; OpenAI is private and does not file.",
+      "date": "2026",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "side": "seller", "label": "Oracle: $260B not-yet-commenced leases on ~$32B OCF (~10 yrs pre-committed)", "src": "filings", "srcTier": "analyst", "href": "#capital:overcommitmentBoard" },
+        { "side": "buyer", "label": "$300B OpenAI Stargate contract — Oracle the largest single holder", "src": "Bloomberg", "srcTier": "analyst" },
+        { "label": "Abilene: 1.2 GW under construction; 600 MW expansion cancelled", "src": "projects ledger", "srcTier": "analyst", "href": "#buildout" }
+      ]
+    },
+    {
+      "id": "nvidia-circular-supply",
+      "kind": "circular",
+      "title": "Nvidia funds the buildout it also supplies",
+      "insight": "Nvidia shows up as investor or backer AND chip vendor to the same counterparties — the IREN 5 GW partnership, CoreWeave's backlog (Nvidia named among committers), and KKR's Helix vehicle (Nvidia a co-investor). Equity and partnership dollars flow out; GPU purchase orders flow back. That loop is what the counterparty map on Capital traces — and why part of the 'demand' for Nvidia chips is demand Nvidia itself helped finance.",
+      "players": ["NVDA", "IREN", "CRWV"],
+      "connectionTier": "inference",
+      "date": "Jun 2026",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "label": "Nvidia + IREN: up to 5 GW partnership, Sweetwater flagship (DSX design)", "src": "Data Center Knowledge", "srcTier": "analyst", "href": "#buildout" },
+        { "label": "CoreWeave ~$99B backlog names Nvidia among committers", "src": "Yahoo Finance", "srcTier": "analyst", "href": "#players" },
+        { "label": "KKR Helix: $10B+ committed with Nvidia, Vistra, KIA", "src": "KKR / Data Center Dynamics", "srcTier": "analyst", "href": "#capital" }
+      ]
+    },
+    {
+      "id": "msft-prune-and-accelerate",
+      "kind": "contradiction",
+      "title": "Microsoft is shelving sites while its lease book climbs — pruning and accelerating at once",
+      "insight": "Microsoft paused its Licking County, Ohio campus (now in the Graveyard) in the same window its not-yet-commenced lease book grew ~$41B to $196.6B. Not an error to reconcile — a portfolio reshuffle: cutting speculative sites while committing harder where power and demand line up. The signal for everyone else: even the most aggressive builder is culling.",
+      "players": ["MSFT"],
+      "connectionTier": "one_side",
+      "date": "2026",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "label": "Licking County, OH campus paused", "src": "projects ledger (Graveyard)", "srcTier": "analyst", "href": "#buildout" },
+        { "label": "Not-yet-commenced leases grew ~$41B to $196.6B", "src": "Bloomberg / filings", "srcTier": "analyst", "href": "#capital:overcommitmentBoard" }
+      ]
+    }
+  ]
+}

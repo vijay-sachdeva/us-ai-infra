@@ -57,3 +57,8 @@ and [`../CITATION.cff`](../CITATION.cff). Cite a specific build by its version +
 ## sec_filings.json (generated daily)
 
 Latest disclosure-relevant SEC filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked player, from the EDGAR submissions API via scripts/fetch_sec_filings.py — primary metadata with direct document links. Feeds the Players tab Filings-watch module, which flags periodic filings dated after the commitment book last-review stamp.
+
+## connections.json (hand-curated)
+
+The connect-the-dots layer — verified edges between facts already published elsewhere on the dashboard (no new figures). Each connection carries a **connectionTier** (`both_sides` / `one_side` / `inference`) — the cross-document *link* confidence, distinct from each source''''s own primary/analyst/modeled tier — so an unverified link cannot render untiered (enforced by schemas/connections.schema.json + tests/test_data_quality.py). Curated by hand and honours the same 150-day staleness gate; the daily refresh only *proposes* candidates for human verification. Powers the "Connecting the dots" module on Overview.
+

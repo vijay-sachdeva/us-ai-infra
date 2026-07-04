@@ -2922,7 +2922,7 @@ const $ = (id) => document.getElementById(id);
   }
 
   async function hydrate() {
-    const feeds = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.feeds) || ["grid", "power_econ", "queues", "siting", "projects", "sources"];
+    const feeds = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.feeds) || ["grid", "power_econ", "queues", "siting", "projects", "sources", "connections"];
     let got;
     try {
       got = await Promise.all(feeds.map(f =>
@@ -2943,6 +2943,7 @@ const $ = (id) => document.getElementById(id);
       }
     } catch (_) {}
     const vis = el => !!(el && el.offsetParent !== null);          // only paint into a visible canvas
+    if (DATA.connections) { connectedPlayerSet._set = null; renderConnections(); renderBriefing(); }  // curated links + feed chips (self-guard on host; the module may start hidden)
     if (DATA.grid && vis($("headroomChart")))  { renderHeadroomChart._done = false; renderHeadroomChart(); }
     if (DATA.power_econ && vis($("powerPriceBoard"))) { renderPowerPriceBoard._done = false; renderPowerPriceBoard(); }
     if (DATA.queues && vis($("queueChart")))    { renderQueueChart._done = false; renderQueueChart(); }
@@ -3100,11 +3101,14 @@ const $ = (id) => document.getElementById(id);
     var feed=(DATA&&DATA.feed)||[];
     if(!feed.length){ host.style.display='none'; return; }
     var tagColor={GRID:'#e5534b',CAPITAL:'#39d98a',BUILDOUT:'#58a6ff',TOKENS:'#e3b341'};
+    var connSet=connectedPlayerSet();
     host.innerHTML=feed.slice(0,5).map(function(it){
       var tag=(it.tag||it.section||'SIGNAL').toUpperCase();
       var head=it.headline||it.title||it.text||'';
       var src=it.src?(it.url?'<a class="ov-bsrc" href="'+it.url+'" target="_blank" rel="noopener">'+it.src+' ↗</a>':'<span class="ov-bsrc">'+it.src+'</span>'):'';
-      return '<div class="ov-brief"><div class="ov-brief-top"><span class="ov-tag" style="color:'+(tagColor[tag]||'#8b97a3')+'">'+tag+'</span><time>'+(it.date||'')+'</time></div>'
+      var connected=(it.players||[]).some(function(p){return connSet[p];});
+      var chip=connected?'<a class="ov-brief-conn" href="#ov-connections" title="This item is part of a verified connection above.">connects ↑</a>':'';
+      return '<div class="ov-brief"><div class="ov-brief-top"><span class="ov-tag" style="color:'+(tagColor[tag]||'#8b97a3')+'">'+tag+'</span><time>'+(it.date||'')+'</time>'+chip+'</div>'
         +'<div class="ov-brief-text">'+head+'</div>'+(src?'<div class="ov-brief-src">'+src+'</div>':'')+'</div>';
     }).join('');
   }
@@ -3268,15 +3272,95 @@ const $ = (id) => document.getElementById(id);
       var on=b.dataset.h===which; b.classList.toggle('on',on); b.setAttribute('aria-selected',on);});
     if(which==='map') renderConstraintMap(); else renderPowerWall();
   }
+  /* ----- Connecting the dots (flagship) -----
+     The product thesis: anyone can Google a single fact; the value is the VERIFIED edge
+     between two. Every card is drawn from facts already published elsewhere on this
+     dashboard — no new figure. Two tiers travel on every connection: connectionTier is the
+     cross-document LINK confidence (both_sides / one_side / inference), separate from each
+     source's own tier. The badge is the guardrail — a link cannot render without one. */
+  var CONN_KIND = {
+    two_sider:   { label: "Two-sided deal",  title: "One deal visible in two parties' documents." },
+    thread:      { label: "Thread over time", title: "One player's moves across weeks, read as a single motion." },
+    contradiction:{ label: "In tension",     title: "Two true facts that pull against each other." },
+    circular:    { label: "Circular loop",   title: "A financing / supply loop between the same parties." },
+    event_metric:{ label: "Event → metric",  title: "A news event that moved a filed number." },
+    supersedes:  { label: "Supersedes",      title: "A newer fact replacing an older one." }
+  };
+  var CONN_TIER = {
+    both_sides: { cls: "ok",   label: "both sides on record", title: "Both parties disclose the link — the strongest tier." },
+    one_side:   { cls: "warn", label: "one side on record",   title: "Only one party names the link; the other side is inferred or undisclosed." },
+    inference:  { cls: "crit", label: "analyst inference",    title: "An analytical framing over separately-sourced facts — the connection itself is our read, not a disclosure." }
+  };
+  function connectionsPublished() {
+    var c = DATA.connections;
+    var items = (c && Array.isArray(c.items)) ? c.items : [];
+    return items.filter(function (x) { return !x.status || x.status === "published" || x.status === "downgraded"; });
+  }
+  function renderConnections() {
+    var host = document.getElementById("ov-connections");
+    if (!host) return;
+    if (typeof capEnabled === "function" && !capEnabled("connections")) { host.style.display = "none"; return; }
+    var items = connectionsPublished();
+    if (!items.length) { host.style.display = "none"; return; }
+    host.style.display = "";
+    host.innerHTML = items.map(function (x) {
+      var k = CONN_KIND[x.kind] || { label: x.kind, title: "" };
+      var t = CONN_TIER[x.connectionTier] || { cls: "warn", label: x.connectionTier, title: "" };
+      var players = (x.players || []).join(" · ");
+      var ev = (x.evidence || []).map(function (e) {
+        var side = e.side ? '<span class="conn-ev-side">' + e.side + '</span>' : "";
+        var srcT = e.srcTier ? ' <span class="cf-tier cf-' + (e.srcTier === "primary" ? "ok" : e.srcTier === "analyst" ? "warn" : "crit") + '" title="' + tierTitle(e.srcTier) + '">' + e.srcTier + "</span>" : "";
+        var inner = side + e.label + ' <span class="stack-src">— ' + (e.src || "") + "</span>" + srcT;
+        return e.href
+          ? '<a class="conn-ev" href="' + e.href + '"' + (/^https?:/.test(e.href) ? ' target="_blank" rel="noopener"' : "") + ">" + inner + (/^https?:/.test(e.href) ? " ↗" : "") + "</a>"
+          : '<div class="conn-ev conn-ev-flat">' + inner + "</div>";
+      }).join("");
+      var named = x.namedBy ? '<div class="conn-named"><b>Who names it:</b> ' + x.namedBy + "</div>" : "";
+      return '<div class="conn-card conn-' + t.cls + '" data-players="' + (x.players || []).join(",") + '">' +
+        '<div class="conn-head"><span class="conn-kind">' + k.label + '</span>' +
+        '<span class="conn-players">' + players + "</span>" +
+        '<span class="cf-tier cf-' + t.cls + '" title="' + t.title + '">' + t.label + "</span></div>" +
+        '<div class="conn-title">' + x.title + "</div>" +
+        '<div class="conn-insight">' + x.insight + "</div>" +
+        named +
+        '<div class="conn-evidence">' + ev + "</div></div>";
+    }).join("");
+    var stamp = document.getElementById("connStamp");
+    if (stamp && DATA.connections) {
+      var n = items.length;
+      stamp.textContent = n + " verified link" + (n === 1 ? "" : "s") + " · hand-curated";
+    }
+  }
+  // Index players -> whether they appear in any published connection (for feed chips).
+  function connectedPlayerSet() {
+    if (connectedPlayerSet._set) return connectedPlayerSet._set;
+    var set = {};
+    connectionsPublished().forEach(function (x) { (x.players || []).forEach(function (p) { set[p] = true; }); });
+    connectedPlayerSet._set = set;
+    return set;
+  }
+
   function initOverview(){
     var tog=document.querySelector('.ov-toggle');
     if(tog&&!tog._wired){ tog._wired=true;
       tog.querySelectorAll('button').forEach(function(b){
         b.addEventListener('click',function(){setHero(b.dataset.h);});});
     }
+    // Feed "connects ↑" chips scroll to the connections module WITHOUT touching the hash
+    // router (a bare #ov-connections would hit showTab and blank the view).
+    var ovSec=document.querySelector('section.tab-content[data-tab="overview"]');
+    if(ovSec&&!ovSec._connWired){ ovSec._connWired=true;
+      ovSec.addEventListener('click',function(e){
+        var a=e.target.closest&&e.target.closest('.ov-brief-conn'); if(!a) return;
+        e.preventDefault();
+        var mod=document.getElementById('ov-connections'); if(!mod) return;
+        mod.scrollIntoView({behavior:'smooth',block:'center'});
+        mod.classList.remove('ov-conn-flash'); void mod.offsetWidth; mod.classList.add('ov-conn-flash');
+      });
+    }
     var saved='wall'; try{saved=localStorage.getItem('ov-hero')||'wall';}catch(e){}
     setHero(saved);
-    renderBottleneckTimeline(); renderBriefing(); renderFeedFreshness();
+    renderConnections(); renderBottleneckTimeline(); renderBriefing(); renderFeedFreshness();
   }
 
   /* ----- Players tab: entity index (Wave 2) -----
