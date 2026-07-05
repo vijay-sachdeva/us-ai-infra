@@ -1963,8 +1963,10 @@ const $ = (id) => document.getElementById(id);
   // are separate horizontal bars with no arrows. The 24 GW buildable bar is marked modeled.
   function renderFunnel() {
     if (!$("funnelCompare") || typeof Chart === "undefined" || !DATA.powerBreakdown) return;
-    if (renderFunnel._done) return;
-    renderFunnel._done = true;
+    // No once-only _done guard: a first paint into a not-yet-sized canvas (cold load / stale
+    // cache / render-while-hidden) would strand this lead chart blank forever. Instead destroy
+    // any prior instance and re-draw on every visible Buildout show — always into a sized canvas.
+    if (_charts.funnelCompare) { try { _charts.funnelCompare.destroy(); } catch (_) {} _charts.funnelCompare = null; }
     initCharts(); applyChartDefaults();
     const f  = DATA.powerBreakdown.funnel;          // KEEP source intact — exporter + renderMap read it
     const cl = getChartColors();
@@ -4314,7 +4316,7 @@ const $ = (id) => document.getElementById(id);
   // listener). A card with no h4 (so-what boxes, calculators) is treated as a lead and left alone.
   // Buildout is already wrapped in markup, so it has a .more-analysis and is skipped here.
   var LEAD_CARDS = {
-    capital: ["2026 capex by operator", "Capex vs operating cash flow", "The commitment book", "The circular-financing loop"],
+    capital: ["2026 capex by operator", "AI-attributed share of capex", "Capex vs operating cash flow", "The commitment book", "The commitment flywheel"],
     grid:    ["Where AI load becomes", "Annual demand growth", "Cumulative demand-supply deficit", "PJM capacity auction", "What power costs, by state"],
     tokens:  ["One prompt to one gigawatt", "Industry token volume", "$/token compression", "The Jevons check"]
   };
