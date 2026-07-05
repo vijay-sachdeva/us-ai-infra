@@ -3300,7 +3300,8 @@ const $ = (id) => document.getElementById(id);
     contradiction:{ label: "In tension",     title: "Two true facts that pull against each other." },
     circular:    { label: "Circular loop",   title: "A financing / supply loop between the same parties." },
     event_metric:{ label: "Event → metric",  title: "A news event that moved a filed number." },
-    supersedes:  { label: "Supersedes",      title: "A newer fact replacing an older one." }
+    supersedes:  { label: "Supersedes",      title: "A newer fact replacing an older one." },
+    dependency:  { label: "Supply dependency", title: "One layer's output paces another's — an upstream bottleneck." }
   };
   var CONN_TIER = {
     both_sides: { cls: "ok",   label: "both sides on record", title: "Both parties disclose the link — the strongest tier." },
@@ -3394,18 +3395,31 @@ const $ = (id) => document.getElementById(id);
     const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
     const feed = DATA.feed || [];
     const tierCls = t => t === "primary" ? "ok" : (t === "analyst" ? "warn" : "crit");
-    host.innerHTML = DATA.players.map(p => {
+    const shortTier = { both_sides: "2-sided", one_side: "1-sided", inference: "inferred" };
+    // Connections footer (shared by dossier + value-chain cards) — the dot-connecting in-context.
+    const connFooter = p => {
+      const myConns = connectionsPublished().filter(c => (c.players || []).indexOf(p.sym) !== -1);
+      if (!myConns.length) return "";
+      return '<div class="pl-conns"><span class="pl-klabel">Connected · ' + myConns.length + '</span>' +
+        myConns.map(c => {
+          const t = CONN_TIER[c.connectionTier] || { cls: "warn" };
+          return '<a class="pl-conn" href="#overview:connections" title="' + (c.insight || "").replace(/"/g, "&quot;") + '"><span class="pl-conn-kind">' + ((CONN_KIND[c.kind] || {}).label || c.kind) + '</span>' + c.title + ' <span class="cf-tier cf-' + t.cls + '">' + (shortTier[c.connectionTier] || c.connectionTier) + '</span></a>';
+        }).join("") + '</div>';
+    };
+    const sigFor = p => {
+      const sig = feed.find(it => (it.players || []).indexOf(p.sym) !== -1);
+      return sig ? '<div class="pl-signal"><b>' + (sig.date || "") + '</b> · ' + sig.text.slice(0, 150) + (sig.text.length > 150 ? "…" : "") + ' <span class="stack-src">— ' + (sig.src || "") + '</span></div>' : "";
+    };
+    // Full dossier card (buildout layer): joins capex / commitment book / ledger / counterparty map.
+    const dossier = p => {
       const rows = [];
-      // 2026 capex guidance (headline set on Capital)
       const ci = cc.companies.findIndex(n => p.aliases.indexOf(n) !== -1);
       if (ci !== -1) rows.push('<div class="pl-stat">2026 capex guide <a href="#capital:coCapexChart"><b>$' + cc.values[ci] + 'B</b></a></div>');
-      // Commitment book (filing-grade)
       const o = oc.find(x => x.sym === p.sym);
       if (o) {
         const total = (o.leasesCommenced || 0) + (o.leasesNotCommenced || 0) + (o.purchase || 0) + (o.construction || 0);
         rows.push('<div class="pl-stat">Pre-committed <a href="#capital:overcommitmentBoard"><b>$' + Math.round(total) + 'B ≈ ' + (total / o.ocf).toFixed(1) + ' yrs of OCF</b></a></div>');
       }
-      // Named-project ledger (announced targets; graveyard split out)
       if (pj) {
         const mine = pj.filter(r => p.aliases.some(a => (r.operator || "").indexOf(a) !== -1));
         const live = mine.filter(r => GRAVEYARD_STATUSES.indexOf(r.status) === -1);
@@ -3413,29 +3427,29 @@ const $ = (id) => document.getElementById(id);
         const mw = live.reduce((s, r) => s + (r.capacity_mw || 0), 0);
         if (mine.length) rows.push('<div class="pl-stat">Ledger <a href="#buildout"><b>' + live.length + ' build' + (live.length === 1 ? "" : "s") + (mw ? ' · ' + (mw / 1000).toFixed(1) + ' GW announced' : '') + '</b></a>' + (dead ? ' <span class="cf-tier cf-warn" title="stalled / paused / cancelled records in the Graveyard">' + dead + ' shelved</span>' : '') + '</div>');
       }
-      // Counterparty edges + filed concentration reads
       if (p.cfNode) {
         const outN = cf.filter(e => e.from === p.cfNode).length, inN = cf.filter(e => e.to === p.cfNode).length;
         if (outN + inN) rows.push('<div class="pl-stat">Counterparty edges <a href="#capital"><b>' + outN + ' out · ' + inN + ' in</b></a>' + ((conc[p.cfNode] || []).length ? ' · ' + conc[p.cfNode].length + ' filed reads' : '') + '</div>');
       }
-      // Latest tagged signal from the weekly feed
-      const sig = feed.find(it => (it.players || []).indexOf(p.sym) !== -1);
-      const sigHtml = sig ? '<div class="pl-signal"><b>' + (sig.date || "") + '</b> · ' + sig.text.slice(0, 150) + (sig.text.length > 150 ? "…" : "") + ' <span class="stack-src">— ' + (sig.src || "") + '</span></div>' : "";
-      // Connections this player is in — surface the dot-connecting where the CSO drills in.
-      const shortTier = { both_sides: "2-sided", one_side: "1-sided", inference: "inferred" };
-      const myConns = connectionsPublished().filter(c => (c.players || []).indexOf(p.sym) !== -1);
-      const connHtml = myConns.length ? '<div class="pl-conns"><span class="pl-klabel">Connected · ' + myConns.length + '</span>' +
-        myConns.map(c => {
-          const t = CONN_TIER[c.connectionTier] || { cls: "warn" };
-          return '<a class="pl-conn" href="#overview:connections" title="' + (c.insight || "").replace(/"/g, "&quot;") + '"><span class="pl-conn-kind">' + ((CONN_KIND[c.kind] || {}).label || c.kind) + '</span>' + c.title + ' <span class="cf-tier cf-' + t.cls + '">' + (shortTier[c.connectionTier] || c.connectionTier) + '</span></a>';
-        }).join("") + '</div>' : "";
       return '<div class="pl-card">' +
         '<div class="pl-head"><span class="brand-mark b-' + (p.brand || "other") + '">' + p.name.charAt(0) + '</span><span class="pl-name">' + p.name + '</span><span class="pl-cls">' + p.cls + '</span></div>' +
         '<div class="pl-stats">' + rows.join("") + '</div>' +
         '<div class="pl-constraint"><span class="pl-klabel">Constraint read</span>' + p.constraint.text +
         ' <span class="cf-tier cf-' + tierCls(p.constraint.tier) + '" title="' + tierTitle(p.constraint.tier) + '">' + p.constraint.tier + '</span></div>' +
-        sigHtml + connHtml + '</div>';
-    }).join("");
+        sigFor(p) + connFooter(p) + '</div>';
+    };
+    // Compact value-chain card (supply layer): role + constraint + connections, no financial joins.
+    const supplyCard = p => '<div class="pl-card pl-supply">' +
+      '<div class="pl-head"><span class="brand-mark b-' + (p.brand || "other") + '">' + p.name.charAt(0) + '</span><span class="pl-name">' + p.name + '</span><span class="pl-cls">' + p.cls + '</span></div>' +
+      '<div class="pl-constraint pl-role"><span class="pl-klabel">Role &amp; constraint</span>' + p.constraint.text +
+      ' <span class="cf-tier cf-' + tierCls(p.constraint.tier) + '" title="' + tierTitle(p.constraint.tier) + '">' + p.constraint.tier + '</span></div>' +
+      sigFor(p) + connFooter(p) + '</div>';
+
+    const build = DATA.players.filter(p => p.layer !== "supply");
+    const supply = DATA.players.filter(p => p.layer === "supply");
+    host.innerHTML = build.map(dossier).join("");
+    const shost = $("supplyCards");
+    if (shost) shost.innerHTML = supply.map(supplyCard).join("");
   }
 
   // Power bank — ledger MW by power-procurement model per player (league) or GW-vs-capex

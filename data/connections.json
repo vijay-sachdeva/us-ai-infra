@@ -25,7 +25,7 @@
       "kind": "circular",
       "title": "AMD hands OpenAI a ~10% warrant to win a ~$90B compute deal — the round-trip repeats",
       "insight": "AMD granted OpenAI a warrant for up to 160M shares (~10% of AMD) tied to OpenAI deploying ~6 GW of Instinct GPUs (~$90B potential). Same structure as the NVIDIA round-trip: the vendor gives its customer equity to secure the compute commitment. Two chip vendors now bind their largest customer with their own stock — a competitive norm forming, not a one-off. The share count is filed (AMD 8-K); the $90B is an analyst scaling of the GW commitment.",
-      "players": ["OpenAI"],
+      "players": ["OpenAI", "AMD"],
       "connectionTier": "both_sides",
       "date": "Oct 2025",
       "status": "published",
@@ -33,6 +33,51 @@
       "evidence": [
         { "side": "vendor", "label": "AMD → OpenAI: warrant for up to 160M shares (~10%)", "src": "AMD 8-K warrant disclosure", "srcTier": "primary", "href": "#capital" },
         { "side": "customer", "label": "OpenAI → AMD: ~6 GW Instinct (~$90B potential)", "src": "AMD / OpenAI release, Oct 2025", "srcTier": "analyst", "href": "#capital" }
+      ]
+    },
+    {
+      "id": "hbm-the-real-gate",
+      "kind": "dependency",
+      "title": "HBM memory — not logic — sets the ceiling on how fast the buildout can go",
+      "insight": "Every AI accelerator needs stacks of high-bandwidth memory, and HBM capacity (Micron, plus SK Hynix and Samsung) is committed well into 2026. So the ceiling on how many GPUs NVIDIA can ship — and therefore how fast the whole buildout moves — is set upstream in memory, not in logic. The dashboard's own bottleneck timeline already flags packaging & HBM as the 2026 binding constraint. 'HBM sets the ceiling' is an analyst read over Micron's sold-out commentary and the packaging-capacity data.",
+      "players": ["MU", "NVDA"],
+      "connectionTier": "inference",
+      "date": "2026",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "side": "supplier", "label": "Micron: HBM capacity committed well into 2026 — memory paces accelerator output", "src": "Micron / analyst reporting", "srcTier": "analyst", "href": "#players" },
+        { "label": "Bottleneck timeline flags packaging & HBM as the 2026 binding constraint", "src": "this dashboard — shifting-bottleneck timeline", "srcTier": "analyst", "href": "#overview" }
+      ]
+    },
+    {
+      "id": "anthropic-vendor-funded",
+      "kind": "circular",
+      "title": "The vendor-funds-the-lab round-trip now binds Anthropic too, not just OpenAI",
+      "insight": "The same structure that ties OpenAI to its suppliers now binds the #2 lab: NVIDIA committed up to $10B and Microsoft $5B into Anthropic, and Anthropic committed $30B of Azure compute back. Vendors and clouds are taking equity in the labs whose compute bills they then collect — the pattern is now the norm across both frontier labs, not a one-off, which is what makes lab demand hard to read as independent.",
+      "players": ["Anthropic", "NVDA", "MSFT"],
+      "connectionTier": "both_sides",
+      "date": "Nov 2025",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "side": "investor", "label": "NVIDIA → Anthropic up to $10B; Microsoft → Anthropic $5B", "src": "Microsoft / NVIDIA / Anthropic releases, Nov 2025", "srcTier": "primary", "href": "#capital" },
+        { "side": "customer", "label": "Anthropic → Microsoft: $30B Azure compute", "src": "Anthropic / Microsoft release, Nov 2025", "srcTier": "primary", "href": "#capital" }
+      ]
+    },
+    {
+      "id": "broadcom-custom-silicon",
+      "kind": "supersedes",
+      "title": "Custom silicon is starting to supersede merchant GPUs for inference",
+      "insight": "OpenAI's ~10 GW Broadcom-built 'Jalapeño' inference ASIC — alongside Google's TPU and Amazon's Trainium — moves inference workloads off merchant NVIDIA GPUs, and a $35B Apollo chip-backed SPV funds the shift. The biggest buyers designing their own silicon is the clearest sign the single-vendor era is ending; for a CSO it reframes NVIDIA's moat as inference-share, not just allocation. 'Superseding' is our read of a shift still early in deployment.",
+      "players": ["AVGO", "OpenAI"],
+      "connectionTier": "inference",
+      "date": "2025–2026",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "label": "OpenAI → Broadcom: ~10 GW custom accelerators (~$350B est.)", "src": "OpenAI / Broadcom release, Oct 2025", "srcTier": "analyst", "href": "#capital" },
+        { "label": "Apollo → Broadcom: $35B chip-backed SPV", "src": "Apollo / Blackstone press, Jun 2026", "srcTier": "primary", "href": "#capital" }
       ]
     },
     {

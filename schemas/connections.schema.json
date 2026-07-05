@@ -30,8 +30,8 @@
         "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
         "kind": {
           "type": "string",
-          "enum": ["two_sider", "thread", "event_metric", "contradiction", "circular", "supersedes"],
-          "description": "two_sider = one deal in two parties' documents; thread = one player's moves over time; event_metric = a news event that moved a filed number; contradiction = two true facts in tension; circular = a financing/supply loop; supersedes = a newer fact replacing an older one."
+          "enum": ["two_sider", "thread", "event_metric", "contradiction", "circular", "supersedes", "dependency"],
+          "description": "two_sider = one deal in two parties' documents; thread = one player's moves over time; event_metric = a news event that moved a filed number; contradiction = two true facts in tension; circular = a financing/supply loop; supersedes = a newer fact replacing an older one; dependency = one layer's output paces another's (an upstream bottleneck)."
         },
         "title": { "type": "string", "minLength": 8 },
         "insight": {
