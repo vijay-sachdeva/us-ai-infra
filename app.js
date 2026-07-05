@@ -148,6 +148,7 @@ const $ = (id) => document.getElementById(id);
   // chart's own data — fact-checked, no invented figures. enhanceCharts() renders these under each
   // chart; charts absent from the map simply get no caption (graceful).
   const CHART_META = {
+    megaPowerPaths: { reviewed: "2026-07", take: "Among source-verified active builds, Meta's Hyperion tops the ledger at 5,000 MW (colocated) ahead of Homer City 4,500 MW and Joule 4,000 MW — both behind-the-meter, and both total-facility power (incl. cooling/generation), not IT load. The largest capacity clusters in BTM/colocated paths that bypass the interconnect queue, while four retreats (Project Jade, Project Blue, the Stargate-Abilene expansion, a paused Microsoft Ohio site) are segregated and excluded from the active GW total.", asof: "source-verified ledger (announced/ultimate targets; mixed capacity_type)", src: { label: "data/projects.json (per-record citations)" } },
     coCapexChart: { reviewed: "2026-07", take: "Amazon leads 2026 AI-infra capex at $200B, ahead of Microsoft ($190B), Google ($185B) and Meta ($135B — midpoint of its filed $125-145B range), with AI-native challengers far smaller: Oracle $56B (FY26 actual), CoreWeave $33B, Nebius $22B and xAI $18B.", asof: "2026 guidance", src: { label: "company 2026 capex guidance" } },
     capexAiShareChart: { reviewed: "2026-07", take: "Across ~$799B of tracked operator capex roughly 90% is AI/data-center-attributed, with pure-plays like Oracle and CoreWeave near 100% and diversified operators lower — but the infra-vs-non-core split is an editorial Modeled estimate, not a reported line item.", asof: "2026 guidance", src: { label: "modeled (this dashboard)" } },
     costStack: { reviewed: "2026-06", take: "Building one MW of AI capacity runs ~$42M all-in, with compute ($31M) dwarfing facility ($11M) and GPUs/accelerators alone ($23M) the single largest layer — more than the entire shell, power, cooling and servers combined.", asof: "illustrative", src: { label: "illustrative per-MW build stack (JLL + analyst)" } },
@@ -2309,7 +2310,7 @@ const $ = (id) => document.getElementById(id);
         const pw = p.power ? `<span class="mp-power ${(p.power.model || "").toLowerCase()}" title="${p.power.model} power-procurement">${p.power.generation} · ${p.power.model}</span>` : "";
         const mwT = (p.capacity_type && p.capacity_type !== "unspecified") ? p.capacity_type.replace(/_/g, " ") : "capacity (MW)";
         return `
-      <tr>
+      <tr data-pid="${p.id}">
         <td><span class="mp-name">${p.name}</span>${cpill}${srcHtml}${note}</td>
         <td class="mp-op">${p.operator}</td>
         <td>${p.state}</td>
@@ -2349,6 +2350,172 @@ const $ = (id) => document.getElementById(id);
         </tfoot>
       </table>
       ${pj ? '<div class="mp-data-actions">Open data: <a href="data/projects.json" target="_blank" rel="noopener">download JSON ↓</a> · <a href="' + REPO + '/blob/main/schemas/projects.schema.json" target="_blank" rel="noopener">schema</a> · licensed <a href="' + REPO + '/blob/main/data/LICENSE" target="_blank" rel="noopener">CC BY 4.0</a> · sources verified per record</div>' : ''}`;
+  }
+
+  /* ----- Megawatt Power Paths (Buildout flagship) — table→chart, reusable pattern -----
+     One ranked MW bar per named build, colored by STATUS, laned by power-procurement PATH; the
+     cited table lives beneath in <details>. The reusable "flagship visual → claim matrix →
+     expandable evidence ledger → source" contract (Codex feedback). Honesty rules baked in:
+     graveyard segregated (never summed into active GW), null MW named not zeroed, within-lane
+     sums only (mixed capacity_type is not additive), shared campuses deduped by the graveyard
+     filter (the cancelled Abilene expansion never joins the active total). */
+  function renderMegaPowerPaths() {
+    if (!$("megaPowerPaths") || typeof Chart === "undefined") return;
+    const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
+    if (!pj) return;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const mode = renderMegaPowerPaths._view || "ranked";
+    const isNarrow = typeof window.matchMedia === "function" && window.matchMedia("(max-width:420px)").matches;
+
+    const live = pj.filter(p => GRAVEYARD_STATUSES.indexOf(p.status) === -1);
+    const grave = pj.filter(p => GRAVEYARD_STATUSES.indexOf(p.status) !== -1);
+    const plot = live.filter(p => p.capacity_mw != null);
+    const noMw = live.filter(p => p.capacity_mw == null);
+    const activeMW = plot.reduce((s, p) => s + (p.capacity_mw || 0), 0);
+
+    const STATUS_C = {
+      construction: CHART_PALETTE.pipeline, operational: CHART_PALETTE.supply, planned: CHART_PALETTE.demand,
+      paused: hexA(CHART_PALETTE.constraint, 0.5), stalled: hexA(CHART_PALETTE.constraint, 0.5), cancelled: hexA(CHART_PALETTE.constraint, 0.5)
+    };
+    const LANE_ORDER = { BTM: 0, Colocated: 1, Grid: 2, Undisclosed: 3 };
+    const STATUS_ORDER = { construction: 0, operational: 1, planned: 2 };
+    const modelOf = p => (p.power && p.power.model) || "Undisclosed";
+    const isGrave = p => GRAVEYARD_STATUSES.indexOf(p.status) !== -1;
+
+    let plotOrdered;
+    if (mode === "path") plotOrdered = [...plot].sort((a, b) => (LANE_ORDER[modelOf(a)] - LANE_ORDER[modelOf(b)]) || (b.capacity_mw || 0) - (a.capacity_mw || 0));
+    else if (mode === "status") plotOrdered = [...plot].sort((a, b) => ((STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9)) || (b.capacity_mw || 0) - (a.capacity_mw || 0));
+    else plotOrdered = [...plot].sort((a, b) => (b.capacity_mw || 0) - (a.capacity_mw || 0));
+    const graveOrdered = [...grave].sort((a, b) => (b.capacity_mw || 0) - (a.capacity_mw || 0));
+    const ordered = plotOrdered.concat(graveOrdered);
+    const firstGraveIdx = plotOrdered.length;
+
+    const shortName = p => {
+      let n = (p.name || "").replace(/\s*\(.*?\)\s*/g, " ").trim();
+      if (isNarrow) return n.length > 16 ? n.slice(0, 15) + "…" : n;
+      return (n.length > 30 ? n.slice(0, 29) + "…" : n) + (p.state ? " · " + p.state : "");
+    };
+    const laneKey = p => isGrave(p) ? "__grave" : (mode === "status" ? p.status : modelOf(p));
+
+    const box = $("megaPathBox");
+    if (box) box.style.height = Math.max(260, ordered.length * 30 + 44) + "px";
+
+    if (_charts.megaPowerPaths) { try { _charts.megaPowerPaths.destroy(); } catch (_) {} delete _charts.megaPowerPaths; }
+    _charts.megaPowerPaths = new Chart($("megaPowerPaths"), {
+      type: "bar",
+      data: {
+        labels: ordered.map(shortName),
+        datasets: [{
+          label: "MW",
+          data: ordered.map(p => p.capacity_mw != null ? p.capacity_mw : 0),
+          backgroundColor: ordered.map(p => STATUS_C[p.status] || CHART_PALETTE.context),
+          borderColor: ordered.map(p => isGrave(p) ? CHART_PALETTE.constraint : "transparent"),
+          borderWidth: ordered.map(p => isGrave(p) ? 1.4 : 0),
+          borderSkipped: false
+        }]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 66 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), {
+            display: true, anchor: "end", align: "end", offset: 6, font: { weight: 700, size: 10 },
+            formatter: (v, c) => {
+              const p = ordered[c.dataIndex];
+              if (p.capacity_mw == null) return "undisclosed";
+              const t = (p.confidence === "medium") ? "~" : "";
+              const g = v >= 1000 ? (v / 1000).toFixed(1) + " GW" : v + " MW";
+              const fac = (!isNarrow && p.capacity_type === "total_power") ? " (facility)" : "";
+              return t + g + fac;
+            }
+          }),
+          tooltip: { callbacks: { label: c => {
+            const p = ordered[c.dataIndex]; const L = [];
+            L.push(p.name || "");
+            L.push("Operator: " + (p.operator || "—"));
+            const capT = p.capacity_type === "total_power" ? "total facility power (incl. cooling/gen — not IT load)" : p.capacity_type === "it_critical_load" ? "IT critical load" : "capacity type unspecified";
+            L.push((p.capacity_mw != null ? p.capacity_mw.toLocaleString() + " MW" : "MW undisclosed") + " · " + capT);
+            L.push("Power path: " + modelOf(p) + " · " + p.status);
+            if (p.confidence === "medium") L.push("record confidence: medium");
+            if (p.note) L.push("↳ " + p.note);
+            return L;
+          } } }
+        },
+        scales: {
+          x: { grid: { color: cl.grid }, ticks: { callback: v => v >= 1000 ? (v / 1000) + " GW" : v + " MW" }, beginAtZero: true },
+          y: { grid: { display: false }, ticks: { font: { size: isNarrow ? 9 : 10.5 }, autoSkip: false } }
+        },
+        onClick: (e, els) => {
+          if (!els || !els.length) return;
+          const p = ordered[els[0].index]; if (!p || !p.id) return;
+          // Active builds cite in the data table; shelved builds cite in the Graveyard panel below.
+          let target;
+          if (isGrave(p)) {
+            target = document.querySelector('#graveyardList [data-pid="' + p.id + '"]');
+          } else {
+            const det = document.querySelector("details.mp-view-data"); if (det) det.open = true;
+            target = document.querySelector('#megaProjectsList tr[data-pid="' + p.id + '"]');
+          }
+          if (target) { target.scrollIntoView({ behavior: "smooth", block: "center" }); target.classList.remove("mp-row-flash"); void target.offsetWidth; target.classList.add("mp-row-flash"); }
+        }
+      },
+      plugins: [{
+        afterDraw(chart) {
+          const ax = chart.scales.y; if (!ax || !chart.chartArea) return;
+          const ctx = chart.ctx, left = chart.chartArea.left, right = chart.chartArea.right;
+          ctx.save();
+          for (let i = 0; i < ordered.length; i++) {
+            const graveStart = (i === firstGraveIdx && graveOrdered.length > 0);
+            const boundary = i > 0 && laneKey(ordered[i]) !== laneKey(ordered[i - 1]);
+            if (graveStart) { /* always draw */ }
+            else if (mode === "ranked" || !boundary) continue;   // ranked: only the graveyard divider
+            const y = i > 0 ? (ax.getPixelForValue(i) + ax.getPixelForValue(i - 1)) / 2 : chart.chartArea.top + 1;
+            ctx.strokeStyle = graveStart ? CHART_PALETTE.constraint : cl.grid;
+            ctx.lineWidth = graveStart ? 1.3 : 1; ctx.setLineDash(graveStart ? [4, 3] : []);
+            ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(right, y); ctx.stroke(); ctx.setLineDash([]);
+            const label = graveStart ? "SHELVED — EXCLUDED FROM GW" : (mode === "status" ? ordered[i].status : modelOf(ordered[i])).toUpperCase();
+            ctx.fillStyle = graveStart ? CHART_PALETTE.constraint : cl.label;
+            ctx.font = "800 9px system-ui,sans-serif"; ctx.textBaseline = "bottom";
+            ctx.fillText(label, left + 3, y - 2);
+          }
+          ctx.restore();
+        }
+      }]
+    });
+
+    // ---- claim matrix: power-path × status counts + within-lane GW subtotal ----
+    const mhost = $("megaPathMatrix");
+    if (mhost) {
+      const lanes = ["BTM", "Colocated", "Grid"].filter(l => live.some(p => modelOf(p) === l));
+      if (live.some(p => modelOf(p) === "Undisclosed")) lanes.push("Undisclosed");
+      const stCols = ["construction", "operational", "planned"];
+      const stC = { construction: CHART_PALETTE.pipeline, operational: CHART_PALETTE.supply, planned: CHART_PALETTE.demand };
+      const cnt = {}, laneMW = {};
+      live.forEach(p => { const m = modelOf(p), s = p.status; laneMW[m] = (laneMW[m] || 0) + (p.capacity_mw || 0); if (STATUS_ORDER[s] == null) return; cnt[m + "|" + s] = (cnt[m + "|" + s] || 0) + 1; });
+      let html = '<div class="mp-matrix-grid" style="grid-template-columns:auto repeat(' + stCols.length + ',1fr) auto">';
+      html += '<div class="mm-h"></div>' + stCols.map(s => '<div class="mm-h" style="color:' + stC[s] + '">' + s + '</div>').join("") + '<div class="mm-h">Active MW</div>';
+      lanes.forEach(l => {
+        html += '<div class="mm-lane mp-power ' + l.toLowerCase() + '">' + l + '</div>';
+        stCols.forEach(s => { const n = cnt[l + "|" + s] || 0; html += '<div class="mm-cell"' + (n ? ' style="background:' + hexA(stC[s], 0.13) + '"' : '') + '>' + (n || "") + '</div>'; });
+        const mw = laneMW[l] || 0;
+        html += '<div class="mm-cell mm-mw">' + (mw >= 1000 ? (mw / 1000).toFixed(1) + " GW" : mw + " MW") + '</div>';
+      });
+      html += '</div><div class="mm-total">≈ ' + (activeMW / 1000).toFixed(1) + ' GW active (announced; mixed capacity_type — not directly additive) · ' + grave.length + ' shelved excluded · ' + noMw.length + ' MW undisclosed</div>';
+      mhost.innerHTML = html;
+    }
+
+    const tog = $("megaPathToggle");
+    if (tog && !tog._wired) {
+      tog._wired = true;
+      tog.querySelectorAll(".map-view-btn").forEach(btn => btn.addEventListener("click", () => {
+        if (btn.dataset.mwpath === (renderMegaPowerPaths._view || "ranked")) return;
+        renderMegaPowerPaths._view = btn.dataset.mwpath;
+        tog.querySelectorAll(".map-view-btn").forEach(b => { const on = b === btn; b.classList.toggle("active", on); b.setAttribute("aria-selected", on ? "true" : "false"); });
+        renderMegaPowerPaths();
+      }));
+    }
   }
 
   function renderBuildabilityMovements() {
@@ -2879,7 +3046,9 @@ const $ = (id) => document.getElementById(id);
   function renderGraveyard() {
     if (!$("graveyardList")) return;
     const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
-    if (!pj) { $("graveyardList").closest(".stub-card") && ($("graveyardList").closest(".stub-card").style.display = "none"); return; }
+    const gcard = $("graveyardList").closest(".stub-card");
+    if (!pj) { if (gcard) gcard.style.display = "none"; return; }
+    if (gcard) gcard.style.display = "";   // re-show if a prior no-data render hid it (cold #buildout deep-link)
     const dead = pj.filter(p => GRAVEYARD_STATUSES.indexOf(p.status) !== -1)
       .sort((a, b) => String(b.status_as_of || "").localeCompare(String(a.status_as_of || "")));
     const host = $("graveyardList");
@@ -2893,7 +3062,7 @@ const $ = (id) => document.getElementById(id);
       const hist = (p.status_history || []).slice(-1)[0];
       const note = hist && hist.note ? hist.note : (p.note || "");
       const mw = p.capacity_mw != null ? '<span class="mp-mw" style="text-align:left">' + p.capacity_mw.toLocaleString() + ' MW</span>' : "";
-      return '<div class="stack-row">' +
+      return '<div class="stack-row" data-pid="' + p.id + '">' +
         '<div class="stack-head"><span class="stack-name">' + p.name + ' · ' + p.operator + ' · ' + p.state + '</span>' +
         '<span class="mp-status ' + p.status + '">' + p.status + '</span></div>' +
         '<div class="stack-evidence">' + mw + (mw ? ' · ' : '') + note +
@@ -2965,7 +3134,8 @@ const $ = (id) => document.getElementById(id);
     if (DATA.queues && vis($("queueChart")))    { renderQueueChart._done = false; renderQueueChart(); }
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
     if (DATA.projects && vis($("megaProjectsList"))) renderMegaProjects();   // swap the seed table for the canonical dataset
-    if (DATA.projects && vis($("graveyardList"))) renderGraveyard();         // verified retreats from the same dataset
+    if (DATA.projects && vis($("megaPowerPaths"))) renderMegaPowerPaths();   // the flagship chart over the same ledger
+    if (DATA.projects) renderGraveyard();         // verified retreats — not vis-gated: it self-guards + re-shows a card a cold no-data render may have hidden
     if (vis($("playersCards"))) { renderPlayers(); renderPowerBank(); renderPlayersGrid(); renderFilingsWatch(); renderPlayerFeed(); }  // joins pick up the fresh feeds
     renderFeedFreshness();
     if (DATA.sources) linkifySources(document.querySelector("section.tab-content.active"));
@@ -3727,6 +3897,7 @@ const $ = (id) => document.getElementById(id);
       renderBuildoutChart();
       renderMap();
       renderMegaProjects();
+      renderMegaPowerPaths();
       renderGraveyard();
       renderBuildabilityMovements();
       renderPhantomWaterfall();
