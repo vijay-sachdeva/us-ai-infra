@@ -25,7 +25,7 @@ const $ = (id) => document.getElementById(id);
   }
 
   function renderKpis() {
-    if (!$("kpis")) return;
+    if (!$("kpis") || !Array.isArray(DATA.kpis)) return;
     const isPlainNumber = (v) => /^\$?\d+\.?\d*$/.test(String(v));
     $("kpis").innerHTML = DATA.kpis.map(k => {
       const animatable = isPlainNumber(k.value);
@@ -3401,6 +3401,7 @@ const $ = (id) => document.getElementById(id);
     }
     var saved='wall'; try{saved=localStorage.getItem('ov-hero')||'wall';}catch(e){}
     setHero(saved);
+    if (typeof renderKpis === "function") renderKpis();   // executive KPI strip (the 5-second numeric takeaway)
     renderConnections(); renderBottleneckTimeline(); renderBriefing(); renderFeedFreshness();
   }
 
