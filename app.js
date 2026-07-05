@@ -3609,8 +3609,113 @@ const $ = (id) => document.getElementById(id);
       const sig = feed.find(it => (it.players || []).indexOf(p.sym) !== -1);
       return sig ? '<div class="pl-signal"><b>' + (sig.date || "") + '</b> · ' + sig.text.slice(0, 150) + (sig.text.length > 150 ? "…" : "") + ' <span class="stack-src">— ' + (sig.src || "") + '</span></div>' : "";
     };
-    // Full dossier card (buildout layer): joins capex / commitment book / ledger / counterparty map.
-    const dossier = p => {
+    // ---- Constraint Fingerprint: a 6-lane sparkbar glyph per buildout-layer player ----
+    // Lanes (fixed order): Cx capex · Yr committed-yrs-OCF · MW secured-MW | Si silicon ·
+    // Cp counterparty · Gr grid-risk. Quantitative lanes (Cx/Yr/MW) are neutral (capex is not
+    // "good"); only the two RISK lanes (Cp/Gr) go red; a missing dim is a dashed hollow lane
+    // (never imputed as 0); a left BALANCE spine + balance-sort make the second-degree point
+    // visible — the winner is the most BALANCED constraint portfolio, not the biggest capex bar.
+    const FP_NORM = { CAPEX_MAX: 200, OCF_CAP: 10, MW_LOG_DEN: Math.log10(7001) };
+    // Silicon strategy — editorial ordinal band (0.33 merchant-dependent · 0.66 multi-source ·
+    // 1.0 owns/designs custom silicon), curated from each player's constraint read + circular role.
+    const FP_SI = { GOOGL: 1.0, AMZN: 1.0, META: 1.0, NVDA: 1.0, AVGO: 1.0, AMD: 1.0, Anthropic: 0.66, OpenAI: 0.66, MSFT: 0.5, ORCL: 0.33, CRWV: 0.33, xAI: 0.33 };
+    // Market-memo claim per player (title + one sharp sourced line) — editorial, like constraint reads.
+    const FP_CLAIM = {
+      MSFT: { t: "Spends most, most grid-exposed", l: "$190B capex, 0% behind-the-meter — every live GW rides the interconnect queue." },
+      AMZN: { t: "Top capex, building its own", l: "Biggest 2026 capex at $200B; Rainier (Anthropic) + Susquehanna anchor a grid-plus-colocated mix." },
+      GOOGL: { t: "Most optionality, owns its silicon", l: "Smallest lease book of the majors; the TPU stack pulls its silicon constraint in-house." },
+      META: { t: "Biggest builder, off the money-map", l: "7.0 GW named live — but deliberately not on the circular-financing map." },
+      ORCL: { t: "Longest leash, shortest runway", l: "~10 yrs of OCF pre-committed — the ceiling of the field; FCF negative." },
+      NVDA: { t: "The vendor that funds demand", l: "No lease book here; top-3 customers ~54% of revenue — it seeds the buyers it sells to." },
+      OpenAI: { t: "Compute hub, off balance sheet", l: "Obligations run through the Oracle / Microsoft / CoreWeave / Nvidia edges, not owned assets." },
+      Anthropic: { t: "Compute via partners, multi-silicon", l: "Rainier Trainium + Google TPU — diversified across vendors rather than owning fabs." },
+      xAI: { t: "Behind-the-meter, permitting risk", l: "Colossus on-site gas swaps interconnect-queue risk for turbine + permitting risk." },
+      CRWV: { t: "One customer, no owned dirt", l: "Microsoft ~67% of revenue; no named build on the ledger — renewal is the survival variable." }
+    };
+    const RISKC = b => b >= 0.9 ? CHART_PALETTE.constraint : b >= 0.5 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply;
+    const fpMetrics = p => {
+      const ci = cc.companies.findIndex(n => p.aliases.indexOf(n) !== -1);
+      const rCx = ci !== -1 ? Math.min(1, cc.values[ci] / FP_NORM.CAPEX_MAX) : null;
+      const o = oc.find(x => x.sym === p.sym);
+      const yrs = o ? ((o.leasesCommenced || 0) + (o.leasesNotCommenced || 0) + (o.purchase || 0) + (o.construction || 0)) / o.ocf : null;
+      const rYr = yrs != null ? Math.min(yrs, FP_NORM.OCF_CAP) / FP_NORM.OCF_CAP : null;
+      let rMW = null, btmPct = null, mwVal = 0, liveN = 0;
+      if (pj) {
+        const mine = pj.filter(r => p.aliases.some(a => (r.operator || "").indexOf(a) !== -1));
+        if (mine.length) {
+          const live = mine.filter(r => GRAVEYARD_STATUSES.indexOf(r.status) === -1);
+          mwVal = live.reduce((s, r) => s + (r.capacity_mw || 0), 0); liveN = live.length;
+          rMW = Math.log10(mwVal + 1) / FP_NORM.MW_LOG_DEN;
+          if (mwVal > 0) { const btm = live.reduce((s, r) => s + ((r.power && r.power.model === "BTM") ? (r.capacity_mw || 0) : 0), 0); btmPct = Math.round(100 * btm / mwVal); }
+        }
+      }
+      const rSi = FP_SI[p.sym] != null ? FP_SI[p.sym] : null;
+      let rCp = null, cpTitle = "no honest data — no counterparty node";
+      if (p.cfNode) {
+        const edges = cf.filter(e => e.from === p.cfNode).length + cf.filter(e => e.to === p.cfNode).length;
+        const disc = (conc[p.cfNode] || []).length;
+        rCp = edges >= 7 ? 1.0 : edges >= 4 ? 0.66 : edges >= 1 ? 0.33 : 0.15;
+        cpTitle = edges + " counterparty edges" + (disc ? " · " + disc + " filed concentration read(s)" : "");
+      }
+      let rGr = null, grTitle = "no honest data — no live ledger MW to derive from";
+      if (btmPct != null) {
+        rGr = btmPct >= 80 ? 0.2 : btmPct >= 20 ? 0.5 : 0.9;
+        grTitle = btmPct + "% behind-the-meter — " + (rGr >= 0.9 ? "high interconnect-queue exposure" : rGr >= 0.5 ? "mixed" : "low grid-queue risk (permitting/turbine instead)") + " (derived proxy)";
+      }
+      const comp = [rCx, rYr, rMW, rCp, rGr].filter(v => v != null);
+      let balance = null;
+      if (comp.length >= 2) {
+        const m = comp.reduce((a, b) => a + b, 0) / comp.length;
+        const sd = Math.sqrt(comp.reduce((a, b) => a + (b - m) * (b - m), 0) / comp.length);
+        balance = Math.max(0, Math.min(1, 1 - sd / 0.5));
+      }
+      const capB = ci !== -1 ? cc.values[ci] : null;
+      return {
+        balance: balance,
+        lanes: [
+          { k: "Cx", r: rCx, kind: "q", title: rCx != null ? "$" + capB + "B 2026 capex guide → r" + rCx.toFixed(2) + " (÷$" + FP_NORM.CAPEX_MAX + "B)" : "no honest data — no capex guidance" },
+          { k: "Yr", r: rYr, kind: "q", title: rYr != null ? yrs.toFixed(1) + " yrs of OCF pre-committed (cap " + FP_NORM.OCF_CAP + ") → r" + rYr.toFixed(2) : "no honest data — no commitment-book row" },
+          { k: "MW", r: rMW, kind: "q", title: rMW != null ? ((mwVal >= 1000 ? (mwVal / 1000).toFixed(1) + " GW" : mwVal + " MW")) + " live · " + liveN + " build(s) · log-scaled r" + rMW.toFixed(2) : "no honest data — no named ledger build" },
+          { k: "Si", r: rSi, kind: "e", title: rSi != null ? "editorial band " + rSi.toFixed(2) + " — " + (rSi >= 1 ? "owns/designs custom silicon" : rSi >= 0.66 ? "multi-source diversified" : rSi >= 0.5 ? "mixed / emerging in-house" : "merchant-GPU dependent") + " (curated, NOT a sourced number)" : "no silicon-strategy read" },
+          { k: "Cp", r: rCp, kind: "risk", title: cpTitle },
+          { k: "Gr", r: rGr, kind: "risk", title: grTitle }
+        ]
+      };
+    };
+    const fpSVG = p => {
+      const m = fpMetrics(p);
+      const X0 = 24, W = 90, H = 8, PITCH = 12, TOP = 8;
+      let body = "";
+      m.lanes.forEach((ln, i) => {
+        const y = TOP + i * PITCH, dim = ln.r == null;
+        body += '<text x="4" y="' + (y + H - 1) + '" font-size="7" font-weight="700" fill="' + (dim ? "var(--muted)" : "var(--ink-2)") + '">' + ln.k + '</text>';
+        body += '<rect x="' + X0 + '" y="' + y + '" width="' + W + '" height="' + H + '" rx="1.5" fill="var(--line)" opacity="0.45"/>';
+        if (dim) {
+          body += '<line x1="' + X0 + '" y1="' + (y + H / 2) + '" x2="' + (X0 + W) + '" y2="' + (y + H / 2) + '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="2 2"/>';
+        } else if (ln.kind === "e") {
+          body += '<rect x="' + X0 + '" y="' + y + '" width="' + Math.max(1, ln.r * W).toFixed(1) + '" height="' + H + '" rx="1.5" fill="none" stroke="var(--ink-2)" stroke-width="1" stroke-dasharray="1.5 1.5"/>';
+        } else {
+          body += '<rect x="' + X0 + '" y="' + y + '" width="' + Math.max(1, ln.r * W).toFixed(1) + '" height="' + H + '" rx="1.5" fill="' + (ln.kind === "risk" ? RISKC(ln.r) : CHART_PALETTE.demand) + '"/>';
+        }
+        body += '<rect x="0" y="' + y + '" width="128" height="' + H + '" fill="transparent"><title>' + ln.k + ' — ' + ln.title.replace(/"/g, "&quot;") + '</title></rect>';
+      });
+      const dvy = TOP + 3 * PITCH - 2;
+      body += '<line x1="0" y1="' + dvy + '" x2="128" y2="' + dvy + '" stroke="var(--line)" stroke-width="1"/>';
+      body += '<line x1="' + (X0 + W) + '" y1="' + TOP + '" x2="' + (X0 + W) + '" y2="' + (TOP + 5 * PITCH + H) + '" stroke="var(--ink-2)" stroke-width="1" opacity="0.35"/>';
+      if (m.balance != null) {
+        const h = 6 + m.balance * 68, by = 80 - h;
+        const bc = m.balance >= 0.66 ? CHART_PALETTE.supply : m.balance >= 0.33 ? CHART_PALETTE.pipeline : CHART_PALETTE.constraint;
+        body += '<rect x="0" y="' + by.toFixed(1) + '" width="3" height="' + h.toFixed(1) + '" rx="1.5" fill="' + bc + '"><title>portfolio balance ' + m.balance.toFixed(2) + ' — ' + (m.balance >= 0.66 ? "diversified" : m.balance >= 0.33 ? "uneven" : "concentrated / at the ceiling") + '</title></rect>';
+      }
+      const cl = FP_CLAIM[p.sym] || { t: "", l: "" };
+      return {
+        balance: m.balance,
+        html: '<div class="pl-fp"><svg class="pl-fp-svg" viewBox="0 0 128 92" width="128" height="92" role="img" aria-label="constraint fingerprint for ' + p.name + '">' + body + '</svg>' +
+          '<div class="pl-fp-memo"><div class="pl-fp-claim">' + cl.t + '</div><div class="pl-fp-line">' + cl.l + '</div></div></div>'
+      };
+    };
+    // Full dossier card (buildout layer): the fingerprint glyph up top, the full sourced dossier below.
+    const dossier = (p, fp) => {
       const rows = [];
       const ci = cc.companies.findIndex(n => p.aliases.indexOf(n) !== -1);
       if (ci !== -1) rows.push('<div class="pl-stat">2026 capex guide <a href="#capital:coCapexChart"><b>$' + cc.values[ci] + 'B</b></a></div>');
@@ -3632,6 +3737,7 @@ const $ = (id) => document.getElementById(id);
       }
       return '<div class="pl-card">' +
         '<div class="pl-head"><span class="brand-mark b-' + (p.brand || "other") + '">' + p.name.charAt(0) + '</span><span class="pl-name">' + p.name + '</span><span class="pl-cls">' + p.cls + '</span></div>' +
+        (fp ? fp.html : "") +
         '<div class="pl-stats">' + rows.join("") + '</div>' +
         '<div class="pl-constraint"><span class="pl-klabel">Constraint read</span>' + p.constraint.text +
         ' <span class="cf-tier cf-' + tierCls(p.constraint.tier) + '" title="' + tierTitle(p.constraint.tier) + '">' + p.constraint.tier + '</span></div>' +
@@ -3644,11 +3750,19 @@ const $ = (id) => document.getElementById(id);
       ' <span class="cf-tier cf-' + tierCls(p.constraint.tier) + '" title="' + tierTitle(p.constraint.tier) + '">' + p.constraint.tier + '</span></div>' +
       sigFor(p) + connFooter(p) + '</div>';
 
-    const build = DATA.players.filter(p => p.layer !== "supply");
-    const supply = DATA.players.filter(p => p.layer === "supply");
-    host.innerHTML = build.map(dossier).join("");
+    // Shared "how to read" key + the balance-sort note (printed once, above the cards).
+    const keyHost = $("playersFpKey");
+    if (keyHost) keyHost.innerHTML =
+      '<div class="pl-fp-sortnote">Sorted by <b>portfolio balance</b>, not capex — the most balanced constraint fingerprint leads.</div>' +
+      '<details class="pl-fp-key"><summary>How to read the fingerprint</summary><div>' +
+      'Six lanes, bar length = share of the field max. <b>Cx</b> capex (÷$' + FP_NORM.CAPEX_MAX + 'B) · <b>Yr</b> yrs of OCF pre-committed (cap ' + FP_NORM.OCF_CAP + ') · <b>MW</b> secured live GW (log) — these three are neutral blue, because bigger is not "better". <b>Si</b> silicon strategy (dashed outline = editorial band, not a sourced number) · <b>Cp</b> counterparty exposure · <b>Gr</b> grid-queue risk — these two turn <span style="color:' + CHART_PALETTE.constraint + '">red</span> when severe. A <b>dashed hollow</b> lane = no honest data (never drawn as zero). The left <b>spine</b> is portfolio balance: tall green = diversified, short red = concentrated / at the ceiling. <b>Read the shape, not the longest bar — resilience is a balanced fingerprint with short risk lanes, not a maxed capex bar.</b>' +
+      '</div></details>';
+
+    const build = DATA.players.filter(p => p.layer !== "supply").map(p => ({ p: p, fp: fpSVG(p) }));
+    build.sort((a, b) => (b.fp.balance == null ? -1 : b.fp.balance) - (a.fp.balance == null ? -1 : a.fp.balance));
+    host.innerHTML = build.map(x => dossier(x.p, x.fp)).join("");
     const shost = $("supplyCards");
-    if (shost) shost.innerHTML = supply.map(supplyCard).join("");
+    if (shost) shost.innerHTML = DATA.players.filter(p => p.layer === "supply").map(supplyCard).join("");
   }
 
   // Power bank — ledger MW by power-procurement model per player (league) or GW-vs-capex
