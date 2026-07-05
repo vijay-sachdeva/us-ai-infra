@@ -3352,6 +3352,11 @@ const $ = (id) => document.getElementById(id);
     if (vis($("playersCards"))) { renderPlayers(); renderPowerBank(); renderPlayersGrid(); renderFilingsWatch(); renderPlayerFeed(); }  // joins pick up the fresh feeds
     renderFeedFreshness();
     if (DATA.sources) linkifySources(document.querySelector("section.tab-content.active"));
+    // Coverage invariant: the resize+draw backstop only reaches charts that exist before its
+    // timers fire. hydrate() re-creates charts asynchronously (after the initial 500ms window),
+    // so force one more pass. Today every re-render above is vis()-gated and self-paints, but this
+    // makes the invariant hold even if a future edit adds a non-vis-gated re-render here.
+    if (typeof scheduleChartResize === "function") scheduleChartResize();
   }
 
   // Linkify cited source labels to the canonical ledger (data/sources.json) — ONE post-render
