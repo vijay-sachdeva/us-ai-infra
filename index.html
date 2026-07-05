@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705g"></script>
+<script src="config.js?v=20260705h"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1545,13 +1545,29 @@
   .ov-lenses.ov-causal{grid-template-columns:repeat(4,1fr)}
   .ov-step{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ov-demand)}
   .ov-bn-framing{font-size:12px;color:var(--ov-muted);line-height:1.55;margin:.1rem 0 .7rem;max-width:780px}
-  /* "What could break this" chips — deep-link to the risk panels */
-  .ov-breaks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-  .ov-break{font-size:11.5px;line-height:1.4;color:var(--ov-muted);text-decoration:none;border:1px solid var(--ov-line);border-radius:8px;padding:8px 10px;transition:border-color .15s}
-  .ov-break b{color:var(--ov-ink)}
-  .ov-break:hover{border-color:var(--ov-gap)}
-  @media(max-width:900px){.ov-breaks{grid-template-columns:1fr 1fr}}
-  @media(max-width:520px){.ov-breaks{grid-template-columns:1fr}}
+  /* "What breaks first" constraint board — pressure gauges, deep-link to the risk panels.
+     Severity (High/Elevated/Watch) + trend are EDITORIAL reads (marked °); every number is
+     sourced and one tap away on its chart. Bar width encodes only the 3 discrete severity
+     levels — presentation, not a measured metric. */
+  .ccc-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:8px}
+  .ccc-tile{position:relative;display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--ov-line);border-radius:10px;text-decoration:none;transition:border-color .15s}
+  .ccc-tile.sev-red{--sc:var(--ov-gap)} .ccc-tile.sev-amber{--sc:var(--ov-amber)} .ccc-tile.sev-green{--sc:var(--green)}
+  .ccc-tile:hover{border-color:var(--sc)}
+  .ccc-head{display:flex;align-items:center;gap:8px}
+  .ccc-name{font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--ov-ink)}
+  .ccc-trend{margin-left:auto;font-size:14px;line-height:1;color:var(--sc)}
+  .ccc-trend.flat{color:var(--ov-muted)}
+  .ccc-sev{align-self:flex-start;font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--sc);border:1px solid var(--sc);border-radius:4px;padding:1px 6px}
+  .ccc-sev sup{font-size:8px;margin-left:1px;opacity:.85;cursor:help}
+  .ccc-bar{display:block;height:6px;border-radius:3px;background:var(--ov-line);overflow:hidden}
+  .ccc-bar i{display:block;height:100%;border-radius:3px;background:var(--sc)}
+  .ccc-read{font-size:11.5px;line-height:1.4;color:var(--ov-muted)}
+  .ccc-read b{color:var(--ov-ink);font-weight:600}
+  .ccc-next{font-size:10.5px;line-height:1.35;color:var(--ov-muted);opacity:.9}
+  .ccc-next b{color:var(--ov-ink);font-weight:600}
+  .ccc-legend{font-size:11px;color:var(--ov-muted);opacity:.8;margin-top:8px;line-height:1.4}
+  @media(prefers-reduced-motion:reduce){.ccc-tile{transition:none}}
+  @media(max-width:520px){.ccc-board{grid-template-columns:1fr}}
   @media(max-width:760px){.ov-lenses.ov-causal{grid-template-columns:1fr 1fr}}
   @media(max-width:520px){.ov-lenses.ov-causal{grid-template-columns:1fr}}
   /* Connecting the dots (flagship) — verified edges between published facts */
@@ -1689,13 +1705,59 @@
         <a class="ov-lens" href="#buildout"><span class="ov-step">3 · Buildout</span><b>97 GW queued</b><span class="ov-lens-stat">but only ~24 GW truly buildable · transformers 36–60 months. Queued ≠ buildable.</span></a>
         <a class="ov-lens" href="#grid"><span class="ov-step">4 · Grid</span><b>~19 GW short</b><span class="ov-lens-stat">firm power can't keep up · unmet load lands on ratepayers (6 states at &gt;25% rate-hike risk).</span></a>
       </div>
-      <div class="ov-lens-label">What could break this</div>
-      <div class="ov-breaks">
-        <a class="ov-break" href="#grid:cumDeficitChart"><b>Demand downside</b> — on EPRI's published low case the 19 GW gap closes; toggle the scenario →</a>
-        <a class="ov-break" href="#capital:overcommitmentBoard"><b>Overcommitment</b> — Oracle ≈10 yrs of cash flow pre-committed; every book accelerating →</a>
-        <a class="ov-break" href="#capital:tenorClocks"><b>Tenor mismatch</b> — chips die in ~6 yrs, the leases run 12–25 →</a>
-        <a class="ov-break" href="#buildout"><b>Retreats</b> — 4 verified pauses/cancellations, ≈3 GW shelved (the Graveyard) →</a>
+      <div class="ov-lens-label">What breaks first — the constraint board</div>
+      <div class="ccc-board" id="ov-constraints">
+        <a class="ccc-tile sev-red" href="#grid:cumDeficitChart">
+          <span class="ccc-head"><b class="ccc-name">POWER</b><span class="ccc-trend" title="Trend: worsening (editorial read)" aria-label="trend worsening">&#8593;</span></span>
+          <span class="ccc-sev">High<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
+          <span class="ccc-bar"><i style="width:90%"></i></span>
+          <span class="ccc-read"><b>~19 GW</b> firm-power shortfall by 2030; the base path widens as load compounds.</span>
+          <span class="ccc-next"><b>Next:</b> PJM 2028/29 capacity print &middot; Jul 14, 2026</span>
+        </a>
+        <a class="ccc-tile sev-red" href="#buildout:leadTimeChart">
+          <span class="ccc-head"><b class="ccc-name">GRID GEAR</b><span class="ccc-trend flat" title="Trend: holding tight (editorial read)" aria-label="trend flat, holding">&#8594;</span></span>
+          <span class="ccc-sev">High<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
+          <span class="ccc-bar"><i style="width:90%"></i></span>
+          <span class="ccc-read">HV transformers <b>36–60 mo</b> (vs ~24 pre-2020); gas-turbine slots sold out to <b>2029–30</b>.</span>
+          <span class="ccc-next"><b>Next:</b> GE Vernova / Siemens / MHI order books</span>
+        </a>
+        <a class="ccc-tile sev-amber" href="#buildout:queueChart">
+          <span class="ccc-head"><b class="ccc-name">INTERCONNECT QUEUE</b><span class="ccc-trend flat" title="Trend: holding (editorial read)" aria-label="trend flat">&#8594;</span></span>
+          <span class="ccc-sev">Elevated<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
+          <span class="ccc-bar"><i style="width:60%"></i></span>
+          <span class="ccc-read"><b>97 GW</b> queued, but ~78% historical withdrawal → <b>~24 GW</b> credible; interconnect <b>48–84 mo</b>.</span>
+          <span class="ccc-next"><b>Next:</b> annual LBNL <i>Queued Up</i> snapshot</span>
+        </a>
+        <a class="ccc-tile sev-amber" href="#capital:overcommitmentBoard">
+          <span class="ccc-head"><b class="ccc-name">CAPEX</b><span class="ccc-trend" title="Trend: rising (editorial read)" aria-label="trend rising">&#8593;</span></span>
+          <span class="ccc-sev">Elevated<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
+          <span class="ccc-bar"><i style="width:60%"></i></span>
+          <span class="ccc-read">Oracle <b>≈10 yrs</b> of operating cash flow pre-committed; <b>~$839B</b> 2026 capex, ~75% AI.</span>
+          <span class="ccc-next"><b>Next:</b> Q2 2026 hyperscaler capex guides (late Jul–Aug)</span>
+        </a>
+        <a class="ccc-tile sev-amber" href="#grid">
+          <span class="ccc-head"><b class="ccc-name">POLICY</b><span class="ccc-trend" title="Trend: rising (editorial read)" aria-label="trend rising">&#8593;</span></span>
+          <span class="ccc-sev">Elevated<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
+          <span class="ccc-bar"><i style="width:60%"></i></span>
+          <span class="ccc-read"><b>TX SB2</b> large-load curtailment live (&gt;75 MW); <b>VA</b> data-center tax-exemption rollback under review.</span>
+          <span class="ccc-next"><b>Next:</b> next state PUC rate-case ruling</span>
+        </a>
+        <a class="ccc-tile sev-amber" href="#grid:rateImpactChart">
+          <span class="ccc-head"><b class="ccc-name">RATEPAYER</b><span class="ccc-trend" title="Trend: worsening (editorial read)" aria-label="trend worsening">&#8593;</span></span>
+          <span class="ccc-sev">Elevated<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
+          <span class="ccc-bar"><i style="width:60%"></i></span>
+          <span class="ccc-read">PJM cleared <b>at the FERC cap</b> twice ($329→$333/MW-day); <b>VA +57%</b> residential by 2030 (modeled).</span>
+          <span class="ccc-next"><b>Next:</b> PJM 2028/29 capacity print &middot; Jul 14, 2026</span>
+        </a>
+        <a class="ccc-tile sev-green" href="#buildout:leadTimeChart">
+          <span class="ccc-head"><b class="ccc-name">CHIPS / HBM</b><span class="ccc-trend" title="Trend: easing (editorial read)" aria-label="trend easing">&#8595;</span></span>
+          <span class="ccc-sev">Watch<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
+          <span class="ccc-bar"><i style="width:30%"></i></span>
+          <span class="ccc-read"><b>GB200 NVL</b> racks GA — allocation, not lead-time, now binds; <b>CoWoS ~doubling</b> (75k→130k wafers/mo).</span>
+          <span class="ccc-next"><b>Next:</b> NVIDIA Q2 FY27 supply commentary (late Aug)</span>
+        </a>
       </div>
+      <div class="ccc-legend">Severity &amp; trend (&#8593; worsening &middot; &#8594; holding &middot; &#8595; easing) are <b>editorial reads</b> (marked &deg;); every figure is sourced — tap a tile to see it on its chart. Worst-first: power is the long pole; chips already eased.</div>
       <div id="ov-connections-anchor"></div>
       <div class="ov-lens-label ov-conn-label">Connecting the dots — what links up<span class="ov-conn-stamp" id="connStamp"></span></div>
       <div class="ov-conn-intro">Anyone can Google a fact. The value is the <b>verified edge between two</b> — one deal in two filings, a loop between the same names. Tap a card for the evidence; the badge says how firm the link is.</div>
@@ -3559,7 +3621,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705g"></script>
+<script src="app.js?v=20260705h"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

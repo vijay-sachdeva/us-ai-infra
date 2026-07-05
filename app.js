@@ -482,6 +482,12 @@ const $ = (id) => document.getElementById(id);
     const tryScroll = () => {
       const box = document.querySelector('.chart-box[data-chart-anchor="' + (window.CSS && CSS.escape ? CSS.escape(anchor) : anchor) + '"]');
       if (!box) return false;
+      // If the target sits inside a collapsed "More analysis" disclosure, open every ancestor
+      // <details> first — otherwise we'd scroll to a display:none box and the deep-link would
+      // appear to do nothing. Setting .open fires a toggle event, which scheduleChartResize()
+      // (see the toggle listener) picks up to repaint the now-visible chart.
+      let det = box.closest("details");
+      while (det) { if (!det.open) det.open = true; det = det.parentElement ? det.parentElement.closest("details") : null; }
       box.scrollIntoView({ behavior: "smooth", block: "center" });
       box.classList.remove("chart-link-flash"); void box.offsetWidth; box.classList.add("chart-link-flash");
       return true;
