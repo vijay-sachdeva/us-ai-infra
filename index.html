@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260704m"></script>
+<script src="config.js?v=20260705a"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1414,8 +1414,9 @@
     .hero-headline { padding: 22px 18px; }
     .hero-headline h2 { font-size: 21px; }
     nav.tabs a { padding: 12px 10px 10px; font-size: 13px; }
-    .kpis { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .kpi { padding: 13px 13px 11px; }
+    /* Fewer rows before the hero visual: one swipeable KPI strip instead of a 3-row grid */
+    .kpis { display: flex; overflow-x: auto; gap: 10px; grid-template-columns: none; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; padding-bottom: 4px; margin: 16px 0 6px; }
+    .kpi { flex: 0 0 60%; scroll-snap-align: start; padding: 13px 13px 11px; }
     .kpi .value { font-size: 21px; }
     /* Wide tables overflow horizontally on phones instead of getting crushed */
     #irrTable, #isoTable, #scorecardWrap {
@@ -3491,7 +3492,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260704m"></script>
+<script src="app.js?v=20260705a"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
