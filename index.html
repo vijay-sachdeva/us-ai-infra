@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260704e"></script>
+<script src="config.js?v=20260704f"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1161,7 +1161,14 @@
   /* ---------- Players tab: dossier cards ---------- */
   .pl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
   @media (max-width: 860px) { .pl-grid { grid-template-columns: 1fr; } }
+  /* value-chain group: denser grid of compact role cards */
+  .pl-grid-supply { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 1000px) { .pl-grid-supply { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .pl-grid-supply { grid-template-columns: 1fr; } }
   .pl-card { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: var(--card); }
+  .pl-supply { padding: 12px 14px; }
+  .pl-supply .pl-role { border-top: none; padding-top: 0; margin-top: 2px; }
+  .pl-supply .pl-name { font-size: 14px; }
   .pl-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .pl-head .pl-name { font-size: 15px; font-weight: 700; color: var(--ink); }
   .pl-cls { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #0891b2; background: rgba(8,145,178,.1); padding: 2px 8px; border-radius: 999px; margin-left: auto; }
@@ -2174,6 +2181,12 @@
       </div>
 
       <div class="stub-card" style="margin-top:14px">
+        <h4>The value chain — silicon, memory, storage, boards &amp; test</h4>
+        <div class="note">The picks-and-shovels that <b>pace</b> the buildout: HBM memory, NAND storage, precision timing, advanced PCBs/substrates, burn-in test, and the challenger &amp; custom silicon beside NVIDIA. Identity + tier-tagged role reads only (no capex/commitment joins — these aren't data-center operators); their SEC filings ride the Filings watch below.</div>
+        <div id="supplyCards" class="pl-grid pl-grid-supply"></div>
+      </div>
+
+      <div class="stub-card" style="margin-top:14px">
         <h4>The power bank — who holds the megawatts</h4>
         <div class="note">Named-build MW from the source-verified ledger, by <b>power-procurement model</b> (BTM = on-site generation &middot; Colocated = adjacent nuclear/gas &middot; Grid = utility interconnect) &middot; announced targets, not current draw &middot; shared campuses (e.g. Stargate Abilene) count once per named operator &middot; toggle to plot GW against 2026 capex</div>
         <div class="map-view-toggle" id="powerBankToggle" role="tablist" style="margin:6px 0 4px">
@@ -3125,7 +3138,23 @@
       { sym: "xAI", name: "xAI", brand: "other", cls: "AI lab", cfNode: "xAI", aliases: ["xAI"],
         constraint: { text: "The BTM playbook: Colossus-scale on-site gas swaps queue risk for permitting and turbine risk.", tier: "analyst" } },
       { sym: "CRWV", name: "CoreWeave", brand: "coreweave", cls: "Neo-cloud", cfNode: "CoreWeave", aliases: ["CoreWeave"],
-        constraint: { text: "Concentration + tenor: ≈67% of FY25 revenue from Microsoft, $11.8B of GPU-collateralized debt, ~10 years of OCF pre-committed — renewal risk is the survival variable.", tier: "primary" } }
+        constraint: { text: "Concentration + tenor: ≈67% of FY25 revenue from Microsoft, $11.8B of GPU-collateralized debt, ~10 years of OCF pre-committed — renewal risk is the survival variable.", tier: "primary" } },
+      // Value-chain layer — the silicon, memory & components that PACE the buildout. Identity +
+      // tier-tagged role reads only (no fabricated financials); their filings ride the SEC watch.
+      { sym: "AMD", name: "AMD", brand: "other", cls: "Silicon · GPU", cfNode: null, aliases: ["AMD"], layer: "supply",
+        constraint: { text: "The credible #2 to NVIDIA — OpenAI's ~6 GW Instinct commitment, sweetened with a ~10% warrant, is the clearest sign the single-vendor allocation crunch is easing.", tier: "analyst" } },
+      { sym: "AVGO", name: "Broadcom", brand: "other", cls: "Silicon · custom", cfNode: null, aliases: ["Broadcom"], layer: "supply",
+        constraint: { text: "The custom-silicon backbone — OpenAI's ~10 GW \"Jalapeño\" ASIC plus the hyperscaler XPU programs route inference off merchant GPUs; a $35B chip-backed SPV funds the shift.", tier: "analyst" } },
+      { sym: "MU", name: "Micron", brand: "other", cls: "Memory · HBM", cfNode: null, aliases: ["Micron"], layer: "supply",
+        constraint: { text: "HBM is the real gate on accelerator output — every GPU needs stacks of it and HBM capacity is spoken for well into 2026; memory, not logic, paces how many chips ship.", tier: "analyst" } },
+      { sym: "SNDK", name: "SanDisk", brand: "other", cls: "Storage · NAND", cfNode: null, aliases: ["SanDisk"], layer: "supply",
+        constraint: { text: "Enterprise NAND and SSDs for the data lakes behind training; spun out of Western Digital in 2025, riding AI storage demand inside a cyclical commodity market.", tier: "analyst" } },
+      { sym: "SITM", name: "SiTime", brand: "other", cls: "Timing", cfNode: null, aliases: ["SiTime"], layer: "supply",
+        constraint: { text: "MEMS precision timing — the clocks that keep high-speed AI interconnects and switches in sync; a small bill-of-materials line with outsized reliability leverage as fabrics scale.", tier: "analyst" } },
+      { sym: "TTMI", name: "TTM Technologies", brand: "other", cls: "PCBs · substrates", cfNode: null, aliases: ["TTM"], layer: "supply",
+        constraint: { text: "High-layer-count PCBs and advanced substrates for accelerator boards and switches; complexity rises with rack density, making substrate capacity a quiet bottleneck.", tier: "analyst" } },
+      { sym: "AEHR", name: "Aehr Test Systems", brand: "other", cls: "Test · burn-in", cfNode: null, aliases: ["Aehr"], layer: "supply",
+        constraint: { text: "Wafer-level burn-in that screens AI processors and power devices before they ship; lumpy, customer-concentrated revenue that acts as a leading indicator of ramp timing.", tier: "analyst" } }
     ],
     // Neo-cloud scoreboard — cited-figures-only, NULLABLE BY DESIGN (blank = not-yet-verified,
     // never zero). CRWV cells cite its filings (canonical home: the counterparty sidebar);
@@ -3394,7 +3423,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260704e"></script>
+<script src="app.js?v=20260704f"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
