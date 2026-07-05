@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705a"></script>
+<script src="config.js?v=20260705b"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1216,6 +1216,23 @@
   .pl-constraint .pl-klabel { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #0891b2; margin-right: 6px; }
   .pl-signal { font-size: 11px; color: var(--muted); margin-top: 7px; line-height: 1.45; }
   .pl-signal b { color: var(--ink-2); }
+  /* Constraint Fingerprint — 6-lane sparkbar glyph + market-memo claim */
+  .pl-fp { display: flex; gap: 11px; align-items: flex-start; flex-wrap: wrap; margin: 8px 0 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .pl-fp-svg { flex: 0 0 auto; max-width: 100%; height: auto; }
+  .pl-fp-svg text { font-family: system-ui, sans-serif; }
+  .pl-fp-svg rect[fill="transparent"] { cursor: default; }
+  .pl-fp-memo { flex: 1 1 150px; min-width: 0; }
+  .pl-fp-claim { font-size: 13px; font-weight: 700; color: var(--ink); line-height: 1.25; }
+  .pl-fp-line { font-size: 11.5px; color: var(--ink-2); line-height: 1.42; margin-top: 4px; }
+  .pl-fp-sortnote { font-size: 11px; color: var(--muted); margin: 2px 0 8px; }
+  .pl-fp-sortnote b { color: var(--ink-2); }
+  .pl-fp-key { margin: 0 0 12px; font-size: 11.5px; color: var(--muted); }
+  .pl-fp-key > summary { cursor: pointer; font-weight: 600; color: var(--ink-2); list-style: none; }
+  .pl-fp-key > summary::-webkit-details-marker { display: none; }
+  .pl-fp-key > summary::before { content: "▸ "; color: var(--muted); }
+  .pl-fp-key[open] > summary::before { content: "▾ "; }
+  .pl-fp-key > div { margin-top: 6px; line-height: 1.55; }
+  .pl-fp-key b { color: var(--ink-2); }
   /* dossier-card connections footer — surfaces the dot-connecting where the CSO drills in */
   .pl-conns { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
   .pl-conns .pl-klabel { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #0891b2; }
@@ -2239,7 +2256,8 @@
 
       <div class="stub-card">
         <h4>Player dossiers</h4>
-        <div class="note">Capex = company 2026 guidance (analyst-tier headline set) &middot; commitment years = the filing-grade commitment book on Capital &middot; ledger GW = source-verified named builds (announced targets; excludes the Graveyard) &middot; counterparty edges = the circular-financing map &middot; constraint reads are editorial one-liners, tier-tagged</div>
+        <div class="note">Each card leads with a <b>Constraint Fingerprint</b> — a 6-lane strategic silhouette (capex · committed-yrs-OCF · secured-MW | silicon · counterparty · grid-risk) over the same sourced dossier below. Capex = 2026 guidance &middot; commitment years = the filing-grade commitment book on Capital &middot; ledger GW = source-verified named builds &middot; counterparty edges = the circular-financing map &middot; reads are editorial, tier-tagged</div>
+        <div id="playersFpKey"></div>
         <div id="playersCards" class="pl-grid"></div>
       </div>
 
@@ -3492,7 +3510,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705a"></script>
+<script src="app.js?v=20260705b"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
