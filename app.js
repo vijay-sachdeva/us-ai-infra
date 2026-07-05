@@ -3049,17 +3049,19 @@ const $ = (id) => document.getElementById(id);
       const gwLo = su.aggregate.tokens * wr[0] / 730 / 1e9, gwHi = su.aggregate.tokens * wr[1] / 730 / 1e9;
       const queueGW = (DATA.powerBreakdown && DATA.powerBreakdown.funnel) ? DATA.powerBreakdown.funnel.values[0] : 97;
       const capexB = DATA.companyCapex ? DATA.companyCapex.values.reduce((a, b) => a + b, 0) : 839;
+      const perMw = (DATA.powerToRevenueYield && DATA.powerToRevenueYield.costIn) ? DATA.powerToRevenueYield.costIn.allInPerMw : 42;   // $M all-in per MW
+      const buildB = Math.round(gw * perMw / 10) * 10;   // ~22 GW × $42M/MW ≈ ~$920B to build that inference power
       const cell = (v, l, n) => `<div class="bridge-cell"><div class="bv">${v}</div><div class="bl">${l}</div><div class="bn">${n}</div></div>`;
-      const arrow = `<div class="bridge-arrow">→</div>`;
+      const arrow = op => `<div class="bridge-arrow">${op ? '<span class="bridge-op">' + op + '</span>' : '→'}</div>`;
       $("tjScaleup").innerHTML =
-        `<div class="tj-scaleup-title">Scale one token up to the buildout</div>` +
+        `<div class="tj-scaleup-title">One prompt → one gigawatt: follow the chain</div>` +
         `<div class="bridge-row">` +
-        cell("~" + totalWh.toFixed(0) + " Wh", "One answer", "≈ " + (ex.inputTokens + ex.outputTokens) + " tokens at ~0.005 Wh/token (cited bridge).") + arrow +
-        cell(su.aggregate.value, su.aggregate.unit, su.aggregate.who + " — " + su.aggregate.src.label + ".") + arrow +
-        cell("~" + Math.round(gwLo) + "–" + Math.round(gwHi) + " GW", "continuous · ≈" + gw.toFixed(0) + " GW midpoint", "Modeled range: ~" + Math.round(twhMo) + " TWh/mo at the ~5 kWh/1M midpoint; band = ~3–10 kWh/1M (model size, output mix, batching, utilization, PUE). One company's inference — not an observed figure.") + arrow +
-        cell("~" + queueGW + " GW", "US interconnect queue", "All operators, training + inference + headroom (LBNL Queued Up 2025).") + arrow +
-        cell("~$" + capexB + "B", "2026 operator capex", "What it costs to build (company 2026 guidance).") +
-        `</div><div class="tj-sowhat">${su.soWhat}</div>`;
+        cell("~" + totalWh.toFixed(0) + " Wh", "one answer", "≈ " + (ex.inputTokens + ex.outputTokens) + " tokens at ~0.005 Wh/token (cited bridge · band ~3–10 kWh/1M).") + arrow("× industry") +
+        cell(su.aggregate.value, su.aggregate.unit, su.aggregate.who + " — " + su.aggregate.src.label + " (primary).") + arrow("÷ 730 hr") +
+        cell("~" + Math.round(gwLo) + "–" + Math.round(gwHi) + " GW", "continuous · ≈" + gw.toFixed(0) + " GW mid", "[Modeled] ~" + Math.round(twhMo) + " TWh/mo at the ~5 kWh/1M midpoint; one company's inference at 100% utilization — not an observed figure.") + arrow("× $" + perMw + "M/MW") +
+        cell("~$" + buildB + "B", "to build that power", "[Modeled] ≈" + gw.toFixed(0) + " GW × $" + perMw + "M/MW all-in (facility + compute, analyst). Reality check — a DIFFERENT denominator: ~$" + capexB + "B actual 2026 operator capex + ~" + queueGW + " GW US queue span all operators, training + headroom (not a clean ratio).") + arrow("built as") +
+        cell("Gas-led", "the power source", "To 2030: grid gas +130 TWh (IEA, largest US source, primary) · renewables +110 TWh · on-site gas + nuclear restart/SMR (2030+, modeled). Gas carries this decade.") +
+        `</div><div class="tj-sowhat">${su.soWhat} <b>The Jevons twist:</b> cheaper tokens don't shrink this — a ~100× price drop met ~330× more tokens (see “The Jevons check” below), so efficiency <b>delays</b> the wall, it doesn't lower it.</div>`;
     }
     function go(i) {
       R._step = Math.max(0, Math.min(N - 1, i));
@@ -4314,7 +4316,7 @@ const $ = (id) => document.getElementById(id);
   var LEAD_CARDS = {
     capital: ["2026 capex by operator", "Capex vs operating cash flow", "The commitment book", "The circular-financing loop"],
     grid:    ["Where AI load becomes", "Annual demand growth", "Cumulative demand-supply deficit", "PJM capacity auction", "What power costs, by state"],
-    tokens:  ["Industry token volume", "$/token compression", "The Jevons check"]
+    tokens:  ["One prompt to one gigawatt", "Industry token volume", "$/token compression", "The Jevons check"]
   };
   function collapseSecondary(name, section) {
     var leads = LEAD_CARDS[name];
