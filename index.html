@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260704i"></script>
+<script src="config.js?v=20260704j"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -197,6 +197,17 @@
   /* declutter: long method-notes truncate to a summary + inline "more" toggle (enhanceNotes) */
   .note-more { display: inline; background: none; border: 0; padding: 0; margin-left: 2px; color: var(--accent); font-size: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
   .note-more:hover { text-decoration: underline; }
+  /* declutter: demote secondary charts into a collapsed "more analysis" disclosure */
+  .more-analysis { margin-top: 18px; border: 1px dashed var(--line); border-radius: 12px; }
+  .more-analysis > summary { cursor: pointer; list-style: none; padding: 13px 18px; font-size: 14px; font-weight: 600; color: var(--ink-2); display: flex; align-items: center; gap: 9px; }
+  .more-analysis > summary::-webkit-details-marker { display: none; }
+  .more-analysis > summary::before { content: "▸"; color: var(--muted); font-size: 12px; transition: transform .15s; }
+  .more-analysis[open] > summary::before { transform: rotate(90deg); }
+  .more-analysis > summary:hover { color: var(--accent); }
+  .more-analysis > summary .ma-count { color: var(--muted); font-weight: 500; font-size: 12.5px; }
+  .more-analysis .stub-grid { margin: 0 !important; padding: 0 16px 16px; }
+  /* author display rules on .stub-grid/.stub-card override the UA closed-state hiding → force it */
+  .more-analysis:not([open]) > *:not(summary) { display: none !important; }
   .stub-card p { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
   .stub-card .badge {
     display: inline-block; font-size: 10px; font-weight: 700;
@@ -1898,6 +1909,8 @@
         <div class="mp-data-actions" id="graveyardFoot"></div>
       </div>
 
+      <details class="more-analysis">
+        <summary>More buildout analysis <span class="ma-count">— lead times, cost stack, siting, efficiency &amp; supply chain</span></summary>
       <div class="stub-grid" style="margin-top:14px">
         <!-- Card 2: Lead time by region (chart) -->
         <div class="stub-card">
@@ -1979,6 +1992,7 @@
           <div id="opticalRoadmap" style="margin-top:8px"></div>
         </div>
       </div>
+      </details>
 
       <div class="cross-ref">
         <strong>Tokens →</strong>
@@ -3445,7 +3459,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260704i"></script>
+<script src="app.js?v=20260704j"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
