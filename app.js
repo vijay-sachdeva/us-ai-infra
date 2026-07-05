@@ -1020,6 +1020,25 @@ const $ = (id) => document.getElementById(id);
       '<div class="cf-chip cf-chip-debt"><span class="cf-chip-v">' + fmt(debt) + '</span><span class="cf-chip-l">GPU-backed debt underneath</span></div>' +
       '<div class="cf-tally-note">≈ ' + fmt(eq) + ' of vendor/credit equity sits under ≈ ' + fmt(vend) + ' of compute commitments to the <b>same cluster</b> — a chunk of that "demand" is the funders’ own capital cycling back, so unwind risk is networked. ' + qual + ' qualitative edges counted but not summed · no blended circularity score.</div>';
   }
+  // Shared loop detector — TRUE mutual pairs (an edge a→b AND b→a both exist) + the set of loop
+  // nodes. Honest by construction: NVIDIA→CoreWeave has two same-direction edges but no return
+  // edge, so it is NOT counted as a loop (no fabricated return leg). OUT = the equity/debt funding
+  // leg, RET = the vendor/compute leg. Used by the flywheel capsules/halos + renderCfSidebar.
+  function cfLoops(edges) {
+    const has = {};
+    edges.forEach(e => { has[e.from + "|" + e.to] = e; });
+    const pairs = [], seen = {}, mutualNodes = {};
+    edges.forEach(e => {
+      const back = has[e.to + "|" + e.from];
+      if (!back) return;
+      const key = [e.from, e.to].sort().join("|");
+      if (seen[key]) return; seen[key] = 1;
+      const outE = e.kind === "vendor" ? back : e, retE = e.kind === "vendor" ? e : back;
+      pairs.push({ a: outE.from, b: outE.to, out: outE, ret: retE });
+      mutualNodes[e.from] = 1; mutualNodes[e.to] = 1;
+    });
+    return { pairs: pairs, mutualNodes: mutualNodes };
+  }
   function renderCircularFinancing(view) {
     const host = $("circularFinancing");
     if (!host || !DATA.circularFinancing) return;
@@ -1036,9 +1055,15 @@ const $ = (id) => document.getElementById(id);
     const txt = isDark ? "#e2e8f0" : "#1e293b", muted = isDark ? "#94a3b8" : "#64748b";
     const ringStroke = isDark ? "#334155" : "#e2e8f0";
 
-    const edges = cf.edges.filter(e => view === "all" || e.kind === view);
+    // "loops" view keeps only edges that belong to a true mutual pair.
+    const allLoops = cfLoops(cf.edges);
+    const loopEdgeKeys = {}; allLoops.pairs.forEach(pr => { loopEdgeKeys[pr.out.from + "|" + pr.out.to] = 1; loopEdgeKeys[pr.ret.from + "|" + pr.ret.to] = 1; });
+    const edges = cf.edges.filter(e => view === "all" ? true : view === "loops" ? loopEdgeKeys[e.from + "|" + e.to] : e.kind === view);
 
-    const order = ["NVIDIA","AMD","Broadcom","Apollo","Blackstone","Google","AWS","Oracle","Microsoft","CoreWeave","xAI","Anthropic","OpenAI"];
+    // Stage-ordered ring so the capital motion reads clockwise as a flywheel, not a hairball:
+    // FUND (top) → COMMIT (right) → BACKLOG (bottom) → the compute/debt arcs sweep RETURN to top.
+    const STAGE = { NVIDIA: 0, AMD: 0, Broadcom: 0, Apollo: 0, Blackstone: 0, OpenAI: 1, xAI: 1, Anthropic: 1, Microsoft: 2, Oracle: 2, AWS: 2, Google: 2, CoreWeave: 2 };
+    const order = ["NVIDIA","AMD","Broadcom","Apollo","Blackstone","OpenAI","xAI","Anthropic","Microsoft","Oracle","AWS","Google","CoreWeave"];
     const present = cf.nodes.slice().sort((a,b) => order.indexOf(a.id) - order.indexOf(b.id));
 
     host.querySelectorAll("svg").forEach(s => s.remove());
@@ -1077,48 +1102,84 @@ const $ = (id) => document.getElementById(id);
     });
 
     const radius = 9;
+    // Stage bookends — capital flows IN at the top (funders) and returns as backlog at the bottom.
+    svg.append("text").attr("x", cx).attr("y", cy - R - 12).attr("text-anchor", "middle").attr("fill", muted)
+      .attr("font-size", "9px").attr("font-weight", "700").attr("letter-spacing", "1px").text("FUNDERS — EQUITY & GPU-BACKED DEBT IN");
+    svg.append("text").attr("x", cx).attr("y", cy + R + 26).attr("text-anchor", "middle").attr("fill", muted)
+      .attr("font-size", "9px").attr("font-weight", "700").attr("letter-spacing", "1px").text("BACKLOG — COMPUTE COMMITMENTS BACK");
+
+    const kindCol = k => cf.kinds[k].color;
+    const wOf = e => e.v == null ? 1.4 : Math.max(1.6, Math.min(6, Math.sqrt(e.v) * 0.5));
+    const opOf = e => e.v == null ? 0.42 : (e.src && e.src.tier === "analyst" ? 0.4 : 0.62);   // analyst legs fainter than filed
 
     const linkG = svg.append("g");
-    edges.forEach(e => {
+    const loops = cfLoops(edges);                    // mutual pairs within the current view
+    const pairedKey = {}; loops.pairs.forEach(pr => { pairedKey[pr.out.from + "|" + pr.out.to] = 1; pairedKey[pr.ret.from + "|" + pr.ret.to] = 1; });
+
+    // Draw a directed edge; ctrl overrides the toward-center control point so a loop's two legs
+    // can bow to OPPOSITE sides and enclose a lens (the visible "capital returns to its source").
+    const arc = (g, e, ctrl) => {
       const a = pos[e.from], b = pos[e.to];
       if (!a || !b) return;
-      const col = cf.kinds[e.kind].color;
-      const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
-      const ux = dx / len, uy = dy / len;
-      const x1 = a.x + ux * radius, y1 = a.y + uy * radius;
-      const x2 = b.x - ux * (radius + 6), y2 = b.y - uy * (radius + 6);
+      const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+      const x1 = a.x + ux * radius, y1 = a.y + uy * radius, x2 = b.x - ux * (radius + 6), y2 = b.y - uy * (radius + 6);
       const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-      const k = 0.28;
-      const cxp = mx + (cx - mx) * k, cyp = my + (cy - my) * k;
-      const w = e.v == null ? 1.4 : Math.max(1.6, Math.min(6, Math.sqrt(e.v) * 0.5));
-      const p = linkG.append("path")
+      const cxp = ctrl ? ctrl.x : mx + (cx - mx) * 0.28, cyp = ctrl ? ctrl.y : my + (cy - my) * 0.28;
+      g.append("path")
+        .attr("class", "cf-link").attr("data-a", e.from).attr("data-b", e.to).attr("data-op", opOf(e))
         .attr("d", "M" + x1 + "," + y1 + " Q" + cxp + "," + cyp + " " + x2 + "," + y2)
-        .attr("fill", "none").attr("stroke", col)
-        .attr("stroke-opacity", e.v == null ? 0.42 : 0.6)
-        .attr("stroke-width", w)
+        .attr("fill", "none").attr("stroke", kindCol(e.kind))
+        .attr("stroke-opacity", opOf(e)).attr("stroke-width", wOf(e))
         .attr("stroke-dasharray", e.v == null ? "4 3" : null)
-        .attr("marker-end", "url(#cfarrow-" + e.kind + ")");
-      p.append("title").text(e.from + " → " + e.to + "  ·  " + e.label + "  ·  " + e.src.label);
+        .attr("marker-end", "url(#cfarrow-" + e.kind + ")")
+        .append("title").text(e.from + " → " + e.to + "  ·  " + e.label + "  ·  " + e.src.label);
+    };
+    // Capsules (loop pairs, opposite-bowed) then the plain non-paired edges.
+    const capG = svg.append("g");
+    loops.pairs.forEach(pr => {
+      const A = pos[pr.a], B = pos[pr.b]; if (!A || !B) return;
+      const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, dx = B.x - A.x, dy = B.y - A.y, len = Math.hypot(dx, dy) || 1;
+      const px = -dy / len, py = dx / len, off = Math.min(48, len * 0.20);
+      arc(capG, pr.out, { x: mx + px * off, y: my + py * off });
+      arc(capG, pr.ret, { x: mx - px * off, y: my - py * off });
     });
+    edges.forEach(e => { if (!pairedKey[e.from + "|" + e.to]) arc(linkG, e); });
 
     const nodeG = svg.append("g");
     present.forEach(n => {
       const p = pos[n.id];
       const col = (cf.roles[n.role] || {}).color || "#64748b";
-      const g = nodeG.append("g").style("cursor", "pointer")
-        .on("click", () => renderCfSidebar(n.id));
+      const g = nodeG.append("g").style("cursor", "pointer").on("click", () => renderCfSidebar(n.id))
+        .on("mouseover", () => {   // pull one thread: dim all edges, re-light this node's own arcs
+          svg.selectAll(".cf-link").attr("stroke-opacity", 0.07);
+          svg.selectAll('.cf-link[data-a="' + n.id + '"],.cf-link[data-b="' + n.id + '"]').attr("stroke-opacity", 0.85);
+        })
+        .on("mouseout", () => { svg.selectAll(".cf-link").each(function () { const s = d3.select(this); s.attr("stroke-opacity", s.attr("data-op")); }); });
+      if (allLoops.mutualNodes[n.id]) {   // gold halo = funder that is also funded back (a closed loop)
+        g.append("circle").attr("cx", p.x).attr("cy", p.y).attr("r", radius + 4)
+          .attr("fill", "none").attr("stroke", "#d97706").attr("stroke-width", 1.6).attr("stroke-opacity", 0.9)
+          .append("title").text(n.id + " sits on a closed loop — it funds a counterparty that commits capital back to it");
+      }
       g.append("circle").attr("cx", p.x).attr("cy", p.y).attr("r", radius)
         .attr("fill", col).attr("stroke", isDark ? "#0f172a" : "#ffffff").attr("stroke-width", 2)
         .append("title").text(n.id + " — " + (cf.roles[n.role] || {}).label + " · click for counterparty exposure");
       const right = Math.cos(p.ang) >= -0.01;
-      const lx = p.x + Math.cos(p.ang) * 16;
-      const ly = p.y + Math.sin(p.ang) * 16;
-      g.append("text").attr("x", lx).attr("y", ly).attr("dy", "0.34em")
-        .attr("text-anchor", right ? "start" : "end")
-        .attr("fill", txt).attr("font-size", "11.5px").attr("font-weight", "700")
-        .style("cursor", "pointer").on("click", () => renderCfSidebar(n.id))
-        .text(n.id);
+      g.append("text").attr("x", p.x + Math.cos(p.ang) * 16).attr("y", p.y + Math.sin(p.ang) * 16).attr("dy", "0.34em")
+        .attr("text-anchor", right ? "start" : "end").attr("fill", txt).attr("font-size", "11.5px").attr("font-weight", "700")
+        .style("cursor", "pointer").on("click", () => renderCfSidebar(n.id)).text(n.id);
     });
+
+    // Loop-ratio strip (below the SVG) — the ratios as honest text, no center-collision of pills.
+    const loopStrip = $("cfLoopStrip");
+    if (loopStrip) {
+      loopStrip.innerHTML = '<span class="cf-loop-lead">Closed loops — funder is also the customer:</span> ' + allLoops.pairs.map(pr => {
+        const both = pr.out.v != null && pr.ret.v != null;
+        const r = both ? pr.ret.v / pr.out.v : null;
+        const val = both ? ("$" + pr.out.v + "B " + (pr.out.v === pr.ret.v ? "⇄" : "→") + " $" + pr.ret.v + "B · " + (r >= 10 ? r.toFixed(0) : r.toFixed(1)) + "×")
+          : ("qual. ⇄ $" + (pr.ret.v != null ? pr.ret.v : pr.out.v) + "B");
+        return '<span class="cf-loop-chip"><b>' + pr.a + " ⇄ " + pr.b + "</b> " + val + "</span>";
+      }).join("");
+    }
 
     const lg = $("cfLegend");
     if (lg) {
