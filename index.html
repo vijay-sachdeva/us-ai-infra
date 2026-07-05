@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260704h"></script>
+<script src="config.js?v=20260704i"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -256,7 +256,7 @@
   /* ---------- KPI strip (lifted from production) ---------- */
   .kpis {
     display: grid; grid-template-columns: repeat(6, 1fr);
-    gap: 14px; margin: 22px 0 4px;
+    gap: 16px; margin: 26px 0 8px;
   }
   .kpi {
     background: var(--card); border: 1px solid var(--line);
@@ -271,7 +271,7 @@
     font-size: 11px; font-weight: 600; color: var(--muted);
     text-transform: uppercase; letter-spacing: .04em; margin-bottom: 9px;
   }
-  .kpi .value { font-size: 25px; font-weight: 800; letter-spacing: -.02em; }
+  .kpi .value { font-size: 29px; font-weight: 800; letter-spacing: -.025em; line-height: 1.05; }
   .kpi .value span { font-size: 15px; font-weight: 700; color: var(--ink-2); }
   .kpi .delta { font-size: 12px; font-weight: 500; color: var(--ink-2); margin-top: 5px; flex: 1; }
   .kpi .delta b { font-weight: 700; }
@@ -312,7 +312,7 @@
   }
 
   /* ---------- Chart wrapper ---------- */
-  .chart-box { position: relative; height: 296px; margin-top: 14px;
+  .chart-box { position: relative; height: 296px; margin-top: 18px;
     background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 72%);
     border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px 4px; }
   .chart-box.short { height: 246px; }
@@ -1590,6 +1590,7 @@
       </div>
       <h1 class="ov-h1">AI demand outruns firm power by <span class="ov-accent">~19 GW by 2030</span></h1>
       <p class="ov-sub">Tokens pull capital, capital funds the buildout, the buildout lands on a grid that can't add firm power fast enough — and the gap keeps widening through 2030.</p>
+      <div id="kpis" class="kpis" aria-label="Key metrics — the state of play"></div>
       <div class="ov-toggle" role="tablist" aria-label="Hero view">
         <button data-h="wall" role="tab" aria-selected="true">Power wall</button>
         <button data-h="map"  role="tab" aria-selected="false">Constraint map</button>
@@ -3444,7 +3445,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260704h"></script>
+<script src="app.js?v=20260704i"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
