@@ -3236,7 +3236,8 @@ const $ = (id) => document.getElementById(id);
     var dP=dem.map(function(g,i){return [X(i),Y(g)]}), gP=gen.map(function(g,i){return [X(i),Y(g)]});
     var pth=function(p){return "M"+p.map(function(q){return q[0].toFixed(1)+" "+q[1].toFixed(1)}).join(" L ")};
     var poly=dP.concat(gP.slice().reverse()).map(function(q){return q[0].toFixed(1)+","+q[1].toFixed(1)}).join(" ");
-    var gap=Math.round(dem[n-1]-gen[n-1]);
+    var demT=Math.round(dem[n-1]), genT=Math.round(gen[n-1]), gap=Math.round(dem[n-1]-gen[n-1]);
+    var endYr=years[n-1];
     var ticks=[0,Math.floor((n-1)/3),Math.floor(2*(n-1)/3),n-1];
     var xlab=ticks.map(function(i){var a=i===0?"start":i===n-1?"end":"middle";
       return '<text x="'+X(i).toFixed(0)+'" y="270" font-size="11" fill="#8b97a3" text-anchor="'+a+'">'+years[i]+'</text>'}).join("");
@@ -3255,10 +3256,13 @@ const $ = (id) => document.getElementById(id);
      +'<text id="ovlbl" x="634" y="'+((dP[n-1][1]+gP[n-1][1])/2).toFixed(0)+'" font-size="14" font-weight="700" fill="#fca5a5" stroke="#0b1220" stroke-width="3.4" paint-order="stroke" stroke-linejoin="round" text-anchor="end" opacity="0"></text>'
      +'</svg>'
      +'<div id="ovread" style="position:absolute;top:4px;opacity:0;transform:translate(-50%,0);pointer-events:none;font-size:12px;padding:3px 8px;border-radius:8px;background:#11161b;border:1px solid #2a3543;color:#e6edf3;white-space:nowrap"></div>'
-     +'<div class="ov-legend"><span><i class="ov-sw ov-sw-line"></i>AI demand — cumulative load (~79 GW by 2030)</span>'
-     +'<span><i class="ov-sw ov-sw-dash"></i>firm generation committed — only ~60 GW</span>'
-     +'<span><i class="ov-sw ov-sw-area"></i>red = load without firm power behind it (~19 GW)</span>'
+     +'<div class="ov-legend"><span><i class="ov-sw ov-sw-line"></i>AI demand — cumulative load (~'+demT+' GW by '+endYr+')</span>'
+     +'<span><i class="ov-sw ov-sw-dash"></i>firm generation committed — only ~'+genT+' GW</span>'
+     +'<span><i class="ov-sw ov-sw-area"></i>red = load without firm power behind it (~'+gap+' GW)</span>'
      +'<span style="margin-left:auto">cumulative GW · Goldman / Wood Mackenzie / EIA (modeled)</span></div>';
+    // Single source of truth: sync the static headline gap figure to the computed data so the
+    // hero number can never drift from the chart (the trust-bug guard).
+    var hz=document.querySelector('.ov-h1 .ov-accent'); if(hz) hz.textContent='~'+gap+' GW by '+endYr;
     host.style.position='relative';
     var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
     var dem_=document.getElementById('ovdem'), gen_=document.getElementById('ovgen'),
