@@ -1,12 +1,12 @@
 {
-  "lastUpdated": "2026-07-04",
+  "lastUpdated": "2026-07-05",
   "topStory": {
-    "date": "July 1, 2026",
-    "text": "Meta is developing plans for a cloud infrastructure business to sell excess AI compute capacity and models to outside customers, competing directly with AWS, Google Cloud, and Microsoft Azure. The move follows similar strategies by SpaceX's xAI, which signed compute capacity deals with Anthropic, Google, and others.",
-    "src": "TechCrunch",
-    "url": "https://techcrunch.com/2026/07/01/meta-like-spacex-looks-to-turn-excess-ai-compute-into-cash/",
+    "date": "June 30, 2026",
+    "text": "Chevron and Microsoft signed a 20-year agreement to supply dedicated power for a planned data center campus near Pecos, Texas, one of the largest pairings of compute infrastructure and on-site generation in the US.",
+    "src": "Data Center Knowledge",
+    "url": "https://www.datacenterknowledge.com/data-center-construction/new-data-center-developments-july-2026",
     "players": [
-      "META"
+      "MSFT"
     ]
   },
   "feed": [
