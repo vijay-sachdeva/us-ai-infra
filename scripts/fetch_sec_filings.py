@@ -37,6 +37,8 @@ UA = {"User-Agent": "us-ai-infra-monitor (vijaysachdeva@gmail.com)"}
 TICKERS = [
     "MSFT", "AMZN", "GOOGL", "META", "ORCL", "NVDA", "CRWV", "APLD", "IREN", "NBIS",
     "AMD", "AVGO", "MU", "SNDK", "SITM", "TTMI", "AEHR",
+    # power & grid equipment — the physical bottleneck the whole dashboard is about
+    "VRT", "ETN", "GEV",
 ]
 # Disclosure-relevant forms (incl. amendments); NBIS is a foreign private issuer (20-F/6-K).
 FORMS = {"10-K", "10-Q", "8-K", "10-K/A", "10-Q/A", "20-F", "6-K"}
