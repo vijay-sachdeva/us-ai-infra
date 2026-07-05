@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705d"></script>
+<script src="config.js?v=20260705e"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -804,6 +804,11 @@
   .cf-tally-note { grid-column: 1 / -1; font-size: 11px; color: var(--muted); line-height: 1.45; margin-top: 2px; }
   .cf-tally-note b { color: var(--ink-2); }
   @media (max-width: 640px) { .cf-tally { grid-template-columns: 1fr; } .cf-chip-v { font-size: 18px; } }
+  /* Commitment-flywheel loop-ratio strip (the closed loops as honest text chips) */
+  .cf-loopstrip { margin: 8px 0 2px; font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 5px 8px; align-items: center; line-height: 1.6; }
+  .cf-loop-lead { font-weight: 600; color: var(--ink-2); }
+  .cf-loop-chip { border: 1px solid var(--line); border-left: 3px solid #d97706; border-radius: 6px; padding: 2px 8px; color: var(--ink-2); }
+  .cf-loop-chip b { color: var(--ink); font-weight: 700; }
 
   /* Circular-financing map: flow legend + cited edge ledger */
   .cf-legend {
@@ -1806,12 +1811,14 @@
         </div>
         <div class="map-view-toggle" id="cfViewToggle" role="tablist">
           <button class="map-view-btn active" data-cfview="all"    type="button">All flows</button>
+          <button class="map-view-btn"        data-cfview="loops"  type="button">Closed loops</button>
           <button class="map-view-btn"        data-cfview="equity" type="button">Equity</button>
           <button class="map-view-btn"        data-cfview="vendor" type="button">Compute</button>
           <button class="map-view-btn"        data-cfview="debt"   type="button">GPU-backed debt</button>
         </div>
         <div id="circularFinancing" class="chart-hscroll" style="margin-top:8px"></div>
-        <div class="hscroll-hint">swipe the chart to explore →</div>
+        <div class="hscroll-hint">swipe the chart to explore &middot; hover a node to pull its thread →</div>
+        <div class="cf-loopstrip" id="cfLoopStrip"></div>
         <div class="cf-legend" id="cfLegend"></div>
         <div class="cf-sidebar" id="cfSidebar" style="display:none"></div>
         <div class="cf-ledger" id="cfLedger"></div>
@@ -3551,7 +3558,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705d"></script>
+<script src="app.js?v=20260705e"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
