@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705e"></script>
+<script src="config.js?v=20260705f"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1041,13 +1041,14 @@
 
   /* ---------- Tokens: energy bridge stat blocks ---------- */
   .bridge-row {
-    display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
     gap: 6px; align-items: stretch; margin-top: 14px;
   }
   @media (max-width: 800px) {
     .bridge-row { grid-template-columns: 1fr; }
     .bridge-arrow { display: none; }
   }
+  .bridge-op { font-size: 9px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; text-align: center; }
   .bridge-cell {
     background: #fcfdff; border: 1px solid var(--line);
     border-radius: 10px; padding: 14px 12px;
@@ -2281,8 +2282,8 @@
 
       <!-- Journey of a token — interactive deep-dive, moved below the charts + slimmed -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Journey of a token — from one prompt to the gigawatt buildout</h4>
-        <div class="note">Optional walkthrough — step one prompt through the stack and watch the <b>tokens → energy → dollars</b> meter, then scale it up to the buildout. Illustrative example; energy / price / GW / capex all cited.</div>
+        <h4>One prompt to one gigawatt — the token-to-buildout chain</h4>
+        <div class="note">Follow one prompt down the chain — <b>tokens → energy → power → capex → power source</b> — then watch it scale to the whole buildout. Step through the stack for the per-token detail. Each rung labelled sourced or [modeled]; the Jevons rebound is the punchline.</div>
         <div class="map-view-toggle" id="tjDepthToggle" role="tablist" aria-label="Detail level">
           <button class="map-view-btn active" data-tjdepth="plain" type="button">Plain language</button>
           <button class="map-view-btn"        data-tjdepth="deep"  type="button">Go deeper</button>
@@ -3558,7 +3559,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705e"></script>
+<script src="app.js?v=20260705f"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
