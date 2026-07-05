@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260704k"></script>
+<script src="config.js?v=20260704m"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -644,6 +644,27 @@
   .mp-data-actions { margin-top: 10px; font-size: 11px; color: var(--muted); }
   .mp-data-actions a { color: var(--accent); text-decoration: none; }
   .mp-data-actions a:hover { text-decoration: underline; }
+  /* Megawatt Power Paths — claim matrix + flagship chart + data-table disclosure */
+  .mp-matrix { margin: 6px 0 2px; overflow-x: auto; }
+  .mp-matrix-grid { display: grid; gap: 4px; align-items: stretch; min-width: 340px; }
+  .mp-matrix-grid .mm-h { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); text-align: center; padding: 2px 4px; align-self: end; }
+  .mp-matrix-grid .mm-lane { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 5px; align-self: center; text-align: left; white-space: nowrap; }
+  .mp-matrix-grid .mm-lane.btm { background: var(--amber-soft); color: var(--amber); }
+  .mp-matrix-grid .mm-lane.colocated { background: var(--accent-soft); color: var(--accent); }
+  .mp-matrix-grid .mm-lane.grid { background: var(--line); color: var(--ink-2); }
+  .mp-matrix-grid .mm-lane.undisclosed { background: var(--line); color: var(--muted); }
+  .mp-matrix-grid .mm-cell { text-align: center; font-weight: 700; color: var(--ink); border: 1px solid var(--line); border-radius: 5px; padding: 5px 4px; min-height: 28px; display: flex; align-items: center; justify-content: center; }
+  .mp-matrix-grid .mm-mw { font-family: 'Courier New', monospace; font-weight: 800; font-size: 11px; }
+  .mm-total { margin-top: 6px; font-size: 10.5px; color: var(--muted); line-height: 1.4; }
+  @media (max-width: 420px) { .mp-matrix-grid .mm-h, .mp-matrix-grid .mm-cell { font-size: 10px; padding: 3px 2px; } .mp-matrix-grid .mm-lane { font-size: 9px; padding: 3px 5px; } }
+  .mp-view-data { margin-top: 12px; }
+  .mp-view-data > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--ink-2); padding: 4px 0; list-style: none; }
+  .mp-view-data > summary::-webkit-details-marker { display: none; }
+  .mp-view-data > summary::before { content: "▸ "; color: var(--muted); }
+  .mp-view-data[open] > summary::before { content: "▾ "; }
+  .mp-view-data > summary:hover { color: var(--accent); }
+  .mp-row-flash { animation: mpRowFlash 1.5s ease; }
+  @keyframes mpRowFlash { 0%, 25% { background: var(--amber-soft); } 100% { background: transparent; } }
 
   /* ---------- Engineer: interconnection funnel ---------- */
   .funnel-flow {
@@ -1898,7 +1919,18 @@
       <div class="stub-card" style="margin-top:14px">
         <h4>Named AI-infrastructure builds &amp; power deals</h4>
         <div class="note">Announced data-center campuses + the behind-the-meter / colocated power securing them · MW = announced campus or dedicated-generation capacity · <b>power-procurement model</b> classified editorially (<b>BTM</b> = on-site generation that bypasses the interconnect queue · <b>Colocated</b> = adjacent to existing nuclear/gas · <b>Grid</b> = utility interconnection) · sorted by MW · each row cited to operator / utility filings &amp; press (not third-party trackers)</div>
-        <div id="megaProjectsList" style="margin-top:6px"></div>
+        <div class="map-view-toggle" id="megaPathToggle" role="tablist" style="margin:8px 0 4px">
+          <button class="map-view-btn active" data-mwpath="ranked" role="tab" type="button" aria-selected="true">Ranked</button>
+          <button class="map-view-btn"        data-mwpath="path"   role="tab" type="button" aria-selected="false">By power path</button>
+          <button class="map-view-btn"        data-mwpath="status" role="tab" type="button" aria-selected="false">By status</button>
+        </div>
+        <div id="megaPathMatrix" class="mp-matrix"></div>
+        <div class="chart-box" id="megaPathBox"><canvas id="megaPowerPaths"></canvas></div>
+        <div class="note" id="megaPathCaveat" style="margin-top:8px">MW = announced / ultimate targets (some disputed); <b>total-power</b> rows are facility energy incl. cooling &amp; generation, not IT load. Graveyard (paused / stalled / cancelled) is segregated and excluded from GW totals; undisclosed-MW records are named, never estimated. Tap a bar for its cited row.</div>
+        <details class="mp-view-data" open>
+          <summary>Data table + per-record citations</summary>
+          <div id="megaProjectsList" style="margin-top:6px"></div>
+        </details>
       </div>
 
       <!-- Full-width: Graveyard & stalls — verified retreats (the counterweight to announcement bias) -->
@@ -3459,7 +3491,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260704k"></script>
+<script src="app.js?v=20260704m"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
