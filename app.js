@@ -4276,7 +4276,12 @@ const $ = (id) => document.getElementById(id);
     for (var id in _charts) {
       var c = _charts[id];
       if (c && c.canvas && c.canvas.offsetParent !== null && typeof c.resize === "function") {
-        try { c.resize(); } catch (_) {}
+        // resize() re-fits a chart whose container changed size, but it NO-OPS when the size is
+        // unchanged. A chart created during a layout/animation race can end up correctly sized yet
+        // never painted (0 drawn pixels) — resize() alone can't rescue it. Force a draw() too so a
+        // blank-but-sized chart always repaints. draw() paints the current computed state (no
+        // animation restart), so it is cheap and safe to call on every visible chart.
+        try { c.resize(); if (typeof c.draw === "function") c.draw(); } catch (_) {}
       }
     }
   }
