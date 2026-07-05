@@ -3961,3 +3961,7 @@ const $ = (id) => document.getElementById(id);
   // If the page rendered/updated while backgrounded (rAF + timers throttled), charts can be
   // left at 0-width; repaint the visible ones once the tab regains focus.
   document.addEventListener('visibilitychange', function () { if (!document.hidden) scheduleChartResize(); });
+  // A chart inside a collapsed <details class="more-analysis"> renders at 0-width; repaint when it opens.
+  document.addEventListener('toggle', function (e) {
+    if (e.target && e.target.matches && e.target.matches('details.more-analysis') && e.target.open) scheduleChartResize();
+  }, true);
