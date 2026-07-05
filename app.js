@@ -3313,6 +3313,10 @@ const $ = (id) => document.getElementById(id);
     var items = (c && Array.isArray(c.items)) ? c.items : [];
     return items.filter(function (x) { return !x.status || x.status === "published" || x.status === "downgraded"; });
   }
+  // Title-forward accordion: the headline (the "aha") is always visible; the insight + evidence
+  // fold behind a click so the landing page stays scannable (progressive disclosure). Capped to
+  // CAP visible, the rest behind "Show all". The depth is preserved — one click away, not gone.
+  var CONN_CAP = 6;
   function renderConnections() {
     var host = document.getElementById("ov-connections");
     if (!host) return;
@@ -3320,7 +3324,8 @@ const $ = (id) => document.getElementById(id);
     var items = connectionsPublished();
     if (!items.length) { host.style.display = "none"; return; }
     host.style.display = "";
-    host.innerHTML = items.map(function (x) {
+    host.classList.remove("show-all");
+    var cardHtml = function (x, i) {
       var k = CONN_KIND[x.kind] || { label: x.kind, title: "" };
       var t = CONN_TIER[x.connectionTier] || { cls: "warn", label: x.connectionTier, title: "" };
       var players = (x.players || []).join(" · ");
@@ -3333,19 +3338,38 @@ const $ = (id) => document.getElementById(id);
           : '<div class="conn-ev conn-ev-flat">' + inner + "</div>";
       }).join("");
       var named = x.namedBy ? '<div class="conn-named"><b>Who names it:</b> ' + x.namedBy + "</div>" : "";
-      return '<div class="conn-card conn-' + t.cls + '" data-players="' + (x.players || []).join(",") + '">' +
-        '<div class="conn-head"><span class="conn-kind">' + k.label + '</span>' +
-        '<span class="conn-players">' + players + "</span>" +
-        '<span class="cf-tier cf-' + t.cls + '" title="' + t.title + '">' + t.label + "</span></div>" +
-        '<div class="conn-title">' + x.title + "</div>" +
-        '<div class="conn-insight">' + x.insight + "</div>" +
-        named +
-        '<div class="conn-evidence">' + ev + "</div></div>";
-    }).join("");
+      return '<div class="conn-card conn-' + t.cls + (i >= CONN_CAP ? " conn-extra" : "") + '">' +
+        '<button class="conn-toggle" type="button" aria-expanded="false">' +
+          '<span class="conn-head"><span class="conn-kind">' + k.label + '</span>' +
+          '<span class="conn-players">' + players + '</span>' +
+          '<span class="cf-tier cf-' + t.cls + '" title="' + t.title + '">' + t.label + '</span>' +
+          '<span class="conn-caret" aria-hidden="true">▸</span></span>' +
+          '<span class="conn-title">' + x.title + '</span>' +
+        '</button>' +
+        '<div class="conn-detail">' +
+          '<div class="conn-insight">' + x.insight + '</div>' + named +
+          '<div class="conn-evidence">' + ev + '</div>' +
+        '</div></div>';
+    };
+    var moreBtn = items.length > CONN_CAP ? '<button class="conn-showall" type="button">Show all ' + items.length + ' connections →</button>' : "";
+    host.innerHTML = items.map(cardHtml).join("") + moreBtn;
+    if (!host._connWired) {
+      host._connWired = true;
+      host.addEventListener("click", function (e) {
+        var all = e.target.closest && e.target.closest(".conn-showall");
+        if (all) { host.classList.add("show-all"); all.remove(); return; }
+        if (e.target.closest && e.target.closest(".conn-ev")) return;   // let evidence links navigate
+        var tog = e.target.closest && e.target.closest(".conn-toggle");
+        if (!tog) return;
+        var card = tog.closest(".conn-card");
+        var open = card.classList.toggle("open");
+        tog.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    }
     var stamp = document.getElementById("connStamp");
     if (stamp && DATA.connections) {
       var n = items.length;
-      stamp.textContent = n + " verified link" + (n === 1 ? "" : "s") + " · hand-curated";
+      stamp.textContent = n + " verified link" + (n === 1 ? "" : "s") + " · tap to expand";
     }
   }
   // Index players -> whether they appear in any published connection (for feed chips).
