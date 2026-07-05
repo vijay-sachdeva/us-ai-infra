@@ -3786,6 +3786,32 @@ const $ = (id) => document.getElementById(id);
     setTimeout(resizeVisibleCharts, 500);
   }
 
+  // Declutter: the methodology .note under each card is the wordiest element on the dense tabs.
+  // Clamp the long ones to 2 lines with a "more" toggle so the default view is scannable but the
+  // rigor stays one click away. One post-render pass — no edits to the 50+ note markup sites.
+  function enhanceNotes(root) {
+    if (!root) return;
+    root.querySelectorAll(".note").forEach(function (n) {
+      if (n.dataset.clampInit) return;
+      n.dataset.clampInit = "1";
+      var full = n.innerHTML;                                             // preserves any linkified <a> sources
+      var text = (n.textContent || "").replace(/\s+/g, " ").trim();
+      if (text.length < 170) return;                                      // only the genuinely long ones
+      var cut = text.slice(0, 150);
+      cut = cut.slice(0, cut.lastIndexOf(" ")) + "… ";                    // truncate at a word boundary
+      var btn = document.createElement("button");
+      btn.className = "note-more"; btn.type = "button";
+      var open = false;
+      var paint = function () {
+        n.innerHTML = open ? (full + " ") : cut;
+        btn.textContent = open ? "less" : "more";
+        n.appendChild(btn);
+      };
+      btn.addEventListener("click", function () { open = !open; paint(); });
+      paint();
+    });
+  }
+
   function showTab(name, anchor) {
     if (!name) name = 'overview';
     document.querySelectorAll('section.tab-content').forEach(function (s) {
@@ -3800,6 +3826,7 @@ const $ = (id) => document.getElementById(id);
     if (typeof enhanceCharts === "function") enhanceCharts(name);   // attach data-table / export / link tools
     motionObserveAll();         // catch any cards/numbers newly rendered for this tab
     if (typeof linkifySources === "function") linkifySources(document.querySelector("section.tab-content.active"));
+    if (typeof enhanceNotes === "function") enhanceNotes(document.querySelector("section.tab-content.active"));
     // Repaint the now-visible charts after layout settles (see scheduleChartResize).
     scheduleChartResize();
     if (anchor && typeof scrollToChartAnchor === "function") scrollToChartAnchor(anchor);
