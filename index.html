@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705c"></script>
+<script src="config.js?v=20260705d"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -794,6 +794,16 @@
     padding: 7px 0 7px 12px; border-left: 3px solid var(--accent);
   }
   .cf-take b { color: var(--ink); }
+  /* Commitment-flywheel recycled-$ tally — the punchline in numbers (disclosed-only) */
+  .cf-tally { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 4px; }
+  .cf-tally .cf-chip { border: 1px solid var(--line); border-top-width: 3px; border-radius: 9px; padding: 9px 11px; background: var(--card); }
+  .cf-chip-eq { border-top-color: #1d4ed8; } .cf-chip-vend { border-top-color: #0d9488; } .cf-chip-debt { border-top-color: #d97706; }
+  .cf-chip-v { display: block; font-size: 20px; font-weight: 800; letter-spacing: -.02em; color: var(--ink); }
+  .cf-chip-l { display: block; font-size: 10.5px; color: var(--muted); line-height: 1.35; margin-top: 3px; }
+  .cf-chip-l b { color: var(--ink-2); font-weight: 700; }
+  .cf-tally-note { grid-column: 1 / -1; font-size: 11px; color: var(--muted); line-height: 1.45; margin-top: 2px; }
+  .cf-tally-note b { color: var(--ink-2); }
+  @media (max-width: 640px) { .cf-tally { grid-template-columns: 1fr; } .cf-chip-v { font-size: 18px; } }
 
   /* Circular-financing map: flow legend + cited edge ledger */
   .cf-legend {
@@ -1786,8 +1796,9 @@
 
       <!-- Full-width: circular-financing & counterparty map -->
       <div class="stub-card">
-        <h4>The circular-financing loop — who funds, buys from, and lends to whom</h4>
-        <div class="note">A directed counterparty map of 2025-26 AI-infra commitments &middot; each edge individually cited &middot; the map is the insight &mdash; no score, not advice</div>
+        <h4>The commitment flywheel — a chunk of AI &ldquo;demand&rdquo; is the vendors&rsquo; own capital, recycled</h4>
+        <div class="note">Vendors and private credit put equity + GPU-backed debt <b>into</b> the labs and neoclouds — who commit that capital straight <b>back</b> as compute purchases, landing as the vendors&rsquo; own backlog. A directed counterparty map of 2025-26 AI-infra commitments &middot; each edge individually cited &middot; the map is the insight &mdash; no blended score, not advice</div>
+        <div class="cf-tally" id="cfTally"></div>
         <div class="cf-takeaways">
           <div class="cf-take" style="border-left-color:#1d4ed8"><b>Demand is partly recycled.</b> NVIDIA takes equity in OpenAI (up to $100B), CoreWeave (~7%) and Anthropic ($10B) — who then commit to buy NVIDIA compute. Some of the "demand" is the vendor's own capital cycling back.</div>
           <div class="cf-take" style="border-left-color:#0d9488"><b>One node anchors the whole loop.</b> OpenAI alone carries ~$1T+ of disclosed compute commitments (Oracle $300B, Microsoft $250B, Broadcom ~$350B, AMD ~$90B, NVIDIA ~$100B, AWS $38B) — a stumble there cascades to every supplier.</div>
@@ -3540,7 +3551,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705c"></script>
+<script src="app.js?v=20260705d"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
