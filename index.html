@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705b"></script>
+<script src="config.js?v=20260705c"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -656,7 +656,27 @@
   .mp-matrix-grid .mm-cell { text-align: center; font-weight: 700; color: var(--ink); border: 1px solid var(--line); border-radius: 5px; padding: 5px 4px; min-height: 28px; display: flex; align-items: center; justify-content: center; }
   .mp-matrix-grid .mm-mw { font-family: 'Courier New', monospace; font-weight: 800; font-size: 11px; }
   .mm-total { margin-top: 6px; font-size: 10.5px; color: var(--muted); line-height: 1.4; }
-  @media (max-width: 420px) { .mp-matrix-grid .mm-h, .mp-matrix-grid .mm-cell { font-size: 10px; padding: 3px 2px; } .mp-matrix-grid .mm-lane { font-size: 9px; padding: 3px 5px; } }
+  .mm-total b { color: var(--ink-2); }
+  /* Political Load Map — severity tiles + gap hatch + context rail */
+  .mp-matrix-grid .mm-cell.sev-high { background: rgba(192,50,43,.16); color: var(--ink); }
+  .mp-matrix-grid .mm-cell.sev-med  { background: rgba(194,113,12,.17); color: var(--ink); }
+  .mp-matrix-grid .mm-cell.sev-low  { background: rgba(21,128,61,.15);  color: var(--ink); }
+  .mp-matrix-grid .mm-cell.sev-gap  { background: repeating-linear-gradient(45deg, var(--line) 0 4px, transparent 4px 8px); color: var(--muted); border: 1px dashed var(--line); }
+  .mp-matrix-grid .mm-h.mm-rail, .mp-matrix-grid .mm-cell.mm-rail { border-left: 1px solid var(--line); }
+  .mm-glyph { font-size: 8px; font-weight: 700; opacity: .55; vertical-align: super; }
+  .mm-slack { font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px; white-space: nowrap; }
+  .mm-slack.sev-high { background: rgba(192,50,43,.16); color: #c0322b; }
+  .mm-slack.sev-med  { background: rgba(194,113,12,.17); color: var(--amber); }
+  .mm-slack.sev-low  { background: rgba(21,128,61,.15);  color: var(--green); }
+  .mm-slack.gray     { background: var(--line); color: var(--muted); }
+  .mm-legend { margin-top: 7px; font-size: 10px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 5px 9px; align-items: center; line-height: 1.5; }
+  .mm-legend > span { padding: 1px 6px; border-radius: 4px; color: var(--ink-2); font-weight: 600; }
+  .mm-legend .sev-high { background: rgba(192,50,43,.16); } .mm-legend .sev-med { background: rgba(194,113,12,.17); } .mm-legend .sev-low { background: rgba(21,128,61,.15); }
+  .mm-legend .sev-gap { background: repeating-linear-gradient(45deg, var(--line) 0 4px, transparent 4px 8px); }
+  .pl-loadmap .mm-lane { background: none; }
+  .pl-loadmap .mm-postal { display: none; }
+  @media (max-width: 420px) { .mp-matrix-grid .mm-h, .mp-matrix-grid .mm-cell { font-size: 10px; padding: 3px 2px; } .mp-matrix-grid .mm-lane { font-size: 9px; padding: 3px 5px; }
+    .pl-loadmap .mm-full { display: none; } .pl-loadmap .mm-postal { display: inline; } .pl-loadmap .mm-rail { display: none; } }
   .mp-view-data { margin-top: 12px; }
   .mp-view-data > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--ink-2); padding: 4px 0; list-style: none; }
   .mp-view-data > summary::-webkit-details-marker { display: none; }
@@ -2059,6 +2079,16 @@
       <div class="so-what">
         <label>So what</label>
         <h3>If demand rises another 60 GW by 2030 without commensurate grid expansion, six states face &gt;25% retail rate hikes — and AI buildout becomes politically untenable.</h3>
+      </div>
+
+      <div class="stub-card" id="politicalLoadCard" style="margin-bottom:14px">
+        <h4>Where AI load becomes a political fight — states most exposed to a rate revolt</h4>
+        <div class="note">Political-failure risk by state across four dimensions — rate-increase risk, utility exposure, data-center load concentration, regulatory posture. Unmet load + overbuild risk get socialized onto <b>ratepayers</b>, so the binding constraint shifts from engineering (queues) to politics (PUCs, governors, legislatures). No blended score — the four cells stay separate; read a red Rate cell as a bill a PUC must approve and a governor must defend.</div>
+        <div id="politicalLoadMatrix" class="mp-matrix"></div>
+        <details class="mp-view-data" open>
+          <summary>State risk table + attribution</summary>
+          <div id="politicalLoadTable" style="margin-top:6px;overflow-x:auto"></div>
+        </details>
       </div>
 
       <div class="stub-grid">
@@ -3510,7 +3540,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705b"></script>
+<script src="app.js?v=20260705c"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

@@ -2608,6 +2608,128 @@ const $ = (id) => document.getElementById(id);
     });
   }
 
+  /* ----- Political Load Map (Grid flagship) — state × political-failure-risk heat matrix -----
+     Promotes the Grid tab's thesis ("unmet load lands on ratepayers → the buildout becomes a
+     political fight") from two boring collapsed tables to a scannable state-risk matrix. Four
+     dims side-by-side, NEVER a single blended score: Rate-increase risk + DC-load concentration
+     are QUANTITATIVE (print the number in-tile); Utility exposure + Regulatory posture are
+     EDITORIAL/sparse (print a severity word). Missing = a hatched GAP tile (unknown, not zero,
+     never green). Reuses the .mp-matrix Flagship-Ledger pattern; the rate/ISO tables stay as
+     reachable evidence in the "More grid analysis" collapse. Second-degree read: a red Rate cell
+     is a bill a PUC must approve and a governor must defend. */
+  function renderPoliticalLoadMap() {
+    const host = $("politicalLoadMatrix");
+    if (!host) return;
+    // Editorial state↔ISO/BA crosswalk (attribution; stated in the footer).
+    const XWALK = {
+      "Virginia": { p: "VA", iso: "PJM", ba: "PJM" }, "Texas": { p: "TX", iso: "ERCOT", ba: "ERCO" },
+      "Ohio": { p: "OH", iso: "PJM", ba: "PJM" }, "Pennsylvania": { p: "PA", iso: "PJM", ba: "PJM" },
+      "Georgia": { p: "GA", iso: "Southeast", ba: "SOCO" }, "Arizona": { p: "AZ", iso: "WECC/non-ISO", ba: null },
+      "Louisiana": { p: "LA", iso: "MISO/SPP", ba: "SOCO" }, "North Carolina": { p: "NC", iso: "Southeast", ba: "DUK" },
+      "Tennessee": { p: "TN", iso: "TVA/non-ISO", ba: null }, "New York": { p: "NY", iso: "NYISO", ba: "NYIS" },
+      "California": { p: "CA", iso: "CAISO", ba: "CISO" }
+    };
+    const STATES = Object.keys(XWALK);
+    const rate = {}; ((DATA.rateImpacts && DATA.rateImpacts.states) || []).forEach(s => { rate[s.state] = s.increase; });
+    // Utility exposure — attribute the tracked utilityActions to a state (editorial).
+    const utilMap = [
+      { m: /Dominion|NextEra/i, st: "Virginia", sev: "high" }, { m: /Entergy/i, st: "Louisiana", sev: "high" },
+      { m: /Constellation/i, st: "Pennsylvania", sev: "med" }, { m: /Vistra/i, st: "Texas", sev: "med" },
+      { m: /Duke/i, st: "North Carolina", sev: "med" }, { m: /TVA/i, st: "Tennessee", sev: "low" }
+    ];
+    const util = {};
+    ((DATA.utilityActions) || []).forEach(a => {
+      const hit = utilMap.find(u => u.m.test(a.utility || ""));
+      if (hit) { const cur = util[hit.st]; if (!cur || SEVR[hit.sev] > SEVR[cur.sev]) util[hit.st] = { sev: hit.sev, note: a.utility + " — " + a.action }; }
+    });
+    // Regulatory posture — signed (tightening = high political risk), federal excluded to footer.
+    const regSev = { "Virginia": "high", "New York": "high", "Georgia": "low", "Texas": "med" };
+    const reg = {};
+    ((DATA.regulatoryActions) || []).forEach(a => {
+      const j = a.jurisdiction || ""; if (/federal|FERC|IRA|CHIPS/i.test(j)) return;
+      const st = STATES.find(s => j.indexOf(s) === 0); if (st && regSev[st]) reg[st] = { sev: regSev[st], note: a.action };
+    });
+    // DC-load concentration — sum LIVE ledger MW by state (graveyard excluded).
+    const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : [];
+    const conc = {};
+    STATES.forEach(s => { conc[s] = { mw: 0, n: 0, ult: false }; });
+    pj.forEach(r => {
+      if (GRAVEYARD_STATUSES.indexOf(r.status) !== -1) return;
+      const st = STATES.find(s => XWALK[s].p === r.state); if (!st) return;
+      conc[st].mw += (r.capacity_mw || 0); conc[st].n++;
+      if (r.capacity_type === "total_power" || /ultimate|target/i.test(r.note || "")) conc[st].ult = true;
+    });
+    const grid = (DATA.grid && DATA.grid.regions) || {};
+    // Per-state severities for each dim (or 'gap').
+    const row = st => {
+      const rv = rate[st];
+      const rateS = rv == null ? "gap" : rv >= 25 ? "high" : rv >= 15 ? "med" : "low";
+      const utilS = util[st] ? util[st].sev : "gap";
+      const c = conc[st];
+      let concS, concTxt, concTip;
+      if (st === "Virginia") { concS = "high"; concTxt = "epicenter†"; concTip = "PJM data-center epicenter (Dominion/Loudoun) — qualitative call from the ISO note, not ledger GW"; }
+      else if (!c.n) { concS = "gap"; concTxt = "—"; concTip = "no tracked named build in this state — unknown, not zero"; }
+      else { concS = c.mw >= 5000 ? "high" : c.mw >= 1000 ? "med" : "low"; concTxt = (c.mw >= 1000 ? (c.mw / 1000).toFixed(1) + " GW" : c.mw + " MW") + (c.ult ? "†" : ""); concTip = c.n + " live build(s), " + concTxt + (c.ult ? " (contains total-facility/ultimate-target)" : ""); }
+      const regS = reg[st] ? reg[st].sev : "gap";
+      const highs = [rateS, utilS, concS, regS].filter(x => x === "high").length;
+      const meds = [rateS, utilS, concS, regS].filter(x => x === "med").length;
+      return { st: st, x: XWALK[st], rateS, rv, utilS, util: util[st], concS, concTxt, concTip, regS, reg: reg[st], highs, meds };
+    };
+    const rows = STATES.map(row).sort((a, b) => (b.highs - a.highs) || (b.meds - a.meds) || ((b.rv || 0) - (a.rv || 0)));
+    const cell = (sev, txt, tip, isWord) => {
+      if (sev === "gap") return '<div class="mm-cell sev-gap" title="' + tip + '">—</div>';
+      return '<div class="mm-cell sev-' + sev + '" title="' + tip + '">' + (isWord ? sev.charAt(0).toUpperCase() + sev.slice(1) : txt) + '</div>';
+    };
+    const slackChip = st => {
+      const ba = XWALK[st].ba, g = ba && grid[ba];
+      if (!g || g.headroom_pct == null) return '<span class="mm-slack gray" title="no tracked balancing authority">' + XWALK[st].iso + '</span>';
+      const h = g.headroom_pct, band = h <= 12 ? "high" : h <= 20 ? "med" : "low";
+      return '<span class="mm-slack sev-' + band + '" title="' + XWALK[st].iso + ' headroom ' + h.toFixed(1) + '%">' + XWALK[st].iso + ' · ' + h.toFixed(0) + '%</span>';
+    };
+    let html = '<div class="mp-matrix-grid pl-loadmap" style="grid-template-columns:auto repeat(4,1fr) auto">' +
+      '<div class="mm-h"></div>' +
+      '<div class="mm-h">Rate risk <span class="mm-glyph" title="quantitative — modeled % shown">Q</span></div>' +
+      '<div class="mm-h">Utility <span class="mm-glyph" title="editorial — severity word">E</span></div>' +
+      '<div class="mm-h">DC load <span class="mm-glyph" title="quantitative — GW shown">Q</span></div>' +
+      '<div class="mm-h">Reg posture <span class="mm-glyph" title="editorial — severity word">E</span></div>' +
+      '<div class="mm-h mm-rail">Grid slack</div>';
+    rows.forEach(r => {
+      html += '<div class="mm-lane" data-state="' + r.x.p + '"><span class="mm-full">' + r.st + '</span><span class="mm-postal">' + r.x.p + '</span></div>' +
+        cell(r.rateS, r.rv != null ? "+" + r.rv + "%" : "—", r.rv != null ? "modeled +" + r.rv + "% residential rate by 2030" : "no modeled rate-increase figure — unknown, not low", false) +
+        cell(r.utilS, "", r.util ? r.util.note : "no tracked utility action — unknown, not low", true) +
+        cell(r.concS, r.concTxt, r.concTip, false) +
+        cell(r.regS, "", r.reg ? r.reg.note : "no tracked state regulatory action — unknown", true) +
+        '<div class="mm-cell mm-rail" style="border:0;background:none">' + slackChip(r.st) + '</div>';
+    });
+    html += '</div>';
+    host.innerHTML = html +
+      '<div class="mm-legend"><span class="sev-high">High</span><span class="sev-med">Med</span><span class="sev-low">Low</span><span class="sev-gap">Gap = unknown, not safe</span> · <b>Q</b> quantitative (number shown) · <b>E</b> editorial (word) · † total-facility / ultimate-target</div>' +
+      '<div class="mm-total">Rate% + DC-load are quantitative; utility + regulatory are editorial/sparse. State→ISO crosswalk is editorial; Virginia load is a qualitative epicenter call (not ledger GW). Federal FERC Order 2023 + IRA/CHIPS apply to every state as backdrop. <b>Where DC load is HIGH but the rate cell is a gap — Pennsylvania — the fight is coming but not yet priced.</b></div>';
+    // click a state row → open evidence table + flash (mirrors renderMegaPowerPaths)
+    if (!host._wired) {
+      host._wired = true;
+      host.addEventListener("click", e => {
+        const lane = e.target.closest && e.target.closest(".mm-lane[data-state]"); if (!lane) return;
+        const det = document.querySelector("#politicalLoadCard details.mp-view-data"); if (det) det.open = true;
+        const tr = document.querySelector('#politicalLoadTable tr[data-state="' + lane.dataset.state + '"]');
+        if (tr) { tr.scrollIntoView({ behavior: "smooth", block: "center" }); tr.classList.remove("mp-row-flash"); void tr.offsetWidth; tr.classList.add("mp-row-flash"); }
+      });
+    }
+    // cited evidence table (Flagship-Ledger tier C)
+    const et = $("politicalLoadTable");
+    if (et) {
+      et.innerHTML = '<table class="mp-table"><thead><tr><th>State</th><th>Rate by 2030</th><th>Utility flashpoint</th><th>Live DC load</th><th>Reg posture</th><th>ISO</th></tr></thead><tbody>' +
+        rows.map(r => '<tr data-state="' + r.x.p + '"><td><span class="mp-name">' + r.st + '</span></td>' +
+          '<td>' + (r.rv != null ? "+" + r.rv + "%" : "—") + '</td>' +
+          '<td>' + (r.util ? r.util.note : "—") + '</td>' +
+          '<td>' + (r.concS === "gap" ? "—" : r.concTxt) + (r.st === "Virginia" ? " (epicenter)" : "") + '</td>' +
+          '<td>' + (r.reg ? r.reg.note : "—") + '</td>' +
+          '<td>' + r.x.iso + '</td></tr>').join("") +
+        '</tbody></table>';
+    }
+  }
+  const SEVR = { gap: 0, low: 1, med: 2, high: 3 };
+
   function renderIsoTable() {
     if (!$("isoTable") || !DATA.isos) return;
     const sevLabel = { crit: "Critical", warn: "High", ok: "Moderate" };
@@ -4024,6 +4146,7 @@ const $ = (id) => document.getElementById(id);
       renderTimeToPower();
       renderPerfPerWattChart();
     } else if (name === "grid") {
+      renderPoliticalLoadMap();
       renderIsoTable();
       renderRegList();
       renderUtilList();
@@ -4109,7 +4232,7 @@ const $ = (id) => document.getElementById(id);
   // Buildout is already wrapped in markup, so it has a .more-analysis and is skipped here.
   var LEAD_CARDS = {
     capital: ["2026 capex by operator", "Capex vs operating cash flow", "The commitment book", "The circular-financing loop"],
-    grid:    ["Annual demand growth", "Cumulative demand-supply deficit", "PJM capacity auction", "What power costs, by state"],
+    grid:    ["Where AI load becomes", "Annual demand growth", "Cumulative demand-supply deficit", "PJM capacity auction", "What power costs, by state"],
     tokens:  ["Industry token volume", "$/token compression", "The Jevons check"]
   };
   function collapseSecondary(name, section) {
