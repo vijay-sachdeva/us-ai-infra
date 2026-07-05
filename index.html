@@ -2181,8 +2181,8 @@
       </div>
 
       <div class="stub-card" style="margin-top:14px">
-        <h4>The value chain — silicon, memory, storage, boards &amp; test</h4>
-        <div class="note">The picks-and-shovels that <b>pace</b> the buildout: HBM memory, NAND storage, precision timing, advanced PCBs/substrates, burn-in test, and the challenger &amp; custom silicon beside NVIDIA. Identity + tier-tagged role reads only (no capex/commitment joins — these aren't data-center operators); their SEC filings ride the Filings watch below.</div>
+        <h4>The value chain — silicon, memory, power &amp; grid gear</h4>
+        <div class="note">The picks-and-shovels that <b>pace</b> the buildout: HBM memory, NAND storage, precision timing, advanced PCBs/substrates, burn-in test, challenger &amp; custom silicon beside NVIDIA, and the power/cooling/electrical/turbine gear behind the power gap. Identity + tier-tagged role reads only (no capex/commitment joins — these aren't data-center operators); their SEC filings ride the Filings watch below.</div>
         <div id="supplyCards" class="pl-grid pl-grid-supply"></div>
       </div>
 
@@ -3154,7 +3154,13 @@
       { sym: "TTMI", name: "TTM Technologies", brand: "other", cls: "PCBs · substrates", cfNode: null, aliases: ["TTM"], layer: "supply",
         constraint: { text: "High-layer-count PCBs and advanced substrates for accelerator boards and switches; complexity rises with rack density, making substrate capacity a quiet bottleneck.", tier: "analyst" } },
       { sym: "AEHR", name: "Aehr Test Systems", brand: "other", cls: "Test · burn-in", cfNode: null, aliases: ["Aehr"], layer: "supply",
-        constraint: { text: "Wafer-level burn-in that screens AI processors and power devices before they ship; lumpy, customer-concentrated revenue that acts as a leading indicator of ramp timing.", tier: "analyst" } }
+        constraint: { text: "Wafer-level burn-in that screens AI processors and power devices before they ship; lumpy, customer-concentrated revenue that acts as a leading indicator of ramp timing.", tier: "analyst" } },
+      { sym: "VRT", name: "Vertiv", brand: "other", cls: "Power & cooling", cfNode: null, aliases: ["Vertiv"], layer: "supply",
+        constraint: { text: "Power distribution and liquid cooling inside the hall — as racks climb past 100 kW, thermal and power delivery become gating, and Vertiv is the merchant leader riding that shift.", tier: "analyst" } },
+      { sym: "ETN", name: "Eaton", brand: "other", cls: "Electrical gear", cfNode: null, aliases: ["Eaton"], layer: "supply",
+        constraint: { text: "Switchgear and electrical distribution — the medium-voltage gear whose lead times (large transformers now up to ~5 yrs) directly pace when a campus can energize.", tier: "analyst" } },
+      { sym: "GEV", name: "GE Vernova", brand: "other", cls: "Turbines & grid", cfNode: null, aliases: ["GE Vernova", "Vernova"], layer: "supply",
+        constraint: { text: "Gas turbines and grid equipment — the on-site generation behind the behind-the-meter shift and the interconnect gear for the grid; turbine slots are booked years out.", tier: "analyst" } }
     ],
     // Neo-cloud scoreboard — cited-figures-only, NULLABLE BY DESIGN (blank = not-yet-verified,
     // never zero). CRWV cells cite its filings (canonical home: the counterparty sidebar);

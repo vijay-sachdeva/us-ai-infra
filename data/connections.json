@@ -113,6 +113,21 @@
       ]
     },
     {
+      "id": "grid-gear-the-other-gate",
+      "kind": "dependency",
+      "title": "Beyond HBM, electrical gear is the other hard gate — chips and capital wait on switchgear",
+      "insight": "A campus can have the chips, the capital and a signed power contract and still not energize: large-transformer lead times have stretched to ~5 years (from ~2 pre-2020) and gas-turbine slots are booked years out. So Eaton-class switchgear and GE-Vernova-class turbines pace commissioning as hard as silicon does — which is why the behind-the-meter gas shift and the Graveyard of paused sites both trace back to power gear, not demand.",
+      "players": ["ETN", "GEV"],
+      "connectionTier": "inference",
+      "date": "2026",
+      "status": "published",
+      "reviewed": "2026-07",
+      "evidence": [
+        { "label": "Transformer lead times up to ~5 years (was ~2 pre-2020)", "src": "this dashboard — KPI, industry reporting", "srcTier": "analyst", "href": "#overview" },
+        { "label": "Behind-the-meter gas shift: xAI Colossus, Prometheus, MSFT–Chevron 2.67 GW", "src": "feed items (Data Center Dynamics / Microsoft)", "srcTier": "analyst", "href": "#buildout" }
+      ]
+    },
+    {
       "id": "meta-coreweave-capacity",
       "kind": "two_sider",
       "title": "CoreWeave names Meta as a committed customer — Meta's own filings name no provider",
