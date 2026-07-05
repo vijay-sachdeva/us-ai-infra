@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705j"></script>
+<script src="config.js?v=20260705k"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1467,10 +1467,12 @@
     .hero-headline { padding: 22px 18px; }
     .hero-headline h2 { font-size: 21px; }
     nav.tabs a { padding: 12px 10px 10px; font-size: 13px; }
-    /* Fewer rows before the hero visual: one swipeable KPI strip instead of a 3-row grid */
-    .kpis { display: flex; overflow-x: auto; gap: 10px; grid-template-columns: none; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; padding-bottom: 4px; margin: 16px 0 6px; }
-    .kpi { flex: 0 0 60%; scroll-snap-align: start; padding: 13px 13px 11px; }
-    .kpi .value { font-size: 21px; }
+    /* All 6 KPIs visible in a compact 2-col grid — a phone screenshot shows the whole exec strip.
+       (The old swipe rail showed only ~2 of 6 with no affordance; VC users screenshot on phones.) */
+    .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 8px; }
+    .kpi { padding: 12px 12px 10px; }
+    .kpi .value { font-size: 20px; }
+    .kpi .delta { font-size: 11px; }
     /* Wide tables overflow horizontally on phones instead of getting crushed */
     #irrTable, #isoTable, #scorecardWrap {
       overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -3621,7 +3623,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705j"></script>
+<script src="app.js?v=20260705k"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
