@@ -148,6 +148,7 @@ const $ = (id) => document.getElementById(id);
   // chart's own data — fact-checked, no invented figures. enhanceCharts() renders these under each
   // chart; charts absent from the map simply get no caption (graceful).
   const CHART_META = {
+    circularFinancing: { reviewed: "2026-07", take: "Vendors and private credit put ~$257B of disclosed equity + $43.5B of GPU-backed debt into the labs and neoclouds, which commit ~$1.19T of disclosed compute back to the same cluster — so a chunk of AI 'demand' is the funders' own capital cycling back, and with OpenAI on three of the five closed loops, unwind risk is networked.", asof: "Jun 2026", src: { label: "DATA.circularFinancing (per-edge citations)" } },
     megaPowerPaths: { reviewed: "2026-07", take: "Among source-verified active builds, Meta's Hyperion tops the ledger at 5,000 MW (colocated) ahead of Homer City 4,500 MW and Joule 4,000 MW — both behind-the-meter, and both total-facility power (incl. cooling/generation), not IT load. The largest capacity clusters in BTM/colocated paths that bypass the interconnect queue, while four retreats (Project Jade, Project Blue, the Stargate-Abilene expansion, a paused Microsoft Ohio site) are segregated and excluded from the active GW total.", asof: "source-verified ledger (announced/ultimate targets; mixed capacity_type)", src: { label: "data/projects.json (per-record citations)" } },
     coCapexChart: { reviewed: "2026-07", take: "Amazon leads 2026 AI-infra capex at $200B, ahead of Microsoft ($190B), Google ($185B) and Meta ($135B — midpoint of its filed $125-145B range), with AI-native challengers far smaller: Oracle $56B (FY26 actual), CoreWeave $33B, Nebius $22B and xAI $18B.", asof: "2026 guidance", src: { label: "company 2026 capex guidance" } },
     capexAiShareChart: { reviewed: "2026-07", take: "Across ~$799B of tracked operator capex roughly 90% is AI/data-center-attributed, with pure-plays like Oracle and CoreWeave near 100% and diversified operators lower — but the infra-vs-non-core split is an editorial Modeled estimate, not a reported line item.", asof: "2026 guidance", src: { label: "modeled (this dashboard)" } },
@@ -1001,9 +1002,28 @@ const $ = (id) => document.getElementById(id);
     if (closeBtn) closeBtn.addEventListener("click", () => { host.style.display = "none"; });
   }
 
+  // Recycled-$ tally — the commitment-flywheel punchline in numbers. Sums DISCLOSED edges by kind
+  // (v != null) only; NEVER a fabricated aggregate. It surfaces the equity-underneath-compute
+  // OVERLAP the loops make concrete (funders' capital sits under the same cluster's "demand"),
+  // not a claim that all compute $ is recycled. Qualitative (v == null) edges are counted, not summed.
+  function renderCfTally() {
+    const host = $("cfTally");
+    if (!host || !DATA.circularFinancing) return;
+    const edges = DATA.circularFinancing.edges || [];
+    const sum = k => edges.filter(e => e.kind === k && e.v != null).reduce((s, e) => s + e.v, 0);
+    const eq = sum("equity"), vend = sum("vendor"), debt = sum("debt");
+    const qual = edges.filter(e => e.v == null).length;
+    const fmt = v => v >= 1000 ? "$" + (v / 1000).toFixed(2) + "T" : v >= 100 ? "$" + Math.round(v) + "B" : "$" + v.toFixed(1) + "B";
+    host.innerHTML =
+      '<div class="cf-chip cf-chip-eq"><span class="cf-chip-v">' + fmt(eq) + '</span><span class="cf-chip-l">disclosed equity / investment <b>into</b> the cluster</span></div>' +
+      '<div class="cf-chip cf-chip-vend"><span class="cf-chip-v">' + fmt(vend) + '</span><span class="cf-chip-l">disclosed compute commitments <b>back</b> to it</span></div>' +
+      '<div class="cf-chip cf-chip-debt"><span class="cf-chip-v">' + fmt(debt) + '</span><span class="cf-chip-l">GPU-backed debt underneath</span></div>' +
+      '<div class="cf-tally-note">≈ ' + fmt(eq) + ' of vendor/credit equity sits under ≈ ' + fmt(vend) + ' of compute commitments to the <b>same cluster</b> — a chunk of that "demand" is the funders’ own capital cycling back, so unwind risk is networked. ' + qual + ' qualitative edges counted but not summed · no blended circularity score.</div>';
+  }
   function renderCircularFinancing(view) {
     const host = $("circularFinancing");
     if (!host || !DATA.circularFinancing) return;
+    renderCfTally();
     if (typeof d3 === "undefined") {
       host.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px">Counterparty map requires D3 — reload when online.</div>';
       return;
