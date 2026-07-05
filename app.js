@@ -3813,6 +3813,41 @@ const $ = (id) => document.getElementById(id);
     });
   }
 
+  // Declutter: each dense tab LEADS with its essential cards; the rest fold into one collapsed
+  // "More analysis". Leads are matched by card title (h4 prefix) so no markup changes are needed;
+  // the secondary cards are MOVED into the disclosure (their charts repaint via the toggle
+  // listener). A card with no h4 (so-what boxes, calculators) is treated as a lead and left alone.
+  // Buildout is already wrapped in markup, so it has a .more-analysis and is skipped here.
+  var LEAD_CARDS = {
+    capital: ["2026 capex by operator", "Capex vs operating cash flow", "The commitment book", "The circular-financing loop"],
+    grid:    ["Annual demand growth", "Cumulative demand-supply deficit", "PJM capacity auction", "What power costs, by state"],
+    tokens:  ["Industry token volume", "$/token compression", "The Jevons check"]
+  };
+  function collapseSecondary(name, section) {
+    var leads = LEAD_CARDS[name];
+    if (!section || !leads) return;
+    if (section.querySelector(".more-analysis")) return;                   // already collapsed
+    var cards = [].slice.call(section.querySelectorAll(".stub-card"));
+    var isLead = function (c) {
+      var h = c.querySelector("h4"); if (!h) return true;                  // non-titled cards stay put
+      var t = (h.textContent || "").trim();
+      return leads.some(function (p) { return t.indexOf(p) === 0; });
+    };
+    var secondary = cards.filter(function (c) { return !isLead(c); });
+    if (secondary.length < 3) return;                                      // not worth a disclosure
+    var det = document.createElement("details");
+    det.className = "more-analysis";
+    var sum = document.createElement("summary");
+    sum.innerHTML = "More " + name + " analysis <span class=\"ma-count\">— " + secondary.length + " more charts</span>";
+    det.appendChild(sum);
+    var grid = document.createElement("div");
+    grid.className = "stub-grid";
+    det.appendChild(grid);
+    secondary.forEach(function (c) { grid.appendChild(c); });              // moves the card + its chart
+    var ref = section.querySelector(".cross-ref");
+    if (ref) section.insertBefore(det, ref); else section.appendChild(det);
+  }
+
   function showTab(name, anchor) {
     if (!name) name = 'overview';
     document.querySelectorAll('section.tab-content').forEach(function (s) {
@@ -3828,6 +3863,7 @@ const $ = (id) => document.getElementById(id);
     motionObserveAll();         // catch any cards/numbers newly rendered for this tab
     if (typeof linkifySources === "function") linkifySources(document.querySelector("section.tab-content.active"));
     if (typeof enhanceNotes === "function") enhanceNotes(document.querySelector("section.tab-content.active"));
+    if (typeof collapseSecondary === "function") collapseSecondary(name, document.querySelector("section.tab-content.active"));
     // Repaint the now-visible charts after layout settles (see scheduleChartResize).
     scheduleChartResize();
     if (anchor && typeof scrollToChartAnchor === "function") scrollToChartAnchor(anchor);
