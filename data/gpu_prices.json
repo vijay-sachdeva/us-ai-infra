@@ -3,12 +3,12 @@
   "unit": "USD per GPU-hour, published on-demand list price",
   "tier": "primary",
   "note": "Published list prices scraped from provider pricing pages; negotiated, reserved and spot rates differ. A provider listed under `failures` did not parse on this run and its last good observation (see retrieved_at) is NOT refreshed — never treat checked_at as data freshness.",
-  "checked_at": "2026-07-05T12:49:52+00:00",
+  "checked_at": "2026-07-06T14:43:24+00:00",
   "providers": {
     "lambda": {
       "url": "https://lambda.ai/pricing",
       "basis": "on-demand instance (multi-GPU node), per GPU-hr",
-      "retrieved_at": "2026-07-05T12:49:52+00:00",
+      "retrieved_at": "2026-07-06T14:43:24+00:00",
       "prices_usd_per_gpu_hr": {
         "H100 SXM": 3.99,
         "B200": 6.69
@@ -17,7 +17,7 @@
     "nebius": {
       "url": "https://nebius.com/prices",
       "basis": "on-demand, per GPU-hr",
-      "retrieved_at": "2026-07-05T12:49:52+00:00",
+      "retrieved_at": "2026-07-06T14:43:24+00:00",
       "prices_usd_per_gpu_hr": {
         "H100 SXM": 2.15,
         "H200": 2.45,
