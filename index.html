@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705q"></script>
+<script src="config.js?v=20260705r"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1640,6 +1640,21 @@
   .vm-scen-h{font-weight:700;color:var(--ov-ink);margin-right:4px}
   .vm-scen a{color:var(--ov-muted);text-decoration:none} .vm-scen a:hover{color:var(--ov-demand)} .vm-scen b{color:var(--ov-ink)}
   .vm-change{font-size:11px;color:var(--ov-muted);margin-top:8px;line-height:1.45} .vm-change b{color:var(--ov-ink)}
+  /* Executive lenses — CAIO / CSO / VC role read-outs (editorial framing over sourced facts) */
+  .lens-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .lens-card{border:1px solid var(--ov-line);border-radius:10px;padding:12px 13px;background:rgba(255,255,255,.02);border-top:2px solid var(--ov-demand)}
+  .lens-caio{border-top-color:#38bdf8} .lens-cso{border-top-color:#fbbf24} .lens-vc{border-top-color:#a78bfa}
+  .lens-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .lens-badge{font-size:11px;font-weight:800;letter-spacing:.04em;padding:2px 8px;border-radius:5px;color:#0b1220}
+  .lens-caio .lens-badge{background:#38bdf8} .lens-cso .lens-badge{background:#fbbf24} .lens-vc .lens-badge{background:#a78bfa}
+  .lens-role{font-size:11px;color:var(--ov-muted)}
+  .lens-bullets{margin:0;padding-left:15px;display:flex;flex-direction:column;gap:6px}
+  .lens-bullets li{font-size:11.5px;line-height:1.42;color:var(--ov-muted)}
+  .lens-bullets b{color:var(--ov-ink);font-weight:600}
+  .lens-bullets a{color:var(--ov-demand);text-decoration:none;white-space:nowrap;font-size:10.5px}
+  .lens-card .decision-impl{margin:9px 0 6px}
+  .lens-watch{font-size:10.5px;color:var(--ov-muted)} .lens-watch b{color:var(--ov-ink)}
+  @media(max-width:820px){.lens-grid{grid-template-columns:1fr}}
   .vm-ed{font-style:italic;opacity:.8}
   @media(max-width:600px){.vm-grid{grid-template-columns:1fr}}
   @media(max-width:760px){.ov-lenses.ov-causal{grid-template-columns:1fr 1fr}}
@@ -1778,6 +1793,7 @@
         <button data-h="map"  role="tab" aria-selected="false">Constraint map</button>
       </div>
       <div id="ov-stage" class="ov-chartwrap" style="position:relative"></div>
+      <div class="decision-impl"><span class="di-label">Decision implication</span> Firm power — not chips or capital — is the binding constraint through 2030; treat secured megawatts and contracted offtake as the assets, merchant and single-counterparty exposure as the fragility. <span style="opacity:.75">Editorial — not investment advice.</span></div>
       <div class="ov-lens-label">Why the power gap opens — follow the chain</div>
       <div class="ov-lenses ov-causal">
         <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span></a>
@@ -1860,6 +1876,40 @@
         <a href="#grid:cumDeficitChart"><b>Bull</b> — on EPRI&rsquo;s low case the gap closes</a> &middot;
         <a href="#grid:cumDeficitChart"><b>Bear</b> — LBNL high end ~100+ GW</a></div>
       <div class="vm-change"><b>What would change our mind:</b> PJM 2028/29 print (Jul 14, 2026) · Q2 hyperscaler capex guides · next LBNL <i>Queued Up</i> · Oracle RPO print. <span class="vm-ed">Structural read — editorial; market-structure analysis, not investment advice.</span></div>
+
+      <div class="ov-lens-label">Read it by role — what a CAIO, CSO or VC should take away<sup title="Editorial framing over sourced facts already on this dashboard — market-structure analysis, not investment advice">&deg;</sup></div>
+      <div class="lens-grid">
+        <div class="lens-card lens-caio">
+          <div class="lens-top"><span class="lens-badge">CAIO</span><span class="lens-role">Chief AI Officer</span></div>
+          <ul class="lens-bullets">
+            <li>Capacity risk is <b>geographic, not vendor</b> — 97 GW queued collapses to <b>~24 GW buildable</b> (~78% withdrawal), concentrated in power-short PJM / N. Virginia. <a href="#buildout:queueChart">queue &rarr;</a></li>
+            <li>Token growth becomes power risk <b>at the grid gear, not the GPU</b> — chips eased; HV transformers <b>36&ndash;60 mo</b>, turbine slots sold to 2029&ndash;30. <a href="#buildout:leadTimeChart">lead times &rarr;</a></li>
+            <li><b>Multi-source silicon + counterparty</b> — owned silicon (TPU/Trainium/MTIA) cuts merchant-GPU risk; single-buyer providers (CoreWeave ~67% MSFT) pass risk to you. <a href="#players">players &rarr;</a></li>
+          </ul>
+          <div class="decision-impl"><span class="di-label">Decision implication</span> Weight sourcing toward secured firm power + diversified silicon over the best-looking queue or price.</div>
+          <div class="lens-watch"><b>Watch:</b> PJM 2028/29 print &middot; Jul 14, 2026</div>
+        </div>
+        <div class="lens-card lens-cso">
+          <div class="lens-top"><span class="lens-badge">CSO</span><span class="lens-role">Chief Strategy Officer</span></div>
+          <ul class="lens-bullets">
+            <li>Build/partner around <b>secured megawatts, not headline capex</b> — $839B chasing a market <b>~19 GW short</b>; a site with signed power + offtake is the asset, land without is the residual. <a href="#grid:cumDeficitChart">power gap &rarr;</a></li>
+            <li><b>Avoid the over-committed, power-short, single-counterparty corner</b> — Oracle &amp; CoreWeave (~10 yrs of OCF pre-committed, one dominant buyer). <a href="#capital:commitmentQuadrant">quadrant &rarr;</a></li>
+            <li><b>Many announced GW aren&rsquo;t buildable</b> — ~78% withdrawal; AEP Ohio cut its pipeline 30&rarr;13 GW; underwrite to the buildable base, not the press release. <a href="#buildout">buildout &rarr;</a></li>
+          </ul>
+          <div class="decision-impl"><span class="di-label">Decision implication</span> Prioritize positions that control firm power + contracted offtake; discount value resting on queued-but-unsecured GW.</div>
+          <div class="lens-watch"><b>Watch:</b> annual LBNL <i>Queued Up</i> snapshot</div>
+        </div>
+        <div class="lens-card lens-vc">
+          <div class="lens-top"><span class="lens-badge">VC</span><span class="lens-role">Venture partner</span></div>
+          <ul class="lens-bullets">
+            <li>Value migrates <b>from compute abundance to the binding constraints</b> — firm power is the long pole; durable pools sit with secured-MW + contracted-offtake owners over merchant compute. <a href="#grid:cumDeficitChart">power gap &rarr;</a></li>
+            <li><b>The exposed names are visible</b> — Oracle/CoreWeave ~10 yrs pre-committed, CoreWeave ~67% MSFT, NVIDIA ~54% top-3; circular financing + a ~6yr-chip vs 12&ndash;25yr-lease tenor mismatch. <a href="#capital:commitmentQuadrant">quadrant &rarr;</a></li>
+            <li><b>Truest picks-and-shovels = power/grid gear</b> — transformers, turbines, cooling, EPC (Vertiv, Eaton, GE Vernova) gate when a campus energizes, regardless of which lab wins. <a href="#players">suppliers &rarr;</a></li>
+          </ul>
+          <div class="decision-impl"><span class="di-label">Decision implication</span> Favor the binding-constraint layer; treat merchant compute + single-counterparty operators as the fragile end.</div>
+          <div class="lens-watch"><b>Watch:</b> NVIDIA Q2 FY27 supply commentary &middot; late Aug</div>
+        </div>
+      </div>
 
       <div id="ov-connections-anchor"></div>
       <div class="ov-lens-label ov-conn-label">Connecting the dots — what links up<span class="ov-conn-stamp" id="connStamp"></span></div>
@@ -2165,11 +2215,12 @@
         <div class="chart-box" id="megaPathBox"><canvas id="megaPowerPaths"></canvas></div>
         <div class="mp-evlegend" id="megaPathLegend">
           <span class="ev-key"><i class="ev-solid"></i> firm-typed</span>
-          <span class="ev-key"><i class="ev-hatch"></i> announced / ultimate target</span>
+          <span class="ev-key"><i class="ev-hatch"></i> announced / ultimate target &middot; soft figure</span>
           <span class="ev-key"><i class="ev-out"></i> shelved &middot; disputed (excl. GW)</span>
           <span class="ev-note">fill = evidence firmness &middot; colour = status</span>
         </div>
         <div class="note" id="megaPathCaveat" style="margin-top:8px">MW = announced / ultimate targets (some disputed); <b>total-power</b> rows are facility energy incl. cooling &amp; generation, not IT load. Graveyard (paused / stalled / cancelled) is segregated and excluded from GW totals; undisclosed-MW records are named, never estimated. Tap a bar for its cited row.</div>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> Underwrite to the buildable base, not the press release — a signed-power, firm-typed build is the asset; queued or announced-target MW (~78% historical withdrawal) is the residual.</div>
         <details class="mp-view-data" open>
           <summary>Data table + per-record citations</summary>
           <div id="megaProjectsList" style="margin-top:6px"></div>
@@ -2499,6 +2550,7 @@
         <h4>Player dossiers</h4>
         <div class="note">Each card leads with a <b>Constraint Fingerprint</b> — a 6-lane strategic silhouette (capex · committed-yrs-OCF · secured-MW | silicon · counterparty · grid-risk) over the same sourced dossier below. Capex = 2026 guidance &middot; commitment years = the filing-grade commitment book on Capital &middot; ledger GW = source-verified named builds &middot; counterparty edges = the circular-financing map &middot; reads are editorial, tier-tagged</div>
         <div id="playersFpKey"></div>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> Winners aren&rsquo;t the biggest spenders — they hold the best <b>constraint portfolio</b>: secured power + capital quality + diversified silicon + low counterparty concentration. <span style="opacity:.75">Editorial.</span></div>
         <div id="playersCards" class="pl-grid"></div>
       </div>
 
@@ -3751,7 +3803,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705q"></script>
+<script src="app.js?v=20260705r"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
