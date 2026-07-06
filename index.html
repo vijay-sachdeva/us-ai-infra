@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705u"></script>
+<script src="config.js?v=20260705v"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -2545,32 +2545,51 @@
       <p class="gap-connector"><span class="gc-tag">↑ the 19 GW gap</span><b>Usage growth is the demand engine.</b> ~330× token volume in 24 months is what keeps data-center demand outrunning firm power toward that ~19 GW 2030 gap.</p>
 
       <div class="so-what">
-        <label>The hidden story</label>
-        <h3>At the largest platforms, total tokens processed have scaled <b>~330× in 24 months</b> (Google: 9.7 T → 3,200 T per month, May 2024 → May 2026), while $/token has fallen ~100×. The AI economy runs on this curve.</h3>
+        <label>The thesis</label>
+        <h3>Cheaper inference isn&rsquo;t relieving infrastructure pressure — usage is expanding faster than efficiency. Tokens scaled <b>~330× in 24 months</b> (Google 9.7 T → 3,200 T/mo) while $/token fell <b>~100×</b>, so total energy and capital demand <b>rise</b> as tokens get cheaper.</h3>
       </div>
 
-      <!-- LEAD: the token-to-buildout chain — the CAIO-friendly bridge, promoted to the top -->
+      <!-- HERO: Jevons — the core strategic insight, promoted above everything -->
+      <div class="stub-card">
+        <h4>The Jevons check — does cheaper mean more? <span class="cf-tier cf-warn" title="Derived from the price + volume series below; volumes are modeled.">~100× cheaper · ~330× more usage</span></h4>
+        <div class="note">Cheapest <b>frontier flagship</b> price (right axis, step line) against <b>industry token volume</b> (left axis) per quarter &middot; if volume outruns the price drop, total spend &mdash; and total power demand &mdash; <b>rises</b> as tokens get cheaper. This is the thesis in one chart.</div>
+        <div class="chart-box" style="height:320px"><canvas id="jevonsChart"></canvas></div>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> Cheaper tokens don&rsquo;t mean cheaper work — efficiency <b>delays</b> the infrastructure wall, it doesn&rsquo;t remove it. <span style="opacity:.75">Editorial.</span></div>
+        <div class="note" style="margin-top:6px"><b>What would change the thesis:</b> a step-change in energy-per-token, sustained low GPU utilization, materially slower enterprise adoption, or workloads shifting to far smaller/cached models.</div>
+        <div class="sc-method" id="jevonsMethod"></div>
+      </div>
+
+      <!-- LEAD: the token-to-buildout chain — the CAIO-friendly bridge, the proof of the thesis -->
       <div class="stub-card">
         <h4>One prompt to one gigawatt — the token-to-buildout chain</h4>
-        <div class="note">Follow one prompt down the chain — <b>tokens → energy → power → capex → power source</b> — then watch it scale to the whole buildout. Step through the stack for the per-token detail. Each rung labelled sourced or [modeled]; the Jevons rebound is the punchline.</div>
+        <div class="note">The 5-stage executive chain — <b>prompt → tokens → energy → continuous MW → capex / power source</b> — labelled <b>single-prompt unit economics</b> → <b>platform-scale extrapolation</b> → <b>industry-buildout comparison</b>. Each rung sourced or [modeled]. <b>Go deeper</b> for the 10-step technical walkthrough.</div>
         <div class="map-view-toggle" id="tjDepthToggle" role="tablist" aria-label="Detail level">
-          <button class="map-view-btn active" data-tjdepth="plain" type="button">Plain language</button>
-          <button class="map-view-btn"        data-tjdepth="deep"  type="button">Go deeper</button>
+          <button class="map-view-btn active" data-tjdepth="plain" type="button">Executive</button>
+          <button class="map-view-btn"        data-tjdepth="deep"  type="button">Go deeper — 10-step</button>
         </div>
+        <div id="tjScaleup"></div>
         <div id="tjStage"></div>
         <div id="tjStepPanel"></div>
         <div id="tjControls"></div>
         <div id="tjMeter"></div>
-        <div id="tjScaleup"></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> AI-adoption planning is now infrastructure planning — model choice and inference architecture directly set your power exposure.</div>
         <div class="sc-method" id="tjMethod"></div>
       </div>
 
-      <!-- Card 1: Industry token volume (full-width) -->
+      <!-- Card 1: Industry token volume (full-width) — supporting evidence for the Jevons volume line -->
       <div class="stub-card">
         <h4>Industry token volume by provider</h4>
-        <div class="note">Trillions of <b>externally-billed API tokens</b> per quarter &middot; stacked area &middot; modeled from provider revenue + Epoch AI + SemiAnalysis. <b>Does not include in-product AI inference</b> (Search AI Overviews, YouTube, Workspace) — see Disclosed totals below for the bigger picture.</div>
+        <div class="note">Trillions of <b>externally-billed API tokens</b> per quarter &middot; stacked area &middot; <b>modeled</b> from provider revenue + Epoch AI + SemiAnalysis — magnitudes are estimates, read the shape not the decimals. <b>Excludes in-product inference</b> (Search AI Overviews, YouTube, Workspace) — see Disclosed totals below.</div>
         <div class="chart-box" style="height:320px"><canvas id="tokenVolumeChart"></canvas></div>
+      </div>
+
+      <!-- Card 2: Effective cost per useful task — why model choice sets power exposure (promoted) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Effective cost per useful task — the price drop you don&rsquo;t feel</h4>
+        <div class="note">Sticker $/token fell ~<b>100&ndash;300&times;</b>, but reasoning/agentic models burn far more tokens per task &middot; <b>cost to COMPLETE a fixed task</b> ($/task, <b>log Y</b>), held-constant basket &middot; 2023 vs 2026 frontier &middot; <b>$/token cited, tokens-per-task &amp; $/task modeled</b></div>
+        <div class="chart-box" style="height:320px"><canvas id="costPerTaskChart"></canvas></div>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> Power exposure is set by AI strategy: a frontier reasoning-heavy stack burns far more tokens (and watts) per task than efficient enterprise inference — model mix, routing, caching and context length are power decisions. <span style="opacity:.75">Editorial.</span></div>
+        <div class="sc-method" id="costPerTaskMethod"></div>
       </div>
 
       <!-- Card 1b: Disclosed totals — reconciles API-modeled vs total inference -->
@@ -2585,22 +2604,6 @@
         <h4>$/token compression — the 100× price drop</h4>
         <div class="note">$ per 1M output tokens at launch &middot; <b>log Y axis</b> (data spans ~125&times; from frontier to OSS-hosted &mdash; linear would hide the cheap end) &middot; lower-right = newer + cheaper</div>
         <div class="chart-box" style="height:320px"><canvas id="priceCompressionChart"></canvas></div>
-      </div>
-
-      <!-- Card 2a: Jevons check — price down vs volume up, on one time axis -->
-      <div class="stub-card" style="margin-top:14px">
-        <h4>The Jevons check — does cheaper mean more?</h4>
-        <div class="note">Cheapest <b>frontier flagship</b> price (right axis, step line) against <b>industry token volume</b> (left axis) per quarter &middot; derived from the two series above &middot; if volume outruns the price drop, total spend &mdash; and total power demand &mdash; RISES as tokens get cheaper</div>
-        <div class="chart-box" style="height:320px"><canvas id="jevonsChart"></canvas></div>
-        <div class="sc-method" id="jevonsMethod"></div>
-      </div>
-
-      <!-- Card 2b: Effective cost per useful task — inverts the price-compression story -->
-      <div class="stub-card" style="margin-top:14px">
-        <h4>Effective cost per useful task — the price drop you don't feel</h4>
-        <div class="note">Sticker $/token fell ~<b>100&ndash;300&times;</b> (chart above), but reasoning/agentic models burn far more tokens per task &middot; <b>cost to COMPLETE a fixed task</b> ($/task, <b>log Y</b>) for a held-constant basket &middot; 2023 frontier vs 2026 frontier &middot; <b>$/token cited, tokens-per-task &amp; $/task modeled</b></div>
-        <div class="chart-box" style="height:320px"><canvas id="costPerTaskChart"></canvas></div>
-        <div class="sc-method" id="costPerTaskMethod"></div>
       </div>
 
       <div class="stub-grid" style="margin-top:14px">
@@ -3922,7 +3925,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705u"></script>
+<script src="app.js?v=20260705v"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
