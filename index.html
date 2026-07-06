@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705p"></script>
+<script src="config.js?v=20260705q"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -158,6 +158,9 @@
     body { background: #fff !important; }
   }
 
+  /* Decision-implication callout — the "so what?" one-liner on every flagship */
+  .decision-impl { display: flex; gap: 8px; align-items: baseline; margin: 11px 0 2px; padding: 8px 11px; border-left: 3px solid var(--accent); background: rgba(88,166,255,.07); border-radius: 0 7px 7px 0; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
+  .decision-impl .di-label { font-size: 9.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); white-space: nowrap; flex: none; }
   /* ---------- Tab nav ---------- */
   nav.tabs {
     background: #fff; border-bottom: 1px solid var(--line);
@@ -1892,6 +1895,7 @@
           <h3>Capital quality beats headline capex &mdash; and the risk is correlated. The two names deepest in the &ldquo;over-committed, power-short&rdquo; corner, Oracle (~10 yrs of cash flow pre-committed) and CoreWeave (~10 yrs, no owned build), are the same two leaning hardest on a single concentrated counterparty.<sup title="Editorial synthesis over sourced data — this dashboard&rsquo;s read, not a reported metric">&deg;</sup></h3>
         </div>
         <p class="note">CoreWeave books ~67% of FY2025 revenue from Microsoft (primary); Oracle&rsquo;s RPO jumped $138B&rarr;$638B &mdash; its 10-K attributes the surge to &ldquo;large-scale AI contracts,&rdquo; press links it to OpenAI though OpenAI is never named in the filings (analyst); both ride NVIDIA, whose top-three customers are ~54% of revenue (primary). With OpenAI anchoring 3 of the 5 closed financing loops, a long cash-flow leash held against a concentrated counterparty is <b>correlated, not diversified, risk</b> &mdash; see the commitment flywheel below.</p>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> Capital quality beats headline capex — the spread that matters is secured megawatts vs pre-committed obligations, not who spends most.</div>
         <div class="sc-method" id="commitmentQuadrantMethod"></div>
       </div>
 
@@ -2287,6 +2291,7 @@
         <h4>Where AI load becomes a political fight — states most exposed to a rate revolt</h4>
         <div class="note">Political-failure risk by state across four dimensions — rate-increase risk, utility exposure, data-center load concentration, regulatory posture. Unmet load + overbuild risk get socialized onto <b>ratepayers</b>, so the binding constraint shifts from engineering (queues) to politics (PUCs, governors, legislatures). No blended score — the four cells stay separate; read a red Rate cell as a bill a PUC must approve and a governor must defend.</div>
         <div id="politicalLoadMatrix" class="mp-matrix"></div>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> Ratepayer backlash can stop the AI buildout before physical scarcity does — the fight turns political (PUCs, governors) while the grid still has headroom.</div>
         <details class="mp-view-data" open>
           <summary>State risk table + attribution</summary>
           <div id="politicalLoadTable" style="margin-top:6px;overflow-x:auto"></div>
@@ -2410,6 +2415,23 @@
         <h3>At the largest platforms, total tokens processed have scaled <b>~330× in 24 months</b> (Google: 9.7 T → 3,200 T per month, May 2024 → May 2026), while $/token has fallen ~100×. The AI economy runs on this curve.</h3>
       </div>
 
+      <!-- LEAD: the token-to-buildout chain — the CAIO-friendly bridge, promoted to the top -->
+      <div class="stub-card">
+        <h4>One prompt to one gigawatt — the token-to-buildout chain</h4>
+        <div class="note">Follow one prompt down the chain — <b>tokens → energy → power → capex → power source</b> — then watch it scale to the whole buildout. Step through the stack for the per-token detail. Each rung labelled sourced or [modeled]; the Jevons rebound is the punchline.</div>
+        <div class="map-view-toggle" id="tjDepthToggle" role="tablist" aria-label="Detail level">
+          <button class="map-view-btn active" data-tjdepth="plain" type="button">Plain language</button>
+          <button class="map-view-btn"        data-tjdepth="deep"  type="button">Go deeper</button>
+        </div>
+        <div id="tjStage"></div>
+        <div id="tjStepPanel"></div>
+        <div id="tjControls"></div>
+        <div id="tjMeter"></div>
+        <div id="tjScaleup"></div>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> AI-adoption planning is now infrastructure planning — model choice and inference architecture directly set your power exposure.</div>
+        <div class="sc-method" id="tjMethod"></div>
+      </div>
+
       <!-- Card 1: Industry token volume (full-width) -->
       <div class="stub-card">
         <h4>Industry token volume by provider</h4>
@@ -2464,21 +2486,6 @@
         </div>
       </div>
 
-      <!-- Journey of a token — interactive deep-dive, moved below the charts + slimmed -->
-      <div class="stub-card" style="margin-top:14px">
-        <h4>One prompt to one gigawatt — the token-to-buildout chain</h4>
-        <div class="note">Follow one prompt down the chain — <b>tokens → energy → power → capex → power source</b> — then watch it scale to the whole buildout. Step through the stack for the per-token detail. Each rung labelled sourced or [modeled]; the Jevons rebound is the punchline.</div>
-        <div class="map-view-toggle" id="tjDepthToggle" role="tablist" aria-label="Detail level">
-          <button class="map-view-btn active" data-tjdepth="plain" type="button">Plain language</button>
-          <button class="map-view-btn"        data-tjdepth="deep"  type="button">Go deeper</button>
-        </div>
-        <div id="tjStage"></div>
-        <div id="tjStepPanel"></div>
-        <div id="tjControls"></div>
-        <div id="tjMeter"></div>
-        <div id="tjScaleup"></div>
-        <div class="sc-method" id="tjMethod"></div>
-      </div>
       <div class="watch-strip" id="watchStrip-tokens"></div>
     </section>
 
@@ -3744,7 +3751,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705p"></script>
+<script src="app.js?v=20260705q"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
