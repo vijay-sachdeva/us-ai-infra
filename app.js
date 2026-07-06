@@ -3284,17 +3284,24 @@ const $ = (id) => document.getElementById(id);
     }
     function stopAuto() { if (R._timer) { clearInterval(R._timer); R._timer = null; } }
 
+    // Executive (default) shows only the 5-stage chain (#tjScaleup); Go-deeper reveals the 10-step
+    // technical stepper. Keeps the executive payoff first, the teaching module one click away.
+    function applyDepth() {
+      const deep = R._depth === "deep";
+      ["tjStage", "tjStepPanel", "tjControls", "tjMeter"].forEach(id => { const el = $(id); if (el) el.style.display = deep ? "" : "none"; });
+      if (!deep) stopAuto();
+    }
     const toggle = $("tjDepthToggle");
     if (toggle && !R._wired) {
       R._wired = true;
       toggle.querySelectorAll(".map-view-btn").forEach(b => b.addEventListener("click", () => {
         R._depth = b.dataset.tjdepth;
         toggle.querySelectorAll(".map-view-btn").forEach(x => x.classList.toggle("active", x === b));
-        paintPanel();
+        paintPanel(); applyDepth();
       }));
     }
 
-    paintStage(); paintPanel(); paintMeter(); paintControls(); paintScaleup();
+    paintStage(); paintPanel(); paintMeter(); paintControls(); paintScaleup(); applyDepth();
     if ($("tjMethod")) $("tjMethod").innerHTML = `<b>How to read this.</b> ${tj.scaleUp.note}`;
   }
 
@@ -4580,7 +4587,7 @@ const $ = (id) => document.getElementById(id);
   var LEAD_CARDS = {
     capital: ["Commitment vs build-out footprint", "Capex vs operating cash flow", "The commitment book", "The commitment flywheel"],
     grid:    ["Where AI load becomes", "Annual demand growth", "Cumulative demand-supply deficit", "PJM capacity auction", "What power costs, by state"],
-    tokens:  ["One prompt to one gigawatt", "Industry token volume", "$/token compression", "The Jevons check"]
+    tokens:  ["The Jevons check", "One prompt to one gigawatt", "Industry token volume", "Effective cost per useful task"]
   };
   function collapseSecondary(name, section) {
     var leads = LEAD_CARDS[name];
