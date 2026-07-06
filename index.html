@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705l"></script>
+<script src="config.js?v=20260705m"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -677,6 +677,27 @@
   .pl-loadmap .mm-postal { display: none; }
   @media (max-width: 420px) { .mp-matrix-grid .mm-h, .mp-matrix-grid .mm-cell { font-size: 10px; padding: 3px 2px; } .mp-matrix-grid .mm-lane { font-size: 9px; padding: 3px 5px; }
     .pl-loadmap .mm-full { display: none; } .pl-loadmap .mm-postal { display: inline; } .pl-loadmap .mm-rail { display: none; } }
+  /* Evidence-state legend for the power-path chart: fill = firmness, colour = status */
+  .mp-evlegend { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 11px; color: var(--muted); margin-top: 8px; }
+  .mp-evlegend .ev-key { display: inline-flex; align-items: center; gap: 5px; }
+  .mp-evlegend i { width: 15px; height: 10px; border-radius: 2px; display: inline-block; flex: none; }
+  .mp-evlegend .ev-solid { background: var(--ink-2); }
+  .mp-evlegend .ev-hatch { background: repeating-linear-gradient(45deg, var(--ink-2), var(--ink-2) 1.6px, transparent 1.6px, transparent 4px); border: 1px solid var(--ink-2); }
+  .mp-evlegend .ev-out { background: transparent; border: 1.4px solid var(--red); }
+  .mp-evlegend .ev-note { margin-left: auto; font-style: italic; opacity: .8; }
+  @media (max-width: 520px) { .mp-evlegend .ev-note { margin-left: 0; flex-basis: 100%; } }
+  /* "What to watch next" strip — IC-memo footer of dated catalysts per tab (editorial, real dates only) */
+  .watch-strip { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .watch-strip:empty { display: none; }
+  .watch-strip .ws-label { font-size: 12px; font-weight: 700; letter-spacing: .03em; color: var(--ink-2); margin-bottom: 9px; text-transform: uppercase; }
+  .watch-strip .ws-label sup { font-size: 9px; opacity: .7; cursor: help; }
+  .watch-strip .ws-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+  .watch-strip .ws-item { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 8px; padding: 9px 12px; background: var(--card); }
+  .watch-strip .ws-top { display: flex; align-items: baseline; gap: 8px; }
+  .watch-strip .ws-top b { font-size: 12.5px; color: var(--ink); font-weight: 600; }
+  .watch-strip .ws-date { margin-left: auto; font-size: 10.5px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .watch-strip .ws-why { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  @media (max-width: 520px) { .watch-strip .ws-row { grid-template-columns: 1fr; } }
   .mp-view-data { margin-top: 12px; }
   .mp-view-data > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--ink-2); padding: 4px 0; list-style: none; }
   .mp-view-data > summary::-webkit-details-marker { display: none; }
@@ -1979,6 +2000,7 @@
         <strong>Tokens →</strong>
         $/token compression compresses inference revenue per token. <a href="#tokens">Open the unit-economics deep dive →</a>
       </div>
+      <div class="watch-strip" id="watchStrip-capital"></div>
     </section>
 
     <!-- ============ BUILDOUT ============ -->
@@ -2060,6 +2082,12 @@
         </div>
         <div id="megaPathMatrix" class="mp-matrix"></div>
         <div class="chart-box" id="megaPathBox"><canvas id="megaPowerPaths"></canvas></div>
+        <div class="mp-evlegend" id="megaPathLegend">
+          <span class="ev-key"><i class="ev-solid"></i> firm-typed</span>
+          <span class="ev-key"><i class="ev-hatch"></i> announced / ultimate target</span>
+          <span class="ev-key"><i class="ev-out"></i> shelved &middot; disputed (excl. GW)</span>
+          <span class="ev-note">fill = evidence firmness &middot; colour = status</span>
+        </div>
         <div class="note" id="megaPathCaveat" style="margin-top:8px">MW = announced / ultimate targets (some disputed); <b>total-power</b> rows are facility energy incl. cooling &amp; generation, not IT load. Graveyard (paused / stalled / cancelled) is segregated and excluded from GW totals; undisclosed-MW records are named, never estimated. Tap a bar for its cited row.</div>
         <details class="mp-view-data" open>
           <summary>Data table + per-record citations</summary>
@@ -2164,6 +2192,7 @@
         <strong>Tokens →</strong>
         Tokens per MW-hour. Energy efficiency curves for inference. <a href="#tokens">Open the energy bridge →</a>
       </div>
+      <div class="watch-strip" id="watchStrip-buildout"></div>
     </section>
 
     <!-- ============ GRID ============ -->
@@ -2290,6 +2319,7 @@
         <strong>Tokens →</strong>
         Tokens &times; energy: how much grid load does AI inference actually create per unit of usage? <a href="#tokens">Open the adoption-vs-energy curve →</a>
       </div>
+      <div class="watch-strip" id="watchStrip-grid"></div>
     </section>
 
     <!-- ============ TOKENS ============ -->
@@ -2372,6 +2402,7 @@
         <div id="tjScaleup"></div>
         <div class="sc-method" id="tjMethod"></div>
       </div>
+      <div class="watch-strip" id="watchStrip-tokens"></div>
     </section>
 
     <!-- ============ PLAYERS (entity index — a join over the other tabs' cited data) ============ -->
@@ -3636,7 +3667,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705l"></script>
+<script src="app.js?v=20260705m"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

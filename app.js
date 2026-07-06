@@ -1888,6 +1888,42 @@ const $ = (id) => document.getElementById(id);
     if (mnode) mnode.innerHTML = "<b>How to read it.</b> X = years of operating cash flow already pre-committed (SEC 10-K/10-Q, <b>primary</b> — recomputed at render from filed lease + purchase + construction commitments ÷ operating cash flow; higher = less room to back down). Bubble = 2026 capex ($B, guidance/actual). Colour = silicon-strategy band (<b>editorial</b> ordinal: owns custom silicon · mixed · merchant-GPU — curated, NOT a sourced %). Y = named live ledger power (data/projects.json), <b>coverage-biased by design</b>: counts only source-verified named builds (Graveyard excluded), operators build far more than the ledger names, shared campuses (Stargate Abilene) count once per named operator, and CoreWeave has no named build so it renders hollow on the baseline (△) — <b>read direction, not magnitude</b>. Only the six operators with both a filed commitment book and a capex figure plot here; labs/vendors without an OCF row appear in the Players fingerprint instead.";
   }
 
+  // Reusable "What to watch next" strip — every analytical tab closes on the next DATED catalysts
+  // it tracks (real recurring releases; a hard date only where genuinely scheduled — PJM Jul 14 2026).
+  // Forward-looking watch items are editorial (marked °), never predictions or invented dates.
+  var WATCH_SIGNALS = {
+    capital: [
+      { label: "Q2 2026 hyperscaler capex guides", date: "late Jul–Aug", why: "confirm or break the ~$839B run-rate" },
+      { label: "Oracle 10-Q — next RPO print", why: "the $138B→$638B backlog is the over-commitment tell" },
+      { label: "CoreWeave customer-concentration disclosure", why: "~67% Microsoft is the renewal/survival variable" }
+    ],
+    buildout: [
+      { label: "GE Vernova / Siemens / MHI order books", why: "turbine slots sold out to 2029–30 — first slack shows here" },
+      { label: "LBNL Queued Up — next annual snapshot", why: "97 GW queued vs ~24 GW credible" },
+      { label: "NVIDIA Q2 FY27 — supply commentary", date: "late Aug", why: "GB200 GA; allocation vs lead-time is the binding issue" }
+    ],
+    grid: [
+      { label: "PJM 2028/29 Base Residual Auction", date: "Jul 14, 2026", why: "two prior auctions cleared AT the FERC cap" },
+      { label: "Next state PUC rate-case / large-load docket", why: "VA · TX · OH set the ratepayer-revolt pace" },
+      { label: "EIA — next grid demand / headroom update", why: "the ~19 GW-by-2030 deficit path" }
+    ],
+    tokens: [
+      { label: "NVIDIA Q2 FY27 — data-center demand", date: "late Aug", why: "clearest external read on token→compute demand" },
+      { label: "Next hyperscaler inference-volume disclosure", why: "Google's 3.2Q tokens/mo is the last hard anchor" }
+    ]
+  };
+  function renderWatchStrip(tab) {
+    var host = $("watchStrip-" + tab); if (!host) return;
+    var items = WATCH_SIGNALS[tab]; if (!items) { host.innerHTML = ""; return; }
+    host.innerHTML =
+      '<div class="ws-label">What to watch next<sup title="Forward-looking watch list — the next dated data releases this dashboard tracks, not predictions">°</sup></div>' +
+      '<div class="ws-row">' + items.map(function (it) {
+        return '<div class="ws-item"><div class="ws-top"><b>' + it.label + '</b>' +
+          (it.date ? '<span class="ws-date">' + it.date + '</span>' : '') +
+          '</div><div class="ws-why">' + it.why + '</div></div>';
+      }).join("") + '</div>';
+  }
+
   // The three clocks — floating range bars: asset life vs obligation tenor vs power arrival.
   function renderTenorClocks() {
     if (!$("tenorClocks") || typeof Chart === "undefined" || !DATA.tenorClocks) return;
@@ -2605,6 +2641,23 @@ const $ = (id) => document.getElementById(id);
     const box = $("megaPathBox");
     if (box) box.style.height = Math.max(260, ordered.length * 30 + 44) + "px";
 
+    // Evidence-state encoding (derived, tagged) — colour still = status; the FILL now shows
+    // firmness: solid = firm-typed (operational/under-construction, high-confidence IT load);
+    // diagonal HATCH = announced/ultimate target (planned, or facility/unspecified capacity, or
+    // medium confidence — a soft number); graveyard keeps its red outline (shelved/excluded).
+    // NOTE: "target" is what the data supports — NOT contract-committed power (commitment lives in
+    // a separate object, not joined to projects.json by id), so the legend says "target", not "committed".
+    const _hatch = {};
+    const hatch = color => {
+      if (_hatch[color]) return _hatch[color];
+      const cnv = document.createElement("canvas"); cnv.width = cnv.height = 7;
+      const hx = cnv.getContext("2d");
+      hx.fillStyle = hexA(color, 0.30); hx.fillRect(0, 0, 7, 7);
+      hx.strokeStyle = color; hx.lineWidth = 1.6;
+      hx.beginPath(); hx.moveTo(-1, 6); hx.lineTo(6, -1); hx.moveTo(2, 8); hx.lineTo(8, 2); hx.stroke();
+      return (_hatch[color] = hx.createPattern(cnv, "repeat"));
+    };
+    const softEv = p => !isGrave(p) && (p.confidence === "medium" || p.capacity_type === "total_power" || p.capacity_type === "unspecified" || p.status === "planned");
     if (_charts.megaPowerPaths) { try { _charts.megaPowerPaths.destroy(); } catch (_) {} delete _charts.megaPowerPaths; }
     _charts.megaPowerPaths = new Chart($("megaPowerPaths"), {
       type: "bar",
@@ -2613,7 +2666,7 @@ const $ = (id) => document.getElementById(id);
         datasets: [{
           label: "MW",
           data: ordered.map(p => p.capacity_mw != null ? p.capacity_mw : 0),
-          backgroundColor: ordered.map(p => STATUS_C[p.status] || CHART_PALETTE.context),
+          backgroundColor: ordered.map(p => { const base = STATUS_C[p.status] || CHART_PALETTE.context; return softEv(p) ? hatch(base) : base; }),
           borderColor: ordered.map(p => isGrave(p) ? CHART_PALETTE.constraint : "transparent"),
           borderWidth: ordered.map(p => isGrave(p) ? 1.4 : 0),
           borderSkipped: false
@@ -4337,6 +4390,7 @@ const $ = (id) => document.getElementById(id);
       renderCircularFinancing("all");
       renderVerticalIntegration();
       renderPowerToRevenueYield();
+      renderWatchStrip("capital");
     } else if (name === "buildout") {
       renderFunnel();
       renderStackLayers();
@@ -4357,6 +4411,7 @@ const $ = (id) => document.getElementById(id);
       renderQueueChart();
       renderTimeToPower();
       renderPerfPerWattChart();
+      renderWatchStrip("buildout");
     } else if (name === "grid") {
       renderPoliticalLoadMap();
       renderIsoTable();
@@ -4371,6 +4426,7 @@ const $ = (id) => document.getElementById(id);
       renderTurbineSlots();
       renderPowerSourceMixChart();
       renderHeadroomChart();
+      renderWatchStrip("grid");
     } else if (name === "tokens") {
       renderTokenJourney();
       renderEnergyBridge();
@@ -4380,6 +4436,7 @@ const $ = (id) => document.getElementById(id);
       renderPriceCompressionChart();
       renderJevonsChart();
       renderCostPerTaskChart();
+      renderWatchStrip("tokens");
     } else if (name === "players") {
       renderPlayers();
       renderPowerBank();
