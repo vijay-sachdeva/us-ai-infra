@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705n"></script>
+<script src="config.js?v=20260705o"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1595,6 +1595,21 @@
   .ccc-legend{font-size:11px;color:var(--ov-muted);opacity:.8;margin-top:8px;line-height:1.4}
   @media(prefers-reduced-motion:reduce){.ccc-tile{transition:none}}
   @media(max-width:520px){.ccc-board{grid-template-columns:1fr}}
+  /* Structural value map — where value accrues vs at risk (editorial synthesis, links to sourced charts) */
+  .vm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .vm-col{border:1px solid var(--ov-line);border-radius:10px;padding:10px 12px}
+  .vm-accrue{border-top:2px solid var(--green)} .vm-risk{border-top:2px solid var(--ov-gap)}
+  .vm-h{font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;margin-bottom:6px}
+  .vm-accrue .vm-h{color:var(--green)} .vm-risk .vm-h{color:var(--ov-gap)}
+  .vm-item{display:block;font-size:11.5px;line-height:1.4;color:var(--ov-muted);text-decoration:none;padding:5px 0;border-top:1px solid var(--ov-line)}
+  .vm-item:first-of-type{border-top:0}
+  .vm-item b{color:var(--ov-ink);font-weight:600} .vm-item:hover b{color:var(--ov-demand)}
+  .vm-scen{font-size:11.5px;color:var(--ov-muted);margin-top:10px}
+  .vm-scen-h{font-weight:700;color:var(--ov-ink);margin-right:4px}
+  .vm-scen a{color:var(--ov-muted);text-decoration:none} .vm-scen a:hover{color:var(--ov-demand)} .vm-scen b{color:var(--ov-ink)}
+  .vm-change{font-size:11px;color:var(--ov-muted);margin-top:8px;line-height:1.45} .vm-change b{color:var(--ov-ink)}
+  .vm-ed{font-style:italic;opacity:.8}
+  @media(max-width:600px){.vm-grid{grid-template-columns:1fr}}
   @media(max-width:760px){.ov-lenses.ov-causal{grid-template-columns:1fr 1fr}}
   @media(max-width:520px){.ov-lenses.ov-causal{grid-template-columns:1fr}}
   /* Connecting the dots (flagship) — verified edges between published facts */
@@ -1785,6 +1800,29 @@
         </a>
       </div>
       <div class="ccc-legend">Severity &amp; trend (&#8593; worsening &middot; &#8594; holding &middot; &#8595; easing) are <b>editorial reads</b> (marked &deg;); every figure is sourced — tap a tile to see it on its chart. Worst-first: power is the long pole; chips already eased.</div>
+
+      <div class="ov-lens-label">Where value accrues &mdash; and where it&rsquo;s at risk<sup title="Structural synthesis over sourced data — market-structure analysis, this dashboard's read, NOT investment advice">&deg;</sup></div>
+      <div class="vm-grid">
+        <div class="vm-col vm-accrue">
+          <div class="vm-h">Value accrues to</div>
+          <a class="vm-item" href="#buildout:megaPowerPaths"><b>Owners of firm megawatts</b> — a secured build, not a queue position; power is the long pole.</a>
+          <a class="vm-item" href="#capital"><b>Contracted offtake</b> — ~60% of ledger demand is take-or-pay, not merchant exposure.</a>
+          <a class="vm-item" href="#players"><b>Owned / multi-sourced silicon</b> — TPU · Trainium · MTIA cut merchant-GPU dependence.</a>
+        </div>
+        <div class="vm-col vm-risk">
+          <div class="vm-h">Value at risk where</div>
+          <a class="vm-item" href="#capital:tenorClocks"><b>Obligations outrun asset life</b> — chips depreciate in ~6 yrs; the leases run 12–25.</a>
+          <a class="vm-item" href="#capital:overcommitmentBoard"><b>Books are most pre-committed &amp; accelerating</b> — Oracle · CoreWeave ~10 yrs of OCF.</a>
+          <a class="vm-item" href="#capital:commitmentQuadrant"><b>One counterparty dominates</b> — CoreWeave ~67% Microsoft; NVIDIA ~54% top-3.</a>
+          <a class="vm-item" href="#grid:rateImpactChart"><b>Cost lands on ratepayers / merchant supply</b> — VA +57% (modeled); ~15–25% built merchant.</a>
+        </div>
+      </div>
+      <div class="vm-scen"><span class="vm-scen-h">The power gap — base / bull / bear:</span>
+        <a href="#grid:cumDeficitChart"><b>Base</b> ~19 GW short by 2030</a> &middot;
+        <a href="#grid:cumDeficitChart"><b>Bull</b> — on EPRI&rsquo;s low case the gap closes</a> &middot;
+        <a href="#grid:cumDeficitChart"><b>Bear</b> — LBNL high end ~100+ GW</a></div>
+      <div class="vm-change"><b>What would change our mind:</b> PJM 2028/29 print (Jul 14, 2026) · Q2 hyperscaler capex guides · next LBNL <i>Queued Up</i> · Oracle RPO print. <span class="vm-ed">Structural read — editorial; market-structure analysis, not investment advice.</span></div>
+
       <div id="ov-connections-anchor"></div>
       <div class="ov-lens-label ov-conn-label">Connecting the dots — what links up<span class="ov-conn-stamp" id="connStamp"></span></div>
       <div class="ov-conn-intro">Anyone can Google a fact. The value is the <b>verified edge between two</b> — one deal in two filings, a loop between the same names. Tap a card for the evidence; the badge says how firm the link is.</div>
@@ -3671,7 +3709,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705n"></script>
+<script src="app.js?v=20260705o"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
