@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705o"></script>
+<script src="config.js?v=20260705p"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -128,6 +128,35 @@
     text-decoration: none; white-space: nowrap;
   }
   .head-meta a.proto-back:hover { color: var(--accent); }
+  /* ---------- View-mode picker (Standard / Brief / Diligence / Boardroom) ---------- */
+  .mode-picker { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .mode-picker button { appearance: none; background: transparent; border: 0; border-left: 1px solid var(--line); color: var(--muted); font: inherit; font-size: 11.5px; font-weight: 600; padding: 5px 9px; cursor: pointer; white-space: nowrap; }
+  .mode-picker button:first-child { border-left: 0; }
+  .mode-picker button:hover { color: var(--ink); }
+  .mode-picker button.on { background: var(--accent); color: #fff; }
+  @media (max-width: 760px) { .mode-picker { display: none; } }
+  /* Brief (IC) — decisive charts + claims only; fold away secondary chrome (sources stay via tier chips) */
+  body[data-mode="brief"] .sc-method,
+  body[data-mode="brief"] .mp-view-data,
+  body[data-mode="brief"] details.more-analysis,
+  body[data-mode="brief"] .watch-strip,
+  body[data-mode="brief"] .map-view-toggle,
+  body[data-mode="brief"] .ov-briefing,
+  body[data-mode="brief"] #ov-livedata,
+  body[data-mode="brief"] .ov-ticker,
+  body[data-mode="brief"] .note-more { display: none !important; }
+  /* Boardroom — hide interactive chrome for clean presenting/screenshots (pairs with light theme) */
+  body[data-mode="board"] .map-view-toggle,
+  body[data-mode="board"] .mp-view-data,
+  body[data-mode="board"] .watch-strip,
+  body[data-mode="board"] .ov-livedata { display: none !important; }
+  body[data-mode="board"] .stub-card, body[data-mode="board"] .pl-card { box-shadow: none; }
+  /* Print — always drop chrome so any mode prints clean */
+  @media print {
+    header.site, nav.tabs, #viewMode, .theme-toggle, .top-banner, .ov-toggle, .map-view-toggle, .chat-fab, #chatFab { display: none !important; }
+    .tab-content:not(.active) { display: none !important; }
+    body { background: #fff !important; }
+  }
 
   /* ---------- Tab nav ---------- */
   nav.tabs {
@@ -1702,6 +1731,12 @@
       </div>
     </div>
     <div class="head-meta">
+      <div class="mode-picker" id="viewMode" role="group" aria-label="View mode">
+        <button data-mode="standard" class="on" type="button" title="Full dashboard — everything">Standard</button>
+        <button data-mode="brief" type="button" title="IC brief — decisive charts, notes &amp; tables collapsed">Brief</button>
+        <button data-mode="diligence" type="button" title="Diligence — every source, method &amp; data table expanded">Diligence</button>
+        <button data-mode="board" type="button" title="Boardroom — clean, chrome hidden, print-ready (pairs with light theme)">Boardroom</button>
+      </div>
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
         <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <svg class="sun-icon"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -3709,7 +3744,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705o"></script>
+<script src="app.js?v=20260705p"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
