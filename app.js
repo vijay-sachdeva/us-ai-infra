@@ -2613,6 +2613,10 @@ const $ = (id) => document.getElementById(id);
     const plot = live.filter(p => p.capacity_mw != null);
     const noMw = live.filter(p => p.capacity_mw == null);
     const activeMW = plot.reduce((s, p) => s + (p.capacity_mw || 0), 0);
+    // Elevate the shelved-GW counter next to the active total (the reprice narrative a VC wants up front).
+    const graveMW = grave.reduce((s, p) => s + (p.capacity_mw || 0), 0);
+    const cavEl = $("megaPathCaveat");
+    if (cavEl) cavEl.innerHTML = "<b>" + (activeMW / 1000).toFixed(1) + " GW named &amp; active</b> &middot; <b>" + (graveMW / 1000).toFixed(1) + " GW shelved</b> (paused / stalled / cancelled — excluded from the total). MW = announced / ultimate targets (some disputed); <b>total-power</b> rows are facility energy incl. cooling &amp; generation, not IT load. Undisclosed-MW records are named, never estimated. Tap a bar for its cited row.";
 
     const STATUS_C = {
       construction: CHART_PALETTE.pipeline, operational: CHART_PALETTE.supply, planned: CHART_PALETTE.demand,
@@ -2972,17 +2976,47 @@ const $ = (id) => document.getElementById(id);
         if (tr) { tr.scrollIntoView({ behavior: "smooth", block: "center" }); tr.classList.remove("mp-row-flash"); void tr.offsetWidth; tr.classList.add("mp-row-flash"); }
       });
     }
-    // cited evidence table (Flagship-Ledger tier C)
+    // ---- Rate-revolt watchlist: Trigger (sourced, dated) · Next catalyst · Exposed builds ----
+    const MKT2ST = [
+      { re: /Ohio/i, st: "Ohio" }, { re: /Louisiana|LPSC|Entergy/i, st: "Louisiana" },
+      { re: /Phoenix|Arizona|\bAPS\b|\bACC\b|\bSRP\b/i, st: "Arizona" }, { re: /Dallas|Texas|PUCT|ERCOT/i, st: "Texas" },
+      { re: /Virginia|\bSCC\b/i, st: "Virginia" }, { re: /Atlanta|Georgia/i, st: "Georgia" },
+      { re: /Pennsylvania|co-location/i, st: "Pennsylvania" }
+    ];
+    const trig = {};   // buildabilityMovements are date-desc → first match per state = most recent
+    ((DATA.buildabilityMovements) || []).forEach(m => {
+      const hit = MKT2ST.find(x => x.re.test((m.market || "") + " " + (m.headline || "")));
+      if (hit && !trig[hit.st]) trig[hit.st] = m;
+    });
+    const CAT_RE = /(?:by|vote|final(?:\s+by)?|effective)\s+([A-Z][a-z]{2,8}\.?\s+20\d\d)/;
+    const PJM_ST = { Virginia: 1, Ohio: 1, Pennsylvania: 1 };
+    const nextCat = st => {
+      if (PJM_ST[st]) return "PJM 2028/29 print · Jul 14, 2026";
+      const m = trig[st]; const mm = m && (m.headline || "").match(CAT_RE); return mm ? mm[1] : "";
+    };
+    const exposed = {};
+    STATES.forEach(s => { exposed[s] = []; });
+    pj.forEach(r => {
+      if (GRAVEYARD_STATUSES.indexOf(r.status) !== -1) return;
+      const st = STATES.find(s => XWALK[s].p === r.state); if (!st || exposed[st].length >= 3) return;
+      exposed[st].push((r.name || "").replace(/\s*\(.*?\)\s*/g, " ").trim());
+    });
+    const tchip = t => t ? ' <span class="cf-tier cf-' + (t === "primary" ? "ok" : t === "analyst" ? "warn" : "crit") + '">' + t + '</span>' : "";
+    // cited evidence table upgraded to the rate-revolt watchlist (Flagship-Ledger tier C)
     const et = $("politicalLoadTable");
     if (et) {
-      et.innerHTML = '<table class="mp-table"><thead><tr><th>State</th><th>Rate by 2030</th><th>Utility flashpoint</th><th>Live DC load</th><th>Reg posture</th><th>ISO</th></tr></thead><tbody>' +
-        rows.map(r => '<tr data-state="' + r.x.p + '"><td><span class="mp-name">' + r.st + '</span></td>' +
-          '<td>' + (r.rv != null ? "+" + r.rv + "%" : "—") + '</td>' +
-          '<td>' + (r.util ? r.util.note : "—") + '</td>' +
-          '<td>' + (r.concS === "gap" ? "—" : r.concTxt) + (r.st === "Virginia" ? " (epicenter)" : "") + '</td>' +
-          '<td>' + (r.reg ? r.reg.note : "—") + '</td>' +
-          '<td>' + r.x.iso + '</td></tr>').join("") +
-        '</tbody></table>';
+      et.innerHTML = '<table class="mp-table"><thead><tr><th>State</th><th>Rate by 2030</th><th>Trigger — live regulatory/market move</th><th>Next catalyst</th><th>Exposed builds</th><th>Reg posture</th></tr></thead><tbody>' +
+        rows.map(r => {
+          const t = trig[r.st], cat = nextCat(r.st), ex = exposed[r.st];
+          return '<tr data-state="' + r.x.p + '"><td><span class="mp-name">' + r.st + '</span> <span class="mm-postal">' + r.x.iso + '</span></td>' +
+            '<td>' + (r.rv != null ? '+' + r.rv + '% <span class="cf-tier cf-crit" title="modeled retail rate increase by 2030 vs 2024">modeled</span>' : '<span title="no modeled figure — unknown, not low">—</span>') + '</td>' +
+            '<td>' + (t ? '<b>' + t.date + '</b> · ' + t.headline + tchip(t.src && t.src.tier) : '<span title="no tracked trigger — unknown, not none">—</span>') + '</td>' +
+            '<td>' + (cat || '<span title="no dated forward catalyst tracked">—</span>') + '</td>' +
+            '<td>' + (r.st === "Virginia" ? "Dominion / Loudoun cluster (epicenter)" : (ex.length ? ex.join(" · ") : '<span title="no named build tracked — unknown, not zero">—</span>')) + '</td>' +
+            '<td>' + (r.reg ? r.reg.note + ' <sup title="editorial severity — this dashboard\'s read">°</sup>' : (r.regS === "gap" ? '—' : r.regS.charAt(0).toUpperCase() + r.regS.slice(1) + ' <sup title="editorial severity">°</sup>')) + '</td></tr>';
+        }).join("") +
+        '</tbody></table>' +
+        '<div class="mm-total" style="margin-top:6px"><b>Trigger</b> = live dated regulatory/market move (sourced, tiered) · <b>Next catalyst</b> = next dated release (PJM Jul 14 2026 is firm; others read from the trigger headline; — where none is tracked) · <b>Exposed builds</b> = named live ledger records in-state (Graveyard excluded; — = unknown, not zero) · <b>Reg posture</b> is editorial (°). The constraint turns political before it turns physical: PJM headroom is still ~12% while Virginia has already legislated a 14-yr large-load rate class and PJM cleared at the FERC cap.</div>';
     }
   }
   const SEVR = { gap: 0, low: 1, med: 2, high: 3 };
@@ -4100,6 +4134,27 @@ const $ = (id) => document.getElementById(id);
           '<div class="pl-fp-memo"><div class="pl-fp-claim">' + cl.t + '</div><div class="pl-fp-line">' + cl.l + '</div></div></div>'
       };
     };
+    // Archetype tags — EDITORIAL classifications derived from the already-computed fingerprint
+    // lanes (not a new asserted layer). A player can hold several (the real fingerprint shape is a
+    // mix; e.g. Microsoft is both a big buyer AND maximally grid-exposed). "Self-build" is named
+    // off the BTM/colocated share, NOT "power-rich" (we have no secured firm-MW figure).
+    const laneR = (m, k) => { const l = m.lanes.find(x => x.k === k); return l ? l.r : null; };
+    const archetypes = (m) => {
+      const tags = [], yr = laneR(m, "Yr"), cp = laneR(m, "Cp"), gr = laneR(m, "Gr"), si = laneR(m, "Si");
+      if (yr != null && yr >= 0.9) tags.push({ t: "Balance-sheet-stretched", why: "years of OCF pre-committed near the ceiling" });
+      if (cp != null && cp >= 0.66) tags.push({ t: "Circular-financing node", why: "dense counterparty edges on the financing map" });
+      if (gr != null && gr >= 0.9) tags.push({ t: "Grid-exposed builder", why: "little behind-the-meter — rides the interconnect queue" });
+      else if (gr != null && gr <= 0.2) tags.push({ t: "Self-build / colocated power", why: "mostly behind-the-meter or colocated generation" });
+      if (si != null && si >= 1.0) tags.push({ t: "Silicon-integrated", why: "owns / designs custom silicon" });
+      else if (si != null && si <= 0.33) tags.push({ t: "Merchant-GPU dependent", why: "depends on merchant accelerator supply" });
+      return tags;
+    };
+    const archRow = (m) => {
+      const a = archetypes(m); if (!a.length) return "";
+      return '<div class="pl-arch-row" title="Archetype tags are this dashboard\'s editorial classification, derived from the fingerprint lanes — not reported labels.">' +
+        a.map(x => '<span class="pl-arch" title="' + x.why.replace(/"/g, "&quot;") + ' (editorial)">' + x.t + '</span>').join("") +
+        '<span class="pl-arch-mk" aria-hidden="true">&deg;</span></div>';
+    };
     // Full dossier card (buildout layer): the fingerprint glyph up top, the full sourced dossier below.
     const dossier = (p, fp) => {
       const rows = [];
@@ -4124,6 +4179,7 @@ const $ = (id) => document.getElementById(id);
       return '<div class="pl-card">' +
         '<div class="pl-head"><span class="brand-mark b-' + (p.brand || "other") + '">' + p.name.charAt(0) + '</span><span class="pl-name">' + p.name + '</span><span class="pl-cls">' + p.cls + '</span></div>' +
         (fp ? fp.html : "") +
+        archRow(fpMetrics(p)) +
         '<div class="pl-stats">' + rows.join("") + '</div>' +
         '<div class="pl-constraint"><span class="pl-klabel">Constraint read</span>' + p.constraint.text +
         ' <span class="cf-tier cf-' + tierCls(p.constraint.tier) + '" title="' + tierTitle(p.constraint.tier) + '">' + p.constraint.tier + '</span></div>' +
@@ -4132,6 +4188,7 @@ const $ = (id) => document.getElementById(id);
     // Compact value-chain card (supply layer): role + constraint + connections, no financial joins.
     const supplyCard = p => '<div class="pl-card pl-supply">' +
       '<div class="pl-head"><span class="brand-mark b-' + (p.brand || "other") + '">' + p.name.charAt(0) + '</span><span class="pl-name">' + p.name + '</span><span class="pl-cls">' + p.cls + '</span></div>' +
+      '<div class="pl-arch-row" title="Archetype tag — this dashboard\'s editorial classification."><span class="pl-arch" title="value-chain beneficiary — sells into the buildout regardless of who wins (editorial)">Picks-and-shovels</span><span class="pl-arch-mk" aria-hidden="true">&deg;</span></div>' +
       '<div class="pl-constraint pl-role"><span class="pl-klabel">Role &amp; constraint</span>' + p.constraint.text +
       ' <span class="cf-tier cf-' + tierCls(p.constraint.tier) + '" title="' + tierTitle(p.constraint.tier) + '">' + p.constraint.tier + '</span></div>' +
       sigFor(p) + connFooter(p) + '</div>';
@@ -4139,7 +4196,7 @@ const $ = (id) => document.getElementById(id);
     // Shared "how to read" key + the balance-sort note (printed once, above the cards).
     const keyHost = $("playersFpKey");
     if (keyHost) keyHost.innerHTML =
-      '<div class="pl-fp-sortnote">Sorted by <b>portfolio balance</b>, not capex — the most balanced constraint fingerprint leads.</div>' +
+      '<div class="pl-fp-sortnote">Sorted by <b>portfolio balance</b>, not capex — the most balanced constraint fingerprint leads. Archetype chips (&deg;) are editorial classifications derived from the same lanes; a player can hold several.</div>' +
       '<details class="pl-fp-key"><summary>How to read the fingerprint</summary><div>' +
       'Six lanes, bar length = share of the field max. <b>Cx</b> capex (÷$' + FP_NORM.CAPEX_MAX + 'B) · <b>Yr</b> yrs of OCF pre-committed (cap ' + FP_NORM.OCF_CAP + ') · <b>MW</b> secured live GW (log) — these three are neutral blue, because bigger is not "better". <b>Si</b> silicon strategy (dashed outline = editorial band, not a sourced number) · <b>Cp</b> counterparty exposure · <b>Gr</b> grid-queue risk — these two turn <span style="color:' + CHART_PALETTE.constraint + '">red</span> when severe. A <b>dashed hollow</b> lane = no honest data (never drawn as zero). The left <b>spine</b> is portfolio balance: tall green = diversified, short red = concentrated / at the ceiling. <b>Read the shape, not the longest bar — resilience is a balanced fingerprint with short risk lanes, not a maxed capex bar.</b>' +
       '</div></details>';
