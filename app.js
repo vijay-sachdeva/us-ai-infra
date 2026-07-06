@@ -4657,6 +4657,28 @@ const $ = (id) => document.getElementById(id);
     if (btn) btn.addEventListener("click", toggleTheme);
   })();
 
+  // View modes (P5) — Standard / Brief (IC) / Diligence / Boardroom. Pure presentation over the
+  // already-published, already-tiered figures: body[data-mode] drives CSS (hide secondary chrome
+  // in Brief; hide interactive chrome in Boardroom); Diligence force-opens every <details> so all
+  // sources/methods/tables are visible. Source + tier tags stay visible in EVERY mode (honesty).
+  const MODE_KEY = "us-dc-mode";
+  function applyMode(m) {
+    m = m || "standard";
+    document.body.setAttribute("data-mode", m);
+    try { localStorage.setItem(MODE_KEY, m); } catch (_) {}
+    const pk = document.getElementById("viewMode");
+    if (pk) pk.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.mode === m));
+    if (m === "diligence") document.querySelectorAll("details").forEach(d => { d.open = true; });
+    // hiding/showing changes layout width → repaint the visible charts (see scheduleChartResize)
+    if (typeof scheduleChartResize === "function") scheduleChartResize();
+  }
+  (function () {
+    const pk = document.getElementById("viewMode");
+    if (pk) pk.addEventListener("click", e => { const b = e.target.closest("button[data-mode]"); if (b) applyMode(b.dataset.mode); });
+    let saved = "standard"; try { saved = localStorage.getItem(MODE_KEY) || "standard"; } catch (_) {}
+    applyMode(saved);
+  })();
+
   /* ----- Brand monograms (operator logos) — sourced from REGION_CONFIG.operators ----- */
   const BRAND_DEFS = (typeof REGION_CONFIG !== "undefined" && REGION_CONFIG.operators) ? REGION_CONFIG.operators : {};
   function brandFor(key) {
