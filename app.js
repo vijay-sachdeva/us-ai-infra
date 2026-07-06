@@ -3987,6 +3987,11 @@ const $ = (id) => document.getElementById(id);
     var ovSec=document.querySelector('section.tab-content[data-tab="overview"]');
     if(ovSec&&!ovSec._connWired){ ovSec._connWired=true;
       ovSec.addEventListener('click',function(e){
+        // Read-by-role nav: scroll to + flash the matching exec-lens card (no hash → no tab reset).
+        var rn=e.target.closest&&e.target.closest('.role-nav button[data-lens]');
+        if(rn){ var card=ovSec.querySelector('.lens-'+rn.dataset.lens);
+          if(card){ card.scrollIntoView({behavior:'smooth',block:'center'}); card.classList.remove('lens-flash'); void card.offsetWidth; card.classList.add('lens-flash'); }
+          return; }
         var a=e.target.closest&&e.target.closest('.ov-brief-conn'); if(!a) return;
         e.preventDefault();
         var mod=document.getElementById('ov-connections'); if(!mod) return;
@@ -4156,7 +4161,7 @@ const $ = (id) => document.getElementById(id);
         '<span class="pl-arch-mk" aria-hidden="true">&deg;</span></div>';
     };
     // Full dossier card (buildout layer): the fingerprint glyph up top, the full sourced dossier below.
-    const dossier = (p, fp) => {
+    const dossier = (p, fp, rank) => {
       const rows = [];
       const ci = cc.companies.findIndex(n => p.aliases.indexOf(n) !== -1);
       if (ci !== -1) rows.push('<div class="pl-stat">2026 capex guide <a href="#capital:coCapexChart"><b>$' + cc.values[ci] + 'B</b></a></div>');
@@ -4178,6 +4183,7 @@ const $ = (id) => document.getElementById(id);
       }
       return '<div class="pl-card">' +
         '<div class="pl-head"><span class="brand-mark b-' + (p.brand || "other") + '">' + p.name.charAt(0) + '</span><span class="pl-name">' + p.name + '</span><span class="pl-cls">' + p.cls + '</span></div>' +
+        (rank ? '<div class="pl-rank">' + rank + '</div>' : '') +
         (fp ? fp.html : "") +
         archRow(fpMetrics(p)) +
         '<div class="pl-stats">' + rows.join("") + '</div>' +
@@ -4203,7 +4209,17 @@ const $ = (id) => document.getElementById(id);
 
     const build = DATA.players.filter(p => p.layer !== "supply").map(p => ({ p: p, fp: fpSVG(p) }));
     build.sort((a, b) => (b.fp.balance == null ? -1 : b.fp.balance) - (a.fp.balance == null ? -1 : a.fp.balance));
-    host.innerHTML = build.map(x => dossier(x.p, x.fp)).join("");
+    // One scannable "why it ranks" label per core dossier — derived from the fingerprint lanes (editorial),
+    // so each card leads with its standout: best portfolio · most exposed · most optionality · biggest footprint.
+    const _metr = {}; build.forEach(x => { _metr[x.p.sym] = fpMetrics(x.p); });
+    const _lane = (sym, k) => { const m = _metr[sym]; if (!m) return null; const l = m.lanes.find(z => z.k === k); return l ? l.r : null; };
+    const _top = fn => build.map(x => x.p.sym).slice().sort((a, b) => fn(b) - fn(a))[0];
+    const _bestBal = build[0] ? build[0].p.sym : null;
+    const _mostExp = _top(s => (_lane(s, "Yr") || 0) + (_lane(s, "Cp") || 0));                 // committed + counterparty-concentrated
+    const _mostOpt = _top(s => { const yr = _lane(s, "Yr"); return (yr == null ? 0 : 1 - yr) + (_lane(s, "Si") || 0); });  // low commitment + owns silicon
+    const _biggest = _top(s => _lane(s, "MW") || 0);
+    const rankOf = sym => sym === _bestBal ? "Best constraint portfolio" : sym === _mostExp ? "Most exposed" : sym === _mostOpt ? "Most optionality" : sym === _biggest ? "Biggest named footprint" : null;
+    host.innerHTML = build.map(x => dossier(x.p, x.fp, rankOf(x.p.sym))).join("");
     const shost = $("supplyCards");
     if (shost) shost.innerHTML = DATA.players.filter(p => p.layer === "supply").map(supplyCard).join("");
   }
