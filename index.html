@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705m"></script>
+<script src="config.js?v=20260705n"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1281,6 +1281,10 @@
   .pl-fp-memo { flex: 1 1 150px; min-width: 0; }
   .pl-fp-claim { font-size: 13px; font-weight: 700; color: var(--ink); line-height: 1.25; }
   .pl-fp-line { font-size: 11.5px; color: var(--ink-2); line-height: 1.42; margin-top: 4px; }
+  /* Player archetype chips — editorial classifications (multiple per player) */
+  .pl-arch-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 7px 0 3px; }
+  .pl-arch { font-size: 9.5px; font-weight: 700; letter-spacing: .015em; color: var(--accent); background: rgba(88,166,255,.10); border: 1px solid rgba(88,166,255,.32); border-radius: 4px; padding: 1px 6px; cursor: help; }
+  .pl-arch-mk { font-size: 9px; color: var(--muted); cursor: help; }
   .pl-fp-sortnote { font-size: 11px; color: var(--muted); margin: 2px 0 8px; }
   .pl-fp-sortnote b { color: var(--ink-2); }
   .pl-fp-key { margin: 0 0 12px; font-size: 11.5px; color: var(--muted); }
@@ -2010,8 +2014,8 @@
       <p class="gap-connector"><span class="gc-tag">↑ the 19 GW gap</span><b>Queued MW is not buildable MW.</b> 97 GW in the queue collapses to ~24 GW real — and transformers + interconnection are what hold the ~19 GW power gap open.</p>
 
       <div class="so-what">
-        <label>So what</label>
-        <h3>The binding constraint isn't compute — it's transformers, queues and lead times. Where you build matters more than how big you build.</h3>
+        <label>So what &middot; 2nd order</label>
+        <h3>The binding constraint isn't compute — it's transformers, queues and lead times. <b>Power procurement is the investability filter:</b> a site without secured power + offtake is haircut out of the buildable base (only ~24 of 97 GW survive), so land without power rights is the residual, not the asset.<sup title="Editorial synthesis over the queue, lead-time and phantom-load data — this dashboard's read, not a reported metric">&deg;</sup></h3>
       </div>
 
       <!-- Full-width: interconnection funnel -->
@@ -3667,7 +3671,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705m"></script>
+<script src="app.js?v=20260705n"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
