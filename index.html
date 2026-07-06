@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705t"></script>
+<script src="config.js?v=20260705u"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -144,7 +144,19 @@
   body[data-mode="brief"] .ov-briefing,
   body[data-mode="brief"] #ov-livedata,
   body[data-mode="brief"] .ov-ticker,
-  body[data-mode="brief"] .note-more { display: none !important; }
+  body[data-mode="brief"] .note-more,
+  /* Brief = a 3-minute IC memo: drop descriptive captions + exploratory modules; keep claims,
+     flagship visuals, decision implications, value map, lenses, watch. */
+  body[data-mode="brief"] .note,
+  body[data-mode="brief"] #ov-connections,
+  body[data-mode="brief"] .ov-conn-label,
+  body[data-mode="brief"] .ov-conn-intro,
+  body[data-mode="brief"] #ov-connections-anchor,
+  body[data-mode="brief"] #topStory,
+  body[data-mode="brief"] .ov-bn-framing,
+  body[data-mode="brief"] #ov-bottleneck,
+  body[data-mode="brief"] .role-nav { display: none !important; }
+  body[data-mode="brief"] .decision-impl { border-left-width: 4px; }
   /* Boardroom — hide interactive chrome for clean presenting/screenshots (pairs with light theme) */
   body[data-mode="board"] .map-view-toggle,
   body[data-mode="board"] .mp-view-data,
@@ -161,6 +173,8 @@
   body[data-mode="board"] section[data-tab="overview"] .ccc-legend,
   body[data-mode="board"] section[data-tab="overview"] .ov-lens-label:not(.board-keep),
   body[data-mode="board"] section[data-tab="overview"] .lens-grid,
+  body[data-mode="board"] section[data-tab="overview"] .role-nav,
+  body[data-mode="board"] section[data-tab="overview"] .vm-change,
   body[data-mode="board"] section[data-tab="overview"] .vm-scen,
   body[data-mode="board"] section[data-tab="overview"] #ov-connections-anchor,
   body[data-mode="board"] section[data-tab="overview"] #ov-connections,
@@ -176,8 +190,9 @@
   /* scale the dominant visual down (viewBox SVG, preserveAspectRatio — no clipping) so thesis +
      visual + value map + watch fit ~one screen */
   body[data-mode="board"] section[data-tab="overview"] #ov-stage { text-align: center; }
-  body[data-mode="board"] section[data-tab="overview"] #ov-stage svg { height: 300px; width: auto; max-width: 100%; margin: 0 auto; }
-  body[data-mode="board"] section[data-tab="overview"] .vm-col { padding: 9px 11px; }
+  body[data-mode="board"] section[data-tab="overview"] #ov-stage svg { height: 265px; width: auto; max-width: 100%; margin: 0 auto; }
+  body[data-mode="board"] section[data-tab="overview"] .vm-col { padding: 8px 10px; }
+  body[data-mode="board"] section[data-tab="overview"] .watch-chips { margin-top: 8px; }
   /* Print — always drop chrome so any mode prints clean */
   @media print {
     header.site, nav.tabs, #viewMode, .theme-toggle, .top-banner, .ov-toggle, .map-view-toggle, .chat-fab, #chatFab { display: none !important; }
@@ -1344,6 +1359,8 @@
   .pl-arch-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 7px 0 3px; }
   .pl-arch { font-size: 9.5px; font-weight: 700; letter-spacing: .015em; color: var(--accent); background: rgba(88,166,255,.10); border: 1px solid rgba(88,166,255,.32); border-radius: 4px; padding: 1px 6px; cursor: help; }
   .pl-arch-mk { font-size: 9px; color: var(--muted); cursor: help; }
+  /* Rank label — the scannable "why it ranks" line per core dossier */
+  .pl-rank { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: var(--accent); background: rgba(88,166,255,.10); border: 1px solid rgba(88,166,255,.30); border-radius: 5px; padding: 2px 8px; margin: 2px 0 4px; }
   /* Watchlist rails — curated thesis-support chips (name-only where untracked; never invented metrics) */
   .wl-rails { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
   .wl-rail { border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; }
@@ -1693,6 +1710,20 @@
   .lens-card .decision-impl{margin:9px 0 6px}
   .lens-watch{font-size:10.5px;color:var(--ov-muted)} .lens-watch b{color:var(--ov-ink)}
   @media(max-width:820px){.lens-grid{grid-template-columns:1fr}}
+  /* Read-by-role nav strip — prominent role-based navigation to the exec lenses */
+  .role-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+  .role-nav-lbl{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ov-muted)}
+  .role-nav button{appearance:none;border:1px solid var(--ov-line);background:rgba(255,255,255,.03);color:var(--ov-ink);font:inherit;font-size:12px;font-weight:700;padding:4px 15px;border-radius:999px;cursor:pointer;transition:border-color .15s,color .15s}
+  .role-nav button[data-lens="caio"]:hover{border-color:#38bdf8;color:#38bdf8}
+  .role-nav button[data-lens="cso"]:hover{border-color:#fbbf24;color:#fbbf24}
+  .role-nav button[data-lens="vc"]:hover{border-color:#a78bfa;color:#a78bfa}
+  .lens-card.lens-flash{animation:lensFlash 1.5s ease}
+  @keyframes lensFlash{0%,22%{box-shadow:0 0 0 2px var(--ov-demand)}100%{box-shadow:none}}
+  /* Top-5 watch-signal chips — the Boardroom watch strip */
+  .watch-chips{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .watch-chips .wc-lbl{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ov-muted);margin-right:2px}
+  .watch-chips .wc{font-size:11px;font-weight:600;color:var(--ov-ink);text-decoration:none;border:1px solid var(--ov-line);border-radius:999px;padding:3px 10px;white-space:nowrap;background:rgba(255,255,255,.02)}
+  .watch-chips .wc:hover{border-color:var(--ov-demand);color:var(--ov-demand)}
   .vm-ed{font-style:italic;opacity:.8}
   @media(max-width:600px){.vm-grid{grid-template-columns:1fr}}
   @media(max-width:760px){.ov-lenses.ov-causal{grid-template-columns:1fr 1fr}}
@@ -1832,6 +1863,12 @@
       </div>
       <div id="ov-stage" class="ov-chartwrap" style="position:relative"></div>
       <div class="decision-impl"><span class="di-label">Decision implication</span> Firm power — not chips or capital — is the binding constraint through 2030; treat secured megawatts and contracted offtake as the assets, merchant and single-counterparty exposure as the fragility. <span style="opacity:.75">Editorial — not investment advice.</span></div>
+      <div class="role-nav" id="roleNav">
+        <span class="role-nav-lbl">Read by role &rarr;</span>
+        <button type="button" data-lens="caio">CAIO</button>
+        <button type="button" data-lens="cso">CSO</button>
+        <button type="button" data-lens="vc">VC</button>
+      </div>
       <div class="ov-lens-label">Why the power gap opens — follow the chain</div>
       <div class="ov-lenses ov-causal">
         <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span></a>
@@ -1913,6 +1950,14 @@
         <a href="#grid:cumDeficitChart"><b>Base</b> ~19 GW short by 2030</a> &middot;
         <a href="#grid:cumDeficitChart"><b>Bull</b> — on EPRI&rsquo;s low case the gap closes</a> &middot;
         <a href="#grid:cumDeficitChart"><b>Bear</b> — LBNL high end ~100+ GW</a></div>
+      <div class="watch-chips" id="ovWatchChips">
+        <span class="wc-lbl">Top 5 watch signals</span>
+        <a class="wc" href="#grid:pjmAuctionChart">PJM 2028/29 print &middot; Jul 14</a>
+        <a class="wc" href="#capital:overcommitmentBoard">Hyperscaler Q2 capex guides</a>
+        <a class="wc" href="#capital:overcommitmentBoard">Oracle 10-Q RPO print</a>
+        <a class="wc" href="#buildout:queueChart">LBNL <i>Queued Up</i> snapshot</a>
+        <a class="wc" href="#grid:rateImpactChart">Next state PUC ruling</a>
+      </div>
       <div class="vm-change"><b>What would change our mind:</b> PJM 2028/29 print (Jul 14, 2026) · Q2 hyperscaler capex guides · next LBNL <i>Queued Up</i> · Oracle RPO print. <span class="vm-ed">Structural read — editorial; market-structure analysis, not investment advice.</span></div>
 
       <div class="ov-lens-label">Read it by role — what a CAIO, CSO or VC should take away<sup title="Editorial framing over sourced facts already on this dashboard — market-structure analysis, not investment advice">&deg;</sup></div>
@@ -3877,7 +3922,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705t"></script>
+<script src="app.js?v=20260705u"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
