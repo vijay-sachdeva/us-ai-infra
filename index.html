@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705s"></script>
+<script src="config.js?v=20260705t"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -186,7 +186,7 @@
   }
 
   /* Decision-implication callout — the "so what?" one-liner on every flagship */
-  .decision-impl { display: flex; gap: 8px; align-items: baseline; margin: 11px 0 2px; padding: 8px 11px; border-left: 3px solid var(--accent); background: rgba(88,166,255,.07); border-radius: 0 7px 7px 0; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
+  .decision-impl { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; margin: 11px 0 2px; padding: 8px 11px; border-left: 3px solid var(--accent); background: rgba(88,166,255,.07); border-radius: 0 7px 7px 0; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
   .decision-impl .di-label { font-size: 9.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); white-space: nowrap; flex: none; }
   /* ---------- Tab nav ---------- */
   nav.tabs {
@@ -1344,6 +1344,17 @@
   .pl-arch-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 7px 0 3px; }
   .pl-arch { font-size: 9.5px; font-weight: 700; letter-spacing: .015em; color: var(--accent); background: rgba(88,166,255,.10); border: 1px solid rgba(88,166,255,.32); border-radius: 4px; padding: 1px 6px; cursor: help; }
   .pl-arch-mk { font-size: 9px; color: var(--muted); cursor: help; }
+  /* Watchlist rails — curated thesis-support chips (name-only where untracked; never invented metrics) */
+  .wl-rails { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
+  .wl-rail { border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; }
+  .wl-rail-h { font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  .wl-chip { display: inline-flex; align-items: baseline; gap: 5px; margin: 0 5px 5px 0; padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); font-size: 11.5px; font-weight: 600; color: var(--ink); text-decoration: none; }
+  .wl-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .wl-chip .wl-hook { font-size: 10px; font-weight: 500; color: var(--muted); }
+  .wl-chip.wl-untracked { color: var(--muted); background: transparent; border-style: dashed; cursor: default; font-weight: 500; }
+  @media (max-width: 700px) { .wl-rails { grid-template-columns: 1fr; } }
+  /* Mobile: keep wide Players tables scrolling inside their own box, never the page */
+  @media (max-width: 640px) { section[data-tab="players"] .mp-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; } }
   .pl-fp-sortnote { font-size: 11px; color: var(--muted); margin: 2px 0 8px; }
   .pl-fp-sortnote b { color: var(--ink-2); }
   .pl-fp-key { margin: 0 0 12px; font-size: 11.5px; color: var(--muted); }
@@ -2579,6 +2590,42 @@
         <div id="playersFpKey"></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Winners aren&rsquo;t the biggest spenders — they hold the best <b>constraint portfolio</b>: secured power + capital quality + diversified silicon + low counterparty concentration. <span style="opacity:.75">Editorial.</span></div>
         <div id="playersCards" class="pl-grid"></div>
+      </div>
+
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Watchlists — thesis support (not full dossiers)<sup title="Curated identity + links to each name's existing sourced row; name-only where we track only a shared/co-tenant record or a qualitative role — never an invented owned metric.">&deg;</sup></h4>
+        <div class="note">Core dossiers above <b>explain</b> the thesis; these <b>support</b> it. Each chip links to the name's existing sourced row; <span class="wl-chip wl-untracked" style="padding:0 4px">grey</span> = not yet tracked in a dataset (name-only, no metrics — never zeroed or invented).</div>
+        <div class="wl-rails">
+          <div class="wl-rail">
+            <div class="wl-rail-h">Neocloud / developer</div>
+            <a class="wl-chip" href="#players">Nebius <span class="wl-hook">$22B capex &middot; PA 1.2 GW</span></a>
+            <a class="wl-chip" href="#players">Applied Digital <span class="wl-hook">Delta+Polaris Forge &middot; ~$36B take-or-pay</span></a>
+            <a class="wl-chip" href="#players">IREN <span class="wl-hook">Childress live &middot; Sweetwater</span></a>
+            <a class="wl-chip" href="#buildout">Crusoe <span class="wl-hook">Stargate Abilene (developer)</span></a>
+            <span class="wl-chip wl-untracked" title="not yet tracked in a dataset — name-only, no metrics">Fluidstack &middot; Lambda &middot; TeraWulf</span>
+          </div>
+          <div class="wl-rail">
+            <div class="wl-rail-h">Power bank (utilities / IPPs)</div>
+            <a class="wl-chip" href="#buildout">Talen <span class="wl-hook">Susquehanna (w/ AWS)</span></a>
+            <a class="wl-chip" href="#buildout">NextEra <span class="wl-hook">Duane Arnold (w/ Google)</span></a>
+            <a class="wl-chip" href="#grid">Constellation <span class="wl-hook">Crane/TMI restart &middot; MSFT PPA</span></a>
+            <span class="wl-chip wl-untracked" title="not yet tracked in a dataset — name-only, no metrics">Vistra &middot; Entergy</span>
+          </div>
+          <div class="wl-rail">
+            <div class="wl-rail-h">Equipment bottlenecks</div>
+            <a class="wl-chip" href="#players">GE Vernova</a>
+            <a class="wl-chip" href="#players">Vertiv</a>
+            <a class="wl-chip" href="#players">Eaton</a>
+            <span class="wl-chip wl-untracked" title="not yet tracked in a dataset — name-only, no metrics">Siemens Energy &middot; Mitsubishi &middot; Schneider &middot; Quanta</span>
+          </div>
+          <div class="wl-rail">
+            <div class="wl-rail-h">Capital nodes</div>
+            <a class="wl-chip" href="#capital">Apollo <span class="wl-hook">$35B Broadcom chip SPV</span></a>
+            <a class="wl-chip" href="#capital">Blackstone <span class="wl-hook">CoreWeave DDTL &middot; Google TPU JV</span></a>
+            <a class="wl-chip" href="#buildout">Blue Owl <span class="wl-hook">Project Blue (stalled)</span></a>
+            <span class="wl-chip wl-untracked" title="not yet tracked in a dataset — name-only, no metrics">Brookfield</span>
+          </div>
+        </div>
       </div>
 
       <div class="stub-card" style="margin-top:14px">
@@ -3830,7 +3877,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705s"></script>
+<script src="app.js?v=20260705t"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
