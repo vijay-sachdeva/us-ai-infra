@@ -4680,26 +4680,32 @@ const $ = (id) => document.getElementById(id);
     if (btn) btn.addEventListener("click", toggleTheme);
   })();
 
-  // View modes (P5) — Standard / Brief (IC) / Diligence / Boardroom. Pure presentation over the
-  // already-published, already-tiered figures: body[data-mode] drives CSS (hide secondary chrome
-  // in Brief; hide interactive chrome in Boardroom); Diligence force-opens every <details> so all
-  // sources/methods/tables are visible. Source + tier tags stay visible in EVERY mode (honesty).
-  const MODE_KEY = "us-dc-mode";
+  // View system — ONE executive default + ONE "Show evidence" toggle (+ a small Present icon), not a
+  // four-mode picker. body[data-mode] still drives the (verified) CSS: DEFAULT = "brief" (executive
+  // briefing — sources/methods/tables/tools/long notes folded away); "Show evidence" = "diligence"
+  // (reveal everything + open all <details>); Present = "board" (one-screen hero). Same story for
+  // every audience; evidence surfaces the diligence layer. Source + tier tags stay visible in ALL views.
   function applyMode(m) {
-    m = m || "standard";
-    document.body.setAttribute("data-mode", m);
-    try { localStorage.setItem(MODE_KEY, m); } catch (_) {}
-    const pk = document.getElementById("viewMode");
-    if (pk) pk.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.mode === m));
+    document.body.setAttribute("data-mode", m || "brief");
     if (m === "diligence") document.querySelectorAll("details").forEach(d => { d.open = true; });
-    // hiding/showing changes layout width → repaint the visible charts (see scheduleChartResize)
-    if (typeof scheduleChartResize === "function") scheduleChartResize();
+    if (typeof scheduleChartResize === "function") scheduleChartResize();   // hide/show changes width → repaint
+  }
+  let _evidence = false, _present = false;
+  try { const v = JSON.parse(localStorage.getItem("us-dc-view") || "{}"); _evidence = !!v.evidence; _present = !!v.present; } catch (_) {}
+  function applyView() {
+    applyMode(_present ? "board" : (_evidence ? "diligence" : "brief"));
+    const et = document.getElementById("evidenceToggle");
+    if (et) { et.classList.toggle("on", _evidence); et.setAttribute("aria-checked", _evidence ? "true" : "false"); et.querySelector(".ev-lbl").textContent = _evidence ? "Hide evidence" : "Show evidence"; }
+    const pt = document.getElementById("presentToggle");
+    if (pt) { pt.classList.toggle("on", _present); pt.setAttribute("aria-pressed", _present ? "true" : "false"); }
+    try { localStorage.setItem("us-dc-view", JSON.stringify({ evidence: _evidence, present: _present })); } catch (_) {}
   }
   (function () {
-    const pk = document.getElementById("viewMode");
-    if (pk) pk.addEventListener("click", e => { const b = e.target.closest("button[data-mode]"); if (b) applyMode(b.dataset.mode); });
-    let saved = "standard"; try { saved = localStorage.getItem(MODE_KEY) || "standard"; } catch (_) {}
-    applyMode(saved);
+    const et = document.getElementById("evidenceToggle");
+    if (et) et.addEventListener("click", () => { _evidence = !_evidence; applyView(); });
+    const pt = document.getElementById("presentToggle");
+    if (pt) pt.addEventListener("click", () => { _present = !_present; applyView(); });
+    applyView();
   })();
 
   /* ----- Brand monograms (operator logos) — sourced from REGION_CONFIG.operators ----- */
