@@ -151,6 +151,7 @@ const $ = (id) => document.getElementById(id);
     circularFinancing: { reviewed: "2026-07", take: "Vendors and private credit put ~$257B of disclosed equity + $43.5B of GPU-backed debt into the labs and neoclouds, which commit ~$1.19T of disclosed compute back to the same cluster — so a chunk of AI 'demand' is the funders' own capital cycling back, and with OpenAI on three of the five closed loops, unwind risk is networked.", asof: "Jun 2026", src: { label: "DATA.circularFinancing (per-edge citations)" } },
     megaPowerPaths: { reviewed: "2026-07", take: "Among source-verified active builds, Meta's Hyperion tops the ledger at 5,000 MW (colocated) ahead of Homer City 4,500 MW and Joule 4,000 MW — both behind-the-meter, and both total-facility power (incl. cooling/generation), not IT load. The largest capacity clusters in BTM/colocated paths that bypass the interconnect queue, while four retreats (Project Jade, Project Blue, the Stargate-Abilene expansion, a paused Microsoft Ohio site) are segregated and excluded from the active GW total.", asof: "source-verified ledger (announced/ultimate targets; mixed capacity_type)", src: { label: "data/projects.json (per-record citations)" } },
     coCapexChart: { reviewed: "2026-07", take: "Amazon leads 2026 AI-infra capex at $200B, ahead of Microsoft ($190B), Google ($185B) and Meta ($135B — midpoint of its filed $125-145B range), with AI-native challengers far smaller: Oracle $56B (FY26 actual), CoreWeave $33B, Nebius $22B and xAI $18B.", asof: "2026 guidance", src: { label: "company 2026 capex guidance" } },
+    commitmentQuadrant: { reviewed: "2026-07", take: "Capital quality beats headline capex: the two names deepest in the over-committed / power-short corner — Oracle (~10 yrs of OCF pre-committed) and CoreWeave (~10 yrs, no owned build) — are the same two leaning hardest on a single concentrated counterparty. X is SEC-filed (primary); ledger GW is coverage-biased (read direction, not magnitude); silicon colour is editorial.", asof: "SEC filings (2026) + named-build ledger", src: { label: "SEC 10-K/10-Q · data/projects.json · company capex guidance" } },
     capexAiShareChart: { reviewed: "2026-07", take: "Across ~$799B of tracked operator capex roughly 90% is AI/data-center-attributed, with pure-plays like Oracle and CoreWeave near 100% and diversified operators lower — but the infra-vs-non-core split is an editorial Modeled estimate, not a reported line item.", asof: "2026 guidance", src: { label: "modeled (this dashboard)" } },
     costStack: { reviewed: "2026-06", take: "Building one MW of AI capacity runs ~$42M all-in, with compute ($31M) dwarfing facility ($11M) and GPUs/accelerators alone ($23M) the single largest layer — more than the entire shell, power, cooling and servers combined.", asof: "illustrative", src: { label: "illustrative per-MW build stack (JLL + analyst)" } },
     capexTrendChart: { reviewed: "2026-06", take: "Combined Big-5 hyperscaler capex (Amazon, Microsoft, Alphabet, Meta, Oracle) more than quintupled from $128B in 2021 to a guided ~$684B in 2026, where the 2026 figure is company guidance/estimate rather than reported actuals.", asof: "2021-2025 actuals + 2026 guidance", src: { label: "company 10-Ks / earnings (2026 = guidance)" } },
@@ -1773,6 +1774,120 @@ const $ = (id) => document.getElementById(id);
     if (m) m.innerHTML = "<b>Method & honesty notes.</b> " + oc.methodology + " Source: " + oc.src.label + ".";
   }
 
+  // Silicon-strategy band — editorial ordinal, shared by the Players Constraint Fingerprint and
+  // the Capital commitment quadrant (single source of truth). 0.33 merchant-GPU dependent ·
+  // 0.5 mixed/emerging in-house · 0.66 multi-source · 1.0 owns/designs custom silicon. Curated,
+  // NOT a sourced number.
+  const FP_SI = { GOOGL: 1.0, AMZN: 1.0, META: 1.0, NVDA: 1.0, AVGO: 1.0, AMD: 1.0, Anthropic: 0.66, OpenAI: 0.66, MSFT: 0.5, ORCL: 0.33, CRWV: 0.33, xAI: 0.33 };
+
+  // Capital flagship — "Commitment vs build-out footprint": who cannot back down (X = years of
+  // operating cash flow already pre-committed, SEC-filed/primary) vs what they've actually secured
+  // (Y = named live ledger power, coverage-biased). Bubble = 2026 capex; colour = silicon band
+  // (editorial). Scope: the 6 operators with BOTH a filed commitment book AND a capex figure —
+  // plotting a lab/vendor with no OCF row on X would be fabrication, so they stay off this chart.
+  function renderCommitmentQuadrant() {
+    if (!$("commitmentQuadrant") || typeof Chart === "undefined" || !Array.isArray(DATA.players) || !DATA.overcommitment) return;
+    const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
+    if (!pj || !pj.length) return;   // Y-axis IS the named-build ledger — skip until hydrate supplies it (hydrate re-invokes this); avoids a misleading all-hollow pre-hydrate frame.
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const cc = DATA.companyCapex || { companies: [], values: [] };
+    const oc = (DATA.overcommitment && DATA.overcommitment.ops) || [];
+    const SYMS = ["MSFT", "AMZN", "GOOGL", "META", "ORCL", "CRWV"];
+    const siColor = si => si >= 0.9 ? CHART_PALETTE.supply : si >= 0.5 ? CHART_PALETTE.pipeline : CHART_PALETTE.constraint;
+    const siWord  = si => si >= 1 ? "owns custom silicon" : si >= 0.66 ? "multi-source" : si >= 0.5 ? "mixed / emerging in-house" : "merchant-GPU dependent";
+    const pts = [];
+    SYMS.forEach(sym => {
+      const p = DATA.players.find(x => x.sym === sym);
+      const o = oc.find(x => x.sym === sym);
+      if (!p || !o || !o.ocf) return;                          // no OCF row => cannot plot on X (would be fabrication)
+      const yrs = ((o.leasesCommenced || 0) + (o.leasesNotCommenced || 0) + (o.purchase || 0) + (o.construction || 0)) / o.ocf;
+      const ci = cc.companies.findIndex(n => p.aliases.indexOf(n) !== -1);
+      const capex = ci !== -1 ? cc.values[ci] : null;
+      let mw = 0, liveN = 0;                                    // named ledger GW — identical join to fpMetrics(): live (Graveyard-excluded) records whose operator matches an alias
+      if (pj) {
+        const live = pj.filter(r => GRAVEYARD_STATUSES.indexOf(r.status) === -1 && p.aliases.some(a => (r.operator || "").indexOf(a) !== -1));
+        mw = live.reduce((s, r) => s + (r.capacity_mw || 0), 0); liveN = live.length;
+      }
+      const hollow = !(mw > 0);                                 // no named build => hollow, pinned to baseline; NEVER a measured 0
+      pts.push({ sym: sym, name: p.name, x: yrs, y: hollow ? 0 : mw / 1000, capex: capex, si: FP_SI[sym] != null ? FP_SI[sym] : 0.33, hollow: hollow, liveN: liveN, ocfBasis: o.ocfBasis });
+    });
+    if (!pts.length) return;
+    const K = 22 / Math.sqrt(200);                              // bubble AREA ∝ capex: r = k·√capex, AMZN $200B ≈ 22px
+    const rOf = capex => capex == null ? 8 : Math.max(8, Math.min(22, K * Math.sqrt(capex)));
+    if (_charts.commitmentQuadrant) { try { _charts.commitmentQuadrant.destroy(); } catch (_) {} delete _charts.commitmentQuadrant; }
+
+    // Quadrant dividers (X≈4 yr = just above the hyperscaler band top / below the Oracle-CoreWeave
+    // ~10yr zone; Y≈2 GW) + corner labels. Painted every frame from scale pixels, so it survives
+    // resize/theme rebuild (same technique as renderLollipop's dots plugin).
+    const quad = { id: "qp-commitmentQuadrant", afterDatasetsDraw(chart) {
+      const ctx = chart.ctx, ca = chart.chartArea, sx = chart.scales.x, sy = chart.scales.y;
+      if (!ca || !sx || !sy) return;
+      const xD = sx.getPixelForValue(4), yD = sy.getPixelForValue(2);
+      ctx.save();
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = cl.grid; ctx.lineWidth = 1;
+      if (xD > ca.left && xD < ca.right) { ctx.beginPath(); ctx.moveTo(xD, ca.top); ctx.lineTo(xD, ca.bottom); ctx.stroke(); }
+      if (yD > ca.top && yD < ca.bottom) { ctx.beginPath(); ctx.moveTo(ca.left, yD); ctx.lineTo(ca.right, yD); ctx.stroke(); }
+      ctx.setLineDash([]);
+      const narrow = (ca.right - ca.left) < 430;
+      ctx.font = "600 " + (narrow ? 8 : 9) + "px 'Inter', sans-serif"; ctx.fillStyle = cl.label; ctx.globalAlpha = 0.72;
+      const L = narrow
+        ? { tl: "Locked-in", tr: "All-in", br: "Over-committed", bl: "Optionality" }
+        : { tl: "Locked-in & powered", tr: "All-in & delivering", br: "Over-committed · power-short", bl: "Optionality · footprint unproven" };
+      ctx.textAlign = "left";  ctx.fillText(L.tl, ca.left + 6, ca.top + 12);
+      ctx.textAlign = "right"; ctx.fillText(L.tr, ca.right - 6, ca.top + 12);
+      ctx.textAlign = "right"; ctx.fillText(L.br, ca.right - 6, ca.bottom - 7);
+      ctx.textAlign = "left";  ctx.fillText(L.bl, ca.left + 6, ca.bottom - 7);
+      ctx.restore();
+    } };
+
+    _charts.commitmentQuadrant = new Chart($("commitmentQuadrant"), {
+      type: "scatter",
+      data: { datasets: [{
+        label: "operators",
+        data: pts.map(p => ({ x: p.x, y: p.y })),
+        pointRadius: pts.map(p => rOf(p.capex)),
+        pointHoverRadius: pts.map(p => rOf(p.capex) + 2),
+        backgroundColor: pts.map(p => p.hollow ? "rgba(0,0,0,0)" : hexA(siColor(p.si), 0.5)),
+        borderColor: pts.map(p => siColor(p.si)),
+        borderWidth: pts.map(p => p.hollow ? 2 : 1.5)
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 20, right: 26, left: 4 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, offset: 8,
+            // stagger labels so the bottom-left cluster (GOOGL≈MSFT) and the bottom-right pair
+            // (CoreWeave next to Oracle) don't overprint each other.
+            align: (c) => { const s = pts[c.dataIndex].sym; return s === "MSFT" ? "right" : (s === "GOOGL" || s === "CRWV") ? "left" : "top"; },
+            formatter: (v, c) => pts[c.dataIndex].sym + (pts[c.dataIndex].hollow ? " △" : "") }),
+          tooltip: { callbacks: {
+            title: () => "",
+            label: c => {
+              const p = pts[c.dataIndex]; const out = [p.name + " (" + p.sym + ")"];
+              out.push("Committed: " + p.x.toFixed(1) + " yrs of OCF pre-committed (SEC-filed, primary)");
+              out.push(p.hollow ? "Ledger power: no named build — no honest data (not 0)"
+                                : "Ledger power: " + p.y.toFixed(2) + " GW named · " + p.liveN + " build(s)");
+              if (p.capex != null) out.push("2026 capex: $" + p.capex + "B");
+              out.push("Silicon: " + siWord(p.si) + " (editorial band)");
+              return out;
+            }
+          } }
+        },
+        scales: {
+          x: { min: 0, suggestedMax: 11, grid: { color: cl.grid }, ticks: { callback: v => v + " yr" },
+               title: { display: true, text: "Years of OCF pre-committed → (SEC-filed, primary)" } },
+          y: { min: 0, suggestedMax: 8, grid: { color: cl.grid }, ticks: { callback: v => v + " GW" },
+               title: { display: true, text: "Named live ledger power, GW (projects.json)" } }
+        }
+      },
+      plugins: [quad]
+    });
+    const mnode = $("commitmentQuadrantMethod");
+    if (mnode) mnode.innerHTML = "<b>How to read it.</b> X = years of operating cash flow already pre-committed (SEC 10-K/10-Q, <b>primary</b> — recomputed at render from filed lease + purchase + construction commitments ÷ operating cash flow; higher = less room to back down). Bubble = 2026 capex ($B, guidance/actual). Colour = silicon-strategy band (<b>editorial</b> ordinal: owns custom silicon · mixed · merchant-GPU — curated, NOT a sourced %). Y = named live ledger power (data/projects.json), <b>coverage-biased by design</b>: counts only source-verified named builds (Graveyard excluded), operators build far more than the ledger names, shared campuses (Stargate Abilene) count once per named operator, and CoreWeave has no named build so it renders hollow on the baseline (△) — <b>read direction, not magnitude</b>. Only the six operators with both a filed commitment book and a capex figure plot here; labs/vendors without an OCF row appear in the Players fingerprint instead.";
+  }
+
   // The three clocks — floating range bars: asset life vs obligation tenor vs power arrival.
   function renderTenorClocks() {
     if (!$("tenorClocks") || typeof Chart === "undefined" || !DATA.tenorClocks) return;
@@ -3348,6 +3463,7 @@ const $ = (id) => document.getElementById(id);
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
     if (DATA.projects && vis($("megaProjectsList"))) renderMegaProjects();   // swap the seed table for the canonical dataset
     if (DATA.projects && vis($("megaPowerPaths"))) renderMegaPowerPaths();   // the flagship chart over the same ledger
+    if (DATA.projects && vis($("commitmentQuadrant"))) renderCommitmentQuadrant();   // ledger-GW Y-axis needs the hydrated projects feed
     if (DATA.projects) renderGraveyard();         // verified retreats — not vis-gated: it self-guards + re-shows a card a cold no-data render may have hidden
     if (vis($("playersCards"))) { renderPlayers(); renderPowerBank(); renderPlayersGrid(); renderFilingsWatch(); renderPlayerFeed(); }  // joins pick up the fresh feeds
     renderFeedFreshness();
@@ -3834,9 +3950,8 @@ const $ = (id) => document.getElementById(id);
     // (never imputed as 0); a left BALANCE spine + balance-sort make the second-degree point
     // visible — the winner is the most BALANCED constraint portfolio, not the biggest capex bar.
     const FP_NORM = { CAPEX_MAX: 200, OCF_CAP: 10, MW_LOG_DEN: Math.log10(7001) };
-    // Silicon strategy — editorial ordinal band (0.33 merchant-dependent · 0.66 multi-source ·
-    // 1.0 owns/designs custom silicon), curated from each player's constraint read + circular role.
-    const FP_SI = { GOOGL: 1.0, AMZN: 1.0, META: 1.0, NVDA: 1.0, AVGO: 1.0, AMD: 1.0, Anthropic: 0.66, OpenAI: 0.66, MSFT: 0.5, ORCL: 0.33, CRWV: 0.33, xAI: 0.33 };
+    // Silicon strategy (FP_SI) is hoisted to module scope — single source of truth shared with the
+    // Capital commitment quadrant. Editorial ordinal band; see the declaration near renderCommitmentQuadrant.
     // Market-memo claim per player (title + one sharp sourced line) — editorial, like constraint reads.
     const FP_CLAIM = {
       MSFT: { t: "Spends most, most grid-exposed", l: "$190B capex, 0% behind-the-meter — every live GW rides the interconnect queue." },
@@ -4210,6 +4325,7 @@ const $ = (id) => document.getElementById(id);
       renderDeals();
       renderPlays();
       renderIrrCalculator();
+      renderCommitmentQuadrant();
       renderCapexChart();
       renderCapexAiShare();
       renderCapexTrend();
@@ -4332,7 +4448,7 @@ const $ = (id) => document.getElementById(id);
   // listener). A card with no h4 (so-what boxes, calculators) is treated as a lead and left alone.
   // Buildout is already wrapped in markup, so it has a .more-analysis and is skipped here.
   var LEAD_CARDS = {
-    capital: ["2026 capex by operator", "AI-attributed share of capex", "Capex vs operating cash flow", "The commitment book", "The commitment flywheel"],
+    capital: ["Commitment vs build-out footprint", "Capex vs operating cash flow", "The commitment book", "The commitment flywheel"],
     grid:    ["Where AI load becomes", "Annual demand growth", "Cumulative demand-supply deficit", "PJM capacity auction", "What power costs, by state"],
     tokens:  ["One prompt to one gigawatt", "Industry token volume", "$/token compression", "The Jevons check"]
   };
