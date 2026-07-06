@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705k"></script>
+<script src="config.js?v=20260705l"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1782,6 +1782,19 @@
       <div class="so-what">
         <label>So what</label>
         <h3>~$839B of capex is chasing a supply-constrained market. The bottleneck is power, not demand — winners will own the megawatts.</h3>
+      </div>
+
+      <!-- FLAGSHIP (lead): Commitment vs build-out footprint — the capital-quality quadrant -->
+      <div class="stub-card">
+        <h4>Commitment vs build-out footprint <span class="cf-tier cf-ok" title="X (years of OCF pre-committed) is SEC-filed; bubble (2026 capex) is guidance/actual.">X + capex primary</span> <span class="cf-tier cf-crit" title="Y is coverage-biased named-ledger GW; silicon colour is an editorial band — not sourced numbers.">Y coverage-biased &middot; colour editorial</span></h4>
+        <div class="note">Who cannot back down (years of operating cash flow already pre-committed) vs what they&rsquo;ve actually secured (named live ledger power) &middot; bubble = 2026 capex &middot; colour = silicon strategy &middot; the six operators with a filed commitment book</div>
+        <div class="chart-box tall"><canvas id="commitmentQuadrant"></canvas></div>
+        <div class="so-what">
+          <label>So what &middot; 2nd order</label>
+          <h3>Capital quality beats headline capex &mdash; and the risk is correlated. The two names deepest in the &ldquo;over-committed, power-short&rdquo; corner, Oracle (~10 yrs of cash flow pre-committed) and CoreWeave (~10 yrs, no owned build), are the same two leaning hardest on a single concentrated counterparty.<sup title="Editorial synthesis over sourced data — this dashboard&rsquo;s read, not a reported metric">&deg;</sup></h3>
+        </div>
+        <p class="note">CoreWeave books ~67% of FY2025 revenue from Microsoft (primary); Oracle&rsquo;s RPO jumped $138B&rarr;$638B &mdash; its 10-K attributes the surge to &ldquo;large-scale AI contracts,&rdquo; press links it to OpenAI though OpenAI is never named in the filings (analyst); both ride NVIDIA, whose top-three customers are ~54% of revenue (primary). With OpenAI anchoring 3 of the 5 closed financing loops, a long cash-flow leash held against a concentrated counterparty is <b>correlated, not diversified, risk</b> &mdash; see the commitment flywheel below.</p>
+        <div class="sc-method" id="commitmentQuadrantMethod"></div>
       </div>
 
       <div class="stub-grid">
@@ -3623,7 +3636,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705k"></script>
+<script src="app.js?v=20260705l"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
