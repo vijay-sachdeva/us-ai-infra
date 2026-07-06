@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260705r"></script>
+<script src="config.js?v=20260705s"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -151,6 +151,33 @@
   body[data-mode="board"] .watch-strip,
   body[data-mode="board"] .ov-livedata { display: none !important; }
   body[data-mode="board"] .stub-card, body[data-mode="board"] .pl-card { box-shadow: none; }
+  /* Boardroom HERO — on Overview, hide the intervening chrome so the survivors flow at the top as
+     a ~one-screen partner answer: thesis (H1+sub) → dominant visual (power-gap) → what value
+     accrues / is at risk (value map) → top watch signals. All existing, already tier-tagged content. */
+  body[data-mode="board"] section[data-tab="overview"] #kpis,
+  body[data-mode="board"] section[data-tab="overview"] .ov-toggle,
+  body[data-mode="board"] section[data-tab="overview"] .ov-lenses.ov-causal,
+  body[data-mode="board"] section[data-tab="overview"] #ov-constraints,
+  body[data-mode="board"] section[data-tab="overview"] .ccc-legend,
+  body[data-mode="board"] section[data-tab="overview"] .ov-lens-label:not(.board-keep),
+  body[data-mode="board"] section[data-tab="overview"] .lens-grid,
+  body[data-mode="board"] section[data-tab="overview"] .vm-scen,
+  body[data-mode="board"] section[data-tab="overview"] #ov-connections-anchor,
+  body[data-mode="board"] section[data-tab="overview"] #ov-connections,
+  body[data-mode="board"] section[data-tab="overview"] .ov-conn-intro,
+  body[data-mode="board"] section[data-tab="overview"] #topStory,
+  body[data-mode="board"] section[data-tab="overview"] .ov-briefing,
+  body[data-mode="board"] section[data-tab="overview"] .ov-bn-framing,
+  body[data-mode="board"] section[data-tab="overview"] #ov-bottleneck,
+  body[data-mode="board"] section[data-tab="overview"] .sc-method { display: none !important; }
+  body[data-mode="board"] section[data-tab="overview"] .ov-h1 { margin-bottom: .45rem; }
+  body[data-mode="board"] section[data-tab="overview"] .ov-eyebrow { opacity: .65; }
+  body[data-mode="board"] section[data-tab="overview"] .vm-change { margin-top: 12px; font-size: 12px; }
+  /* scale the dominant visual down (viewBox SVG, preserveAspectRatio — no clipping) so thesis +
+     visual + value map + watch fit ~one screen */
+  body[data-mode="board"] section[data-tab="overview"] #ov-stage { text-align: center; }
+  body[data-mode="board"] section[data-tab="overview"] #ov-stage svg { height: 300px; width: auto; max-width: 100%; margin: 0 auto; }
+  body[data-mode="board"] section[data-tab="overview"] .vm-col { padding: 9px 11px; }
   /* Print — always drop chrome so any mode prints clean */
   @media print {
     header.site, nav.tabs, #viewMode, .theme-toggle, .top-banner, .ov-toggle, .map-view-toggle, .chat-fab, #chatFab { display: none !important; }
@@ -1855,7 +1882,7 @@
       </div>
       <div class="ccc-legend">Severity &amp; trend (&#8593; worsening &middot; &#8594; holding &middot; &#8595; easing) are <b>editorial reads</b> (marked &deg;); every figure is sourced — tap a tile to see it on its chart. Worst-first: power is the long pole; chips already eased.</div>
 
-      <div class="ov-lens-label">Where value accrues &mdash; and where it&rsquo;s at risk<sup title="Structural synthesis over sourced data — market-structure analysis, this dashboard's read, NOT investment advice">&deg;</sup></div>
+      <div class="ov-lens-label board-keep">Where value accrues &mdash; and where it&rsquo;s at risk<sup title="Structural synthesis over sourced data — market-structure analysis, this dashboard's read, NOT investment advice">&deg;</sup></div>
       <div class="vm-grid">
         <div class="vm-col vm-accrue">
           <div class="vm-h">Value accrues to</div>
@@ -3803,7 +3830,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260705r"></script>
+<script src="app.js?v=20260705s"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
