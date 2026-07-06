@@ -4529,28 +4529,34 @@ const $ = (id) => document.getElementById(id);
 
   // Resize every chart that's currently in a visible tab. A chart created the instant a tab
   // un-hides can size to a not-yet-reflowed (0-width) container and stay blank until reload.
-  function resizeVisibleCharts() {
+  function resizeVisibleCharts(relayout) {
     if (typeof _charts === "undefined") return;
     for (var id in _charts) {
       var c = _charts[id];
       if (c && c.canvas && c.canvas.offsetParent !== null && typeof c.resize === "function") {
-        // resize() re-fits a chart whose container changed size, but it NO-OPS when the size is
-        // unchanged. A chart created during a layout/animation race can end up correctly sized yet
-        // never painted (0 drawn pixels) — resize() alone can't rescue it. Force a draw() too so a
-        // blank-but-sized chart always repaints. draw() paints the current computed state (no
-        // animation restart), so it is cheap and safe to call on every visible chart.
-        try { c.resize(); if (typeof c.draw === "function") c.draw(); } catch (_) {}
+        // resize() re-fits a chart whose container changed size but NO-OPS when the size is unchanged —
+        // and, crucially, it does NOT rebuild a SCALE that was computed at 0-width. A chart created
+        // before its container reflowed keeps a collapsed scale: bars/lines have zero length even though
+        // the canvas is now full-size (blank-until-reload). The "relayout" pass calls update("none"),
+        // which rebuilds the scales + dataset geometry at the current size WITHOUT animation — the only
+        // thing that actually rescues such a chart. The cheap passes just resize()+draw() (keeps the
+        // entry animation for charts that laid out correctly).
+        try {
+          c.resize();
+          if (relayout && typeof c.update === "function") c.update("none");
+          else if (typeof c.draw === "function") c.draw();
+        } catch (_) {}
       }
     }
   }
-  // rAF alone is fragile here: a single frame can predate layout, and rAF is PAUSED while the
-  // browser tab is backgrounded (so a chart rendered in a background tab stays 0-width). Retry
-  // on timers too — both rAF and timers resume when the tab regains focus — so a chart can't get
-  // stranded blank.
+  // rAF alone is fragile: a single frame can predate layout, and rAF is PAUSED while the tab is
+  // backgrounded. Retry on timers too. The two late passes RELAYOUT (update("none")) so a scale built
+  // at 0-width — the blank-chart-until-reload bug — is rebuilt once the container has settled.
   function scheduleChartResize() {
-    if (typeof requestAnimationFrame === "function") requestAnimationFrame(resizeVisibleCharts);
-    setTimeout(resizeVisibleCharts, 160);
-    setTimeout(resizeVisibleCharts, 500);
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(function () { resizeVisibleCharts(false); });
+    setTimeout(function () { resizeVisibleCharts(false); }, 160);
+    setTimeout(function () { resizeVisibleCharts(true); }, 500);
+    setTimeout(function () { resizeVisibleCharts(true); }, 1200);   // slow-load backstop (cold cache / late fonts)
   }
 
   // Declutter: the methodology .note under each card is the wordiest element on the dense tabs.
