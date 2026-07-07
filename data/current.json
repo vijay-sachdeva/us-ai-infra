@@ -1,12 +1,12 @@
 {
-  "lastUpdated": "2026-07-06",
+  "lastUpdated": "2026-07-07",
   "topStory": {
-    "date": "2026",
-    "text": "Anthropic announced a $50 billion investment in American computing infrastructure, building data centers with Fluidstack in Texas and New York, creating approximately 800 permanent jobs and 2,400 construction jobs with sites coming online throughout 2026.",
-    "src": "Anthropic",
-    "url": "https://www.anthropic.com/news/anthropic-invests-50-billion-in-american-ai-infrastructure",
+    "date": "Jun 22, 2026",
+    "text": "Microsoft signed a 20-year power purchase agreement with Chevron to supply up to 2.67 GW of dedicated natural gas power for a new data center campus in Pecos, Texas, representing one of the largest co-located power and data center developments in US history with an estimated $7 billion investment and first power delivery targeted for 2028.",
+    "src": "Chevron",
+    "url": "https://www.chevron.com/newsroom/2026/q2/chevron-signs-20-year-power-agreement-with-microsoft-for-west-texas-data-center",
     "players": [
-      "Anthropic"
+      "MSFT"
     ]
   },
   "feed": [
