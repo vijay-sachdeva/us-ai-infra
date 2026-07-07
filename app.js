@@ -662,18 +662,18 @@ const $ = (id) => document.getElementById(id);
             display: c => c.datasetIndex === 1,        // only the visible dataset labels
             color: cl.label, font: { weight: 800, size: 12 },
             anchor: "end", align: "end", clamp: true,
-            formatter: (v, c) => signs[c.dataIndex] + v + " GW"
+            // the buildable endpoint carries its modeled range inline (bounded by clamp) instead of a
+            // free-floating annotation label that overlapped the bar above it.
+            formatter: (v, c) => signs[c.dataIndex] + v + " GW" + (c.dataIndex === 3 ? " (" + PL_RANGE.min + "–" + PL_RANGE.max + ")" : "")
           },
           annotation: { annotations: {
-            range: {
+            range: {                                   // subtle shaded band = the modeled range; no floating label (it clipped)
               type: "box", xScaleID: "x", yScaleID: "y",
               yMin: 2.6, yMax: 3.4,
               xMin: PL_RANGE.min, xMax: PL_RANGE.max,
               backgroundColor: "rgba(16,185,129,0.16)",
               borderColor: "rgba(16,185,129,0.55)", borderWidth: 1, borderDash: [3, 3],
-              label: { display: true, content: PL_RANGE.min + "–" + PL_RANGE.max + " GW range (" + PL_RANGE.mid + " = midpoint)",
-                       position: { x: "end", y: "start" }, color: PL_COLORS.green,
-                       font: { size: 9.5, weight: 700 }, backgroundColor: "rgba(0,0,0,0)" }
+              label: { display: false }
             }
           }},
           tooltip: {
@@ -4801,3 +4801,9 @@ const $ = (id) => document.getElementById(id);
   document.addEventListener('toggle', function (e) {
     if (e.target && e.target.matches && e.target.matches('details.more-analysis') && e.target.open) scheduleChartResize();
   }, true);
+  // A view-toggle (.map-view-btn — ranked/path/status, league/scatter, scenario, depth) recreates a
+  // chart; the fresh instance can land at 0-width and collapse just like the initial render. Run the
+  // relayout pass after any toggle so a re-rendered chart never stays blank.
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('.map-view-btn')) scheduleChartResize();
+  });
