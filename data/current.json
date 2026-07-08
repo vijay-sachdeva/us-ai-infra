@@ -1,13 +1,12 @@
 {
-  "lastUpdated": "2026-07-07",
+  "lastUpdated": "2026-07-08",
   "topStory": {
-    "date": "Jul 6, 2026",
-    "text": "Anthropic signed a 20-year lease with Bitcoin-miner-turned-AI-infrastructure developer TeraWulf for up to 401 MW of AI computing capacity at the Justified Data campus in Hawesville, Kentucky — a deal expected to generate roughly $19 billion in contracted revenue and ranking among the largest single-tenant AI data-center leases disclosed to date, with initial operations targeted for late 2027 and full capacity in early 2028.",
-    "src": "Data Center Dynamics",
-    "url": "https://www.datacenterdynamics.com/en/news/anthropic-signs-19bn-20-year-lease-for-kentucky-data-center-with-terawulf/",
+    "date": "Jul 7, 2026",
+    "text": "DigitalOcean announced record Q2 2026 results with multiple nine-figure annual customer commitments for AI inference workloads, secured an additional 20 MW of committed data center capacity for 2027-2028 deployment bringing total committed capacity to approximately 155 MW, and expects revenue growth to accelerate to 29% with Remaining Performance Obligations exceeding $800 million — up more than 10x year over year.",
+    "src": "DigitalOcean (SEC Form 8-K)",
+    "url": "https://www.sec.gov/Archives/edgar/data/0001582961/000158296126000055/exhibit991pressrelease.htm",
     "players": [
-      "Anthropic",
-      "WULF"
+      "DOCN"
     ]
   },
   "feed": [
