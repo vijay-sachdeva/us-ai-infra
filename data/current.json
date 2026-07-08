@@ -12,6 +12,20 @@
   "feed": [
     {
       "date": "Jul 2026",
+      "tag": "GRID",
+      "text": "A wave of mid-2026 analyses now frames power availability — not capital or chips — as the binding constraint on the US AI buildout: S&P Global projects data centers' share of US peak-summer electricity demand rising from about 4.1% in 2025 to 5.3% in 2026, with reliability risk flagged as elevated across the Mid-Atlantic, Midcontinent and Northwest.",
+      "src": "Help Net Security / S&P Global",
+      "players": []
+    },
+    {
+      "date": "Jul 2026",
+      "tag": "GRID",
+      "text": "Texas's ERCOT 'Batch Zero' process — approved by state regulators to study large loads of 75 MW or more as a single cohort — hits its first election deadlines on July 10 and July 24, even as ERCOT discloses it is now tracking more than 438 GW of large-load interconnection requests, roughly 89% of it tied to data centers.",
+      "src": "ERCOT / Data Center Dynamics",
+      "players": []
+    },
+    {
+      "date": "Jul 2026",
       "tag": "BUILDOUT",
       "text": "Anthropic signed a 20-year, ~$19B lease with TeraWulf for up to 401 MW of AI compute at the Justified Data campus in Hawesville, Kentucky — among the largest single-tenant AI data-center leases disclosed to date, as AI labs race to lock up long-duration capacity ahead of first operations in late 2027.",
       "src": "Data Center Dynamics / CoinDesk",
@@ -64,23 +78,6 @@
       "src": "Utility Dive / PJM",
       "players": [
         "PJM"
-      ]
-    },
-    {
-      "date": "Jun 2026",
-      "tag": "GRID",
-      "text": "Following FERC's June 18 large-load orders, utilities and data-center developers are moving to negotiate 'flexibility-for-speed' interconnection deals — operators accept curtailable or flexible-load terms in exchange for faster grid connections; a 2026 Duke Nicholas Institute study found trimming data-center peak demand just 1–2% could cut electricity rates 0.5–2.8% while protecting reliability.",
-      "src": "Construction Dive",
-      "players": []
-    },
-    {
-      "date": "Jun 2026",
-      "tag": "BUILDOUT",
-      "text": "Microsoft unveiled a multibillion-dollar campus in Pecos (Reeves County), West Texas that will add about 2 GW of capacity — one of its largest single expansions — powered initially by an on-site, behind-the-meter natural-gas plant under a supply deal with Chevron for up to 2.67 GW, bypassing the public grid at launch.",
-      "src": "Microsoft / Data Center Dynamics",
-      "players": [
-        "MSFT",
-        "Chevron"
       ]
     }
   ],
