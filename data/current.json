@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-08",
+  "lastUpdated": "2026-07-09",
   "topStory": {
     "date": "Jul 7, 2026",
     "text": "DigitalOcean announced record Q2 2026 results with multiple nine-figure annual customer commitments for AI inference workloads, secured an additional 20 MW of committed data center capacity for 2027-2028 deployment bringing total committed capacity to approximately 155 MW, and expects revenue growth to accelerate to 29% with Remaining Performance Obligations exceeding $800 million — up more than 10x year over year.",
@@ -10,6 +10,22 @@
     ]
   },
   "feed": [
+    {
+      "date": "Jul 2026",
+      "tag": "BUILDOUT",
+      "text": "Meta unveiled its first data center in Canada — a CA$13B (~US$10B), gigawatt-scale AI campus on 1,750 acres in Sturgeon County, Alberta, to be powered by a new natural-gas plant from a Pembina Pipeline-led consortium — underscoring how US hyperscalers are reaching across the border for land and power amid domestic grid constraints.",
+      "src": "The Globe and Mail / CBC",
+      "players": [
+        "META"
+      ]
+    },
+    {
+      "date": "Jul 2026",
+      "tag": "BUILDOUT",
+      "text": "JLL's latest North America report shows the availability crunch deepening — data-center vacancy at historic lows (about 0.3% in Northern Virginia), more than 35 GW under construction across the region, and roughly 80% of that pipeline pre-leased before it comes online.",
+      "src": "JLL",
+      "players": []
+    },
     {
       "date": "Jul 2026",
       "tag": "GRID",
@@ -62,22 +78,6 @@
       "players": [
         "MSFT",
         "Chevron"
-      ]
-    },
-    {
-      "date": "Jul 2026",
-      "tag": "GRID",
-      "text": "Virginia's first-in-the-nation data-center electricity tax took effect July 1: $0.011/kWh on power consumed at data centers, capped at $600M a year (excess refunded pro-rata) and sunsetting July 1, 2028 — a closely watched test of taxing the industry in the world's largest data-center market.",
-      "src": "Data Center Knowledge / Kiplinger",
-      "players": []
-    },
-    {
-      "date": "Jun 2026",
-      "tag": "GRID",
-      "text": "PJM opened the offer window for its 2028/2029 Base Residual Auction on June 30, with results due after 4 p.m. on July 14 — the first capacity auction to run under a FERC-approved price collar of about $325/MW-day (cap) and $175/MW-day (floor); analysts note that without the collar, data-center-driven scarcity could have pushed clearing prices toward roughly $550/MW-day, versus the $333.44 cap the prior 2027/2028 auction hit in December.",
-      "src": "Utility Dive / PJM",
-      "players": [
-        "PJM"
       ]
     }
   ],
