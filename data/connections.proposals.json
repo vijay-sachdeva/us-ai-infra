@@ -1,7 +1,7 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-07-08T13:09:19+00:00",
+  "generated_at": "2026-07-09T14:07:23+00:00",
   "counts": {
     "co_mention": 3,
     "recurring_player": 0,
