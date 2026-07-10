@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260706c"></script>
+<script src="config.js?v=20260710a"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -146,7 +146,6 @@
   body[data-mode="brief"] details.more-analysis,
   body[data-mode="brief"] .watch-strip,
   body[data-mode="brief"] .map-view-toggle,
-  body[data-mode="brief"] .ov-briefing,
   body[data-mode="brief"] #ov-livedata,
   body[data-mode="brief"] .ov-ticker,
   /* keep one-line .note captions in the default (context); fold the exploratory Overview modules */
@@ -154,7 +153,6 @@
   body[data-mode="brief"] .ov-conn-label,
   body[data-mode="brief"] .ov-conn-intro,
   body[data-mode="brief"] #ov-connections-anchor,
-  body[data-mode="brief"] #topStory,
   body[data-mode="brief"] .ov-bn-framing,
   body[data-mode="brief"] #ov-bottleneck,
   body[data-mode="brief"] .role-nav { display: none !important; }
@@ -1871,6 +1869,7 @@
         <button type="button" data-lens="cso">CSO</button>
         <button type="button" data-lens="vc">VC</button>
       </div>
+      <div id="topStory"></div>
       <div class="ov-lens-label">Why the power gap opens — follow the chain</div>
       <div class="ov-lenses ov-causal">
         <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span></a>
@@ -2000,7 +1999,6 @@
       <div class="ov-lens-label ov-conn-label">Connecting the dots — what links up<span class="ov-conn-stamp" id="connStamp"></span></div>
       <div class="ov-conn-intro">Anyone can Google a fact. The value is the <b>verified edge between two</b> — one deal in two filings, a loop between the same names. Tap a card for the evidence; the badge says how firm the link is.</div>
       <div id="ov-connections" class="ov-connections"></div>
-      <div id="topStory"></div>
       <div class="ov-lens-label">This week in US AI infrastructure</div>
       <div id="ov-briefing" class="ov-briefing"></div>
       <div class="ov-lens-label">When each constraint binds — power is the long pole</div>
@@ -2738,19 +2736,24 @@
     lastUpdated: "2026-07-10",
     topStory: {
       date: "Jul 9, 2026",
-      text: "Communities across the United States have blocked or delayed more than $130 billion in AI data centers in the first six months of 2026, with projects from Google, Amazon, and other major companies facing opposition over power grid strain, water consumption, and rising electricity costs, according to industry analysis.",
-      src: "PR Newswire",
-      url: "https://www.prnewswire.com/news-releases/130-billion-in-ai-data-centers-have-been-blocked-or-delayed-in-2026-302821568.html"
+      text: "Micron raised its planned US investment to more than $250B through 2035 — targeting 40% of its DRAM production in the US — and poured first concrete at its Clay, NY megafab more than a quarter ahead of schedule, alongside up to $3B to strengthen the US supply chain, including $500M in strategic financing for GlobalWafers' Sherman, Texas 300mm wafer fab.",
+      src: "Micron (GlobeNewswire)",
+      url: "https://www.globenewswire.com/news-release/2026/07/09/3324807/14450/en/Micron-Accelerates-U-S-Investments-Pours-First-Concrete-at-New-York-Fab.html",
+      players: ["MU"]
     },
     feed: [
+      { date: "Jul 6, 2026", tag: "CAPITAL", text: "SK hynix filed its final F-1 amendment for a ~$29.4B Nasdaq ADR listing (ticker SKHY) — the largest US listing by a foreign company on record, ahead of Alibaba's 2014 debut — with trading set to begin July 10; the filing cites a 56.4% global HBM revenue share (Q1 2026, IDC).", src: "SEC (Form F-1/A)", url: "https://www.sec.gov/Archives/edgar/data/2120882/000119312526295501/d32785df1a.htm", players: ["SK hynix"] },
+      { date: "Jul 7, 2026", tag: "SUPPLY", text: "Samsung's preliminary Q2 guidance: a record ~KRW 89.4T (~$58B) operating profit, up ~1,810% year over year on AI memory demand — yet shares closed ~7% lower on concerns the memory upcycle is maturing.", src: "Samsung / CNBC", url: "https://news.samsung.com/global/samsung-electronics-announces-earnings-guidance-for-second-quarter-2026", players: ["Samsung"] },
+      { date: "Jul 2, 2026", tag: "SUPPLY", text: "Taiwan's economics ministry approved TSMC's $20B capital injection into TSMC Arizona — the sixth tranche, lifting total cleared US investment to $44B — funding a 12-inch wafer fab and an advanced packaging plant.", src: "Focus Taiwan (CNA)", url: "https://focustaiwan.tw/business/202607020026", players: ["TSMC"] },
+      { date: "Jul 1, 2026", tag: "CAPITAL", text: "NVIDIA unveiled a revenue-sharing financing model for AI clouds — earning standard product revenue plus a share of cloud revenue on the capacity it supports — with first partners Sharon AI (up to 40,000 GB300 GPUs) and Firmus (up to 170,000 GPUs).", src: "NVIDIA", url: "https://blogs.nvidia.com/blog/nvidia-unlocks-ai-compute-at-scale-capital-partners-to-power-ai-infrastructure-buildout/", players: ["NVDA"] },
+      { date: "Jul 2, 2026", tag: "POLICY", text: "Data-center backlash hit Missouri's GOP state-senate primaries, with candidates demanding restrictions in a state that just landed ~$25B of Amazon ($10B, New Florence) and Google ($15B) campuses.", src: "Missouri Independent", url: "https://missouriindependent.com/2026/07/02/data-center-backlash-spills-into-missouri-primaries-as-gop-candidates-demand-action/", players: ["AMZN", "GOOGL"] },
       { date: "Jul 2026", tag: "POLICY", text: "Virginia's first-in-the-nation data-center electricity tax took effect July 1 — $0.011 per kWh on all power consumed by data centers, including self-generated and behind-the-meter supply — expected to raise about $600M a year and adding roughly 10% to a facility's effective power rate (nearly $100M annually for a 1 GW campus).", src: "Data Center Knowledge / Kiplinger" },
       { date: "Jun 2026", tag: "GRID", text: "FERC issued show-cause orders to all six US grid operators, giving each 60 days to justify or rewrite their tariffs for connecting data centers and other gigawatt-scale loads — covering co-location, behind-the-meter generation, flexible-load service and cost-shift protections — plus 30 days to report how they will ensure adequate generation for large loads.", src: "FERC / White & Case" },
-      { date: "Jul 2026", tag: "BUILDOUT", text: "Meta unveiled its first data center in Canada — a CA$13B (~US$10B), gigawatt-scale AI campus on 1,750 acres in Sturgeon County, Alberta, to be powered by a new natural-gas plant from a Pembina Pipeline-led consortium — underscoring how US hyperscalers are reaching across the border for land and power amid domestic grid constraints.", src: "The Globe and Mail / CBC" },
-      { date: "Jul 2026", tag: "BUILDOUT", text: "JLL's latest North America report shows the availability crunch deepening — data-center vacancy at historic lows (about 0.3% in Northern Virginia), more than 35 GW under construction across the region, and roughly 80% of that pipeline pre-leased before it comes online.", src: "JLL" },
-      { date: "Jul 2026", tag: "GRID", text: "A wave of mid-2026 analyses now frames power availability — not capital or chips — as the binding constraint on the US AI buildout: S&P Global projects data centers' share of US peak-summer electricity demand rising from about 4.1% in 2025 to 5.3% in 2026, with reliability risk flagged as elevated across the Mid-Atlantic, Midcontinent and Northwest.", src: "Help Net Security / S&P Global" },
-      { date: "Jul 2026", tag: "GRID", text: "Texas's ERCOT 'Batch Zero' process — approved by state regulators to study large loads of 75 MW or more as a single cohort — hits its first election deadlines on July 10 and July 24, even as ERCOT discloses it is now tracking more than 438 GW of large-load interconnection requests, roughly 89% of it tied to data centers.", src: "ERCOT / Data Center Dynamics" },
-      { date: "Jul 2026", tag: "BUILDOUT", text: "Anthropic signed a 20-year, ~$19B lease with TeraWulf for up to 401 MW of AI compute at the Justified Data campus in Hawesville, Kentucky — among the largest single-tenant AI data-center leases disclosed to date, as AI labs race to lock up long-duration capacity ahead of first operations in late 2027.", src: "Data Center Dynamics / CoinDesk" },
-      { date: "Jul 2026", tag: "GRID", text: "PJM’s heat-wave demand surged to about 163 GW on July 2 — just short of the 2006 all-time record of 165,563 MW — after a July 1 peak of 161,910 MW, the second-highest load in the grid’s history, with DOE’s first-ever data-center curtailment orders in effect through July 3.", src: "Reuters / PJM" },
+      { date: "Jul 2026", tag: "BUILDOUT", text: "Meta unveiled its first data center in Canada — a more than CA$13B, gigawatt-scale AI campus on 1,750 acres in Sturgeon County, Alberta, to be powered by a new natural-gas plant from a Pembina Pipeline-led consortium — underscoring how US hyperscalers are reaching across the border for land and power amid domestic grid constraints.", src: "Meta / CBC", url: "https://about.fb.com/news/2026/07/breaking-ground-on-metas-first-data-center-in-canada/" },
+      { date: "Jul 2026", tag: "GRID", text: "Texas's ERCOT 'Batch Zero' process — approved by regulators to study large loads of 75 MW or more as a single cohort — moves through its first developer deadlines this month, as ERCOT reports 438 GW of large-load interconnection requests, nearly 89% from data centers.", src: "ERCOT / Utility Dive", url: "https://www.ercot.com/news/release/06182026-puct-approves-ercots" },
+      { date: "Jul 2026", tag: "BUILDOUT", text: "Anthropic signed a 20-year, ~$19B lease with TeraWulf for approximately 401 MW of AI compute at the Justified Data campus in Hawesville, Kentucky — among the largest single-tenant AI data-center leases disclosed to date, as AI labs race to lock up long-duration capacity ahead of first operations in late 2027.", src: "Data Center Dynamics / CoinDesk", url: "https://investors.terawulf.com/news-events/press-releases/detail/142/terawulf-announces-anthropic-lease-at-justified-data-campus-and-sale-of-majority-interest-in-abernathy-joint-venture-to-fluidstack" },
+      { date: "Jul 2026", tag: "GRID", text: "PJM's heat-wave demand hit roughly 163 GW on July 2 — just short of the 2006 all-time record of 165,563 MW, and suppressed by demand response — after a 161,910 MW preliminary peak on July 1, with DOE emergency data-center curtailment orders in effect through July 3.", src: "PJM Inside Lines", url: "https://insidelines.pjm.com/pjm-hot-weather-operations-update-july-3/" },
+      { date: "Jul 2026", tag: "GRID", text: "National Grid Ventures agreed to invest $1.75B for a 35% stake in Joulent — whose foundational Project Kilby, a 2.67 GW co-located West Texas power facility built 50/50 with Chevron, will supply a Microsoft-operated data center under a 20-year PPA, with first power targeted by 2028.", src: "PR Newswire / Data Center Knowledge", url: "https://www.prnewswire.com/news-releases/national-grid-ventures-to-invest-1-75bn-to-accelerate-power-solutions-for-us-data-centers-and-ai-302815750.html" },
     ],
     kpis: [
       { label: "US power demand 2026", value: "41", unit: "GW",
@@ -3927,7 +3930,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260706c"></script>
+<script src="app.js?v=20260710a"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

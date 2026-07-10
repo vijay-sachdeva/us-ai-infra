@@ -3718,7 +3718,7 @@ const $ = (id) => document.getElementById(id);
     var host=document.getElementById('ov-briefing'); if(!host) return;
     var feed=(DATA&&DATA.feed)||[];
     if(!feed.length){ host.style.display='none'; return; }
-    var tagColor={GRID:'#e5534b',CAPITAL:'#39d98a',BUILDOUT:'#58a6ff',TOKENS:'#e3b341'};
+    var tagColor={GRID:'#e5534b',CAPITAL:'#39d98a',BUILDOUT:'#58a6ff',TOKENS:'#e3b341',SUPPLY:'#b083f0',POLICY:'#f0883e',COMPUTE:'#39c5cf'};
     var connSet=connectedPlayerSet();
     host.innerHTML=feed.slice(0,5).map(function(it){
       var tag=(it.tag||it.section||'SIGNAL').toUpperCase();
@@ -3788,7 +3788,7 @@ const $ = (id) => document.getElementById(id);
     var feed=(DATA&&(DATA.feed||(DATA.topStory?[DATA.topStory]:[])))||[];
     if(!feed.length){ host.style.display='none'; return; }
     host.style.display='';
-    var tagColor={GRID:'#e5534b',CAPITAL:'#39d98a',BUILDOUT:'#58a6ff',TOKENS:'#e3b341'};
+    var tagColor={GRID:'#e5534b',CAPITAL:'#39d98a',BUILDOUT:'#58a6ff',TOKENS:'#e3b341',SUPPLY:'#b083f0',POLICY:'#f0883e',COMPUTE:'#39c5cf'};
     host.innerHTML=feed.slice(0,3).map(function(it){
       var tag=(it.tag||it.section||'SIGNAL').toUpperCase();
       var head=it.headline||it.title||it.text||'';
