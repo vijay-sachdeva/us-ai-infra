@@ -63,6 +63,20 @@
     },
     {
       "date": "Jul 2026",
+      "tag": "POLICY",
+      "text": "Virginia's first-in-the-nation data-center electricity tax took effect July 1 — $0.011 per kWh on all power consumed by data centers, including self-generated and behind-the-meter supply — expected to raise about $600M a year and adding roughly 10% to a facility's effective power rate (nearly $100M annually for a 1 GW campus).",
+      "src": "Data Center Knowledge / Kiplinger",
+      "players": []
+    },
+    {
+      "date": "Jun 2026",
+      "tag": "GRID",
+      "text": "FERC issued show-cause orders to all six US grid operators, giving each 60 days to justify or rewrite their tariffs for connecting data centers and other gigawatt-scale loads — covering co-location, behind-the-meter generation, flexible-load service and cost-shift protections — plus 30 days to report how they will ensure adequate generation for large loads.",
+      "src": "FERC / White & Case",
+      "players": []
+    },
+    {
+      "date": "Jul 2026",
       "tag": "BUILDOUT",
       "text": "Meta unveiled its first data center in Canada — a more than CA$13B, gigawatt-scale AI campus on 1,750 acres in Sturgeon County, Alberta, to be powered by a new natural-gas plant from a Pembina Pipeline-led consortium — underscoring how US hyperscalers are reaching across the border for land and power amid domestic grid constraints.",
       "src": "Meta / CBC",
