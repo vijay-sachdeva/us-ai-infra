@@ -81,7 +81,7 @@ const $ = (id) => document.getElementById(id);
 
   function renderDeals() {
     if (!$("dealsGrid") || !DATA.deals) return;
-    $("dealsGrid").innerHTML = DATA.deals.map(d => `
+    const card = d => `
       <div class="deal-card">
         <div class="deal-head">
           <span class="deal-date">${d.date}</span>
@@ -91,7 +91,12 @@ const $ = (id) => document.getElementById(id);
         <div class="deal-parties">${d.parties}</div>
         <div class="deal-note">${d.note}</div>
         <div class="deal-src">Source: ${d.src}</div>
-      </div>`).join("");
+      </div>`;
+    // 6 most-recent lead; the tail folds. NOT .more-analysis — brief mode hides that class,
+    // and this fold must stay reachable in the default view.
+    const head = DATA.deals.slice(0, 6), rest = DATA.deals.slice(6);
+    $("dealsGrid").innerHTML = head.map(card).join("") +
+      (rest.length ? `<details class="deals-more"><summary>Show ${rest.length} earlier deals</summary><div class="deals-grid">${rest.map(card).join("")}</div></details>` : "");
   }
 
   function renderPlays() {
@@ -2616,7 +2621,7 @@ const $ = (id) => document.getElementById(id);
     // Elevate the shelved-GW counter next to the active total (the reprice narrative a VC wants up front).
     const graveMW = grave.reduce((s, p) => s + (p.capacity_mw || 0), 0);
     const cavEl = $("megaPathCaveat");
-    if (cavEl) cavEl.innerHTML = "<b>" + (activeMW / 1000).toFixed(1) + " GW named &amp; active</b> &middot; <b>" + (graveMW / 1000).toFixed(1) + " GW shelved</b> (paused / stalled / cancelled — excluded from the total). MW = announced / ultimate targets (some disputed); <b>total-power</b> rows are facility energy incl. cooling &amp; generation, not IT load. Undisclosed-MW records are named, never estimated. Tap a bar for its cited row.";
+    if (cavEl) cavEl.innerHTML = "<b>" + (activeMW / 1000).toFixed(1) + " GW named &amp; active</b> &middot; <b>" + (graveMW / 1000).toFixed(1) + " GW shelved</b> (excluded from totals). MW = announced/ultimate targets (some disputed); <b>total-power</b> rows include cooling &amp; generation, not IT load; undisclosed MW named, never estimated. Tap a bar for its cited row.";
 
     const STATUS_C = {
       construction: CHART_PALETTE.pipeline, operational: CHART_PALETTE.supply, planned: CHART_PALETTE.demand,
@@ -2965,7 +2970,7 @@ const $ = (id) => document.getElementById(id);
     html += '</div>';
     host.innerHTML = html +
       '<div class="mm-legend"><span class="sev-high">High</span><span class="sev-med">Med</span><span class="sev-low">Low</span><span class="sev-gap">Gap = unknown, not safe</span> · <b>Q</b> quantitative (number shown) · <b>E</b> editorial (word) · † total-facility / ultimate-target</div>' +
-      '<div class="mm-total">Rate% + DC-load are quantitative; utility + regulatory are editorial/sparse. State→ISO crosswalk is editorial; Virginia load is a qualitative epicenter call (not ledger GW). Federal FERC Order 2023 + IRA/CHIPS apply to every state as backdrop. <b>Where DC load is HIGH but the rate cell is a gap — Pennsylvania — the fight is coming but not yet priced.</b></div>';
+      '<div class="mm-total"><b>Where DC load is HIGH but the rate cell is a gap — Pennsylvania — the fight is coming but not yet priced.</b> Rate% + DC-load are quantitative; utility/regulatory cells + the state→ISO crosswalk are editorial; FERC Order 2023 + IRA/CHIPS are national backdrop.</div>';
     // click a state row → open evidence table + flash (mirrors renderMegaPowerPaths)
     if (!host._wired) {
       host._wired = true;
