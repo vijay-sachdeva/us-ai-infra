@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260710a"></script>
+<script src="config.js?v=20260710b"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -146,6 +146,8 @@
   body[data-mode="brief"] details.more-analysis,
   body[data-mode="brief"] .watch-strip,
   body[data-mode="brief"] .map-view-toggle,
+  body[data-mode="brief"] .brief-hide,
+  body[data-mode="brief"] .cf-ledger,
   body[data-mode="brief"] #ov-livedata,
   body[data-mode="brief"] .ov-ticker,
   /* keep one-line .note captions in the default (context); fold the exploratory Overview modules */
@@ -482,6 +484,10 @@
     margin-top: 12px;
   }
   @media (max-width: 700px) { .deals-grid { grid-template-columns: 1fr; } }
+  /* fold for deals beyond the 6 most recent — spans the grid; nested grid re-uses .deals-grid */
+  .deals-more { grid-column: 1 / -1; margin-top: 2px; }
+  .deals-more > summary { cursor: pointer; font-size: .82rem; color: var(--muted); padding: 4px 0; }
+  .deals-more > summary:hover { color: var(--ink); }
   .deal-card {
     background: #fcfdff; border: 1px solid var(--line);
     border-radius: 10px; padding: 13px 15px;
@@ -1959,16 +1965,16 @@
         <a class="wc" href="#buildout:queueChart">LBNL <i>Queued Up</i> snapshot</a>
         <a class="wc" href="#grid:rateImpactChart">Next state PUC ruling</a>
       </div>
-      <div class="vm-change"><b>What would change our mind:</b> PJM 2028/29 print (Jul 14, 2026) · Q2 hyperscaler capex guides · next LBNL <i>Queued Up</i> · Oracle RPO print. <span class="vm-ed">Structural read — editorial; market-structure analysis, not investment advice.</span></div>
+      <div class="vm-change"><b>What would change our mind:</b> PJM 2028/29 print (Jul 14, 2026) · Q2 hyperscaler capex guides · next LBNL <i>Queued Up</i> · Oracle RPO print. <span class="vm-ed">Structural read — editorial.</span></div>
 
       <div class="ov-lens-label">Read it by role — what a CAIO, CSO or VC should take away<sup title="Editorial framing over sourced facts already on this dashboard — market-structure analysis, not investment advice">&deg;</sup></div>
       <div class="lens-grid">
         <div class="lens-card lens-caio">
           <div class="lens-top"><span class="lens-badge">CAIO</span><span class="lens-role">Chief AI Officer</span></div>
           <ul class="lens-bullets">
-            <li>Capacity risk is <b>geographic, not vendor</b> — 97 GW queued collapses to <b>~24 GW buildable</b> (~78% withdrawal), concentrated in power-short PJM / N. Virginia. <a href="#buildout:queueChart">queue &rarr;</a></li>
-            <li>Token growth becomes power risk <b>at the grid gear, not the GPU</b> — chips eased; HV transformers <b>36&ndash;60 mo</b>, turbine slots sold to 2029&ndash;30. <a href="#buildout:leadTimeChart">lead times &rarr;</a></li>
-            <li><b>Multi-source silicon + counterparty</b> — owned silicon (TPU/Trainium/MTIA) cuts merchant-GPU risk; single-buyer providers (CoreWeave ~67% MSFT) pass risk to you. <a href="#players">players &rarr;</a></li>
+            <li>Capacity risk is <b>geographic, not vendor</b> — concentrated in power-short PJM / N. Virginia; ~78% of queued GW historically withdraws. <a href="#buildout:queueChart">queue &rarr;</a></li>
+            <li>Token growth becomes power risk <b>at the grid gear, not the GPU</b> — HV transformers <b>36&ndash;60 mo</b>, turbine slots sold to 2029&ndash;30. <a href="#buildout:leadTimeChart">lead times &rarr;</a></li>
+            <li><b>Multi-source silicon + counterparty</b> — owned silicon (TPU/Trainium/MTIA) cuts merchant-GPU risk; single-buyer providers (CoreWeave ~67% MSFT) pass it to you. <a href="#players">players &rarr;</a></li>
           </ul>
           <div class="decision-impl"><span class="di-label">Decision implication</span> Weight sourcing toward secured firm power + diversified silicon over the best-looking queue or price.</div>
           <div class="lens-watch"><b>Watch:</b> PJM 2028/29 print &middot; Jul 14, 2026</div>
@@ -1976,9 +1982,9 @@
         <div class="lens-card lens-cso">
           <div class="lens-top"><span class="lens-badge">CSO</span><span class="lens-role">Chief Strategy Officer</span></div>
           <ul class="lens-bullets">
-            <li>Build/partner around <b>secured megawatts, not headline capex</b> — $839B chasing a market <b>~19 GW short</b>; a site with signed power + offtake is the asset, land without is the residual. <a href="#grid:cumDeficitChart">power gap &rarr;</a></li>
-            <li><b>Avoid the over-committed, power-short, single-counterparty corner</b> — Oracle &amp; CoreWeave (~10 yrs of OCF pre-committed, one dominant buyer). <a href="#capital:commitmentQuadrant">quadrant &rarr;</a></li>
-            <li><b>Many announced GW aren&rsquo;t buildable</b> — ~78% withdrawal; AEP Ohio cut its pipeline 30&rarr;13 GW; underwrite to the buildable base, not the press release. <a href="#buildout">buildout &rarr;</a></li>
+            <li>Build/partner around <b>secured megawatts, not headline capex</b> — a site with signed power + offtake is the asset; land without is the residual. <a href="#grid:cumDeficitChart">power gap &rarr;</a></li>
+            <li><b>Avoid the over-committed, power-short, single-counterparty corner</b> — Oracle &amp; CoreWeave: ~10 yrs of OCF pre-committed, one dominant buyer. <a href="#capital:commitmentQuadrant">quadrant &rarr;</a></li>
+            <li><b>Many announced GW aren&rsquo;t buildable</b> — ~78% withdrawal; AEP Ohio cut its pipeline 30&rarr;13 GW. <a href="#buildout">buildout &rarr;</a></li>
           </ul>
           <div class="decision-impl"><span class="di-label">Decision implication</span> Prioritize positions that control firm power + contracted offtake; discount value resting on queued-but-unsecured GW.</div>
           <div class="lens-watch"><b>Watch:</b> annual LBNL <i>Queued Up</i> snapshot</div>
@@ -1986,9 +1992,9 @@
         <div class="lens-card lens-vc">
           <div class="lens-top"><span class="lens-badge">VC</span><span class="lens-role">Venture partner</span></div>
           <ul class="lens-bullets">
-            <li>Value migrates <b>from compute abundance to the binding constraints</b> — firm power is the long pole; durable pools sit with secured-MW + contracted-offtake owners over merchant compute. <a href="#grid:cumDeficitChart">power gap &rarr;</a></li>
-            <li><b>The exposed names are visible</b> — Oracle/CoreWeave ~10 yrs pre-committed, CoreWeave ~67% MSFT, NVIDIA ~54% top-3; circular financing + a ~6yr-chip vs 12&ndash;25yr-lease tenor mismatch. <a href="#capital:commitmentQuadrant">quadrant &rarr;</a></li>
-            <li><b>Truest picks-and-shovels = power/grid gear</b> — transformers, turbines, cooling, EPC (Vertiv, Eaton, GE Vernova) gate when a campus energizes, regardless of which lab wins. <a href="#players">suppliers &rarr;</a></li>
+            <li>Value migrates <b>from compute abundance to the binding constraints</b> — durable pools sit with secured-MW + contracted-offtake owners, not merchant compute. <a href="#grid:cumDeficitChart">power gap &rarr;</a></li>
+            <li><b>The exposed names are visible</b> — Oracle/CoreWeave ~10 yrs pre-committed, CoreWeave ~67% MSFT, NVIDIA ~54% top-3; circular financing on a ~6-yr-chip vs 12&ndash;25-yr-lease mismatch. <a href="#capital:commitmentQuadrant">quadrant &rarr;</a></li>
+            <li><b>Truest picks-and-shovels = power/grid gear</b> — transformers, turbines, cooling (Vertiv, Eaton, GE Vernova) gate every campus, whichever lab wins. <a href="#players">suppliers &rarr;</a></li>
           </ul>
           <div class="decision-impl"><span class="di-label">Decision implication</span> Favor the binding-constraint layer; treat merchant compute + single-counterparty operators as the fragile end.</div>
           <div class="lens-watch"><b>Watch:</b> NVIDIA Q2 FY27 supply commentary &middot; late Aug</div>
@@ -1997,7 +2003,7 @@
 
       <div id="ov-connections-anchor"></div>
       <div class="ov-lens-label ov-conn-label">Connecting the dots — what links up<span class="ov-conn-stamp" id="connStamp"></span></div>
-      <div class="ov-conn-intro">Anyone can Google a fact. The value is the <b>verified edge between two</b> — one deal in two filings, a loop between the same names. Tap a card for the evidence; the badge says how firm the link is.</div>
+      <div class="ov-conn-intro">Verified edges between players — one deal in two filings, a loop between the same names. Tap a card for the evidence; the badge says how firm the link is.</div>
       <div id="ov-connections" class="ov-connections"></div>
       <div class="ov-lens-label">This week in US AI infrastructure</div>
       <div id="ov-briefing" class="ov-briefing"></div>
@@ -2027,7 +2033,7 @@
           <label>So what &middot; 2nd order</label>
           <h3>Capital quality beats headline capex &mdash; and the risk is correlated. The two names deepest in the &ldquo;over-committed, power-short&rdquo; corner, Oracle (~10 yrs of cash flow pre-committed) and CoreWeave (~10 yrs, no owned build), are the same two leaning hardest on a single concentrated counterparty.<sup title="Editorial synthesis over sourced data — this dashboard&rsquo;s read, not a reported metric">&deg;</sup></h3>
         </div>
-        <p class="note">CoreWeave books ~67% of FY2025 revenue from Microsoft (primary); Oracle&rsquo;s RPO jumped $138B&rarr;$638B &mdash; its 10-K attributes the surge to &ldquo;large-scale AI contracts,&rdquo; press links it to OpenAI though OpenAI is never named in the filings (analyst); both ride NVIDIA, whose top-three customers are ~54% of revenue (primary). With OpenAI anchoring 3 of the 5 closed financing loops, a long cash-flow leash held against a concentrated counterparty is <b>correlated, not diversified, risk</b> &mdash; see the commitment flywheel below.</p>
+        <p class="note">CoreWeave books ~67% of FY2025 revenue from Microsoft (primary); Oracle&rsquo;s 10-K credits its RPO surge to &ldquo;large-scale AI contracts&rdquo; (press reads: OpenAI &mdash; never named in the filings; analyst); both ride NVIDIA, top-three &asymp;54% of revenue (primary). OpenAI anchors 3 of 5 closed loops &mdash; <b>correlated, not diversified, risk</b>.</p>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Capital quality beats headline capex — the spread that matters is secured megawatts vs pre-committed obligations, not who spends most.</div>
         <div class="sc-method" id="commitmentQuadrantMethod"></div>
       </div>
@@ -2047,12 +2053,11 @@
           <div class="note" id="capexAiShareNote"></div>
         </div>
 
-        <!-- Card 2: Cost stack per MW (real) — spans full width so the 3-card grid has no empty cell -->
-        <div class="stub-card" style="grid-column:1/-1">
-          <h4>What a megawatt costs</h4>
-          <div class="note">Illustrative $M to build one MW of AI capacity &middot; GPUs dominate</div>
-          <div class="chart-box short" style="margin-top:6px"><canvas id="costStack"></canvas></div>
-          <div class="sc-method" id="costStackMethod"></div>
+        <!-- Build-cost anatomy lives once, on Buildout (Where every $1M goes) — cross-linked to kill the
+             duplicate. brief-hide: the target sits in Buildout's more-analysis fold, which brief mode hides —
+             don't advertise an unreachable link in the default view. -->
+        <div class="stub-card brief-hide" style="grid-column:1/-1">
+          <div class="note">Build-cost anatomy — what a megawatt costs (~$42M all-in, GPUs dominate) — lives on <a href="#buildout:costStackEngineer">Buildout &rarr;</a></div>
         </div>
       </div>
 
@@ -2107,7 +2112,7 @@
       <!-- Full-width: Offtake coverage — demand-pulled vs supply-pushed -->
       <div class="stub-card">
         <h4>Offtake coverage — is 2026 capex demand-pulled?</h4>
-        <div class="note">Two separate reads, not one blended %: <b>(1)</b> the bar = modeled share of the named <b>GW pipeline</b> with a signed long-term offtake (lease / take-or-pay); <b>(2)</b> the ledger = disclosed <b>$ backlog</b> — these are <b>multi-year RPO, not annualized</b>, so they are <b>not</b> directly comparable to annual capex. Backlog/RPO + lease terms are <b>primary</b>; the coverage share is a <b>modeled band</b>.</div>
+        <div class="note">Bar = <b>modeled</b> share of the named GW pipeline with signed offtake; ledger = multi-year $ backlog (<b>primary</b>) — <b>not comparable to annual capex</b>.</div>
         <div id="offtakeCoverage" style="margin-top:12px"></div>
         <div class="sc-method" id="offtakeMethod"></div>
       </div>
@@ -2256,7 +2261,7 @@
       <!-- Full-width: interconnection-queue chart — credible vs. phantom (LBNL feed · annual, fetched in CI) -->
       <div class="stub-card" style="margin-top:14px">
         <h4>Generation interconnection queue by ISO — credible vs. phantom <span class="cf-tier cf-warn" title="Analyst — third-party research estimate (provenance).">analyst</span><span class="feed-stamp" data-feed="queues"></span></h4>
-        <div class="note">The broad <b>generation + storage</b> interconnection queue by ISO — the grid-connection pipeline data-center load also competes within, <b>not</b> a data-center-only load queue · split credible (post-withdrawal) vs. speculative · GW · LBNL Queued Up; the <b>78% is the historical generation-queue withdrawal rate</b>, applied here as a proxy · annual LBNL snapshot, fetched in CI</div>
+        <div class="note">Generation + storage queue by ISO (LBNL <i>Queued Up</i>) — the pipeline DC load competes within, <b>not</b> a DC-only queue; credible = post-withdrawal (<b>78% = historical withdrawal rate</b>, applied as proxy).</div>
         <div class="chart-box short"><canvas id="queueChart"></canvas></div>
       </div>
 
@@ -2302,7 +2307,7 @@
           <span class="ev-key"><i class="ev-out"></i> shelved &middot; disputed (excl. GW)</span>
           <span class="ev-note">fill = evidence firmness &middot; colour = status</span>
         </div>
-        <div class="note" id="megaPathCaveat" style="margin-top:8px">MW = announced / ultimate targets (some disputed); <b>total-power</b> rows are facility energy incl. cooling &amp; generation, not IT load. Graveyard (paused / stalled / cancelled) is segregated and excluded from GW totals; undisclosed-MW records are named, never estimated. Tap a bar for its cited row.</div>
+        <div class="note" id="megaPathCaveat" style="margin-top:8px">MW = announced/ultimate targets (some disputed); <b>total-power</b> rows include cooling &amp; generation, not IT load; graveyard excluded from totals; undisclosed MW named, never estimated. Tap a bar for its cited row.</div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Underwrite to the buildable base, not the press release — a signed-power, firm-typed build is the asset; queued or announced-target MW (~78% historical withdrawal) is the residual.</div>
         <details class="mp-view-data" open>
           <summary>Data table + per-record citations</summary>
@@ -2634,7 +2639,7 @@
 
       <div class="stub-card">
         <h4>Player dossiers</h4>
-        <div class="note">Each card leads with a <b>Constraint Fingerprint</b> — a 6-lane strategic silhouette (capex · committed-yrs-OCF · secured-MW | silicon · counterparty · grid-risk) over the same sourced dossier below. Capex = 2026 guidance &middot; commitment years = the filing-grade commitment book on Capital &middot; ledger GW = source-verified named builds &middot; counterparty edges = the circular-financing map &middot; reads are editorial, tier-tagged</div>
+        <div class="note">Each card leads with a <b>Constraint Fingerprint</b> — a 6-lane silhouette (capex · committed-yrs-OCF · secured-MW | silicon · counterparty · grid-risk), each lane a live join from its home chart &middot; reads are editorial, tier-tagged</div>
         <div id="playersFpKey"></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Winners aren&rsquo;t the biggest spenders — they hold the best <b>constraint portfolio</b>: secured power + capital quality + diversified silicon + low counterparty concentration. <span style="opacity:.75">Editorial.</span></div>
         <div id="playersCards" class="pl-grid"></div>
@@ -2642,7 +2647,7 @@
 
       <div class="stub-card" style="margin-top:14px">
         <h4>Watchlists — thesis support (not full dossiers)<sup title="Curated identity + links to each name's existing sourced row; name-only where we track only a shared/co-tenant record or a qualitative role — never an invented owned metric.">&deg;</sup></h4>
-        <div class="note">Core dossiers above <b>explain</b> the thesis; these <b>support</b> it. Each chip links to the name's existing sourced row; <span class="wl-chip wl-untracked" style="padding:0 4px">grey</span> = not yet tracked in a dataset (name-only, no metrics — never zeroed or invented).</div>
+        <div class="note">Dossiers <b>explain</b> the thesis; these <b>support</b> it. Chips link to existing sourced rows; <span class="wl-chip wl-untracked" style="padding:0 4px">grey</span> = name-only, not yet tracked (never zeroed or invented).</div>
         <div class="wl-rails">
           <div class="wl-rail">
             <div class="wl-rail-h">Neocloud / developer</div>
@@ -3643,25 +3648,25 @@
       // Value-chain layer — the silicon, memory & components that PACE the buildout. Identity +
       // tier-tagged role reads only (no fabricated financials); their filings ride the SEC watch.
       { sym: "AMD", name: "AMD", brand: "other", cls: "Silicon · GPU", cfNode: null, aliases: ["AMD"], layer: "supply",
-        constraint: { text: "The credible #2 to NVIDIA — OpenAI's ~6 GW Instinct commitment, sweetened with a ~10% warrant, is the clearest sign the single-vendor allocation crunch is easing.", tier: "analyst" } },
+        constraint: { text: "The credible #2 — OpenAI's ~6 GW Instinct commitment (+~10% warrant) signals the single-vendor crunch easing.", tier: "analyst" } },
       { sym: "AVGO", name: "Broadcom", brand: "other", cls: "Silicon · custom", cfNode: null, aliases: ["Broadcom"], layer: "supply",
-        constraint: { text: "The custom-silicon backbone — OpenAI's ~10 GW \"Jalapeño\" ASIC plus the hyperscaler XPU programs route inference off merchant GPUs; a $35B chip-backed SPV funds the shift.", tier: "analyst" } },
+        constraint: { text: "Custom-silicon backbone — OpenAI's ~10 GW \"Jalapeño\" ASIC + hyperscaler XPU programs route inference off merchant GPUs; a $35B chip-backed SPV funds it.", tier: "analyst" } },
       { sym: "MU", name: "Micron", brand: "other", cls: "Memory · HBM", cfNode: null, aliases: ["Micron"], layer: "supply",
-        constraint: { text: "HBM is the real gate on accelerator output — every GPU needs stacks of it and HBM capacity is spoken for well into 2026; memory, not logic, paces how many chips ship.", tier: "analyst" } },
+        constraint: { text: "HBM gates accelerator output — capacity spoken for well into 2026; memory, not logic, paces chip shipments.", tier: "analyst" } },
       { sym: "SNDK", name: "SanDisk", brand: "other", cls: "Storage · NAND", cfNode: null, aliases: ["SanDisk"], layer: "supply",
-        constraint: { text: "Enterprise NAND and SSDs for the data lakes behind training; spun out of Western Digital in 2025, riding AI storage demand inside a cyclical commodity market.", tier: "analyst" } },
+        constraint: { text: "Enterprise NAND/SSDs for training data lakes; 2025 Western Digital spin-out in a cyclical commodity market.", tier: "analyst" } },
       { sym: "SITM", name: "SiTime", brand: "other", cls: "Timing", cfNode: null, aliases: ["SiTime"], layer: "supply",
-        constraint: { text: "MEMS precision timing — the clocks that keep high-speed AI interconnects and switches in sync; a small bill-of-materials line with outsized reliability leverage as fabrics scale.", tier: "analyst" } },
+        constraint: { text: "MEMS precision timing for AI interconnects — a small bill-of-materials line with outsized reliability leverage.", tier: "analyst" } },
       { sym: "TTMI", name: "TTM Technologies", brand: "other", cls: "PCBs · substrates", cfNode: null, aliases: ["TTM"], layer: "supply",
-        constraint: { text: "High-layer-count PCBs and advanced substrates for accelerator boards and switches; complexity rises with rack density, making substrate capacity a quiet bottleneck.", tier: "analyst" } },
+        constraint: { text: "High-layer-count PCBs/substrates for accelerator boards — a quiet bottleneck as rack density rises.", tier: "analyst" } },
       { sym: "AEHR", name: "Aehr Test Systems", brand: "other", cls: "Test · burn-in", cfNode: null, aliases: ["Aehr"], layer: "supply",
-        constraint: { text: "Wafer-level burn-in that screens AI processors and power devices before they ship; lumpy, customer-concentrated revenue that acts as a leading indicator of ramp timing.", tier: "analyst" } },
+        constraint: { text: "Wafer-level burn-in screening AI processors; lumpy, customer-concentrated revenue — a leading indicator of ramp timing.", tier: "analyst" } },
       { sym: "VRT", name: "Vertiv", brand: "other", cls: "Power & cooling", cfNode: null, aliases: ["Vertiv"], layer: "supply",
-        constraint: { text: "Power distribution and liquid cooling inside the hall — as racks climb past 100 kW, thermal and power delivery become gating, and Vertiv is the merchant leader riding that shift.", tier: "analyst" } },
+        constraint: { text: "In-hall power + liquid cooling — gating as racks pass 100 kW; the merchant leader.", tier: "analyst" } },
       { sym: "ETN", name: "Eaton", brand: "other", cls: "Electrical gear", cfNode: null, aliases: ["Eaton"], layer: "supply",
-        constraint: { text: "Switchgear and electrical distribution — the medium-voltage gear whose lead times (large transformers now up to ~5 yrs) directly pace when a campus can energize.", tier: "analyst" } },
+        constraint: { text: "Switchgear + medium-voltage gear — transformer lead times (up to ~5 yrs) pace when a campus energizes.", tier: "analyst" } },
       { sym: "GEV", name: "GE Vernova", brand: "other", cls: "Turbines & grid", cfNode: null, aliases: ["GE Vernova", "Vernova"], layer: "supply",
-        constraint: { text: "Gas turbines and grid equipment — the on-site generation behind the behind-the-meter shift and the interconnect gear for the grid; turbine slots are booked years out.", tier: "analyst" } }
+        constraint: { text: "Gas turbines + grid gear behind the behind-the-meter shift; turbine slots booked years out.", tier: "analyst" } }
     ],
     // Neo-cloud scoreboard — cited-figures-only, NULLABLE BY DESIGN (blank = not-yet-verified,
     // never zero). CRWV cells cite its filings (canonical home: the counterparty sidebar);
@@ -3930,7 +3935,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260710a"></script>
+<script src="app.js?v=20260710b"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
