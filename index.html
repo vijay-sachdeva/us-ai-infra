@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260710b"></script>
+<script src="config.js?v=20260710c"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -156,9 +156,11 @@
   body[data-mode="brief"] .ov-conn-intro,
   body[data-mode="brief"] #ov-connections-anchor,
   body[data-mode="brief"] .ov-bn-framing,
-  body[data-mode="brief"] #ov-bottleneck,
-  body[data-mode="brief"] .role-nav { display: none !important; }
+  body[data-mode="brief"] #ov-bottleneck { display: none !important; }
   body[data-mode="brief"] .decision-impl { border-left-width: 4px; }
+  /* the scorecard weight-profile toggle IS the CIO tool — keep it in the default view
+     (overrides the generic .map-view-toggle hide above) */
+  body[data-mode="brief"] .sc-presets { display: inline-flex !important; }
   /* Boardroom — hide interactive chrome for clean presenting/screenshots (pairs with light theme) */
   body[data-mode="board"] .map-view-toggle,
   body[data-mode="board"] .mp-view-data,
@@ -484,6 +486,14 @@
     margin-top: 12px;
   }
   @media (max-width: 700px) { .deals-grid { grid-template-columns: 1fr; } }
+  /* P2 persona additions: GPU price board (Tokens), buyer-posture list (Capital), sweet-spots table (Overview) */
+  .gp-asof { font-size: .68rem; color: var(--muted); font-weight: 500; display: block; }
+  .gp-gap { color: var(--muted); font-style: italic; font-size: .8rem; text-align: left; padding: 8px 10px; }
+  .bp-list { margin: 10px 0 4px; padding-left: 18px; display: grid; gap: 8px; font-size: .86rem; line-height: 1.45; }
+  .ss-wrap { overflow-x: auto; }
+  .ss-table td { text-align: left; font-size: .8rem; padding: 7px 9px; line-height: 1.35; }
+  .ss-table td.market { white-space: nowrap; }
+  .ss-table .ss-edge { font-style: italic; }
   /* fold for deals beyond the 6 most recent — spans the grid; nested grid re-uses .deals-grid */
   .deals-more { grid-column: 1 / -1; margin-top: 2px; }
   .deals-more > summary { cursor: pointer; font-size: .82rem; color: var(--muted); padding: 4px 0; }
@@ -1872,7 +1882,7 @@
       <div class="role-nav" id="roleNav">
         <span class="role-nav-lbl">Read by role &rarr;</span>
         <button type="button" data-lens="caio">CAIO</button>
-        <button type="button" data-lens="cso">CSO</button>
+        <button type="button" data-lens="cso">CIO</button>
         <button type="button" data-lens="vc">VC</button>
       </div>
       <div id="topStory"></div>
@@ -1967,7 +1977,49 @@
       </div>
       <div class="vm-change"><b>What would change our mind:</b> PJM 2028/29 print (Jul 14, 2026) · Q2 hyperscaler capex guides · next LBNL <i>Queued Up</i> · Oracle RPO print. <span class="vm-ed">Structural read — editorial.</span></div>
 
-      <div class="ov-lens-label">Read it by role — what a CAIO, CSO or VC should take away<sup title="Editorial framing over sourced facts already on this dashboard — market-structure analysis, not investment advice">&deg;</sup></div>
+      <!-- VC sweet spots: constraint × relief-window × incumbents, joined from the cited figures above.
+           Every cell traces to a chart on this dashboard; the "edge" column is the editorial synthesis. -->
+      <div class="ov-lens-label">Where the next entrant wins — sweet spots by constraint<sup title="Editorial synthesis of the cited constraints on this dashboard — archetype-level, not company recommendations; market-structure analysis, not investment advice">&deg;</sup></div>
+      <div class="stub-card ss-card">
+        <div class="ss-wrap">
+          <table class="scorecard ss-table">
+            <thead><tr><th style="text-align:left;padding-left:10px">Constraint layer</th><th>Binding today</th><th>Relief window&deg;</th><th>Incumbent density</th><th>Next entrant&rsquo;s edge&deg;</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="market"><a href="#buildout:equipmentLeadTimes">Grid gear</a></td>
+                <td>HV transformers 36&ndash;60 mo</td>
+                <td>turbine slots booked to 2029&ndash;30</td>
+                <td>high — Vertiv &middot; Eaton &middot; GE Vernova</td>
+                <td class="ss-edge">capacity expansion, retrofit &amp; speed plays</td>
+              </tr>
+              <tr>
+                <td class="market"><a href="#buildout:timeToPowerChart">Firm power</a></td>
+                <td>grid interconnect 48&ndash;84 mo</td>
+                <td>on-site first-power 3&ndash;18 mo (fuel cells / BTM gas)</td>
+                <td>forming — utilities + co-located developers</td>
+                <td class="ss-edge">own the energize date — power-first site development</td>
+              </tr>
+              <tr>
+                <td class="market"><a href="#players">Memory &middot; HBM</a></td>
+                <td>HBM capacity spoken for into 2026</td>
+                <td>US fab buildout underway (Micron plan, TSMC AZ) — output timing not yet cited here</td>
+                <td>very high — Micron &middot; SK hynix &middot; Samsung</td>
+                <td class="ss-edge">thin near-term — capacity is the moat; packaging &amp; test niches</td>
+              </tr>
+              <tr>
+                <td class="market"><a href="#capital:vacancyChart">Compute resale</a></td>
+                <td>1.4% vacancy; single-buyer books (CoreWeave ~67% MSFT)</td>
+                <td>~60% of ledger demand already take-or-pay — spot stays thin</td>
+                <td>crowded at the top — hyperscalers + neoclouds</td>
+                <td class="ss-edge">diversified-counterparty capacity with GPU allocation secured</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">Figures trace to charts on this dashboard (links); <b>Relief&deg;</b> and <b>Edge&deg;</b> are editorial reads, archetype-level; not investment advice.</div>
+      </div>
+
+      <div class="ov-lens-label">Read it by role — what a CAIO, infrastructure chief or VC should take away<sup title="Editorial framing over sourced facts already on this dashboard — market-structure analysis, not investment advice">&deg;</sup></div>
       <div class="lens-grid">
         <div class="lens-card lens-caio">
           <div class="lens-top"><span class="lens-badge">CAIO</span><span class="lens-role">Chief AI Officer</span></div>
@@ -1980,14 +2032,14 @@
           <div class="lens-watch"><b>Watch:</b> PJM 2028/29 print &middot; Jul 14, 2026</div>
         </div>
         <div class="lens-card lens-cso">
-          <div class="lens-top"><span class="lens-badge">CSO</span><span class="lens-role">Chief Strategy Officer</span></div>
+          <div class="lens-top"><span class="lens-badge">CIO</span><span class="lens-role">Chief Infrastructure Officer</span></div>
           <ul class="lens-bullets">
-            <li>Build/partner around <b>secured megawatts, not headline capex</b> — a site with signed power + offtake is the asset; land without is the residual. <a href="#grid:cumDeficitChart">power gap &rarr;</a></li>
-            <li><b>Avoid the over-committed, power-short, single-counterparty corner</b> — Oracle &amp; CoreWeave: ~10 yrs of OCF pre-committed, one dominant buyer. <a href="#capital:commitmentQuadrant">quadrant &rarr;</a></li>
-            <li><b>Many announced GW aren&rsquo;t buildable</b> — ~78% withdrawal; AEP Ohio cut its pipeline 30&rarr;13 GW. <a href="#buildout">buildout &rarr;</a></li>
+            <li>Pick the <b>power path before the site</b> — on-site first-power in 3&ndash;18 mo (fuel cells / BTM gas, modeled bands) vs 48&ndash;84 mo grid interconnect. <a href="#buildout:timeToPowerChart">time-to-power &rarr;</a></li>
+            <li><b>Order long-lead gear early</b> — HV transformers 36&ndash;60 mo, turbine slots sold to 2029&ndash;30; gear, not land, sets the energize date. <a href="#buildout:equipmentLeadTimes">lead times &rarr;</a></li>
+            <li><b>Re-weight the site scorecard to your build profile</b> — Speed / Cost / Water presets re-rank the same cited market scores; check the rate-revolt map before committing. <a href="#buildout:scorecardWrap">scorecard &rarr;</a></li>
           </ul>
-          <div class="decision-impl"><span class="di-label">Decision implication</span> Prioritize positions that control firm power + contracted offtake; discount value resting on queued-but-unsecured GW.</div>
-          <div class="lens-watch"><b>Watch:</b> annual LBNL <i>Queued Up</i> snapshot</div>
+          <div class="decision-impl"><span class="di-label">Decision implication</span> Back-plan from the target energize date: power path first, long-lead gear second, market third.</div>
+          <div class="lens-watch"><b>Watch:</b> FERC show-cause responses — all six RTOs &middot; ~Aug 2026</div>
         </div>
         <div class="lens-card lens-vc">
           <div class="lens-top"><span class="lens-badge">VC</span><span class="lens-role">Venture partner</span></div>
@@ -2036,6 +2088,16 @@
         <p class="note">CoreWeave books ~67% of FY2025 revenue from Microsoft (primary); Oracle&rsquo;s 10-K credits its RPO surge to &ldquo;large-scale AI contracts&rdquo; (press reads: OpenAI &mdash; never named in the filings; analyst); both ride NVIDIA, top-three &asymp;54% of revenue (primary). OpenAI anchors 3 of 5 closed loops &mdash; <b>correlated, not diversified, risk</b>.</p>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Capital quality beats headline capex — the spread that matters is secured megawatts vs pre-committed obligations, not who spends most.</div>
         <div class="sc-method" id="commitmentQuadrantMethod"></div>
+      </div>
+
+      <!-- CAIO buyer posture: the same landlord metrics, inverted for the compute BUYER (editorial°) -->
+      <div class="stub-card">
+        <h4>Buyer posture — the same numbers, from the buyer&rsquo;s chair<sup title="Editorial inversion of the sourced landlord metrics on this tab — market-structure analysis, not procurement or investment advice">&deg;</sup></h4>
+        <ul class="bp-list">
+          <li><b>Early contracting beats spot</b> — 1.4% vacancy, asking rents roughly doubled since 2022; spot capacity is the expensive residual. <a href="#capital:vacancyChart">vacancy &rarr;</a></li>
+          <li><b>Your provider&rsquo;s balance sheet is your availability risk</b> — Oracle &amp; CoreWeave run ~10 yrs of OCF pre-committed; single-counterparty providers pass that risk through. <a href="#capital:overcommitmentBoard">commitment book &rarr;</a></li>
+          <li><b>Allocation, not list price, binds the newest SKUs</b> — GB200 racks GA yet allocation-gated; NVIDIA&rsquo;s top-three &asymp;54% of revenue. <a href="#capital:commitmentQuadrant">quadrant &rarr;</a></li>
+        </ul>
       </div>
 
       <div class="stub-grid">
@@ -2323,21 +2385,41 @@
         <div class="mp-data-actions" id="graveyardFoot"></div>
       </div>
 
+      <!-- ============ The site decision kit (CIO) — un-buried from the fold: these three ARE the
+           operator's workflow (which path powers me fastest → which market → what to order when) ============ -->
+      <div class="ov-lens-label" style="margin-top:16px">The site decision kit — path, market, gear<sup title="The Chief Infrastructure Officer's working set: time-to-power by procurement path, the re-weightable site scorecard, and long-lead equipment times">&deg;</sup></div>
+
+      <!-- Full-width: Time-to-power by procurement path -->
+      <div class="stub-card" style="margin-top:10px">
+        <h4>Time-to-power by procurement path</h4>
+        <div class="note">The binding 2026 question isn't whether power is scarce — it's which path energizes a site fastest, at what trade-off · months from decision to first power · firmness tag + one-line trade-off · grid duration cited (LBNL); on-site gas / recip bands modeled (labeled)</div>
+        <div class="chart-box" style="height:300px;margin-top:10px"><canvas id="timeToPowerChart"></canvas></div>
+        <div class="sc-method" id="timeToPowerMethod"></div>
+      </div>
+
+      <!-- Full-width: site-selection scorecard (weight presets re-rank the same cited scores) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Site-selection scorecard</h4>
+        <div class="note">Per-factor cited scores across top US markets · 1-10 (higher = better for builds) · Readiness = modeled weighted composite · pick a weight profile to re-rank</div>
+        <div id="scorecardWrap"></div>
+      </div>
+
+      <!-- Equipment lead times (HTML list) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Equipment lead times</h4>
+        <div class="note">Months from order to delivery · 2026 industry estimates</div>
+        <div id="equipmentLeadTimes" style="margin-top:8px"></div>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> Transformer and turbine orders belong at site-control, not at permit — the order date, not the land, sets the energize date. <span style="opacity:.75">Editorial.</span></div>
+      </div>
+
       <details class="more-analysis">
-        <summary>More buildout analysis <span class="ma-count">— lead times, cost stack, siting, efficiency &amp; supply chain</span></summary>
+        <summary>More buildout analysis <span class="ma-count">— cost stack, cadence, efficiency &amp; supply chain</span></summary>
       <div class="stub-grid" style="margin-top:14px">
         <!-- Card 2: Lead time by region (chart) -->
         <div class="stub-card">
           <h4>Time to deployment by region</h4>
           <div class="note">Years from greenfield to energized · ranked by lead time</div>
           <div class="chart-box short"><canvas id="leadTimeChart"></canvas></div>
-        </div>
-
-        <!-- Card 3: Equipment lead times (HTML list) -->
-        <div class="stub-card">
-          <h4>Equipment lead times</h4>
-          <div class="note">Months from order to delivery · 2026 industry estimates</div>
-          <div id="equipmentLeadTimes" style="margin-top:8px"></div>
         </div>
 
         <!-- Card 4: Cost stack (engineer framing, reused render) -->
@@ -2354,21 +2436,6 @@
           <div class="note">Top 5 hyperscalers · MW · modeled from IR + analyst sources</div>
           <div class="chart-box short"><canvas id="buildoutChart"></canvas></div>
         </div>
-      </div>
-
-      <!-- Full-width: site-selection scorecard -->
-      <div class="stub-card" style="margin-top:14px">
-        <h4>Site-selection scorecard</h4>
-        <div class="note">Per-factor cited scores across top US markets · 1-10 (higher = better for builds) · Readiness = modeled weighted composite</div>
-        <div id="scorecardWrap"></div>
-      </div>
-
-      <!-- Full-width: Time-to-power by procurement path -->
-      <div class="stub-card" style="margin-top:14px">
-        <h4>Time-to-power by procurement path</h4>
-        <div class="note">The binding 2026 question isn't whether power is scarce — it's which path energizes a site fastest, at what trade-off · months from decision to first power · firmness tag + one-line trade-off · grid duration cited (LBNL); on-site gas / recip bands modeled (labeled)</div>
-        <div class="chart-box" style="height:300px;margin-top:10px"><canvas id="timeToPowerChart"></canvas></div>
-        <div class="sc-method" id="timeToPowerMethod"></div>
       </div>
 
       <!-- Full-width: Compute-per-watt trend — efficiency counterweight to the demand-gap forecasts -->
@@ -2595,6 +2662,14 @@
         <div class="chart-box" style="height:320px"><canvas id="costPerTaskChart"></canvas></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Power exposure is set by AI strategy: a frontier reasoning-heavy stack burns far more tokens (and watts) per task than efficient enterprise inference — model mix, routing, caching and context length are power decisions. <span style="opacity:.75">Editorial.</span></div>
         <div class="sc-method" id="costPerTaskMethod"></div>
+      </div>
+
+      <!-- Buy-side price signal: on-demand $/GPU-hr list prices (data/gpu_prices.json, fetched daily in CI) -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>What compute costs today — $/GPU-hr <span class="cf-tier cf-ok" title="Published on-demand list prices scraped daily from provider pricing pages (primary); per-provider source link + as-of date.">primary &middot; daily</span></h4>
+        <div class="note">Published <b>on-demand list prices</b> by provider &times; GPU &middot; negotiated / reserved / spot rates differ &middot; freshness is <b>per provider</b> (a provider that fails to parse keeps its last good date — shown) &middot; levels today; the trend accrues in <a href="data/history/gpu_prices.csv">data/history</a></div>
+        <div id="gpuPriceBoard" style="margin-top:8px"></div>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> Anchor build-vs-buy against the buy-side $/GPU-hr level — falling list prices favor renting; allocation still gates the newest SKUs. <span style="opacity:.75">Editorial.</span></div>
       </div>
 
       <!-- Card 1b: Disclosed totals — reconciles API-modeled vs total inference -->
@@ -3935,7 +4010,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260710b"></script>
+<script src="app.js?v=20260710c"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
