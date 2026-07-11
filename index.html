@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260710c"></script>
+<script src="config.js?v=20260710d"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -184,6 +184,7 @@
   body[data-mode="board"] section[data-tab="overview"] #ov-connections,
   body[data-mode="board"] section[data-tab="overview"] .ov-conn-intro,
   body[data-mode="board"] section[data-tab="overview"] #topStory,
+  body[data-mode="board"] section[data-tab="overview"] .chg-card,
   body[data-mode="board"] section[data-tab="overview"] .ov-briefing,
   body[data-mode="board"] section[data-tab="overview"] .ov-bn-framing,
   body[data-mode="board"] section[data-tab="overview"] #ov-bottleneck,
@@ -486,6 +487,16 @@
     margin-top: 12px;
   }
   @media (max-width: 700px) { .deals-grid { grid-template-columns: 1fr; } }
+  /* "What changed" strip (Overview) — computed deltas from data/history */
+  .chg-card { margin-top: 12px; }
+  .chg-sec { margin: 9px 0 0; }
+  .chg-h { display: flex; gap: 9px; align-items: baseline; font-weight: 600; font-size: .83rem; }
+  .chg-h a { color: var(--ink); text-decoration: none; }
+  .chg-h a:hover { color: var(--accent); }
+  .chg-h time { color: var(--muted); font-weight: 500; font-size: .7rem; }
+  .chg-items { margin: 4px 0 0; padding: 0 0 0 4px; list-style: none; display: grid; gap: 4px; font-size: .83rem; line-height: 1.4; }
+  .chg-glyph { color: var(--accent); font-weight: 700; margin-right: 5px; }
+  .chg-note { color: var(--muted); font-size: .79rem; font-style: italic; margin-top: 3px; }
   /* P2 persona additions: GPU price board (Tokens), buyer-posture list (Capital), sweet-spots table (Overview) */
   .gp-asof { font-size: .68rem; color: var(--muted); font-weight: 500; display: block; }
   .gp-gap { color: var(--muted); font-style: italic; font-size: .8rem; text-align: left; padding: 8px 10px; }
@@ -1886,6 +1897,12 @@
         <button type="button" data-lens="vc">VC</button>
       </div>
       <div id="topStory"></div>
+      <!-- "What changed" — computed weekly deltas from data/history (build_changes.py). Hidden until
+           the changes.json fetch lands; honest per-section empty states when nothing moved. -->
+      <div class="stub-card chg-card" id="whatChangedCard" style="display:none">
+        <h4>What changed — computed from the archive <span class="cf-tier cf-warn" title="Arithmetic over the archived daily snapshots in data/history — diffs of recorded values, never estimates; each section shows its actual comparison dates. Grid load and retail power prices are excluded: weekly deltas there are weather/period noise, not structure.">computed &middot; vs prior snapshot</span></h4>
+        <div id="whatChanged"></div>
+      </div>
       <div class="ov-lens-label">Why the power gap opens — follow the chain</div>
       <div class="ov-lenses ov-causal">
         <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span></a>
@@ -4010,7 +4027,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260710c"></script>
+<script src="app.js?v=20260710d"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

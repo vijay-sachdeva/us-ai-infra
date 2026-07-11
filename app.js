@@ -2883,6 +2883,33 @@ const $ = (id) => document.getElementById(id);
       <tbody>${rows}${gapRow}</tbody></table>`;
   }
 
+  /* ----- "What changed" strip (Overview) — computed deltas from data/changes.json, which
+     scripts/build_changes.py derives from the archived daily snapshots in data/history/.
+     Arithmetic over cited feeds, never estimates; sections with no movement say so honestly.
+     The card starts hidden and only appears when the feed loads — a failed fetch shows nothing
+     rather than an empty shell. ----- */
+  function renderChanges() {
+    const host = $("whatChanged"), card = $("whatChangedCard");
+    if (!host || !card || !DATA.changes || !Array.isArray(DATA.changes.sections)) return;
+    const GLYPH = { new: "＋", removed: "−", status: "↺", capacity: "Δ", price: "Δ", queue: "Δ" };
+    const LINK = { projects: "#buildout:megaPowerPaths", gpu_prices: "#tokens:gpuPriceBoard", queues: "#buildout:queueChart" };
+    // Full attribute-safe escaping: esc'd text lands in title="..." attributes, so quotes MUST
+    // be entity-encoded or a quoted codename in the ledger breaks out of the attribute.
+    const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    const clip = s => s.length > 120 ? esc(s.slice(0, 117)) + "…" : esc(s);
+    host.innerHTML = DATA.changes.sections.map(s => {
+      const when = (s.baseline ? esc(s.baseline) + " → " + esc(s.latest) : esc(s.latest || ""))
+        + (s.window_note ? " · " + esc(s.window_note) : "");
+      const items = (s.items || []).slice(0, 6).map(i =>
+        `<li title="${esc(i.text)}"><span class="chg-glyph">${GLYPH[i.kind] || "·"}</span>${clip(i.text)}</li>`).join("");
+      const more = (s.items || []).length > 6 ? `<li class="chg-note">+ ${s.items.length - 6} more in the feed</li>` : "";
+      const body = items ? `<ul class="chg-items">${items}${more}</ul>`
+                         : `<div class="chg-note">${esc(s.note || "no change in this window")}</div>`;
+      return `<div class="chg-sec"><div class="chg-h"><a href="${LINK[s.key] || "#overview"}">${esc(s.label)}</a><time>${when}</time></div>${body}</div>`;
+    }).join("");
+    card.style.display = "";
+  }
+
   /* ----- Energy & Policy tab renders ----- */
   function renderDemandGapChart() {
     if (!$("demandGapChart") || typeof Chart === "undefined") return;
@@ -3620,6 +3647,11 @@ const $ = (id) => document.getElementById(id);
     try {
       const gp = await fetch("data/gpu_prices.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null);
       if (gp && gp.providers) { DATA.gpu_prices = gp; renderGpuPrices(); }
+    } catch (_) {}
+    // "What changed" — computed deltas over the archived history; card stays hidden if absent.
+    try {
+      const chg = await fetch("data/changes.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null);
+      if (chg && Array.isArray(chg.sections)) { DATA.changes = chg; renderChanges(); }
     } catch (_) {}
     const vis = el => !!(el && el.offsetParent !== null);          // only paint into a visible canvas
     if (DATA.connections) { connectedPlayerSet._set = null; renderConnections(); renderBriefing(); }  // curated links + feed chips (self-guard on host; the module may start hidden)

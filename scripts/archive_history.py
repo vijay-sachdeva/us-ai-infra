@@ -38,6 +38,14 @@ def main():
         else:
             print("[archive] %s: no dated rows to add" % feed)
     print("[archive] done (%d rows upserted this run)" % total)
+    # Derive data/changes.json (the "What changed" strip) from the freshly-appended history.
+    # Best-effort: a failure here must never break the archive step itself. The CI commit step's
+    # `git add data/*.json` glob picks the output up with no workflow change.
+    try:
+        import build_changes
+        build_changes.main()
+    except Exception as e:
+        print("[archive] build_changes failed (non-fatal): %s" % e, file=sys.stderr)
     return 0
 
 
