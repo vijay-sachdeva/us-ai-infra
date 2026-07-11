@@ -486,7 +486,11 @@ const $ = (id) => document.getElementById(id);
       return;
     }
     const tryScroll = () => {
-      const box = document.querySelector('.chart-box[data-chart-anchor="' + (window.CSS && CSS.escape ? CSS.escape(anchor) : anchor) + '"]');
+      // Canvas charts carry data-chart-anchor (stamped by enhanceCharts); non-canvas modules
+      // (scorecardWrap, equipmentLeadTimes, ...) fall back to their element id — scroll/flash
+      // the enclosing card so #tab:anyId deep-links work for HTML modules too.
+      const box = document.querySelector('.chart-box[data-chart-anchor="' + (window.CSS && CSS.escape ? CSS.escape(anchor) : anchor) + '"]')
+        || (function () { const el = document.getElementById(anchor); return el ? (el.closest(".stub-card") || el) : null; })();
       if (!box) return false;
       // If the target sits inside a collapsed "More analysis" disclosure, open every ancestor
       // <details> first — otherwise we'd scroll to a display:none box and the deep-link would
@@ -494,6 +498,7 @@ const $ = (id) => document.getElementById(id);
       // (see the toggle listener) picks up to repaint the now-visible chart.
       let det = box.closest("details");
       while (det) { if (!det.open) det.open = true; det = det.parentElement ? det.parentElement.closest("details") : null; }
+      if (box.offsetParent === null) return false;   // still hidden (e.g. brief-mode folds) — don't fake a no-op scroll
       box.scrollIntoView({ behavior: "smooth", block: "center" });
       box.classList.remove("chart-link-flash"); void box.offsetWidth; box.classList.add("chart-link-flash");
       return true;
@@ -2798,27 +2803,84 @@ const $ = (id) => document.getElementById(id);
       </div>`).join("");
   }
 
+  // Weight presets: editorial re-weights of the SAME cited per-factor scores (no new data) — they
+  // redeem the note's "re-weight by your build profile". null = the default cited weights.
+  const SCORECARD_PRESETS = {
+    balanced: { label: "Balanced",    w: null },
+    speed:    { label: "Speed-first", w: { power: 0.25, speed: 0.40, cost: 0.10, water: 0.05, permitting: 0.15, vacancy: 0.05 } },
+    cost:     { label: "Cost-first",  w: { power: 0.25, speed: 0.15, cost: 0.35, water: 0.05, permitting: 0.10, vacancy: 0.10 } },
+    water:    { label: "Water-safe",  w: { power: 0.25, speed: 0.15, cost: 0.10, water: 0.35, permitting: 0.10, vacancy: 0.05 } }
+  };
   function renderScorecard() {
     if (!$("scorecardWrap") || !DATA.siteScorecards) return;
     const sc = DATA.siteScorecards;
+    const presetKey = renderScorecard._preset || "balanced";
+    const preset = SCORECARD_PRESETS[presetKey] || SCORECARD_PRESETS.balanced;
+    const wFor = f => (preset.w && preset.w[f.key] != null) ? preset.w[f.key] : (f.weight || 0);
     const classFor = (n) => n >= 7 ? "s-high" : n >= 4 ? "s-mid" : "s-low";
-    const wSum = sc.factors.reduce((a, f) => a + (f.weight || 0), 0) || 1;
+    const wSum = sc.factors.reduce((a, f) => a + wFor(f), 0) || 1;
     const head = `<tr><th style="text-align:left;padding-left:10px">Market</th>${
       sc.factors.map(f => `<th title="${f.src ? f.src.label : ""}${f.proxy ? " · market-level proxy" : ""}">${f.label}${f.proxy ? "*" : ""}</th>`).join("")
     }<th>Readiness<span class="rd-mod">modeled</span></th></tr>`;
-    const rows = sc.markets.map(m => {
-      const readiness = (m.scores.reduce((a, s, i) => a + s * (sc.factors[i].weight || 0), 0) / wSum).toFixed(1);
-      return `<tr><td class="market">${m.name}</td>${m.scores.map(s => `<td class="score ${classFor(s)}">${s}</td>`).join("")}<td class="score ${classFor(parseFloat(readiness))}">${readiness}</td></tr>`;
-    }).join("");
-    const weights = sc.factors.map(f => `${f.label} ${f.weight}`).join(" · ");
+    // rows re-rank under the active profile — that re-ordering IS the tool
+    const ranked = sc.markets
+      .map(m => ({ m, r: m.scores.reduce((a, s, i) => a + s * wFor(sc.factors[i]), 0) / wSum }))
+      .sort((a, b) => b.r - a.r);
+    const rows = ranked.map(({ m, r }) =>
+      `<tr><td class="market">${m.name}</td>${m.scores.map(s => `<td class="score ${classFor(s)}">${s}</td>`).join("")}<td class="score ${classFor(r)}">${r.toFixed(1)}</td></tr>`
+    ).join("");
+    const btns = Object.keys(SCORECARD_PRESETS).map(k =>
+      `<button class="map-view-btn${k === presetKey ? " active" : ""}" data-scpreset="${k}" type="button" role="tab" aria-selected="${k === presetKey}">${SCORECARD_PRESETS[k].label}</button>`
+    ).join("");
+    const weights = sc.factors.map(f => `${f.label} ${wFor(f)}`).join(" · ");
     const bases = sc.factors.map(f => f.src ? `${f.label} → ${f.src.label}` : null).filter(Boolean).join("; ");
     $("scorecardWrap").innerHTML = `
+      <div class="map-view-toggle sc-presets" role="tablist" aria-label="Weight profile" style="margin:2px 0 8px">${btns}</div>
       <table class="scorecard">
         <thead>${head}</thead>
         <tbody>${rows}</tbody>
       </table>
       <div class="sc-note">${sc.note}</div>
-      <div class="sc-method"><b>Readiness (modeled)</b> = weighted sum of the cited per-factor scores. Weights: ${weights}. Basis: ${bases}.${sc.factors.some(f => f.proxy) ? " * = market-level proxy." : ""}</div>`;
+      <div class="sc-method"><b>Readiness (modeled)</b> = weighted sum of the cited per-factor scores${presetKey !== "balanced" ? ` under the <b>${preset.label}</b> profile (an editorial re-weight of the same cited scores)` : ""}. Weights: ${weights}. Basis: ${bases}.${sc.factors.some(f => f.proxy) ? " * = market-level proxy." : ""}</div>`;
+    $("scorecardWrap").querySelectorAll("[data-scpreset]").forEach(b => b.addEventListener("click", () => {
+      renderScorecard._preset = b.getAttribute("data-scpreset");
+      renderScorecard();
+    }));
+  }
+
+  /* ----- GPU rental price board (Tokens) — the buy-side $/GPU-hr levels, from data/gpu_prices.json.
+     Fetched daily in CI (tier: primary, per-provider source URLs). Freshness is PER PROVIDER
+     (retrieved_at): a provider listed under `failures` did not parse this run and keeps its last
+     good observation — never treat checked_at as data freshness. Failed providers with no data at
+     all render as an honest gap row (named, never estimated). ----- */
+  function renderGpuPrices() {
+    const host = $("gpuPriceBoard");
+    if (!host || !DATA.gpu_prices || !DATA.gpu_prices.providers) return;
+    const gp = DATA.gpu_prices;
+    const NAME = { lambda: "Lambda", nebius: "Nebius", runpod: "RunPod", coreweave: "CoreWeave", crusoe: "Crusoe" };
+    const label = p => NAME[p] || (p.charAt(0).toUpperCase() + p.slice(1));
+    const provs = Object.keys(gp.providers);
+    const ORDER = ["H100 SXM", "H100", "H200", "B200", "B300"];
+    const skus = [...new Set(provs.flatMap(p => Object.keys(gp.providers[p].prices_usd_per_gpu_hr || {})))]
+      .sort((a, b) => ((ORDER.indexOf(a) + 1 || 99) - (ORDER.indexOf(b) + 1 || 99)) || a.localeCompare(b));
+    if (!skus.length) return;
+    const day = iso => (iso || "").slice(0, 10);
+    const rows = provs.map(p => {
+      const pr = gp.providers[p];
+      const cells = skus.map(s => {
+        const v = (pr.prices_usd_per_gpu_hr || {})[s];
+        return `<td class="score">${v != null ? "$" + v.toFixed(2) : "—"}</td>`;
+      }).join("");
+      return `<tr><td class="market"><a href="${pr.url}" target="_blank" rel="noopener">${label(p)}</a> <span class="gp-asof">${day(pr.retrieved_at)}</span></td>${cells}</tr>`;
+    }).join("");
+    // honest gap: providers that failed AND have no last-good observation
+    const failed = [...new Set((gp.failures || []).map(f => f.provider).filter(p => !gp.providers[p]))];
+    const gapRow = failed.length
+      ? `<tr><td class="market">${failed.map(label).join(", ")}</td><td colspan="${skus.length}" class="gp-gap">not parsed this run — no figure shown, never estimated</td></tr>`
+      : "";
+    host.innerHTML = `<table class="scorecard gp-table">
+      <thead><tr><th style="text-align:left;padding-left:10px">Provider · source · as-of</th>${skus.map(s => `<th>${s}</th>`).join("")}</tr></thead>
+      <tbody>${rows}${gapRow}</tbody></table>`;
   }
 
   /* ----- Energy & Policy tab renders ----- */
@@ -3553,6 +3615,11 @@ const $ = (id) => document.getElementById(id);
         if (typeof renderKpis === "function") renderKpis();
         if (typeof renderBriefing === "function") renderBriefing();
       }
+    } catch (_) {}
+    // GPU rental prices (buy-side $/GPU-hr) — separate small feed; graceful if absent.
+    try {
+      const gp = await fetch("data/gpu_prices.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null);
+      if (gp && gp.providers) { DATA.gpu_prices = gp; renderGpuPrices(); }
     } catch (_) {}
     const vis = el => !!(el && el.offsetParent !== null);          // only paint into a visible canvas
     if (DATA.connections) { connectedPlayerSet._set = null; renderConnections(); renderBriefing(); }  // curated links + feed chips (self-guard on host; the module may start hidden)
@@ -4521,6 +4588,7 @@ const $ = (id) => document.getElementById(id);
       renderPriceCompressionChart();
       renderJevonsChart();
       renderCostPerTaskChart();
+      renderGpuPrices();
       renderWatchStrip("tokens");
     } else if (name === "players") {
       renderPlayers();
@@ -4596,9 +4664,9 @@ const $ = (id) => document.getElementById(id);
   // listener). A card with no h4 (so-what boxes, calculators) is treated as a lead and left alone.
   // Buildout is already wrapped in markup, so it has a .more-analysis and is skipped here.
   var LEAD_CARDS = {
-    capital: ["Commitment vs build-out footprint", "Capex vs operating cash flow", "The commitment book", "The commitment flywheel"],
+    capital: ["Commitment vs build-out footprint", "Buyer posture", "Capex vs operating cash flow", "The commitment book", "The commitment flywheel", "Vacancy"],
     grid:    ["Where AI load becomes", "Annual demand growth", "Cumulative demand-supply deficit", "PJM capacity auction", "What power costs, by state"],
-    tokens:  ["The Jevons check", "One prompt to one gigawatt", "Industry token volume", "Effective cost per useful task"]
+    tokens:  ["The Jevons check", "One prompt to one gigawatt", "Industry token volume", "Effective cost per useful task", "What compute costs today"]
   };
   function collapseSecondary(name, section) {
     var leads = LEAD_CARDS[name];
