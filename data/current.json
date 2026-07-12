@@ -11,6 +11,13 @@
   },
   "feed": [
     {
+      "date": "Jul 8, 2026",
+      "tag": "CAPITAL",
+      "text": "Amazon priced a $25 billion bond offering to finance AI and data center infrastructure, marking one of the largest corporate debt raises of 2026 as hyperscalers increasingly tap debt markets alongside internal cash to fund record capex.",
+      "src": "Bloomberg/Reuters",
+      "url": "https://www.indexbox.io/blog/tech-giants-shift-to-debt-markets-for-ai-infrastructure-funding/"
+    },
+    {
       "date": "Jul 10, 2026",
       "tag": "CAPITAL",
       "text": "SK hynix rose 13% in its Nasdaq debut, closing at $168.01 after pricing its ADRs at $149 and raising $26.5B — completing the largest-ever US share sale by a foreign company, with proceeds earmarked for fab and HBM capacity expansion.",
@@ -113,17 +120,6 @@
         "PJM"
       ],
       "url": "https://insidelines.pjm.com/pjm-hot-weather-operations-update-july-3/"
-    },
-    {
-      "date": "Jul 2026",
-      "tag": "GRID",
-      "text": "National Grid Ventures agreed to invest $1.75B for a 35% stake in Joulent — whose foundational Project Kilby, a 2.67 GW co-located West Texas power facility built 50/50 with Chevron, will supply a Microsoft-operated data center under a 20-year PPA, with first power targeted by 2028.",
-      "src": "PR Newswire / Data Center Knowledge",
-      "players": [
-        "MSFT",
-        "Chevron"
-      ],
-      "url": "https://www.prnewswire.com/news-releases/national-grid-ventures-to-invest-1-75bn-to-accelerate-power-solutions-for-us-data-centers-and-ai-302815750.html"
     }
   ],
   "kpis": [
