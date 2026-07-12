@@ -1,68 +1,68 @@
 {
-  "lastUpdated": "2026-07-11T12:31:18Z",
+  "lastUpdated": "2026-07-12T12:29:25Z",
   "tier": "primary",
   "source": "EIA-930 (demand) + EIA-860 (capacity)",
   "regions": {
     "PJM": {
       "peak_mw": 162648,
-      "avg_mw": 111381,
-      "latest_mw": 92610,
+      "avg_mw": 112091,
+      "latest_mw": 88085,
       "capacity_mw": 185000,
       "headroom_pct": 12.1
     },
     "MISO": {
       "peak_mw": 121514,
-      "avg_mw": 87549,
-      "latest_mw": 74005,
+      "avg_mw": 88151,
+      "latest_mw": 71670,
       "capacity_mw": 145000,
       "headroom_pct": 16.2
     },
     "SWPP": {
       "peak_mw": 53701,
-      "avg_mw": 40061,
-      "latest_mw": 33522,
+      "avg_mw": 40347,
+      "latest_mw": 32567,
       "capacity_mw": 95000,
       "headroom_pct": 43.5
     },
     "ERCO": {
       "peak_mw": 83194,
-      "avg_mw": 68608,
-      "latest_mw": 55627,
+      "avg_mw": 68816,
+      "latest_mw": 54142,
       "capacity_mw": 110000,
       "headroom_pct": 24.4
     },
     "CISO": {
       "peak_mw": 36673,
-      "avg_mw": 27778,
-      "latest_mw": 23821,
+      "avg_mw": 27946,
+      "latest_mw": 23629,
       "capacity_mw": 80000,
       "headroom_pct": 54.2
     },
     "ISNE": {
       "peak_mw": 25289,
-      "avg_mw": 14913,
-      "latest_mw": 13058,
+      "avg_mw": 15016,
+      "latest_mw": 11718,
       "capacity_mw": 31000,
       "headroom_pct": 18.4
     },
     "NYIS": {
       "peak_mw": 31097,
-      "avg_mw": 19659,
-      "latest_mw": 16807,
+      "avg_mw": 19776,
+      "latest_mw": 14845,
       "capacity_mw": 40000,
       "headroom_pct": 22.3
     },
     "SOCO": {
       "peak_mw": 45328,
-      "avg_mw": 32543,
-      "latest_mw": 24973,
+      "avg_mw": 32652,
+      "latest_mw": 24102,
       "capacity_mw": 52000,
       "headroom_pct": 12.8
     },
     "DUK": {
       "peak_mw": 22153,
-      "avg_mw": 15089,
-      "latest_mw": 10810,
+      "avg_mw": 15156,
+      "latest_mw": 10570,
       "capacity_mw": 50000,
       "headroom_pct": 55.7
     }
