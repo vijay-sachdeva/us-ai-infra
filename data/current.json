@@ -1,21 +1,24 @@
 {
-  "lastUpdated": "2026-07-12",
+  "lastUpdated": "2026-07-13",
   "topStory": {
-    "date": "Jul 9, 2026",
-    "text": "Micron raised its planned US investment to more than $250B through 2035 — targeting 40% of its DRAM production in the US — and poured first concrete at its Clay, NY megafab more than a quarter ahead of schedule, alongside up to $3B to strengthen the US supply chain, including $500M in strategic financing for GlobalWafers' Sherman, Texas 300mm wafer fab.",
-    "src": "Micron (GlobeNewswire)",
-    "url": "https://www.globenewswire.com/news-release/2026/07/09/3324807/14450/en/Micron-Accelerates-U-S-Investments-Pours-First-Concrete-at-New-York-Fab.html",
+    "date": "Jul 13, 2026",
+    "text": "Meta expanded its Hyperion data center in Richland Parish, Louisiana to 5 GW and more than $50 billion — more than doubling the project's scope since its December 2024 groundbreaking and making it the largest single data-center campus announced in the US.",
+    "src": "CNBC",
+    "url": "https://www.cnbc.com/2026/07/13/meta-louisiana-data-center-investment-reaches-50-billion-amid-ai-push.html",
     "players": [
-      "MU"
+      "META"
     ]
   },
   "feed": [
     {
-      "date": "Jul 8, 2026",
-      "tag": "CAPITAL",
-      "text": "Amazon priced a $25 billion bond offering to finance AI and data center infrastructure, marking one of the largest corporate debt raises of 2026 as hyperscalers increasingly tap debt markets alongside internal cash to fund record capex.",
-      "src": "Bloomberg/Reuters",
-      "url": "https://www.indexbox.io/blog/tech-giants-shift-to-debt-markets-for-ai-infrastructure-funding/"
+      "date": "Jul 13, 2026",
+      "tag": "BUILDOUT",
+      "text": "Meta announced its Hyperion campus in Richland Parish, Louisiana will be expanded to 5 GW and more than $50 billion — up from a $10B estimate at its December 2024 groundbreaking — making it the largest single data-center campus announced in the US, with 2 GW targeted by 2030.",
+      "src": "CNBC / Meta",
+      "url": "https://www.cnbc.com/2026/07/13/meta-louisiana-data-center-investment-reaches-50-billion-amid-ai-push.html",
+      "players": [
+        "META"
+      ]
     },
     {
       "date": "Jul 10, 2026",
@@ -26,6 +29,13 @@
       "players": [
         "SK hynix"
       ]
+    },
+    {
+      "date": "Jul 8, 2026",
+      "tag": "CAPITAL",
+      "text": "Amazon priced a $25 billion bond offering to finance AI and data center infrastructure, marking one of the largest corporate debt raises of 2026 as hyperscalers increasingly tap debt markets alongside internal cash to fund record capex.",
+      "src": "Bloomberg/Reuters",
+      "url": "https://www.indexbox.io/blog/tech-giants-shift-to-debt-markets-for-ai-infrastructure-funding/"
     },
     {
       "date": "Jul 7, 2026",
@@ -48,16 +58,6 @@
       ]
     },
     {
-      "date": "Jul 1, 2026",
-      "tag": "CAPITAL",
-      "text": "NVIDIA unveiled a revenue-sharing financing model for AI clouds — earning standard product revenue plus a share of cloud revenue on the capacity it supports — with first partners Sharon AI (up to 40,000 GB300 GPUs) and Firmus (up to 170,000 GPUs).",
-      "src": "NVIDIA",
-      "url": "https://blogs.nvidia.com/blog/nvidia-unlocks-ai-compute-at-scale-capital-partners-to-power-ai-infrastructure-buildout/",
-      "players": [
-        "NVDA"
-      ]
-    },
-    {
       "date": "Jul 2, 2026",
       "tag": "POLICY",
       "text": "Data-center backlash hit Missouri's GOP state-senate primaries, with candidates demanding restrictions in a state that just landed ~$25B of Amazon ($10B, New Florence) and Google ($15B) campuses.",
@@ -69,36 +69,14 @@
       ]
     },
     {
-      "date": "Jul 2026",
-      "tag": "POLICY",
-      "text": "Virginia's first-in-the-nation data-center electricity tax took effect July 1 — $0.011 per kWh on all power consumed by data centers, including self-generated and behind-the-meter supply — expected to raise about $600M a year and adding roughly 10% to a facility's effective power rate (nearly $100M annually for a 1 GW campus).",
-      "src": "Data Center Knowledge / Kiplinger",
-      "players": []
-    },
-    {
-      "date": "Jun 2026",
-      "tag": "GRID",
-      "text": "FERC issued show-cause orders to all six US grid operators, giving each 60 days to justify or rewrite their tariffs for connecting data centers and other gigawatt-scale loads — covering co-location, behind-the-meter generation, flexible-load service and cost-shift protections — plus 30 days to report how they will ensure adequate generation for large loads.",
-      "src": "FERC / White & Case",
-      "players": []
-    },
-    {
-      "date": "Jul 2026",
-      "tag": "BUILDOUT",
-      "text": "Meta unveiled its first data center in Canada — a more than CA$13B, gigawatt-scale AI campus on 1,750 acres in Sturgeon County, Alberta, to be powered by a new natural-gas plant from a Pembina Pipeline-led consortium — underscoring how US hyperscalers are reaching across the border for land and power amid domestic grid constraints.",
-      "src": "Meta / CBC",
+      "date": "Jul 1, 2026",
+      "tag": "CAPITAL",
+      "text": "NVIDIA unveiled a revenue-sharing financing model for AI clouds — earning standard product revenue plus a share of cloud revenue on the capacity it supports — with first partners Sharon AI (up to 40,000 GB300 GPUs) and Firmus (up to 170,000 GPUs).",
+      "src": "NVIDIA",
+      "url": "https://blogs.nvidia.com/blog/nvidia-unlocks-ai-compute-at-scale-capital-partners-to-power-ai-infrastructure-buildout/",
       "players": [
-        "META"
-      ],
-      "url": "https://about.fb.com/news/2026/07/breaking-ground-on-metas-first-data-center-in-canada/"
-    },
-    {
-      "date": "Jul 2026",
-      "tag": "GRID",
-      "text": "Texas's ERCOT 'Batch Zero' process — approved by regulators to study large loads of 75 MW or more as a single cohort — moves through its first developer deadlines this month, as ERCOT reports 438 GW of large-load interconnection requests, nearly 89% from data centers.",
-      "src": "ERCOT / Utility Dive",
-      "players": [],
-      "url": "https://www.ercot.com/news/release/06182026-puct-approves-ercots"
+        "NVDA"
+      ]
     },
     {
       "date": "Jul 2026",
@@ -110,16 +88,6 @@
         "WULF"
       ],
       "url": "https://investors.terawulf.com/news-events/press-releases/detail/142/terawulf-announces-anthropic-lease-at-justified-data-campus-and-sale-of-majority-interest-in-abernathy-joint-venture-to-fluidstack"
-    },
-    {
-      "date": "Jul 2026",
-      "tag": "GRID",
-      "text": "PJM's heat-wave demand hit roughly 163 GW on July 2 — just short of the 2006 all-time record of 165,563 MW, and suppressed by demand response — after a 161,910 MW preliminary peak on July 1, with DOE emergency data-center curtailment orders in effect through July 3.",
-      "src": "PJM Inside Lines",
-      "players": [
-        "PJM"
-      ],
-      "url": "https://insidelines.pjm.com/pjm-hot-weather-operations-update-july-3/"
     }
   ],
   "kpis": [
