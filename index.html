@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260710d"></script>
+<script src="config.js?v=20260714"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -2554,7 +2554,7 @@
         <!-- Card: PJM capacity auction — the market price of the power squeeze -->
         <div class="stub-card">
           <h4>PJM capacity auction — the price of the squeeze</h4>
-          <div class="note">Base Residual Auction RTO clearing price by <b>delivery year</b> (auction timing has been irregular) &middot; data-center load is the primary driver of the run-up &middot; the 2028/29 result lands <b>July 14, 2026</b> under the extended price collar</div>
+          <div class="note">Base Residual Auction RTO clearing price by <b>delivery year</b> (auction timing has been irregular) &middot; data-center load is the primary driver of the run-up &middot; the 2028/29 auction (results <b>July 14, 2026</b>) cleared AT the extended cap at <b>$325/MW-day</b> UCAP, with the entire RTO short of its reliability requirement for the first time</div>
           <div class="chart-box short"><canvas id="pjmAuctionChart"></canvas></div>
           <div class="sc-method" id="pjmAuctionMethod"></div>
         </div>
@@ -3873,7 +3873,7 @@
         { dy: "2025/26", price: 269.92, note: "Results Jul 30, 2024 · ≈$14.7B · zonal peaks: BGE $466.35, Dominion $444.26" },
         { dy: "2026/27", price: 329.17, atCap: true, note: "Cleared AT the FERC cap ($329.17 UCAP) · results Jul 22, 2025 · ≈$16.1B" },
         { dy: "2027/28", price: 333.44, atCap: true, note: "Cleared AT the cap ($333.44 UCAP) · results Dec 17, 2025 · ≈$16.4B cleared×price (PJM)" },
-        { dy: "2028/29", price: null, pending: "→ Jul 14", note: "Auction ran Jun 30–Jul 7, 2026 · results Jul 14 after 4pm ET · same ~$325/$175 nominal collar, extended by FERC Apr 2026" }
+        { dy: "2028/29", price: 325, atCap: true, note: "Cleared AT the FERC cap ($325 UCAP, −2.5% vs 2027/28's $333.44) · results Jul 14, 2026 · ≈$16.4B cleared×price · first auction where the entire RTO fell short of the reliability requirement, by 6,831 MW (PJM)" }
       ],
       collar: null,   // drawn per-bar via atCap — the nominal $325 cap maps to different UCAP values per year
       methodology: "PJM Base Residual Auction reports — RTO-wide clearing price in $/MW-day (UCAP), labeled by delivery year because auction timing has been irregular (the 2024/25 auction ran Feb 2023; 2027/28 ran Dec 2025). 2026/27 and 2027/28 cleared AT the FERC-approved collar cap: nominal ~$325/MW-day, which translates to $329.17 and $333.44 in UCAP terms respectively. FERC extended the same nominal collar (~$325 cap / $175 floor) to the 2028/29 and 2029/30 auctions in April 2026. Data-center load is the primary driver of the price run-up per PJM's independent market monitor.",
@@ -4023,7 +4023,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260710d"></script>
+<script src="app.js?v=20260714"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
