@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-13",
+  "lastUpdated": "2026-07-14",
   "topStory": {
     "date": "Jul 13, 2026",
     "text": "Meta expanded its Hyperion data center in Richland Parish, Louisiana to 5 GW and more than $50 billion — more than doubling the project's scope since its December 2024 groundbreaking and making it the largest single data-center campus announced in the US.",
@@ -10,6 +10,13 @@
     ]
   },
   "feed": [
+    {
+      "date": "Jul 14, 2026",
+      "tag": "POLICY",
+      "text": "A new Fortune analysis finds data centers have already added an estimated $23 billion to Americans' electricity bills, intensifying the who-pays fight as Virginia's first-of-its-kind $0.011/kWh data-center consumption tax took effect July 1.",
+      "src": "Fortune",
+      "url": "https://fortune.com/2026/07/14/data-centers-23-billion-electricity-bills/"
+    },
     {
       "date": "Jul 13, 2026",
       "tag": "BUILDOUT",
@@ -28,6 +35,16 @@
       "url": "https://www.cnbc.com/2026/07/10/sk-hynix-skhy-stock-nasdaq.html",
       "players": [
         "SK hynix"
+      ]
+    },
+    {
+      "date": "Jul 8, 2026",
+      "tag": "BUILDOUT",
+      "text": "Google was revealed as the owner of Wyoming's largest data center project — the 2.7 GW 'Project Tembo' campus in Cheyenne, formerly known as Project Jade — adding another multi-gigawatt hyperscale campus to the Mountain West pipeline.",
+      "src": "Cowboy State Daily",
+      "url": "https://cowboystatedaily.com/2026/07/08/google-revealed-as-owner-of-wyomings-largest-data-center-now-project-tembo/",
+      "players": [
+        "GOOGL"
       ]
     },
     {
@@ -67,27 +84,6 @@
         "AMZN",
         "GOOGL"
       ]
-    },
-    {
-      "date": "Jul 1, 2026",
-      "tag": "CAPITAL",
-      "text": "NVIDIA unveiled a revenue-sharing financing model for AI clouds — earning standard product revenue plus a share of cloud revenue on the capacity it supports — with first partners Sharon AI (up to 40,000 GB300 GPUs) and Firmus (up to 170,000 GPUs).",
-      "src": "NVIDIA",
-      "url": "https://blogs.nvidia.com/blog/nvidia-unlocks-ai-compute-at-scale-capital-partners-to-power-ai-infrastructure-buildout/",
-      "players": [
-        "NVDA"
-      ]
-    },
-    {
-      "date": "Jul 2026",
-      "tag": "BUILDOUT",
-      "text": "Anthropic signed a 20-year, ~$19B lease with TeraWulf for approximately 401 MW of AI compute at the Justified Data campus in Hawesville, Kentucky — among the largest single-tenant AI data-center leases disclosed to date, as AI labs race to lock up long-duration capacity ahead of first operations in late 2027.",
-      "src": "Data Center Dynamics / CoinDesk",
-      "players": [
-        "Anthropic",
-        "WULF"
-      ],
-      "url": "https://investors.terawulf.com/news-events/press-releases/detail/142/terawulf-announces-anthropic-lease-at-justified-data-campus-and-sale-of-majority-interest-in-abernathy-joint-venture-to-fluidstack"
     }
   ],
   "kpis": [
