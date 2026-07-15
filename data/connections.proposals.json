@@ -1,13 +1,29 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-07-14T12:49:48+00:00",
+  "generated_at": "2026-07-15T12:53:59+00:00",
   "counts": {
     "co_mention": 2,
-    "recurring_player": 0,
+    "recurring_player": 1,
     "filing_after_review": 0
   },
   "candidates": [
+    {
+      "reason": "co-mention",
+      "players": [
+        "AMZN",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "ORCL",
+        "OpenAI",
+        "xAI"
+      ],
+      "date": "Jul 13, 2026",
+      "src": "Reuters",
+      "evidence_text": "The White House will reportedly rally utilities, data-center operators and governors to expand the 'Ratepayer Protection Pledge' — under which Amazon, Google, Meta, Microsoft, OpenAI, Oracle and xAI committed to finance ",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
     {
       "reason": "co-mention",
       "players": [
@@ -20,15 +36,17 @@
       "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
     },
     {
-      "reason": "co-mention",
+      "reason": "recurring-player",
       "players": [
-        "Anthropic",
-        "WULF"
+        "GOOGL"
       ],
-      "date": "Jul 2026",
-      "src": "Data Center Dynamics / CoinDesk",
-      "evidence_text": "Anthropic signed a 20-year, ~$19B lease with TeraWulf for approximately 401 MW of AI compute at the Justified Data campus in Hawesville, Kentucky — among the largest single-tenant AI data-center leases disclosed to date,",
-      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+      "count": 3,
+      "items": [
+        "The White House will reportedly rally utilities, data-center operators and gover",
+        "Google was revealed as the owner of Wyoming's largest data center project — the ",
+        "Data-center backlash hit Missouri's GOP state-senate primaries, with candidates "
+      ],
+      "suggestion": "GOOGL appears in 3 feed items — candidate for a narrative thread (one motion across weeks)."
     }
   ]
 }
