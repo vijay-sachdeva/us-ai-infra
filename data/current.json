@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-14",
+  "lastUpdated": "2026-07-15",
   "topStory": {
     "date": "Jul 14, 2026",
     "text": "PJM's 2028/29 capacity auction cleared at the FERC-approved cap of $325/MW-day (UCAP) — procuring 138,318 MW for a $16.4 billion total — and for the first time in PJM history the entire RTO fell short of its reliability requirement, by 6,831 MW. Surging data-center demand is the primary driver of the price run-up now flowing through to consumer bills.",
@@ -7,6 +7,22 @@
     "url": "https://insidelines.pjm.com/pjm-capacity-auction-procures-138318-mw-of-generation-resources-as-work-continues-to-address-growing-electricity-demand/"
   },
   "feed": [
+    {
+      "date": "Jul 13, 2026",
+      "tag": "POLICY",
+      "text": "The White House will reportedly rally utilities, data-center operators and governors to expand the 'Ratepayer Protection Pledge' — under which Amazon, Google, Meta, Microsoft, OpenAI, Oracle and xAI committed to finance the generation and grid upgrades their AI projects need rather than pass costs to existing ratepayers — with an event expected in the coming weeks.",
+      "src": "Reuters",
+      "url": "https://virginiabusiness.com/white-house-rally-utilities-data-centers-ai-power-cost-pledge/",
+      "players": [
+        "AMZN",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "OpenAI",
+        "ORCL",
+        "xAI"
+      ]
+    },
     {
       "date": "Jul 14, 2026",
       "tag": "POLICY",
