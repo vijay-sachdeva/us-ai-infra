@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-15",
+  "lastUpdated": "2026-07-16",
   "topStory": {
     "date": "Jul 14, 2026",
     "text": "PJM's 2028/29 capacity auction cleared at the FERC-approved cap of $325/MW-day (UCAP) — procuring 138,318 MW for a $16.4 billion total — and for the first time in PJM history the entire RTO fell short of its reliability requirement, by 6,831 MW. Surging data-center demand is the primary driver of the price run-up now flowing through to consumer bills.",
@@ -7,6 +7,16 @@
     "url": "https://insidelines.pjm.com/pjm-capacity-auction-procures-138318-mw-of-generation-resources-as-work-continues-to-address-growing-electricity-demand/"
   },
   "feed": [
+    {
+      "date": "Jul 13, 2026",
+      "tag": "GRID",
+      "text": "The Texas PUC unanimously approved 'ride-through' rules requiring data centers and other large computational loads in ERCOT to stay connected through voltage and frequency disturbances, citing 28 trip events of 100+ MW since 2023 and a 438 GW large-load study queue.",
+      "src": "Utility Dive",
+      "url": "https://www.utilitydive.com/news/texas-puc-approves-ride-through-rules-data-centers/825051/",
+      "players": [
+        "ERCOT"
+      ]
+    },
     {
       "date": "Jul 13, 2026",
       "tag": "POLICY",
@@ -75,27 +85,6 @@
       "url": "https://news.samsung.com/global/samsung-electronics-announces-earnings-guidance-for-second-quarter-2026",
       "players": [
         "Samsung"
-      ]
-    },
-    {
-      "date": "Jul 2, 2026",
-      "tag": "SUPPLY",
-      "text": "Taiwan's economics ministry approved TSMC's $20B capital injection into TSMC Arizona — the sixth tranche, lifting total cleared US investment to $44B — funding a 12-inch wafer fab and an advanced packaging plant.",
-      "src": "Focus Taiwan (CNA)",
-      "url": "https://focustaiwan.tw/business/202607020026",
-      "players": [
-        "TSMC"
-      ]
-    },
-    {
-      "date": "Jul 2, 2026",
-      "tag": "POLICY",
-      "text": "Data-center backlash hit Missouri's GOP state-senate primaries, with candidates demanding restrictions in a state that just landed ~$25B of Amazon ($10B, New Florence) and Google ($15B) campuses.",
-      "src": "Missouri Independent",
-      "url": "https://missouriindependent.com/2026/07/02/data-center-backlash-spills-into-missouri-primaries-as-gop-candidates-demand-action/",
-      "players": [
-        "AMZN",
-        "GOOGL"
       ]
     }
   ],
