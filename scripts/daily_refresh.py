@@ -145,6 +145,7 @@ When keeping the current story (it still ranks biggest), return:
 Hard rules:
 - All strings MUST be valid JSON (escape embedded quotes/backslashes; no literal newlines inside strings; no trailing commas).
 - "date" must be the story's real publication date; "url" must be a real link found via web_search.
+- "url" must point to the publication named in "src" (or a primary source: company release, SEC filing, regulator). Never cite one outlet and link an aggregator/blog.
 
 Begin.
 """
