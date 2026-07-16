@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260714"></script>
+<script src="config.js?v=20260716a"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -89,7 +89,7 @@
   }
   @media (max-width: 720px) {
     .top-banner .tb-wrap { flex-direction: column; gap: 3px; }
-    .top-banner .tb-center { order: -1; }
+    /* mobile: "Content updated <date>" leads; the disclaimer follows (was order:-1, disclaimer-first) */
   }
   .wip-banner {
     background: linear-gradient(135deg, #fffbeb, #fef3c7);
@@ -161,6 +161,12 @@
   /* the scorecard weight-profile toggle IS the CIO tool — keep it in the default view
      (overrides the generic .map-view-toggle hide above) */
   body[data-mode="brief"] .sc-presets { display: inline-flex !important; }
+  /* brief mode: card-title provenance chips compact to colour dots (tier still visible as colour;
+     the full label lives in the title tooltip and expands in Show evidence) */
+  body[data-mode="brief"] h4 .cf-tier {
+    font-size: 0; padding: 0; width: 9px; height: 9px; border-radius: 50%;
+    letter-spacing: 0; vertical-align: middle;
+  }
   /* Boardroom — hide interactive chrome for clean presenting/screenshots (pairs with light theme) */
   body[data-mode="board"] .map-view-toggle,
   body[data-mode="board"] .mp-view-data,
@@ -1860,13 +1866,14 @@
 </header>
 
 <!-- ================= TAB NAV ================= -->
+<!-- Tab order mirrors the causal chain on the Overview: 1·Tokens → 2·Capital → 3·Buildout → 4·Grid -->
 <nav class="tabs">
   <ul>
     <li><a href="#overview" data-tab="overview">Overview</a></li>
+    <li><a href="#tokens"   data-tab="tokens">Tokens</a></li>
     <li><a href="#capital"  data-tab="capital">Capital</a></li>
     <li><a href="#buildout" data-tab="buildout">Buildout</a></li>
     <li><a href="#grid"     data-tab="grid">Grid</a></li>
-    <li><a href="#tokens"   data-tab="tokens">Tokens</a></li>
     <li><a href="#players"  data-tab="players">Players</a></li>
   </ul>
 </nav>
@@ -1917,7 +1924,7 @@
           <span class="ccc-sev">High<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
           <span class="ccc-bar"><i style="width:90%"></i></span>
           <span class="ccc-read"><b>~19 GW</b> firm-power shortfall by 2030; the base path widens as load compounds.</span>
-          <span class="ccc-next"><b>Next:</b> PJM 2028/29 capacity print &middot; Jul 14, 2026</span>
+          <span class="ccc-next"><b>Next:</b> FERC show-cause responses — all six RTOs &middot; ~Aug 2026</span>
         </a>
         <a class="ccc-tile sev-red" href="#buildout:leadTimeChart">
           <span class="ccc-head"><b class="ccc-name">GRID GEAR</b><span class="ccc-trend flat" title="Trend: holding tight (editorial read)" aria-label="trend flat, holding">&#8594;</span></span>
@@ -1951,8 +1958,8 @@
           <span class="ccc-head"><b class="ccc-name">RATEPAYER</b><span class="ccc-trend" title="Trend: worsening (editorial read)" aria-label="trend worsening">&#8593;</span></span>
           <span class="ccc-sev">Elevated<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
           <span class="ccc-bar"><i style="width:60%"></i></span>
-          <span class="ccc-read">PJM cleared <b>at the FERC cap</b> twice ($329→$333/MW-day); <b>VA +57%</b> residential by 2030 (modeled).</span>
-          <span class="ccc-next"><b>Next:</b> PJM 2028/29 capacity print &middot; Jul 14, 2026</span>
+          <span class="ccc-read">PJM cleared <b>at the FERC cap</b> three straight auctions ($329→$333→$325/MW-day); <b>VA +57%</b> residential by 2030 (modeled).</span>
+          <span class="ccc-next"><b>Next:</b> White House ratepayer-pledge event &middot; coming weeks</span>
         </a>
         <a class="ccc-tile sev-green" href="#buildout:leadTimeChart">
           <span class="ccc-head"><b class="ccc-name">CHIPS / HBM</b><span class="ccc-trend" title="Trend: easing (editorial read)" aria-label="trend easing">&#8595;</span></span>
@@ -1984,15 +1991,16 @@
         <a href="#grid:cumDeficitChart"><b>Base</b> ~19 GW short by 2030</a> &middot;
         <a href="#grid:cumDeficitChart"><b>Bull</b> — on EPRI&rsquo;s low case the gap closes</a> &middot;
         <a href="#grid:cumDeficitChart"><b>Bear</b> — LBNL high end ~100+ GW</a></div>
+      <!-- static fallback mirrors WATCH_SIGNALS.overview byte-for-byte (renderOvWatchChips overwrites on load) -->
       <div class="watch-chips" id="ovWatchChips">
         <span class="wc-lbl">Top 5 watch signals</span>
-        <a class="wc" href="#grid:pjmAuctionChart">PJM 2028/29 print &middot; Jul 14</a>
-        <a class="wc" href="#capital:overcommitmentBoard">Hyperscaler Q2 capex guides</a>
+        <a class="wc" href="#capital:overcommitmentBoard">Hyperscaler Q2 capex guides &middot; late Jul&ndash;Aug</a>
+        <a class="wc" href="#grid">FERC show-cause responses &middot; ~Aug 2026</a>
         <a class="wc" href="#capital:overcommitmentBoard">Oracle 10-Q RPO print</a>
         <a class="wc" href="#buildout:queueChart">LBNL <i>Queued Up</i> snapshot</a>
         <a class="wc" href="#grid:rateImpactChart">Next state PUC ruling</a>
       </div>
-      <div class="vm-change"><b>What would change our mind:</b> PJM 2028/29 print (Jul 14, 2026) · Q2 hyperscaler capex guides · next LBNL <i>Queued Up</i> · Oracle RPO print. <span class="vm-ed">Structural read — editorial.</span></div>
+      <div class="vm-change"><b>What would change our mind:</b> FERC show-cause responses (~Aug 2026) · Q2 hyperscaler capex guides · next LBNL <i>Queued Up</i> · Oracle RPO print. <span class="vm-ed">Structural read — editorial.</span></div>
 
       <!-- VC sweet spots: constraint × relief-window × incumbents, joined from the cited figures above.
            Every cell traces to a chart on this dashboard; the "edge" column is the editorial synthesis. -->
@@ -2046,7 +2054,7 @@
             <li><b>Multi-source silicon + counterparty</b> — owned silicon (TPU/Trainium/MTIA) cuts merchant-GPU risk; single-buyer providers (CoreWeave ~67% MSFT) pass it to you. <a href="#players">players &rarr;</a></li>
           </ul>
           <div class="decision-impl"><span class="di-label">Decision implication</span> Weight sourcing toward secured firm power + diversified silicon over the best-looking queue or price.</div>
-          <div class="lens-watch"><b>Watch:</b> PJM 2028/29 print &middot; Jul 14, 2026</div>
+          <div class="lens-watch"><b>Watch:</b> hyperscaler Q2 capex guides &middot; late Jul&ndash;Aug</div>
         </div>
         <div class="lens-card lens-cso">
           <div class="lens-top"><span class="lens-badge">CIO</span><span class="lens-role">Chief Infrastructure Officer</span></div>
@@ -2142,14 +2150,14 @@
 
       <!-- Full-width: combined hyperscaler capex trend over time (the capex-tracker curve) -->
       <div class="stub-card">
-        <h4>Combined hyperscaler capex — the curve <span class="cf-tier cf-warn">actuals + &rsquo;26 guidance</span></h4>
+        <h4>Combined hyperscaler capex — the curve <span class="cf-tier cf-warn" title="2019–2025 = reported actuals; 2026 = company guidance">actuals + &rsquo;26 guidance</span></h4>
         <div class="chart-box tall"><canvas id="capexTrendChart"></canvas></div>
         <div class="sc-method" id="capexTrendMethod"></div>
       </div>
 
       <!-- Full-width: capex vs operating cash flow — the crossover watch -->
       <div class="stub-card">
-        <h4>Capex vs operating cash flow — the crossover watch <span class="cf-tier cf-warn">actuals + &rsquo;26 guidance</span></h4>
+        <h4>Capex vs operating cash flow — the crossover watch <span class="cf-tier cf-warn" title="2019–2025 = reported actuals; 2026 = company guidance">actuals + &rsquo;26 guidance</span></h4>
         <div class="chart-box tall"><canvas id="capexVsCashflowChart"></canvas></div>
         <div class="sc-method" id="capexVsCashflowMethod"></div>
       </div>
@@ -3273,6 +3281,9 @@
        market's path to the next GW. `direction` is an editorial read of travel (easing / tightening /
        stalled), NOT a metric. Sorted date-desc; cap ~12; curated on a monthly pass. ----- */
     buildabilityMovements: [
+      { date: "2026-06", market: "All ISOs (federal)", gate: "interconnection", direction: "easing",
+        headline: "FERC show-cause orders to all six RTOs: 60 days to justify or rewrite large-load interconnection tariffs — responses due ~Aug 2026",
+        src: { label: "FERC / White & Case, Jun 2026", tier: "primary" } },
       { date: "2026-06", market: "Central Ohio",     gate: "permitting",      direction: "tightening",
         headline: "Ohio lawmakers introduce sweeping data-center siting + cost-allocation bill",
         src: { label: "Ohio Capital Journal, Jun 2026", tier: "analyst" } },
@@ -4017,13 +4028,13 @@
         aggregate: { value: "3.2 quadrillion", unit: "tokens / month", who: "Google, all surfaces, May 2026", tokens: 3.2e15, src: { label: "Sundar Pichai, Google I/O 2026 keynote", tier: "primary" } },
         whRange: [0.003, 0.010],   // Wh/token low–high band (≈3–10 kWh / 1M); midpoint 0.005
         soWhat: "One prompt is a couple of watt-hours and a fraction of a cent. Multiply by the token volume the largest platforms now run and you arrive at the gigawatts and hundreds of billions of capex the rest of this dashboard tracks. That multiplication is the whole story.",
-        note: "This traces the real layers a token's work touches and the real per-token economics, decomposed for teaching — not a claim that one prompt physically travels these layers in this exact sequence. Energy, price, GW and capex are cited; the volume → GWh step is modeled arithmetic shown as a RANGE; ~13–44 GW (≈22 GW midpoint) is one company's inference under a ~3–10 kWh/1M energy band, while the ~97 GW queue spans all operators plus training and headroom."
+        note: "This traces the real layers a token's work touches and the real per-token economics, decomposed for teaching — not a claim that one prompt physically travels these layers in this exact sequence. Energy, price, GW and capex are cited; the volume → GWh step is modeled arithmetic shown as a RANGE; ~13–44 GW (≈22 GW midpoint) is one company's inference under a ~3–10 kWh/1M energy band, while the ~97 GW queue spans all operators plus training and headroom. The ~$839B of actual 2026 operator capex is a different denominator again — all operators, training and headroom — so it is not a clean ratio against the modeled build cost."
       },
       src: { label: "Pipeline framing original; all energy, price, GW and capex figures cited per step / rung", tier: "modeled" }
     }
   };
 </script>
-<script src="app.js?v=20260714"></script>
+<script src="app.js?v=20260716a"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

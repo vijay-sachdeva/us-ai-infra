@@ -1899,7 +1899,7 @@ const $ = (id) => document.getElementById(id);
   }
 
   // Reusable "What to watch next" strip — every analytical tab closes on the next DATED catalysts
-  // it tracks (real recurring releases; a hard date only where genuinely scheduled — PJM Jul 14 2026).
+  // it tracks (real recurring releases; a hard date only where genuinely scheduled — e.g. NVIDIA late Aug).
   // Forward-looking watch items are editorial (marked °), never predictions or invented dates.
   var WATCH_SIGNALS = {
     capital: [
@@ -1913,15 +1913,31 @@ const $ = (id) => document.getElementById(id);
       { label: "NVIDIA Q2 FY27 — supply commentary", date: "late Aug", why: "GB200 GA; allocation vs lead-time is the binding issue" }
     ],
     grid: [
-      { label: "PJM 2028/29 Base Residual Auction", date: "Jul 14, 2026", why: "two prior auctions cleared AT the FERC cap" },
+      { label: "FERC show-cause responses — all six RTOs", date: "~Aug 2026", why: "Jun 2026 orders gave each RTO 60 days to justify or rewrite large-load tariffs (see Buildout → movements); PJM just cleared AT the cap with a first-ever RTO-wide shortfall" },
       { label: "Next state PUC rate-case / large-load docket", why: "VA · TX · OH set the ratepayer-revolt pace" },
       { label: "EIA — next grid demand / headroom update", why: "the ~19 GW-by-2030 deficit path" }
+    ],
+    // Overview "Top 5 watch signals" chips render from THIS list (renderOvWatchChips) — one
+    // registry to update when a catalyst lands, so a passed date can't linger in static HTML.
+    overview: [
+      { label: "Hyperscaler Q2 capex guides", date: "late Jul–Aug", href: "#capital:overcommitmentBoard" },
+      { label: "FERC show-cause responses", date: "~Aug 2026", href: "#grid" },
+      { label: "Oracle 10-Q RPO print", href: "#capital:overcommitmentBoard" },
+      { label: "LBNL <i>Queued Up</i> snapshot", href: "#buildout:queueChart" },
+      { label: "Next state PUC ruling", href: "#grid:rateImpactChart" }
     ],
     tokens: [
       { label: "NVIDIA Q2 FY27 — data-center demand", date: "late Aug", why: "clearest external read on token→compute demand" },
       { label: "Next hyperscaler inference-volume disclosure", why: "Google's 3.2Q tokens/mo is the last hard anchor" }
     ]
   };
+  function renderOvWatchChips() {
+    var host = $("ovWatchChips"); if (!host || !WATCH_SIGNALS.overview) return;
+    host.innerHTML = '<span class="wc-lbl">Top 5 watch signals</span>' +
+      WATCH_SIGNALS.overview.map(function (it) {
+        return '<a class="wc" href="' + it.href + '">' + it.label + (it.date ? " &middot; " + it.date : "") + "</a>";
+      }).join("");
+  }
   function renderWatchStrip(tab) {
     var host = $("watchStrip-" + tab); if (!host) return;
     var items = WATCH_SIGNALS[tab]; if (!items) { host.innerHTML = ""; return; }
@@ -3085,7 +3101,7 @@ const $ = (id) => document.getElementById(id);
     const CAT_RE = /(?:by|vote|final(?:\s+by)?|effective)\s+([A-Z][a-z]{2,8}\.?\s+20\d\d)/;
     const PJM_ST = { Virginia: 1, Ohio: 1, Pennsylvania: 1 };
     const nextCat = st => {
-      if (PJM_ST[st]) return "PJM 2028/29 print · Jul 14, 2026";
+      if (PJM_ST[st]) return "FERC show-cause responses · ~Aug 2026";
       const m = trig[st]; const mm = m && (m.headline || "").match(CAT_RE); return mm ? mm[1] : "";
     };
     const exposed = {};
@@ -3363,7 +3379,7 @@ const $ = (id) => document.getElementById(id);
         cell("~" + totalWh.toFixed(0) + " Wh", "one answer", "≈ " + (ex.inputTokens + ex.outputTokens) + " tokens at ~0.005 Wh/token (cited bridge · band ~3–10 kWh/1M).") + arrow("× industry") +
         cell(su.aggregate.value, su.aggregate.unit, su.aggregate.who + " — " + su.aggregate.src.label + " (primary).") + arrow("÷ 730 hr") +
         cell("~" + Math.round(gwLo) + "–" + Math.round(gwHi) + " GW", "continuous · ≈" + gw.toFixed(0) + " GW mid", "[Modeled] ~" + Math.round(twhMo) + " TWh/mo at the ~5 kWh/1M midpoint; one company's inference at 100% utilization — not an observed figure.") + arrow("× $" + perMw + "M/MW") +
-        cell("~$" + buildB + "B", "to build that power", "[Modeled] ≈" + gw.toFixed(0) + " GW × $" + perMw + "M/MW all-in (facility + compute, analyst). Reality check — a DIFFERENT denominator: ~$" + capexB + "B actual 2026 operator capex + ~" + queueGW + " GW US queue span all operators, training + headroom (not a clean ratio).") + arrow("built as") +
+        cell("~$" + buildB + "B", "to build that power", "[Modeled] ≈" + gw.toFixed(0) + " GW × $" + perMw + "M/MW all-in (facility + compute, analyst).") + arrow("built as") +
         cell("Gas-led", "the power source", "To 2030: grid gas +130 TWh (IEA, largest US source, primary) · renewables +110 TWh · on-site gas + nuclear restart/SMR (2030+, modeled). Gas carries this decade.") +
         `</div><div class="tj-sowhat">${su.soWhat} <b>The Jevons twist:</b> cheaper tokens don't shrink this — a ~100× price drop met ~330× more tokens (see “The Jevons check” below), so efficiency <b>delays</b> the wall, it doesn't lower it.</div>`;
     }
@@ -4088,6 +4104,7 @@ const $ = (id) => document.getElementById(id);
   }
 
   function initOverview(){
+    renderOvWatchChips();   // chips come from the WATCH_SIGNALS registry — one place to update
     var tog=document.querySelector('.ov-toggle');
     if(tog&&!tog._wired){ tog._wired=true;
       tog.querySelectorAll('button').forEach(function(b){
