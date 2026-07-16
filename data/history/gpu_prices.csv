@@ -66,3 +66,8 @@ date,provider,sku,usd_per_gpu_hr,source_url,retrieved_at
 2026-07-15,nebius,B200,3.95,https://nebius.com/prices,2026-07-15T12:53:48+00:00
 2026-07-15,nebius,H100 SXM,2.15,https://nebius.com/prices,2026-07-15T12:53:48+00:00
 2026-07-15,nebius,H200,2.45,https://nebius.com/prices,2026-07-15T12:53:48+00:00
+2026-07-16,lambda,B200,6.69,https://lambda.ai/pricing,2026-07-16T13:03:29+00:00
+2026-07-16,lambda,H100 SXM,3.99,https://lambda.ai/pricing,2026-07-16T13:03:29+00:00
+2026-07-16,nebius,B200,3.95,https://nebius.com/prices,2026-07-16T13:03:29+00:00
+2026-07-16,nebius,H100 SXM,2.15,https://nebius.com/prices,2026-07-16T13:03:29+00:00
+2026-07-16,nebius,H200,2.45,https://nebius.com/prices,2026-07-16T13:03:29+00:00
