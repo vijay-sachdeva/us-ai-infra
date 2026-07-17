@@ -1316,7 +1316,7 @@ const $ = (id) => document.getElementById(id);
   // families; OSS excluded — it prices below frontier quality) available by that quarter's
   // midpoint; volume is the sum across providers from the token-volume chart.
   function renderJevonsChart() {
-    if (!$("jevonsChart") || typeof Chart === "undefined") return;
+    if (!$("jevonsP1") || typeof Chart === "undefined") return;
     if (!DATA.tokenVolume || !DATA.priceCompression) return;
     if (renderJevonsChart._done) return;
     renderJevonsChart._done = true;
@@ -1333,27 +1333,52 @@ const $ = (id) => document.getElementById(id);
       return avail.length ? Math.min.apply(null, avail.map(mm => mm.price)) : null;
     });
     const volume = tv.quarters.map((_, i) => tv.providers.reduce((s, p) => s + (p.values[i] || 0), 0));
-    _charts.jevonsChart = new Chart($("jevonsChart"), {
-      type: "line",
-      data: { labels: tv.quarters, datasets: [
-        { label: "Industry tokens (T / quarter)", data: volume, borderColor: CHART_PALETTE.demand, backgroundColor: hexA(CHART_PALETTE.demand, 0.12), fill: true, tension: 0.3, pointRadius: 0, yAxisID: "y" },
-        { label: "Cheapest frontier flagship ($ / M tokens)", data: floorPrice, borderColor: CHART_PALETTE.constraint, borderDash: [6, 4], stepped: "before", pointRadius: 0, yAxisID: "y2" }
-      ]},
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
-          datalabels: { display: false },
-          tooltip: { callbacks: { label: c => c.datasetIndex === 0
-            ? " " + c.parsed.y.toLocaleString() + "T tokens / quarter"
-            : " $" + c.parsed.y + " / M tokens (cheapest frontier flagship)" } }
-        },
-        scales: {
-          y:  { position: "left",  grid: { color: cl.grid }, ticks: { callback: v => v.toLocaleString() + "T" }, beginAtZero: true },
-          y2: { position: "right", grid: { display: false }, ticks: { callback: v => "$" + v }, beginAtZero: true }
+    // Implied continuous power from the same cited bridge used everywhere on this tab:
+    // 200M tokens/MW-hr → GW = T/quarter × 1e12 ÷ 2,190 hr ÷ 200e6 ÷ 1,000. Modeled°, and a
+    // FLOOR: tracked providers' modeled volume only (no untracked inference, no training).
+    const gw = volume.map(v => Math.round(v * 1e12 / 2190 / 2e8 / 1000 * 100) / 100);
+    const N = tv.quarters.length - 1;
+    // Three aligned panels, one timeline (replaces the dual-axis chart): x ticks only on the
+    // bottom panel; y axes hidden — endpoints carry their own values; annotations carry the story.
+    const panel = (id, cfg) => {
+      _charts[id] = new Chart($(id), {
+        type: "line",
+        data: { labels: tv.quarters, datasets: [Object.assign({
+          pointRadius: 0, tension: 0.3, borderWidth: 2.2, fill: true,
+          datalabels: { display: c => c.dataIndex === 0 || c.dataIndex === N, align: c => c.dataIndex === 0 ? "right" : "left",
+            anchor: "end", offset: 4, color: cl.label, font: { weight: 700, size: 9.5 }, formatter: cfg.fmt }
+        }, cfg.ds)] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          layout: { padding: { top: 14, right: 56, left: 4 } },
+          plugins: {
+            legend: { display: false },
+            annotation: cfg.ann ? { annotations: cfg.ann } : undefined,
+            tooltip: { callbacks: { label: cfg.tip } }
+          },
+          scales: {
+            y: { display: false, grace: "12%" },
+            x: { grid: { display: false }, ticks: cfg.xTicks ? { font: { size: 9 } } : { display: false } }
+          }
         }
-      }
+      });
+    };
+    const p0 = floorPrice[0], p1 = floorPrice[N], v0 = volume[0], v1 = volume[N];
+    panel("jevonsP1", {
+      ds: { data: floorPrice, borderColor: CHART_PALETTE.constraint, borderDash: [6, 4], stepped: "before", backgroundColor: hexA(CHART_PALETTE.constraint, 0.07) },
+      fmt: v => "$" + v, tip: c => " $" + c.parsed.y + " / M tokens (cheapest frontier flagship)",
+      ann: { drop: { type: "label", xValue: tv.quarters[Math.floor(N / 2)], yValue: (p0 + p1) / 2, content: "−" + Math.round(100 * (1 - p1 / p0)) + "% in " + N + " quarters", color: CHART_PALETTE.constraint, font: { size: 9.5, weight: 800 } } }
+    });
+    panel("jevonsP2", {
+      ds: { data: volume, borderColor: CHART_PALETTE.demand, backgroundColor: hexA(CHART_PALETTE.demand, 0.12) },
+      fmt: v => v.toLocaleString() + "T", tip: c => " " + c.parsed.y.toLocaleString() + "T tokens / quarter (modeled)",
+      ann: { grow: { type: "label", xValue: tv.quarters[Math.floor(N / 2)], yValue: v1 * 0.55, content: "×" + Math.round(v1 / v0) + " volume", color: CHART_PALETTE.demand, font: { size: 9.5, weight: 800 } } }
+    });
+    panel("jevonsP3", {
+      ds: { data: gw, borderColor: CHART_PALETTE.pipeline, backgroundColor: hexA(CHART_PALETTE.pipeline, 0.14) },
+      fmt: v => "~" + v.toFixed(1) + " GW", tip: c => " ~" + c.parsed.y + " GW continuous (modeled° floor — tracked volume only)",
+      xTicks: true,
+      ann: { rise: { type: "label", xValue: tv.quarters[Math.floor(N / 2)], yValue: gw[N] * 0.55, content: "power demand still rises°", color: CHART_PALETTE.pipeline, font: { size: 9.5, weight: 800 } } }
     });
     const m = $("jevonsMethod");
     if (m) {
