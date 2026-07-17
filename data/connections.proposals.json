@@ -1,10 +1,10 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-07-16T13:03:41+00:00",
+  "generated_at": "2026-07-17T12:44:44+00:00",
   "counts": {
-    "co_mention": 2,
-    "recurring_player": 1,
+    "co_mention": 1,
+    "recurring_player": 0,
     "filing_after_review": 0
   },
   "candidates": [
@@ -23,30 +23,6 @@
       "src": "Reuters",
       "evidence_text": "The White House will reportedly rally utilities, data-center operators and governors to expand the 'Ratepayer Protection Pledge' — under which Amazon, Google, Meta, Microsoft, OpenAI, Oracle and xAI committed to finance ",
       "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
-    },
-    {
-      "reason": "co-mention",
-      "players": [
-        "AMZN",
-        "GOOGL"
-      ],
-      "date": "Jul 2, 2026",
-      "src": "Missouri Independent",
-      "evidence_text": "Data-center backlash hit Missouri's GOP state-senate primaries, with candidates demanding restrictions in a state that just landed ~$25B of Amazon ($10B, New Florence) and Google ($15B) campuses.",
-      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
-    },
-    {
-      "reason": "recurring-player",
-      "players": [
-        "GOOGL"
-      ],
-      "count": 3,
-      "items": [
-        "The White House will reportedly rally utilities, data-center operators and gover",
-        "Google was revealed as the owner of Wyoming's largest data center project — the ",
-        "Data-center backlash hit Missouri's GOP state-senate primaries, with candidates "
-      ],
-      "suggestion": "GOOGL appears in 3 feed items — candidate for a narrative thread (one motion across weeks)."
     }
   ]
 }
