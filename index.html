@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260716b"></script>
+<script src="config.js?v=20260717a"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -503,6 +503,15 @@
   .chg-items { margin: 4px 0 0; padding: 0 0 0 4px; list-style: none; display: grid; gap: 4px; font-size: .83rem; line-height: 1.4; }
   .chg-glyph { color: var(--accent); font-weight: 700; margin-right: 5px; }
   .chg-note { color: var(--muted); font-size: .79rem; font-style: italic; margin-top: 3px; }
+  /* power-by-20XX back-scheduler rows (Buildout decision kit) */
+  .ps-head { font-size: .8rem; font-weight: 700; color: var(--muted); margin: 2px 0 7px; }
+  .ps-row { display: grid; grid-template-columns: minmax(120px, 1.4fr) minmax(64px, .7fr) 1.6fr; gap: 8px; align-items: center; padding: 5px 0; border-top: 1px solid var(--line); font-size: .84rem; }
+  .ps-name { font-weight: 600; color: var(--ink); }
+  .ps-range { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ps-badge { font-weight: 700; font-size: .78rem; }
+  .ps-badge.ok { color: var(--green); }
+  .ps-badge.warn { color: var(--amber); }
+  .ps-badge.crit { color: var(--red, #c0322b); }
   /* P2 persona additions: GPU price board (Tokens), buyer-posture list (Capital), sweet-spots table (Overview) */
   .gp-asof { font-size: .68rem; color: var(--muted); font-weight: 500; display: block; }
   .gp-gap { color: var(--muted); font-style: italic; font-size: .8rem; text-align: left; padding: 8px 10px; }
@@ -2129,10 +2138,17 @@
       <div class="stub-card">
         <h4>Buyer posture — the same numbers, from the buyer&rsquo;s chair<sup title="Editorial inversion of the sourced landlord metrics on this tab — market-structure analysis, not procurement or investment advice">&deg;</sup></h4>
         <ul class="bp-list">
-          <li><b>Early contracting beats spot</b> — 1.4% vacancy, asking rents roughly doubled since 2022; spot capacity is the expensive residual. <a href="#capital:vacancyChart">vacancy &rarr;</a></li>
+          <li><b>Early contracting beats spot</b> — 1.4% vacancy, asking rents +42% since 2022 (CBRE); spot capacity is the expensive residual. <a href="#capital:vacancyChart">vacancy &rarr;</a></li>
           <li><b>Your provider&rsquo;s balance sheet is your availability risk</b> — Oracle &amp; CoreWeave run ~10 yrs of OCF pre-committed; single-counterparty providers pass that risk through. <a href="#capital:overcommitmentBoard">commitment book &rarr;</a></li>
           <li><b>Allocation, not list price, binds the newest SKUs</b> — GB200 racks GA yet allocation-gated; NVIDIA&rsquo;s top-three &asymp;54% of revenue. <a href="#capital:commitmentQuadrant">quadrant &rarr;</a></li>
         </ul>
+      </div>
+
+      <!-- CAIO comparator: the four ways to get compute, one row of cited anchors each -->
+      <div class="stub-card">
+        <h4>Build, lease, rent — or wait&deg;</h4>
+        <div class="note">The four paths to AI capacity, joined from this dashboard&rsquo;s cited anchors &middot; native units on purpose — they don&rsquo;t reduce to one honest number &middot; Editorial&deg; synthesis; not procurement advice</div>
+        <div class="ss-wrap" id="buildBuyWait"></div>
       </div>
 
       <div class="stub-grid">
@@ -2280,8 +2296,10 @@
           <div class="note">Primary-market vacancy &middot; year-end &middot; the supply-tightness story</div>
           <div class="chart-box short"><canvas id="vacancyChart"></canvas></div>
           <div class="tab-callout">
-            Vacancy compressed from ~9% in 2019 to <b>1.4% today</b> — landlord pricing power has shifted decisively. Asking rents have roughly doubled since 2022.
+            Vacancy compressed from ~9% in 2019 to <b>1.4% today</b> — landlord pricing power has shifted decisively. Average asking rents are up <b>~42% since 2022</b> and ~64% from the 2021 trough (CBRE, below).
           </div>
+          <div class="chart-box short" style="margin-top:8px"><canvas id="coloRentChart"></canvas></div>
+          <div class="note">Avg asking rate &middot; 250&ndash;500 kW &middot; N. America primary wholesale &middot; $/kW-month &middot; CBRE H2 series (analyst)</div>
         </div>
 
         <!-- Card 6: Project IRR calculator (interactive) -->
@@ -2432,6 +2450,14 @@
         <div class="sc-method" id="timeToPowerMethod"></div>
       </div>
 
+      <!-- Back-scheduler: the same published bands, run backwards from a target energize year -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Power by 20XX — which paths still make it<sup title="Modeled back-scheduling: months remaining to Jan 1 of the target year vs each procurement path's published band above (grid duration cited; on-site bands modeled), plus the HV-transformer lead check for the grid path.">&deg;</sup></h4>
+        <div class="map-view-toggle sc-presets" id="psYears" role="tablist" aria-label="Target energize year" style="margin:6px 0 8px"></div>
+        <div id="powerScheduler"></div>
+        <div class="sc-method">Modeled&deg;: months to Jan 1 of the target year vs the time-to-power bands above; the grid path also checks HV transformers (36&ndash;60 mo). A path <b>makes it</b> when even its slow end fits; <b>tight</b> when only its fast end does.</div>
+      </div>
+
       <!-- Full-width: site-selection scorecard (weight presets re-rank the same cited scores) -->
       <div class="stub-card" style="margin-top:14px">
         <h4>Site-selection scorecard</h4>
@@ -2537,6 +2563,28 @@
           <summary>State risk table + attribution</summary>
           <div id="politicalLoadTable" style="margin-top:6px;overflow-x:auto"></div>
         </details>
+      </div>
+
+      <!-- Utility engagement table: the CIO's checklist — every row a join of dated, cited items
+           already on this page (buildability movements, ledger keyRisk, feed). — = not tracked. -->
+      <div class="stub-card" style="margin-top:14px">
+        <h4>Who demands what — large-load rules by utility &amp; regulator</h4>
+        <div class="note">Requirements already on the books for big loads, joined from the dated movements + ledger rows on this dashboard &middot; each row cited &middot; &mdash; = not tracked (never assumed)</div>
+        <div class="ss-wrap">
+          <table class="scorecard ss-table">
+            <thead><tr><th style="text-align:left;padding-left:10px">Regulator &middot; utility</th><th>State</th><th>Requirement for large loads</th><th>Next date</th><th>Source</th></tr></thead>
+            <tbody>
+              <tr><td class="market">FERC — all six RTOs</td><td>federal</td><td>show-cause: justify or rewrite large-load interconnection tariffs</td><td>responses ~Aug 2026</td><td>FERC / White &amp; Case &middot; primary</td></tr>
+              <tr><td class="market">PUCT / ERCOT</td><td>TX</td><td>SB2 registration + curtailment &gt;75 MW &middot; ride-through rules (stay connected through disturbances) &middot; draft SB6 interconnection standards</td><td>SB6 final Dec 2026</td><td>PUCT / ERCOT / Utility Dive &middot; primary + analyst</td></tr>
+              <tr><td class="market">Virginia SCC</td><td>VA</td><td>&gt;25 MW rate class — 14-yr contracts assign costs to data centers</td><td>in effect (Jan 2026)</td><td>Virginia SCC &middot; primary</td></tr>
+              <tr><td class="market">Arizona ACC — APS / SRP</td><td>AZ</td><td>large-load docket open &middot; APS proposed ~45% XL-load increase &middot; SRP E-67 80% minimum billing</td><td>docket open</td><td>Arizona Corporation Commission &middot; primary</td></tr>
+              <tr><td class="market">Illinois ICC — ComEd</td><td>IL</td><td>higher interconnection deposits &ge;50 MW &middot; consumer-cost probe</td><td>&mdash;</td><td>Illinois Commerce Commission &middot; primary</td></tr>
+              <tr><td class="market">PUCO — AEP Ohio</td><td>OH</td><td>large-load tariff: 85% take-or-pay for &gt;25 MW</td><td>&mdash;</td><td>ledger keyRisk (AEP Ohio) &middot; analyst</td></tr>
+              <tr><td class="market">LPSC — Entergy</td><td>LA</td><td>dedicated-generation path fast-tracked for Hyperion (7 added gas units)</td><td>final vote Dec 2026</td><td>Entergy / LPSC &middot; primary</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> Engage the regulator before the site: the requirement set (take-or-pay %, deposits, curtailment, ride-through) now varies more by state than power price does. <span style="opacity:.75">Editorial.</span></div>
       </div>
 
       <div class="stub-grid">
@@ -3923,6 +3971,21 @@
       { name: "ISO-NE", region: "New England",   queueYears: "4–5 yr", severity: "warn", note: "Gas + transmission both tight." },
       { name: "ERCOT",  region: "Texas",         queueYears: "3–4 yr", severity: "ok",   note: "Generation-led growth; queues shorter but rising fast." }
     ],
+    // CBRE North America Data Center Trends — avg asking rate, 250–500 kW, primary WHOLESALE
+    // markets. Series verified point-by-point against CBRE reports/press releases (2026-07-16).
+    // CBRE later restated H2 2022 as $137.86 (4¢) and publishes near-duplicate H2 2025 variants
+    // ($195.94 primary-markets basis; $194.95 "national average" in the press release) — do not
+    // substitute. Up ~42% since 2022, ~64% from the 2021 trough. No verified pre-2021 point.
+    coloRent: {
+      points: [
+        { period: "H2 2021", usd: 120.00 },
+        { period: "H2 2022", usd: 137.90 },
+        { period: "H2 2023", usd: 163.44 },
+        { period: "H2 2024", usd: 184.06 },
+        { period: "H2 2025", usd: 196.25 }
+      ],
+      src: { label: "CBRE North America Data Center Trends H2 2021–H2 2025 (250–500 kW, primary wholesale)", tier: "analyst" }
+    },
     regulatoryActions: [
       { jurisdiction: "FERC (federal)",        action: "Order 2023 — interconnection queue reform", status: "active",  note: "Streamlines large-load interconnection studies; cluster studies replace serial study." },
       { jurisdiction: "Federal (IRA + CHIPS)", action: "$30B+ tax credits + grants",                status: "active",  note: "Clean energy, transformers, chip fabs — directly supports DC buildouts." },
@@ -4045,7 +4108,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260716b"></script>
+<script src="app.js?v=20260717a"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

@@ -3010,6 +3010,115 @@ const $ = (id) => document.getElementById(id);
     card.style.display = "";
   }
 
+  /* ----- Colo asking-rent series (Capital, vacancy card) — CBRE 250–500 kW primary wholesale,
+     verified point-by-point (see DATA.coloRent comment). The receipts behind "+42% since 2022". */
+  function renderColoRent() {
+    if (!$("coloRentChart") || typeof Chart === "undefined" || !DATA.coloRent) return;
+    if (renderColoRent._done) return;
+    renderColoRent._done = true;
+    initCharts(); applyChartDefaults();
+    const cr = DATA.coloRent, cl = getChartColors();
+    _charts.coloRentChart = new Chart($("coloRentChart"), {
+      type: "line",
+      data: { labels: cr.points.map(p => p.period), datasets: [{
+        label: "Avg asking $/kW-mo", data: cr.points.map(p => p.usd),
+        borderColor: CHART_PALETTE.pipeline, backgroundColor: hexA(CHART_PALETTE.pipeline, 0.12),
+        fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: CHART_PALETTE.pipeline, borderWidth: 2.5
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 22, right: 14 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: { display: true, align: "top", offset: 5, color: cl.label, font: { weight: 700, size: 10 }, formatter: v => "$" + v.toFixed(0) },
+          tooltip: { callbacks: {
+            label: c => " $" + c.parsed.y.toFixed(2) + "/kW-month avg asking",
+            footer: () => "Source: " + cr.src.label
+          }}
+        },
+        scales: { y: { display: false, grace: "10%" }, x: { grid: { display: false } } }
+      }
+    });
+  }
+
+  /* ----- "Power by 20XX" back-scheduler (Buildout decision kit) — modeled°: months remaining to
+     Jan 1 of the target year vs each procurement path's published band (DATA.timeToPower), plus
+     the HV-transformer check for the grid path (DATA.equipmentLeadTimes). Pure arithmetic over
+     the cited bands; the only extra input is today's date. ----- */
+  function renderPowerScheduler() {
+    const host = $("powerScheduler");
+    if (!host || !DATA.timeToPower || !DATA.timeToPower.items) return;
+    const target = renderPowerScheduler._year || 2029;
+    const months = Math.max(0, Math.round((new Date(target, 0, 1) - Date.now()) / (30.44 * 24 * 3600 * 1000)));
+    const tx = (DATA.equipmentLeadTimes && DATA.equipmentLeadTimes.items && DATA.equipmentLeadTimes.items[0]) || null;   // HV transformers
+    host.innerHTML = '<div class="ps-head">' + months + " months to Jan 1, " + target + "</div>" +
+      DATA.timeToPower.items.map(it => {
+        const fits = it.maxVal <= months, tight = !fits && it.minVal <= months;
+        const cls = fits ? "ok" : (tight ? "warn" : "crit");
+        const word = fits ? "makes it" : (tight ? "tight — fast end only" : "missed");
+        // gear check mirrors the row semantics: fast end (parsed from the range) > months = miss;
+        // only the slow end overrunning = tight, not missed.
+        const txFast = tx ? parseInt(tx.range, 10) : NaN;
+        const gear = (tx && /grid/i.test(it.name))
+          ? (!isNaN(txFast) && txFast > months ? " · HV transformers (" + tx.range + ") also miss"
+            : (tx.maxVal > months ? " · HV transformers (" + tx.range + ") also tight" : ""))
+          : "";
+        return '<div class="ps-row"><span class="ps-name">' + it.name + '</span><span class="ps-range">' + it.range + '</span><span class="ps-badge ' + cls + '">' + word + gear + "</span></div>";
+      }).join("");
+    const yb = $("psYears");
+    if (yb && !yb._wired) {
+      yb._wired = true;
+      [2028, 2029, 2030, 2031].forEach(y => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "map-view-btn" + (y === target ? " active" : ""); b.setAttribute("role", "tab"); b.textContent = "by " + y;
+        b.addEventListener("click", () => {
+          renderPowerScheduler._year = y;
+          yb.querySelectorAll(".map-view-btn").forEach(x => x.classList.toggle("active", x === b));
+          renderPowerScheduler();
+        });
+        yb.appendChild(b);
+      });
+    }
+  }
+
+  /* ----- Build / lease / rent / wait comparator (Capital) — a join of the dashboard's cited
+     anchors in their native units. The cloud row's $/GPU-hr range is a live join over the daily
+     gpu_prices feed (honest "feed pending" until it hydrates). Editorial° synthesis. ----- */
+  function renderBuildBuyWait() {
+    const host = $("buildBuyWait");
+    if (!host) return;
+    let cloud = "feed pending — see the $/GPU-hr board on Tokens";
+    if (DATA.gpu_prices && DATA.gpu_prices.providers) {
+      const vals = [];
+      Object.keys(DATA.gpu_prices.providers).forEach(k => {
+        const pr = DATA.gpu_prices.providers[k].prices_usd_per_gpu_hr || {};
+        Object.keys(pr).forEach(s => { if (pr[s] != null) vals.push(pr[s]); });
+      });
+      if (vals.length) cloud = "$" + Math.min.apply(null, vals).toFixed(2) + "–$" + Math.max.apply(null, vals).toFixed(2) + "/GPU-hr on-demand list (daily feed, primary)";
+    }
+    host.innerHTML = `<table class="scorecard ss-table">
+      <thead><tr><th style="text-align:left;padding-left:10px">Path</th><th>Time to capacity</th><th>Cost anchor</th><th>What you carry</th></tr></thead>
+      <tbody>
+        <tr><td class="market"><a href="#buildout:timeToPowerChart">Build (own)</a></td>
+          <td>on-site first power 3–18 mo (modeled) · grid interconnect 48–84 mo</td>
+          <td>~$42M/MW all-in (analyst, illustrative)</td>
+          <td>full capex · power procurement · gear leads (HV 36–60 mo)</td></tr>
+        <tr><td class="market"><a href="#capital:vacancyChart">Lease (wholesale colo)</a></td>
+          <td>market-gated — 1.4% vacancy</td>
+          <td>$196.25/kW-mo avg asking (CBRE H2 2025, analyst)</td>
+          <td>multi-year lease terms · landlord pass-throughs</td></tr>
+        <tr><td class="market"><a href="#tokens:gpuPriceBoard">Rent (GPU cloud)</a></td>
+          <td>days–weeks; allocation gates the newest SKUs</td>
+          <td>${cloud}</td>
+          <td>price at renewal · provider balance sheet (see Buyer posture)</td></tr>
+        <tr><td class="market"><a href="#tokens:costPerTaskChart">Wait</a></td>
+          <td>—</td>
+          <td>sticker $/token fell ~100–300× — but $/task fell far less (reasoning burn)</td>
+          <td>availability at the next crunch — spot capacity is the expensive residual</td></tr>
+      </tbody>
+    </table>`;
+  }
+
   /* ----- Energy & Policy tab renders ----- */
   function renderDemandGapChart() {
     if (!$("demandGapChart") || typeof Chart === "undefined") return;
@@ -3250,7 +3359,7 @@ const $ = (id) => document.getElementById(id);
             '<td>' + (r.reg ? r.reg.note + ' <sup title="editorial severity — this dashboard\'s read">°</sup>' : (r.regS === "gap" ? '—' : r.regS.charAt(0).toUpperCase() + r.regS.slice(1) + ' <sup title="editorial severity">°</sup>')) + '</td></tr>';
         }).join("") +
         '</tbody></table>' +
-        '<div class="mm-total" style="margin-top:6px"><b>Trigger</b> = live dated regulatory/market move (sourced, tiered) · <b>Next catalyst</b> = next dated release (PJM Jul 14 2026 is firm; others read from the trigger headline; — where none is tracked) · <b>Exposed builds</b> = named live ledger records in-state (Graveyard excluded; — = unknown, not zero) · <b>Reg posture</b> is editorial (°). The constraint turns political before it turns physical: PJM headroom is still ~12% while Virginia has already legislated a 14-yr large-load rate class and PJM cleared at the FERC cap.</div>';
+        '<div class="mm-total" style="margin-top:6px"><b>Trigger</b> = live dated regulatory/market move (sourced, tiered) · <b>Next catalyst</b> = next dated release (read from the trigger headline; — where none is tracked) · <b>Exposed builds</b> = named live ledger records in-state (Graveyard excluded; — = unknown, not zero) · <b>Reg posture</b> is editorial (°). The constraint turns political before it turns physical: PJM headroom is still ~12% while Virginia has already legislated a 14-yr large-load rate class and PJM has cleared at the FERC cap three straight auctions.</div>';
     }
   }
   const SEVR = { gap: 0, low: 1, med: 2, high: 3 };
@@ -3883,7 +3992,7 @@ const $ = (id) => document.getElementById(id);
     // GPU rental prices (buy-side $/GPU-hr) — separate small feed; graceful if absent.
     try {
       const gp = await fetch("data/gpu_prices.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null);
-      if (gp && gp.providers) { DATA.gpu_prices = gp; renderGpuPrices(); }
+      if (gp && gp.providers) { DATA.gpu_prices = gp; renderGpuPrices(); renderBuildBuyWait(); }   // comparator's cloud row joins the live feed
     } catch (_) {}
     // "What changed" — computed deltas over the archived history; card stays hidden if absent.
     try {
@@ -4809,6 +4918,8 @@ const $ = (id) => document.getElementById(id);
       renderOvercommitment();
       renderTenorClocks();
       renderVacancyChart();
+      renderColoRent();
+      renderBuildBuyWait();
       renderOfftakeCoverage();
       renderCircularFinancing("all");
       renderVerticalIntegration();
@@ -4833,6 +4944,7 @@ const $ = (id) => document.getElementById(id);
       wirePhantomScenario();
       renderQueueChart();
       renderTimeToPower();
+      renderPowerScheduler();
       renderPerfPerWattChart();
       renderWatchStrip("buildout");
     } else if (name === "grid") {
@@ -4935,8 +5047,8 @@ const $ = (id) => document.getElementById(id);
   // listener). A card with no h4 (so-what boxes, calculators) is treated as a lead and left alone.
   // Buildout is already wrapped in markup, so it has a .more-analysis and is skipped here.
   var LEAD_CARDS = {
-    capital: ["Commitment vs build-out footprint", "Buyer posture", "Capex vs operating cash flow", "The commitment book", "The commitment flywheel", "Vacancy"],
-    grid:    ["Where AI load becomes", "Firm power never gets ahead", "Short ~19 GW by 2030", "PJM: 11", "What power costs, by state"],
+    capital: ["Commitment vs build-out footprint", "Buyer posture", "Build, lease, rent", "Capex vs operating cash flow", "The commitment book", "The commitment flywheel", "Vacancy"],
+    grid:    ["Where AI load becomes", "Firm power never gets ahead", "Short ~19 GW by 2030", "PJM: 11", "What power costs, by state", "Who demands what"],
     tokens:  ["The Jevons check", "One prompt to one gigawatt", "Industry token volume", "Effective cost per useful task", "What compute costs today"]
   };
   function collapseSecondary(name, section) {
@@ -5014,7 +5126,7 @@ const $ = (id) => document.getElementById(id);
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderJevonsChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderPowerPriceBoard","renderPjmAuction","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderOvercommitment","renderTenorClocks","renderPowerBank","renderFunnel"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderJevonsChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderPowerPriceBoard","renderPjmAuction","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderOvercommitment","renderTenorClocks","renderPowerBank","renderFunnel","renderColoRent"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
