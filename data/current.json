@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-16",
+  "lastUpdated": "2026-07-17",
   "topStory": {
     "date": "Jul 14, 2026",
     "text": "PJM's 2028/29 capacity auction cleared at the FERC-approved cap of $325/MW-day (UCAP) — procuring 138,318 MW for a $16.4 billion total — and for the first time in PJM history the entire RTO fell short of its reliability requirement, by 6,831 MW. Surging data-center demand is the primary driver of the price run-up now flowing through to consumer bills.",
@@ -7,6 +7,16 @@
     "url": "https://insidelines.pjm.com/pjm-capacity-auction-procures-138318-mw-of-generation-resources-as-work-continues-to-address-growing-electricity-demand/"
   },
   "feed": [
+    {
+      "date": "Jul 16, 2026",
+      "tag": "SUPPLY",
+      "text": "TSMC announced an additional $100 billion investment in its Phoenix, Arizona campus — four more 2nm-class fabs, lifting total planned US investment to $265 billion, the largest foreign direct investment in US history — after AI demand drove record Q2 profit and a raised capex outlook.",
+      "src": "Data Center Knowledge / TSMC",
+      "url": "https://www.datacenterknowledge.com/infrastructure/tsmc-expands-arizona-campus-to-265b-as-ai-demand-surges",
+      "players": [
+        "TSMC"
+      ]
+    },
     {
       "date": "Jul 13, 2026",
       "tag": "GRID",
@@ -76,16 +86,6 @@
       "text": "Amazon priced a $25 billion bond offering to finance AI and data center infrastructure, marking one of the largest corporate debt raises of 2026 as hyperscalers increasingly tap debt markets alongside internal cash to fund record capex.",
       "src": "Bloomberg/Reuters",
       "url": "https://www.indexbox.io/blog/tech-giants-shift-to-debt-markets-for-ai-infrastructure-funding/"
-    },
-    {
-      "date": "Jul 7, 2026",
-      "tag": "SUPPLY",
-      "text": "Samsung's preliminary Q2 guidance: a record ~KRW 89.4T (~$58B) operating profit, up ~1,810% year over year on AI memory demand — yet shares closed ~7% lower on concerns the memory upcycle is maturing.",
-      "src": "Samsung / CNBC",
-      "url": "https://news.samsung.com/global/samsung-electronics-announces-earnings-guidance-for-second-quarter-2026",
-      "players": [
-        "Samsung"
-      ]
     }
   ],
   "kpis": [
