@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260717a"></script>
+<script src="config.js?v=20260717b"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -503,6 +503,16 @@
   .chg-items { margin: 4px 0 0; padding: 0 0 0 4px; list-style: none; display: grid; gap: 4px; font-size: .83rem; line-height: 1.4; }
   .chg-glyph { color: var(--accent); font-weight: 700; margin-right: 5px; }
   .chg-note { color: var(--muted); font-size: .79rem; font-style: italic; margin-top: 3px; }
+  /* Jevons aligned panels (Tokens hero) */
+  .jv-panel { margin-top: 6px; }
+  .jv-lbl { display: block; font-size: 10.5px; font-weight: 700; color: var(--ink-2); margin-bottom: 1px; }
+  /* constraint storyboard severity + watch lines on the causal tiles */
+  .ov-sev { display: inline-block; font-size: 8.5px; font-weight: 800; letter-spacing: .04em; padding: 1px 6px; border-radius: 4px; margin-top: 5px; text-transform: uppercase; }
+  .ov-sev.driver { background: var(--accent-soft); color: var(--accent); }
+  .ov-sev.slack { background: var(--line); color: var(--muted); }
+  .ov-sev.high { background: var(--amber-soft); color: var(--amber); }
+  .ov-sev.binding { background: var(--red-soft); color: var(--red, #c0322b); }
+  .ov-watch { display: block; font-size: 9.5px; color: var(--muted); margin-top: 3px; }
   /* power-by-20XX back-scheduler rows (Buildout decision kit) */
   .ps-head { font-size: .8rem; font-weight: 700; color: var(--muted); margin: 2px 0 7px; }
   .ps-row { display: grid; grid-template-columns: minmax(120px, 1.4fr) minmax(64px, .7fr) 1.6fr; gap: 8px; align-items: center; padding: 5px 0; border-top: 1px solid var(--line); font-size: .84rem; }
@@ -1929,12 +1939,13 @@
         <h4>What changed — computed from the archive <span class="cf-tier cf-warn" title="Arithmetic over the archived daily snapshots in data/history — diffs of recorded values, never estimates; each section shows its actual comparison dates. Grid load and retail power prices are excluded: weekly deltas there are weather/period noise, not structure.">computed &middot; vs prior snapshot</span></h4>
         <div id="whatChanged"></div>
       </div>
-      <div class="ov-lens-label">Why the power gap opens — follow the chain</div>
+      <div class="ov-lens-label">The AI infrastructure chain — where demand becomes constraint&deg;</div>
       <div class="ov-lenses ov-causal">
-        <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span></a>
-        <a class="ov-lens" href="#capital"><span class="ov-step">2 · Capital</span><b>$839B</b><span class="ov-lens-stat">2026 hyperscaler capex chasing that demand · ~75% AI. Money isn't the constraint.</span></a>
-        <a class="ov-lens" href="#buildout"><span class="ov-step">3 · Buildout</span><b>97 GW queued</b><span class="ov-lens-stat">but only ~24 GW truly buildable · transformers 36–60 months. Queued ≠ buildable.</span></a>
-        <a class="ov-lens" href="#grid"><span class="ov-step">4 · Grid</span><b>~19 GW short</b><span class="ov-lens-stat">firm power can't keep up · unmet load lands on ratepayers (VA +57%, TX +28% modeled&deg;).</span></a>
+        <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span><span class="ov-sev driver">driver</span><span class="ov-watch">watch: NVIDIA Q2 FY27 &middot; late Aug</span></a>
+        <a class="ov-lens" href="#capital"><span class="ov-step">2 · Capital</span><b>$839B</b><span class="ov-lens-stat">2026 capex chasing that demand · ~75% AI. Money isn't the constraint — over-committed books are (Oracle/CoreWeave ~10 yrs OCF).</span><span class="ov-sev slack">not binding</span><span class="ov-watch">watch: Q2 capex guides &middot; late Jul&ndash;Aug</span></a>
+        <a class="ov-lens" href="#buildout"><span class="ov-step">3 · Buildout</span><b>97 GW queued</b><span class="ov-lens-stat">only ~24 GW truly buildable · queued-not-secured MW carries the haircut. Queued &ne; buildable.</span><span class="ov-sev high">high — gear-gated</span><span class="ov-watch">watch: LBNL <i>Queued Up</i> snapshot</span></a>
+        <a class="ov-lens" href="#grid"><span class="ov-step">4 · Grid</span><b>~19 GW short</b><span class="ov-lens-stat">firm power can't keep up — the long pole; PJM/N. Virginia loads most exposed.</span><span class="ov-sev binding">binding</span><span class="ov-watch">watch: FERC show-cause responses &middot; ~Aug</span></a>
+        <a class="ov-lens" href="#grid:rateImpactChart"><span class="ov-step">5 · Rates &amp; politics</span><b>at the cap, 3&times;</b><span class="ov-lens-stat">PJM cleared AT the FERC cap three straight auctions ($325); costs land on ratepayers (VA +57% modeled&deg;) — then on permits.</span><span class="ov-sev high">rising</span><span class="ov-watch">watch: White House pledge event &middot; state PUC rulings</span></a>
       </div>
       <div class="ov-lens-label">What breaks first — the constraint board</div>
       <div class="ccc-board" id="ov-constraints">
@@ -2708,8 +2719,10 @@
       <!-- HERO: Jevons — the core strategic insight, promoted above everything -->
       <div class="stub-card">
         <h4>The Jevons check — does cheaper mean more? <span class="cf-tier cf-warn" title="Derived from the price + volume series below; volumes are modeled.">~100× cheaper · ~330× more usage</span></h4>
-        <div class="note">Cheapest <b>frontier flagship</b> price (right axis, step line) against <b>industry token volume</b> (left axis) per quarter &middot; if volume outruns the price drop, total spend &mdash; and total power demand &mdash; <b>rises</b> as tokens get cheaper. This is the thesis in one chart.</div>
-        <div class="chart-box" style="height:320px"><canvas id="jevonsChart"></canvas></div>
+        <div class="note">Three aligned panels, one timeline — no dual axis: price falls, volume outruns it, so implied power <b>rises</b> as tokens get cheaper. This is the thesis in one graphic.</div>
+        <div class="jv-panel"><span class="jv-lbl">Cheapest frontier flagship &middot; $/M tokens</span><div class="chart-box" style="height:96px"><canvas id="jevonsP1"></canvas></div></div>
+        <div class="jv-panel"><span class="jv-lbl">Industry tokens &middot; T/quarter <span class="cf-tier cf-crit" title="Provider volumes are modeled (Epoch AI / SemiAnalysis / disclosures)">modeled</span></span><div class="chart-box" style="height:96px"><canvas id="jevonsP2"></canvas></div></div>
+        <div class="jv-panel"><span class="jv-lbl">Implied continuous power &middot; GW at 200M tok/MW-hr&deg; — tracked volume only, a floor</span><div class="chart-box" style="height:116px"><canvas id="jevonsP3"></canvas></div></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Cheaper tokens don&rsquo;t mean cheaper work — efficiency <b>delays</b> the infrastructure wall, it doesn&rsquo;t remove it. <span style="opacity:.75">Editorial.</span></div>
         <div class="note" style="margin-top:6px"><b>What would change the thesis:</b> a step-change in energy-per-token, sustained low GPU utilization, materially slower enterprise adoption, or workloads shifting to far smaller/cached models.</div>
         <div class="sc-method" id="jevonsMethod"></div>
@@ -4108,7 +4121,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260717a"></script>
+<script src="app.js?v=20260717b"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
