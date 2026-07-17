@@ -33,7 +33,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260716a"></script>
+<script src="config.js?v=20260716b"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -1003,13 +1003,22 @@
   .vi-disclaim { font-size: 11px; color: var(--muted); margin-top: 12px; }
 
   /* ---------- Power-to-revenue yield reconciliation (Capital tab) ---------- */
-  .p2r-lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
-  .p2r-lane { border: 1px solid var(--line); border-radius: 6px; padding: 9px 11px; background: var(--accent-soft); }
-  .p2r-lane:last-child { background: var(--amber-soft); }
-  .p2r-lane-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 4px; }
-  .p2r-lane-name { font-size: 12.5px; font-weight: 700; color: var(--ink); }
-  .p2r-ceil { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--amber); margin-left: 2px; }
-  .p2r-lane-sub { font-size: 11.5px; color: var(--ink-2); line-height: 1.4; }
+  /* payback strip: one shared 0–25-yr scale, chip-life band from tenorClocks overlaid on the tracks */
+  .p2r-strip { --lblw: 104px; margin-top: 6px; }
+  .p2r-striprows { position: relative; }
+  .p2r-brow { display: grid; grid-template-columns: var(--lblw) 1fr; gap: 8px; align-items: center; margin: 6px 0; }
+  .p2r-blabel { font-size: 11px; color: var(--ink-2); line-height: 1.25; }
+  .p2r-btrack { position: relative; height: 15px; background: var(--accent-soft); border-radius: 3px; }
+  .p2r-bfill { height: 100%; border-radius: 3px; }
+  .p2r-bfill.ok { background: var(--green); }
+  .p2r-bfill.late { background: var(--amber); }
+  .p2r-bval { position: absolute; top: 1px; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+  .p2r-bval.in { color: #fff; }
+  .p2r-chipseg { position: absolute; top: -3px; bottom: -3px; pointer-events: none;
+    background: var(--red-soft); opacity: .55;
+    border-left: 1px dashed var(--muted); border-right: 1px dashed var(--muted); }
+  .p2r-chiplabel { font-size: 10px; color: var(--muted); margin-left: calc(var(--lblw) + 8px); margin-bottom: 2px; }
+  .p2r-chiplabel a { color: var(--muted); }
   .p2r-lane-src { font-size: 10.5px; font-style: italic; color: var(--muted); margin-top: 4px; }
   .p2r-spread { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 6px; }
   .p2r-spread-cell { text-align: center; }
@@ -1018,8 +1027,9 @@
   .p2r-spread-num.warn { color: var(--amber); }
   .p2r-spread-lbl { font-size: 10.5px; color: var(--ink-2); text-transform: uppercase; letter-spacing: .03em; margin-top: 3px; }
   .p2r-spread-vs { font-size: 12px; font-weight: 700; color: var(--muted); }
-  @media (max-width: 700px) {
-    .p2r-lanes { grid-template-columns: 1fr; }
+  @media (max-width: 420px) {
+    .p2r-strip { --lblw: 80px; }
+    .p2r-blabel { font-size: 10px; }
   }
 
   /* ---------- Buildout: phantom-load haircut stages ---------- */
@@ -1915,7 +1925,7 @@
         <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span></a>
         <a class="ov-lens" href="#capital"><span class="ov-step">2 · Capital</span><b>$839B</b><span class="ov-lens-stat">2026 hyperscaler capex chasing that demand · ~75% AI. Money isn't the constraint.</span></a>
         <a class="ov-lens" href="#buildout"><span class="ov-step">3 · Buildout</span><b>97 GW queued</b><span class="ov-lens-stat">but only ~24 GW truly buildable · transformers 36–60 months. Queued ≠ buildable.</span></a>
-        <a class="ov-lens" href="#grid"><span class="ov-step">4 · Grid</span><b>~19 GW short</b><span class="ov-lens-stat">firm power can't keep up · unmet load lands on ratepayers (6 states at &gt;25% rate-hike risk).</span></a>
+        <a class="ov-lens" href="#grid"><span class="ov-step">4 · Grid</span><b>~19 GW short</b><span class="ov-lens-stat">firm power can't keep up · unmet load lands on ratepayers (VA +57%, TX +28% modeled&deg;).</span></a>
       </div>
       <div class="ov-lens-label">What breaks first — the constraint board</div>
       <div class="ccc-board" id="ov-constraints">
@@ -2135,7 +2145,7 @@
 
         <!-- Card 1b: AI-attributed share of capex (derived from capexFlow infra/non-core lanes) -->
         <div class="stub-card">
-          <h4>AI-attributed share of capex <span class="cf-tier cf-crit" title="Modeled — computed/estimated here, not directly reported (transformation).">modeled</span></h4>
+          <h4><span id="capexAiShareTitle">AI-attributed share of capex</span>&deg; <span class="cf-tier cf-crit" title="Modeled — computed/estimated here, not directly reported (transformation).">modeled</span></h4>
           <div class="chart-box short"><canvas id="capexAiShareChart"></canvas></div>
           <div class="note" id="capexAiShareNote"></div>
         </div>
@@ -2244,8 +2254,8 @@
 
       <!-- Full-width: Power-to-revenue yield reconciliation (NEW) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Power-to-revenue yield — reconciling the two numbers that never meet</h4>
-        <div class="note">Same $42M/MW of capacity, two ways to monetize it: a wholesale <b>facility lease</b> vs the theoretical <b>token-monetization</b> ceiling. Inputs are cited; the payback &amp; yield spread is <b>modeled</b> arithmetic, not a return forecast.</div>
+        <h4>Only premium tokens pay back a megawatt before its chips die&deg;</h4>
+        <div class="note">Power-to-revenue yield: the same $42M/MW, monetized as a wholesale <b>facility lease</b> vs <b>token sales</b>, on one payback scale. Inputs are cited; payback is <b>modeled</b> arithmetic, not a return forecast &middot; green = pays back inside the filed 5.5&ndash;6-yr server life (tenor clocks).</div>
         <div id="powerToRevenueYield" style="margin-top:10px"></div>
       </div>
 
@@ -2511,11 +2521,11 @@
     <section class="tab-content" data-tab="grid">
       <h2 class="tab-title">Grid</h2>
       <p class="tab-sub">The energy + policy story — demand vs generation, rate impact, regulation, utility responses. For utility planners, regulators, energy reporters, policy analysts.</p>
-      <p class="gap-connector"><span class="gc-tag">↑ the 19 GW gap</span>This is where the ~19 GW gap stops being a chart and becomes <b>rates + policy</b> — unmet load lands on ratepayers, and six states risk &gt;25% rate hikes.</p>
+      <p class="gap-connector"><span class="gc-tag">↑ the 19 GW gap</span>This is where the ~19 GW gap stops being a chart and becomes <b>rates + policy</b> — unmet load lands on ratepayers: two states model &gt;25% rate hikes (five total sit at &ge;15%).</p>
 
       <div class="so-what">
         <label>So what</label>
-        <h3>If demand rises another 60 GW by 2030 without commensurate grid expansion, six states face &gt;25% retail rate hikes — and AI buildout becomes politically untenable.</h3>
+        <h3>If demand rises another 60 GW by 2030 without commensurate grid expansion, VA (+57%) and TX (+28%) model &gt;25% retail rate hikes with three more states &ge;15% — and AI buildout becomes politically untenable.</h3>
       </div>
 
       <div class="stub-card" id="politicalLoadCard" style="margin-bottom:14px">
@@ -2532,15 +2542,16 @@
       <div class="stub-grid">
         <!-- Card 1: Demand vs generation gap (chart) -->
         <div class="stub-card">
-          <h4>Annual demand growth vs. new firm generation</h4>
-          <div class="note">DC load added per year vs. firm generation committed to DC · GW · 2024-2030</div>
+          <h4>Firm power never gets ahead — the unfilled gap peaks at +7 GW in 2027&deg;</h4>
+          <div class="note">Bar height = DC demand added per year &middot; green = new firm gen committed to DC &middot; <b>red = unfilled</b> &middot; GW &middot; 2024&ndash;2030 &middot; modeled</div>
           <div class="chart-box short"><canvas id="demandGapChart"></canvas></div>
+          <div class="sc-method" id="demandGapMethod"></div>
         </div>
 
         <!-- Card: Grid headroom by balancing authority (EIA feed, fetched in CI) -->
         <div class="stub-card">
-          <h4>Grid headroom by balancing authority <span class="cf-tier cf-warn" title="Derived — computed/estimated here, not directly reported (transformation).">derived</span><span class="feed-stamp" data-feed="grid"></span></h4>
-          <div class="note">Installed <b>nameplate</b> capacity minus peak demand, as % spare — a <b>derived proxy</b> for grid slack, <b>not</b> deliverable/accredited headroom (excludes reserve margins, forced outages, transmission limits, seasonal peaks). Inputs are primary (EIA-930 demand + EIA-860 nameplate); the headroom % is the modeled output · fetched in CI (falls back to curated when unavailable)</div>
+          <h4>Healthy today — until the announced ledger lands&deg; <span class="cf-tier cf-warn" title="Derived — computed/estimated here, not directly reported (transformation).">derived</span><span class="feed-stamp" data-feed="grid"></span></h4>
+          <div class="note" id="headroomNote">Nameplate-minus-peak proxy (EIA-930 + EIA-860), not accredited headroom &middot; &#9679; today (derived) &middot; &#9675; after live ledger load mapped to each BA (modeled&deg;)</div>
           <div class="chart-box short"><canvas id="headroomChart"></canvas></div>
         </div>
 
@@ -2554,14 +2565,14 @@
 
         <!-- Card 2: Retail rate impact by state (chart) -->
         <div class="stub-card">
-          <h4>Projected retail rate increase by 2030</h4>
-          <div class="note">Residential rate impact under high-DC-load scenarios &middot; vs. 2024</div>
+          <h4>Two states cross the rate-revolt line&deg; — Virginia at 2&times; the field</h4>
+          <div class="note">Modeled residential rate impact by 2030 under high-DC-load scenarios vs. 2024 &middot; dashed line = +25% revolt threshold&deg; &middot; red ring = also pays &gt;$90/MWh industrial today — the corridor&rsquo;s top price band (EIA)</div>
           <div class="chart-box short"><canvas id="rateImpactChart"></canvas></div>
         </div>
 
         <!-- Card: PJM capacity auction — the market price of the power squeeze -->
         <div class="stub-card">
-          <h4>PJM capacity auction — the price of the squeeze</h4>
+          <h4>PJM: 11&times; in four auctions — then pinned at the FERC cap&deg;</h4>
           <div class="note">Base Residual Auction RTO clearing price by <b>delivery year</b> (auction timing has been irregular) &middot; data-center load is the primary driver of the run-up &middot; the 2028/29 auction (results <b>July 14, 2026</b>) cleared AT the extended cap at <b>$325/MW-day</b> UCAP, with the entire RTO short of its reliability requirement for the first time</div>
           <div class="chart-box short"><canvas id="pjmAuctionChart"></canvas></div>
           <div class="sc-method" id="pjmAuctionMethod"></div>
@@ -2597,7 +2608,7 @@
 
         <!-- Card 7: Cumulative demand-supply deficit (chart, scenario toggle) -->
         <div class="stub-card">
-          <h4>Cumulative demand-supply deficit — and what could break it</h4>
+          <h4>Short ~19 GW by 2030 — or zero, or ~108: the published bracket&deg;</h4>
           <div class="note">Standing GW shortfall: running DC demand added minus running firm generation for DC &middot; national &middot; 2024-2030 &middot; toggle the demand path to <b>published</b> low/high anchors (EPRI &rsquo;24 low &middot; LBNL &rsquo;28 high) &mdash; scenario arithmetic, labeled</div>
           <div class="map-view-toggle" id="cumDeficitScenario" role="tablist" style="margin:6px 0 4px">
             <button class="map-view-btn active" data-scen="base" role="tab">Base</button>
@@ -3683,7 +3694,7 @@
         ],
         src: { label: "Tokens × energy bridge (200M tok/MW-hr, this page) × provider output prices", tier: "primary" }
       },
-      takeaway: "A megawatt monetized as tokens is worth exactly what its tokens sell for. At commodity prices (~$1/1M) it pays back in ~24 years — slower than the ~18-year facility lease. At frontier/reasoning prices (~$15/1M) it pays back in ~1.6 years. Whether today's $42M/MW is over- or under-built hinges on the token price it captures, not a fixed multiple.",
+      takeaway: "A megawatt earns what its tokens sell for. At ≥~$5/1M output it pays back (≤4.8 yr) inside the filed ~6-yr chip life; the wholesale lease (17.8 yr) and commodity tokens (24 yr) need ~3–4 silicon generations. The bet is token price, not a fixed multiple.",
       note: "Modeled arithmetic on cited inputs: revenue/MW-yr = 200M tokens/MW-hr × (output $/1M) × 8,760 hr; payback = $42M ÷ revenue/MW-yr. Gross, pre-opex, 100% sell-through.",
       tier: "modeled"
     },
@@ -4034,7 +4045,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260716a"></script>
+<script src="app.js?v=20260716b"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

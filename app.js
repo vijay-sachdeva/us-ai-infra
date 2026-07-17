@@ -157,7 +157,7 @@ const $ = (id) => document.getElementById(id);
     megaPowerPaths: { reviewed: "2026-07", take: "Among source-verified active builds, Meta's Hyperion tops the ledger at 5,000 MW (colocated) ahead of Homer City 4,500 MW and Joule 4,000 MW — both behind-the-meter, and both total-facility power (incl. cooling/generation), not IT load. The largest capacity clusters in BTM/colocated paths that bypass the interconnect queue, while four retreats (Project Jade, Project Blue, the Stargate-Abilene expansion, a paused Microsoft Ohio site) are segregated and excluded from the active GW total.", asof: "source-verified ledger (announced/ultimate targets; mixed capacity_type)", src: { label: "data/projects.json (per-record citations)" } },
     coCapexChart: { reviewed: "2026-07", take: "Amazon leads 2026 AI-infra capex at $200B, ahead of Microsoft ($190B), Google ($185B) and Meta ($135B — midpoint of its filed $125-145B range), with AI-native challengers far smaller: Oracle $56B (FY26 actual), CoreWeave $33B, Nebius $22B and xAI $18B.", asof: "2026 guidance", src: { label: "company 2026 capex guidance" } },
     commitmentQuadrant: { reviewed: "2026-07", take: "Capital quality beats headline capex: the two names deepest in the over-committed / power-short corner — Oracle (~10 yrs of OCF pre-committed) and CoreWeave (~10 yrs, no owned build) — are the same two leaning hardest on a single concentrated counterparty. X is SEC-filed (primary); ledger GW is coverage-biased (read direction, not magnitude); silicon colour is editorial.", asof: "SEC filings (2026) + named-build ledger", src: { label: "SEC 10-K/10-Q · data/projects.json · company capex guidance" } },
-    capexAiShareChart: { reviewed: "2026-07", take: "Across ~$799B of tracked operator capex roughly 90% is AI/data-center-attributed, with pure-plays like Oracle and CoreWeave near 100% and diversified operators lower — but the infra-vs-non-core split is an editorial Modeled estimate, not a reported line item.", asof: "2026 guidance", src: { label: "modeled (this dashboard)" } },
+    capexAiShareChart: { reviewed: "2026-07", take: "Across ~$799B of tracked operator capex roughly 90% is AI/data-center-attributed, with pure-plays like Oracle and CoreWeave near 100% and diversified operators lower — but the infra-vs-non-core split is an editorial Modeled estimate, not a reported line item — and the grey non-core remainder is the walk-back cushion, which Oracle and CoreWeave effectively lack.", asof: "2026 guidance", src: { label: "modeled (this dashboard)" } },
     costStack: { reviewed: "2026-06", take: "Building one MW of AI capacity runs ~$42M all-in, with compute ($31M) dwarfing facility ($11M) and GPUs/accelerators alone ($23M) the single largest layer — more than the entire shell, power, cooling and servers combined.", asof: "illustrative", src: { label: "illustrative per-MW build stack (JLL + analyst)" } },
     capexTrendChart: { reviewed: "2026-06", take: "Combined Big-5 hyperscaler capex (Amazon, Microsoft, Alphabet, Meta, Oracle) more than quintupled from $128B in 2021 to a guided ~$684B in 2026, where the 2026 figure is company guidance/estimate rather than reported actuals.", asof: "2021-2025 actuals + 2026 guidance", src: { label: "company 10-Ks / earnings (2026 = guidance)" } },
     capexVsCashflowChart: { reviewed: "2026-06", take: "Through FY2025 combined Big-5 capex ($381B) was ~66% of operating cash flow ($577B), up from ~44% in 2021, and Oracle is already the lone single-name crossover — its FY2026 capex ($55.7B) exceeds operating cash flow ($32.0B) for roughly -$24B free cash flow.", asof: "2021-2025 actuals + 2026 guidance", src: { label: "company 10-Ks / earnings (2026 = guidance)" } },
@@ -171,7 +171,7 @@ const $ = (id) => document.getElementById(id);
     timeToPowerChart: { reviewed: "2026-06", take: "On-site paths energize a site fastest — fuel cells in 3–12 months and behind-the-meter gas in 6–18 — while a full grid interconnect takes 48–84 months (4–7 years), making procurement path, not power scarcity, the binding 2026 timing variable.", asof: "2026 · grid duration cited, on-site bands modeled", src: { label: "LBNL Queued Up 2025" } },
     perfPerWattChart: { reviewed: "2026-06", take: "On a pinned dense FP16/BF16 silicon metric, per-watt efficiency only rose ~3x from A100 (index 100) to B200 (289) — but separate modeled effective-inference markers (FP4 + NVL72 rack-scale) reach 1,000 for GB200 NVL72 and ~3,500 for Rubin, showing the real deployment gains come from lower precision and rack design, not raw FP16 FLOPS/W.", asof: "2020–2025 GPU generations · markers modeled", src: { label: "NVIDIA datasheets (A100/H100/H200/Blackwell)" } },
     demandGapChart: { reviewed: "2026-06", take: "Annual US data-center demand additions outrun new firm generation committed to DC load nearly every year of the projection, with the widest single-year gap of 7 GW in 2027 (17 GW demand added vs. 10 GW firm gen) and demand exceeding new firm gen through 2030.", asof: "2024-2030 projection", src: { label: "modeled (GS / Wood Mackenzie / EIA + IRPs)" } },
-    headroomChart: { reviewed: "2026-06", take: "On a derived nameplate-capacity proxy, all nine tracked balancing authorities sit above the 10% 'healthy' line, ranging from Southern Co. (SOCO) tightest at 16.3% to Duke (DUK) loosest at 57.8% spare.", asof: "fetched in CI (see feed stamp)", src: { label: "EIA-930 + EIA-860" } },
+    headroomChart: { reviewed: "2026-07", take: "All tracked balancing authorities clear the 10% line today — but mapping the ledger's grid-drawing projects (BTM self-supply excluded) onto their balancing authorities shows announced load already claiming a visible slice of PJM's slack: today's green is partly spoken for.", asof: "fetched in CI (see feed stamp)", src: { label: "EIA-930 + EIA-860 · ledger overlay modeled" } },
     powerPriceBoard: { reviewed: "2026-07", take: "Industrial retail power across the AI data-center corridor spans ~1.6x — Texas and Iowa cheapest near $63/MWh, Georgia ~$68, while Pennsylvania, Virginia and Ohio (the PJM data-center heartland) run ~$98–100/MWh — a standing incentive for megawatts to migrate.", asof: "fetched daily in CI (see method note)", src: { label: "EIA-861 prices" } },
     playersPowerBank: { reviewed: "2026-07", take: "Among named ledger builds, Amazon leads announced GW (Rainier + Susquehanna) with Meta close behind on Hyperion alone — and the BTM/colocated share shows who is buying power independence rather than queue position.", asof: "source-verified ledger (announced targets)", src: { label: "data/projects.json (per-record citations)" } },
     overcommitmentBoard: { reviewed: "2026-07", take: "Oracle has ~$327B of filed lease + purchase commitments against $32B of annual operating cash flow — ~10 years pre-committed — and CoreWeave ~$58B against ~$6B (~10 yrs, before a $19B excluded lease); the hyperscalers sit at 2.3–3.7 years, but every book is ACCELERATING (Microsoft's unopened leases doubled to $196.6B in nine months; Google's purchase commitments doubled in one quarter).", asof: "latest 10-K/10-Q per operator (Mar–May 2026)", src: { label: "SEC 10-K / 10-Q filings" } },
@@ -179,7 +179,7 @@ const $ = (id) => document.getElementById(id);
     jevonsChart: { reviewed: "2026-07", take: "The cheapest frontier flagship fell ~73% ($30 → $8/M tokens) across ten quarters while industry token volume grew ~22x (100T → 2,180T/quarter) — demand grew far faster than price fell, the Jevons pattern the buildout thesis rests on.", asof: "Q1 2024–Q2 2026 · derived from the two charts above", src: { label: "Derived: price-compression + token-volume series (modeled)" } },
     pjmAuctionChart: { reviewed: "2026-07", take: "PJM capacity prices exploded ~11x from $28.92/MW-day (2024/25) to $269.92 (2025/26), then cleared AT the FERC cap in back-to-back auctions ($329.17, $333.44 for 2027/28, then $325 for 2028/29) — data-center load is the primary driver, and the 2028/29 auction (Jul 14, 2026) cleared at the cap again while the entire RTO fell short of its reliability requirement for the first time in PJM history (by 6,831 MW).", asof: "by delivery year · through the 2028/29 auction (Jul 2026)", src: { label: "PJM Base Residual Auction reports" } },
     rateImpactChart: { reviewed: "2026-06", take: "Under high-DC-load scenarios, Virginia faces a projected +57% residential rate increase by 2030 vs. 2024 — more than double any other state, with only Texas (+28%) and Ohio (+22%) also above 20%.", asof: "by 2030 vs. 2024 (modeled)", src: { label: "Fortune analysis, utility IRPs (modeled)" } },
-    cumDeficitChart: { reviewed: "2026-07", take: "The base path widens to ~19 GW of standing shortfall by 2030 — but the published range brackets it hard: on EPRI's 2024 low case the gap CLOSES entirely, while LBNL's 2028 high end implies a ~100+ GW problem. (The Bloom ~35 GW reference is yet-to-be-ANNOUNCED capacity from its Jan-2025 survey, not a measured shortfall.)", asof: "2024-2030 (modeled + published scenario anchors)", src: { label: "modeled (GS / Wood Mackenzie) · anchors: EPRI 2024, LBNL 2024" } },
+    cumDeficitChart: { reviewed: "2026-07", take: "The base path widens to ~19 GW of standing shortfall by 2030 — but the published range brackets it hard: on EPRI's 2024 low case the gap CLOSES entirely, while LBNL's 2028 high end implies a ~100+ GW problem. (The Bloom ~35 GW reference is yet-to-be-ANNOUNCED capacity from its Jan-2025 survey, not a measured shortfall.) Both scenario paths are drawn as grey ghosts on the base view; vertical marker = earliest new gas-turbine delivery slot (2029).", asof: "2024-2030 (modeled + published scenario anchors)", src: { label: "modeled (GS / Wood Mackenzie) · anchors: EPRI 2024, LBNL 2024" } },
     turbineSlots: { reviewed: "2026-06", take: "Gas-turbine order books are effectively sold out near-term: GE Vernova carries ~100 GW combined (44 GW firm backlog + 56 GW deposit-backed slot reservations), with the earliest new delivery slots not opening until 2029-2030 across GE Vernova, Siemens Energy and Mitsubishi.", asof: "Q1 FY2026 (reported Apr 2026)", src: { label: "GE Vernova / Siemens Energy / MHI earnings" } },
     powerSourceMixChart: { reviewed: "2026-06", take: "Gas carries US data-center load growth this decade — grid gas (+130 TWh) plus behind-the-meter on-site gas (+60 TWh) dominate the additional annual generation committed to 2030, ahead of renewables+storage (+110 TWh) and nuclear (+50 TWh, overwhelmingly post-2030 SMRs).", asof: "outlook to 2030 (period split modeled)", src: { label: "IEA, EIA STEO, S&P Global (period split modeled)" } },
     // Tokens tab (drafted from chart data after the tokens agent dropped mid-run; same grounding bar)
@@ -202,7 +202,13 @@ const $ = (id) => document.getElementById(id);
     if (_charts[canvasId]) { try { _charts[canvasId].destroy(); } catch (_) {} delete _charts[canvasId]; }
     const dots = { id: "lolly-" + canvasId, afterDatasetsDraw(chart) {
       const ctx = chart.ctx, meta = chart.getDatasetMeta(0);
-      meta.data.forEach((el, i) => { ctx.save(); ctx.beginPath(); ctx.arc(el.x, el.y, r, 0, 6.2832); ctx.fillStyle = colors[i]; ctx.fill(); ctx.restore(); });
+      meta.data.forEach((el, i) => {
+        ctx.save(); ctx.beginPath(); ctx.arc(el.x, el.y, r, 0, 6.2832); ctx.fillStyle = colors[i]; ctx.fill();
+        // strictly opt-in ring (rows[i].ring) — a second, cross-referenced condition on the same row
+        // (e.g. rate chart: also pays the corridor's highest industrial price). No caller sets it by default.
+        if (rows[i].ring) { ctx.lineWidth = 2; ctx.strokeStyle = hexA(CHART_PALETTE.constraint, 0.9); ctx.beginPath(); ctx.arc(el.x, el.y, r + 3.5, 0, 6.2832); ctx.stroke(); }
+        ctx.restore();
+      });
     } };
     _charts[canvasId] = new Chart($(canvasId), {
       type: "bar",
@@ -783,18 +789,38 @@ const $ = (id) => document.getElementById(id);
     const scen = DEFICIT_SCENARIOS[scenKey];
     // Cumulative running deficit, computed live so it can never drift from demandProjection.
     let cumDemand = 0, cumGen = 0;
-    const deficit = dp.years.map((_, i) => {
-      cumDemand += dp.yoyDemandGrowthGW[i];
-      cumGen    += dp.newFirmGenForDC[i];
-      return Math.round((cumDemand * scen.factor - cumGen) * 10) / 10;
-    });
+    const cumD = [], cumG = [];
+    dp.years.forEach((_, i) => { cumDemand += dp.yoyDemandGrowthGW[i]; cumGen += dp.newFirmGenForDC[i]; cumD.push(cumDemand); cumG.push(cumGen); });
+    const pathFor = f => cumD.map((d, i) => Math.round((d * f - cumG[i]) * 10) / 10);
+    const deficit = pathFor(scen.factor);
+    // Ghost bracket (base view only): the PUBLISHED low/high anchors drawn faint — the bear path
+    // exits the top of the frame (the uncertainty fan literally leaves the chart), the bull path
+    // dips below zero. Grey = scenario context; red stays the base constraint line.
+    const isBase = scenKey === "base";
+    const lowPath = pathFor(DEFICIT_SCENARIOS.low.factor), highPath = pathFor(DEFICIT_SCENARIOS.high.factor);
+    const ghost = data => ({ label: "scenario ghost", data, borderColor: hexA(CHART_PALETTE.context, 0.8), borderDash: [4, 4], borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.3, clip: 0, datalabels: { display: false } });
     if (_charts.cumDeficitChart) { try { _charts.cumDeficitChart.destroy(); } catch (_) {} delete _charts.cumDeficitChart; }
     const lineCol = scenKey === "low" ? CHART_PALETTE.supply : "#c0322b";
+    // Cross-tab lock-in marker (all views): earliest new gas-turbine delivery slot, read live
+    // from DATA.turbineSlots — the near-term gap can't be built away before it.
+    const ann = {
+      bloom: { type: "line", yMin: 35, yMax: 35, borderColor: "#c2710c", borderWidth: 1, borderDash: [5, 4], label: { display: true, content: "Bloom '25: ~35 GW yet-to-announce — not a shortfall", position: "end", backgroundColor: "rgba(194,113,12,0.85)", color: "#fff", font: { size: 8.5, weight: 700 }, padding: 3 } }
+    };
+    const slotYrsCD = (DATA.turbineSlots && DATA.turbineSlots.oems) ? DATA.turbineSlots.oems.map(o => parseInt(o.firstSlot, 10)).filter(n => !isNaN(n)) : [];
+    if (slotYrsCD.length) {
+      ann.lockin = { type: "line", scaleID: "x", value: String(Math.min.apply(null, slotYrsCD)),
+        borderColor: hexA(CHART_PALETTE.context, 0.8), borderDash: [2, 3], borderWidth: 1,
+        label: { display: true, position: "start", content: ["first NEW turbine slot", "'29 Siemens · '30 GE/MHI"], font: { size: 8.5, weight: 700 }, color: cl.label, backgroundColor: "transparent", padding: 2 } };
+    }
+    if (isBase) {
+      ann.hiExit = { type: "label", xValue: "2026", yValue: 33, content: "LBNL '28 high ↗ ~" + Math.round(highPath[highPath.length - 1]) + " GW by '30", color: cl.label, font: { size: 9, weight: 700 } };
+      ann.loExit = { type: "label", xValue: "2025", yValue: -4, content: "EPRI '24 low ↘ gap closes", color: cl.label, font: { size: 9, weight: 700 } };
+    }
     _charts.cumDeficitChart = new Chart($("cumDeficitChart"), {
       type: "line",
       data: {
         labels: dp.years,
-        datasets: [{
+        datasets: (isBase ? [ghost(lowPath), ghost(highPath)] : []).concat([{
           label: "Standing cumulative deficit",
           data: deficit,
           borderColor: lineCol,
@@ -802,7 +828,7 @@ const $ = (id) => document.getElementById(id);
           fill: true, tension: 0.3,
           pointRadius: 5, pointBackgroundColor: lineCol,
           borderWidth: 2.5
-        }]
+        }])
       },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -810,14 +836,16 @@ const $ = (id) => document.getElementById(id);
         plugins: {
           legend: { display: false },
           datalabels: { display: true, color: cl.label, font: { weight: 700, size: 11 }, align: "top", offset: 6, formatter: v => v + " GW" },
-          annotation: { annotations: { bloom: { type: "line", yMin: 35, yMax: 35, borderColor: "#c2710c", borderWidth: 1, borderDash: [5, 4], label: { display: true, content: "Bloom '25 survey: ~35 GW of capacity YET TO BE ANNOUNCED by 2030 (not a measured shortfall)", position: "end", backgroundColor: "rgba(194,113,12,0.85)", color: "#fff", font: { size: 8.5, weight: 700 }, padding: 3 } } } },
-          tooltip: { callbacks: {
+          annotation: { annotations: ann },
+          tooltip: {
+            filter: item => item.dataset.label === "Standing cumulative deficit",
+            callbacks: {
             label: c => " " + c.parsed.y + " GW " + (c.parsed.y >= 0 ? "standing shortfall" : "surplus vs committed gen (scenario)"),
             footer: () => scenKey === "base" ? "Source: " + cd.src.label : "Scenario anchor: " + scen.label
           }}
         },
         scales: {
-          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: scenKey !== "low", suggestedMax: scenKey === "high" ? 115 : 38, title: { display: true, text: "Cumulative shortfall (GW)" } },
+          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, min: isBase ? -6 : undefined, beginAtZero: isBase ? undefined : (scenKey !== "low"), suggestedMax: scenKey === "high" ? 115 : 38, title: { display: true, text: "Cumulative shortfall (GW)" } },
           x: { grid: { display: false } }
         }
       }
@@ -1443,11 +1471,31 @@ const $ = (id) => document.getElementById(id);
     if (!$("powerToRevenueYield") || !DATA.powerToRevenueYield) return;
     const d = DATA.powerToRevenueYield;
     const ci = d.costIn, la = d.leaseLane, tl = d.tokenLane;
-    const priceRows = tl.prices.map(p => `
-      <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:12px;padding:5px 0;border-top:1px solid var(--line)">
-        <span style="color:var(--ink-2)">${p.label}</span>
-        <span style="font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap">$${p.revPerMwYr}M/MW-yr · <b style="color:${p.paybackYrs <= la.paybackYrs ? 'var(--green)' : 'var(--amber)'}">~${p.paybackYrs} yr</b></span>
-      </div>`).join("");
+    // Shared-scale payback strip (0–25 yr). One hue = one meaning: green = pays back inside the
+    // FILED 5.5–6-yr server life (tenorClocks, same tab), amber = outlives the silicon. The chip-life
+    // band is read from DATA.tenorClocks at render time so a future filing change moves it.
+    const chip = (DATA.tenorClocks && DATA.tenorClocks.items && DATA.tenorClocks.items[0]) || null;
+    const MAXY = 25;
+    const bars = [
+      { label: tl.prices[2].label, yrs: tl.prices[2].paybackYrs },
+      { label: tl.prices[1].label, yrs: tl.prices[1].paybackYrs },
+      { label: "Facility lease $" + la.ratePerKwMo + "/kW-mo", yrs: la.paybackYrs, lease: true },
+      { label: tl.prices[0].label, yrs: tl.prices[0].paybackYrs }
+    ];
+    // the chip-life band is drawn as a segment INSIDE each track (same % scale as the fills —
+    // no cross-column geometry), so it stays correct at every viewport and label width.
+    const seg = chip ? `<i class="p2r-chipseg" style="left:${(chip.lo / MAXY * 100).toFixed(1)}%;width:${((chip.hi - chip.lo) / MAXY * 100).toFixed(1)}%"></i>` : "";
+    const stripRows = bars.map(b => {
+      const pct = Math.min(100, b.yrs / MAXY * 100);
+      const ok = chip ? b.yrs <= chip.hi : false;
+      const gens = (b.lease && chip) ? " · ≈" + Math.round(b.yrs / chip.hi) + " chip gens°" : "";
+      const inFill = pct > 68;   // long fills carry their label inside; short fills label to the right
+      const pos = inFill ? 'right:6px' : `left:calc(${pct}% + 6px)`;
+      return `<div class="p2r-brow"><span class="p2r-blabel">${b.label}</span>
+        <div class="p2r-btrack"><div class="p2r-bfill ${ok ? "ok" : "late"}" style="width:${pct}%"></div>${seg}
+        <span class="p2r-bval${inFill ? " in" : ""}" style="${pos}">~${b.yrs} yr${gens}</span></div></div>`;
+    }).join("");
+    const chipLabel = chip ? `<div class="p2r-chiplabel"><a href="#capital:tenorClocks">dashed band = chips die ${chip.lo}–${chip.hi} yr (filed) →</a></div>` : "";
 
     const html = `
       <div class="stack-row">
@@ -1460,20 +1508,12 @@ const $ = (id) => document.getElementById(id);
 
       <div class="stack-row">
         <div class="stack-head">
-          <div class="stack-name"><span class="stack-num">2</span>Revenue out <span class="stack-what">— lease the megawatt, or sell its tokens</span></div>
+          <div class="stack-name"><span class="stack-num">2</span>Payback, on one scale <span class="stack-what">— bar ends left of the band = the MW pays back before its chips die</span></div>
         </div>
-        <div class="p2r-lanes">
-          <div class="p2r-lane">
-            <div class="p2r-lane-top"><span class="p2r-lane-name">Facility lease</span><span class="stack-pill ok">$${la.revPerMwYr}M / MW-yr</span></div>
-            <div class="p2r-lane-sub">@ $${la.ratePerKwMo}/kW-mo (what wholesale buyers sign) → ~${la.paybackYrs} yr payback on $${ci.allInPerMw}M/MW.</div>
-            <div class="p2r-lane-src">${la.src.label}</div>
-          </div>
-          <div class="p2r-lane">
-            <div class="p2r-lane-top"><span class="p2r-lane-name">Token monetization</span><span class="stack-pill warn">price-dependent</span></div>
-            <div style="margin:4px 0 2px">${priceRows}</div>
-            <div class="p2r-lane-sub">${tl.tokensPerMwHrM}M tokens/MW-hr × output price, 100% sell-through, gross.</div>
-            <div class="p2r-lane-src">${tl.src.label}</div>
-          </div>
+        <div class="p2r-strip">
+          ${chipLabel}
+          <div class="p2r-striprows">${stripRows}</div>
+          <div class="p2r-lane-src">${la.src.label} · ${tl.src.label} · ${tl.tokensPerMwHrM}M tok/MW-hr × price × 8,760 hr, gross, 100% sell-through</div>
         </div>
       </div>
 
@@ -1593,24 +1633,68 @@ const $ = (id) => document.getElementById(id);
     if (!$("capexAiShareChart") || typeof Chart === "undefined" || !DATA.capexFlow) return;
     if (renderCapexAiShare._done) return;
     renderCapexAiShare._done = true;
+    initCharts(); applyChartDefaults();
+    // Stacked $-bars: company-colored AI bet + grey "cushion" (non-core capex an operator could
+    // cut before touching the AI program). Same DATA.capexFlow lanes as the sankey below — the
+    // two views stay visibly consistent. Sorted by total $ so bar length ranks the absolute bet.
     const rows = DATA.capexFlow.companies.map(co => {
       const infra = co.buckets.filter(b => b.lane === "infra").reduce((s, b) => s + b.value, 0);
       const total = co.buckets.reduce((s, b) => s + b.value, 0) || co.total;
-      return { name: co.name, color: co.color, pct: Math.round(infra / total * 100), infra, total };
-    }).sort((a, b) => b.pct - a.pct);
+      return { name: co.name, color: co.color, pct: Math.round(infra / total * 100), infra, noncore: total - infra, total, co };
+    }).sort((a, b) => b.total - a.total);
     const sumInfra = rows.reduce((s, r) => s + r.infra, 0);
     const sumTotal = rows.reduce((s, r) => s + r.total, 0);
     const aggPct = Math.round(sumInfra / sumTotal * 100);
-    renderLollipop("capexAiShareChart", rows.map(r => ({ label: r.name, value: r.pct, color: r.color })), {
-      seriesLabel: "AI / DC share of capex (%)",
-      fmt: v => v + "%", tick: v => v + "%", suggestedMax: 100, rightPad: 46,
-      tooltipCallbacks: { label: c => { const r = rows[c.dataIndex]; return " ~" + r.pct + "% AI-attributed · $" + r.infra + "B of $" + r.total + "B capex"; } }
+    const cw = rows.find(r => /coreweave/i.test(r.name));
+    if (_charts.capexAiShareChart) { try { _charts.capexAiShareChart.destroy(); } catch (_) {} delete _charts.capexAiShareChart; }
+    const ann = {};
+    if (cw && rows[0].noncore > cw.total) {
+      ann.cushion = { type: "label", xValue: rows[0].infra + rows[0].noncore / 2, yValue: 0.55,
+        content: ["Amazon's grey alone ($" + rows[0].noncore + "B)", "> CoreWeave's entire capex ($" + cw.total + "B)"],
+        color: "#fff", backgroundColor: hexA(CHART_PALETTE.context, 0.85), font: { size: 9, weight: 700 }, padding: 3, borderRadius: 4,
+        display: ctx => ctx.chart.width > 420 };
+    }
+    _charts.capexAiShareChart = new Chart($("capexAiShareChart"), {
+      type: "bar",
+      data: {
+        labels: rows.map(r => r.name),
+        datasets: [
+          { label: "AI / data-center (modeled°)", data: rows.map(r => r.infra), backgroundColor: rows.map(r => r.color), stack: "s", maxBarThickness: 20 },
+          { label: "Non-core — the cushion", data: rows.map(r => r.noncore), backgroundColor: hexA(CHART_PALETTE.context, 0.5), stack: "s", maxBarThickness: 20,
+            datalabels: { display: true, anchor: "end", align: "end", offset: 6, font: { weight: 700, size: 10 },
+              formatter: (v, c) => { const r = rows[c.dataIndex]; return r.noncore ? r.pct + "% · $" + r.noncore + "B cushion" : r.pct + "% AI"; } } }
+        ]
+      },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 108 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: { display: false },
+          annotation: { annotations: ann },
+          tooltip: { callbacks: {
+            label: c => " " + c.dataset.label + ": $" + c.parsed.x + "B",
+            afterBody: items => {
+              const r = rows[items[0].dataIndex];
+              if (items[0].datasetIndex !== 1 || !r.co.buckets) return "";
+              return r.co.buckets.filter(b => b.lane === "noncore").map(b => " " + b.label + " $" + b.value + "B");
+            },
+            footer: items => { const r = rows[items[0].dataIndex]; return (r.co.src ? r.co.src.label + " · " + r.co.src.tier : "") + " total; split modeled°"; }
+          } }
+        },
+        scales: {
+          x: { stacked: true, display: false, beginAtZero: true },
+          y: { stacked: true, grid: { display: false }, ticks: { font: { weight: 700 } } }
+        }
+      }
     });
+    const t = $("capexAiShareTitle");
+    if (t) t.textContent = "The AI bet: ~" + aggPct + "% of ~$" + sumTotal + "B — the grey cushion is thin";
     if ($("capexAiShareNote")) {
+      const orc = rows.find(r => /oracle/i.test(r.name));
       $("capexAiShareNote").innerHTML =
-        "Aggregate: ~$" + sumTotal + "B tracked capex → <b>~" + aggPct + "% AI / data-center-attributed</b>. " +
-        "The AI/DC share is an <b>editorial Modeled estimate</b> (infra vs non-core split), not a reported line item — " +
-        "pure-plays (Oracle/CoreWeave/Nebius) ≈ 100%, diversified operators lower.";
+        "Grey = non-core capex — what an operator could cut before touching the AI bet (Amazon $" + rows[0].noncore + "B; Oracle $" + (orc ? orc.noncore : "—") + "B, CoreWeave $" + (cw ? cw.noncore : "—") + " — no walk-back room). " +
+        "Infra vs non-core split is an <b>editorial Modeled estimate</b>, same lanes as the capex flow below, not a reported line item.";
     }
   }
 
@@ -2933,49 +3017,89 @@ const $ = (id) => document.getElementById(id);
     renderDemandGapChart._done = true;
     initCharts(); applyChartDefaults();
     const dp = DATA.demandProjection;
-    const cl = getChartColors();
+    // Stack the gap ON TOP of committed firm gen: bar top = demand added, the red segment IS the
+    // unfilled deficit — zero mental subtraction. The red segments are the year-by-year inputs
+    // renderCumDeficitChart integrates into the ~19 GW standing shortfall; the footer computes
+    // that sum live from the same arrays so the two cards can never drift apart.
+    const gap = dp.yoyDemandGrowthGW.map((d, i) => d - dp.newFirmGenForDC[i]);
+    const totalGap = dp.yoyDemandGrowthGW.reduce((a, b) => a + b, 0) - dp.newFirmGenForDC.reduce((a, b) => a + b, 0);
+    const peakI = gap.indexOf(Math.max.apply(null, gap));
+    // 2nd-degree kicker: the worst gap year lands before any new gas-turbine order can deliver
+    // (min firstSlot across OEMs, read live from DATA.turbineSlots — primary, OEM earnings).
+    const slotYrs = (DATA.turbineSlots && DATA.turbineSlots.oems) ? DATA.turbineSlots.oems.map(o => parseInt(o.firstSlot, 10)).filter(n => !isNaN(n)) : [];
+    const minSlot = slotYrs.length ? Math.min.apply(null, slotYrs) : null;
+    const annLines = ["Widest gap: +" + gap[peakI] + " GW unfilled"].concat(minSlot ? ["earliest new turbine slot: " + minSlot + "°"] : []);
     _charts.demandGapChart = new Chart($("demandGapChart"), {
       type: "bar",
       data: {
         labels: dp.years,
         datasets: [
-          { label: "DC demand added", data: dp.yoyDemandGrowthGW, backgroundColor: CHART_PALETTE.demand, borderRadius: 5, maxBarThickness: 26 },
-          { label: "New firm gen for DC", data: dp.newFirmGenForDC, backgroundColor: CHART_PALETTE.supply, borderRadius: 5, maxBarThickness: 26 }
+          { label: "New firm gen for DC", data: dp.newFirmGenForDC, backgroundColor: CHART_PALETTE.supply, stack: "s", borderRadius: 5, maxBarThickness: 26,
+            datalabels: { display: c => dp.newFirmGenForDC[c.dataIndex] >= 5, color: "#fff", font: { weight: 700, size: 9.5 }, formatter: v => v } },
+          { label: "Unfilled demand", data: gap, backgroundColor: CHART_PALETTE.constraint, stack: "s", borderRadius: 5, maxBarThickness: 26,
+            datalabels: { display: c => gap[c.dataIndex] > 0, anchor: "end", align: "top", color: CHART_PALETTE.constraint, font: { weight: 700, size: 10 }, formatter: v => "+" + v } }
         ]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        layout: { padding: { top: 22 } },
+        layout: { padding: { top: 30 } },
         plugins: {
-          legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 7, padding: 14 } },
-          datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, font: { weight: 700, size: 10 }, formatter: v => v + " GW" }),
+          legend: { display: false },   // the note carries the two-color key
+          annotation: { annotations: { peak: {
+            type: "label", xValue: dp.years[peakI], yValue: dp.yoyDemandGrowthGW[peakI], yAdjust: -24,
+            content: annLines, backgroundColor: hexA(CHART_PALETTE.constraint, 0.88), color: "#fff",
+            font: { size: 8.5, weight: 700 }, padding: 3, borderRadius: 3
+          } } },
           tooltip: { callbacks: {
-            label: c => " " + c.dataset.label + ": " + c.parsed.y + " GW",
-            footer: () => "Source: " + dp.src.label
+            label: c => c.datasetIndex === 0 ? " New firm gen: " + c.parsed.y + " GW" : " Unfilled: +" + gap[c.dataIndex] + " GW",
+            footer: items => "Demand added: " + dp.yoyDemandGrowthGW[items[0].dataIndex] + " GW · Source: " + dp.src.label
           }}
         },
         scales: {
-          y: { grid: { color: cl.grid }, ticks: { callback: v => v + " GW" }, beginAtZero: true },
-          x: { grid: { display: false } }
+          y: { stacked: true, suggestedMax: 20, grid: { display: false }, ticks: { display: false } },
+          x: { stacked: true, grid: { display: false } }
         }
       }
     });
+    const m = $("demandGapMethod");
+    if (m) m.innerHTML = 'Red gaps sum to <b>~' + totalGap + ' GW</b> standing shortfall by 2030 — integrated in the <a href="#grid:cumDeficitChart">cumulative-deficit card below</a>.';
   }
 
+  // The +25% "rate-revolt line" is the chart's own red cutoff AND the so-what threshold quoted on
+  // the Grid tab — one constant so the drawn line, the dot colors and the copy can't drift apart.
+  const RATE_REVOLT_PCT = 25;
   function renderRateImpactChart() {
     if (!$("rateImpactChart") || typeof Chart === "undefined") return;
     if (renderRateImpactChart._done) return;
     renderRateImpactChart._done = true;
     const ri = DATA.rateImpacts;
-    const colorFor = (v) => v >= 25 ? CHART_PALETTE.constraint : v >= 15 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply;
-    const rows = ri.states.map(s => ({ label: s.state, value: s.increase, color: colorFor(s.increase) })).sort((a, b) => b.value - a.value);
+    // semantic color: red ONLY past the revolt line; amber approaching; grey = context (green would
+    // read as "good news", which +12% is not — it is just not-the-story).
+    const colorFor = (v) => v >= RATE_REVOLT_PCT ? CHART_PALETTE.constraint : v >= 15 ? CHART_PALETTE.pipeline : CHART_PALETTE.context;
+    // double-squeeze ring: state also pays > $90/MWh industrial TODAY (EIA feed; strictly > 90,
+    // matching powerPriceBoard's red threshold exactly). Degrades silently offline.
+    const P2 = { "Virginia": "VA", "Texas": "TX", "Ohio": "OH", "Georgia": "GA", "Arizona": "AZ", "Louisiana": "LA", "North Carolina": "NC", "Tennessee": "TN" };
+    const pe = (DATA.power_econ && DATA.power_econ.states) || {};
+    const priceOf = s => { const r = pe[P2[s]]; return r ? r.ind_usd_mwh : null; };
+    const rows = ri.states.map(s => ({
+      label: s.state, value: s.increase, color: colorFor(s.increase),
+      price: priceOf(s.state), ring: (priceOf(s.state) || 0) > 90
+    })).sort((a, b) => b.value - a.value);
     renderLollipop("rateImpactChart", rows, {
       seriesLabel: "Rate increase by 2030 (%)",
       fmt: v => "+" + v + "%", tick: v => "+" + v + "%", suggestedMax: 60, rightPad: 48,
       tooltipCallbacks: {
-        label: c => " +" + c.parsed.x + "% by 2030",
-        footer: () => "Source: " + ri.src.label
-      }
+        label: c => " +" + c.parsed.x + "% by 2030 (modeled°)",
+        afterLabel: c => { const p = rows[c.dataIndex].price; return p ? " pays $" + Math.round(p) + "/MWh industrial today (EIA " + (DATA.power_econ.period || "") + " · primary)" : ""; },
+        footer: () => "Increase: modeled° — " + ri.src.label
+      },
+      annotation: { annotations: { revolt: {
+        type: "line", scaleID: "x", value: RATE_REVOLT_PCT,
+        borderColor: hexA(CHART_PALETTE.constraint, 0.7), borderWidth: 1, borderDash: [4, 4],
+        label: { display: true, content: "rate-revolt line° +" + RATE_REVOLT_PCT + "%", position: "end",
+                 color: "#fff", backgroundColor: hexA(CHART_PALETTE.constraint, 0.85),
+                 font: { size: 9, weight: 700 }, padding: 2 }
+      } } }
     });
   }
 
@@ -3466,28 +3590,103 @@ const $ = (id) => document.getElementById(id);
   /* ----- Live public-data feeds: data/*.json built by scripts/ + refresh-data.yml.
      Additive + graceful — a missing or failed feed leaves the curated DATA untouched
      and never blanks a chart. ----- */
+  // Editorial° state→BA crosswalk for mapping live ledger projects onto balancing authorities —
+  // single-BA states only (keyed to data/grid.json region codes); multi-BA states are EXCLUDED
+  // and their omitted GW disclosed in the note. Fixes LA→MISO for this chart (XWALK lists SOCO
+  // for utility framing; the EIA BA for the tracked LA builds is MISO).
+  const BA_OF_STATE = { VA: "PJM", OH: "PJM", PA: "PJM", TX: "ERCO", GA: "SOCO", LA: "MISO", NC: "DUK", NY: "NYIS", CA: "CISO", WI: "MISO", IA: "MISO" };
   function renderHeadroomChart() {
     if (!$("headroomChart") || typeof Chart === "undefined") return;
     if (!DATA.grid || !DATA.grid.regions) return;   // no feed yet -> skip, keep dashboard intact
     if (renderHeadroomChart._done) return;
     renderHeadroomChart._done = true;
+    initCharts(); applyChartDefaults();
+    const cl = getChartColors();
+    const col = v => v <= 6 ? CHART_PALETTE.constraint : (v <= 10 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply);
+    // live ledger MW per BA (graveyard-filtered); the flagship ledger consuming the grid feed.
+    const recs = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : [];
+    const live = recs.filter(r => GRAVEYARD_STATUSES.indexOf(r.status) === -1);
+    const claim = {}, claimN = {}, claimStates = {};
+    let omitBA = 0, omitBTM = 0;
+    live.forEach(r => {
+      const ba = BA_OF_STATE[r.state], mw = r.capacity_mw || 0;
+      // Only GRID-DRAWING load consumes this chart's slack proxy: Grid interconnections and
+      // Colocated builds (which redirect existing BA generation). BTM campuses build their own
+      // power and bypass the queue (per the ledger's own power-path taxonomy) — counting them
+      // here would claim slack they never draw. Unclassified builds are excluded, not guessed.
+      const model = (r.power && r.power.model) || "";
+      const draws = model === "Grid" || model === "Colocated";
+      if (!ba) { omitBA += mw; return; }
+      if (!draws) { omitBTM += mw; return; }
+      claim[ba] = (claim[ba] || 0) + mw;
+      claimN[ba] = (claimN[ba] || 0) + 1;
+      (claimStates[ba] = claimStates[ba] || []).push(r.state);
+    });
     const rows = Object.entries(DATA.grid.regions)
       .filter(([, v]) => v.headroom_pct != null)
-      .map(([ba, v]) => ({ ba, ...v }))
-      .sort((a, b) => a.headroom_pct - b.headroom_pct);
-    const col = v => v <= 6 ? CHART_PALETTE.constraint : (v <= 10 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply);
-    renderLollipop("headroomChart", rows.map(r => ({ label: r.ba, value: r.headroom_pct, color: col(r.headroom_pct) })), {
-      seriesLabel: "Grid headroom (%)",
-      fmt: v => v + "%", tick: v => v + "%", rightPad: 44,
-      tooltipCallbacks: {
-        label: c => " " + c.parsed.x + "% headroom",
-        afterLabel: c => "Peak ≈ " + (rows[c.dataIndex].peak_mw || 0).toLocaleString() + " MW · EIA-930 + EIA-860"
+      .map(([ba, v]) => {
+        const mw = claim[ba] || 0;
+        const after = (mw && v.capacity_mw) ? Math.round((v.capacity_mw - v.peak_mw - mw) / v.capacity_mw * 1000) / 10 : v.headroom_pct;
+        return { ba, now: v.headroom_pct, peak_mw: v.peak_mw, mw, n: claimN[ba] || 0,
+                 states: claimStates[ba] ? claimStates[ba].filter((s, i, a) => a.indexOf(s) === i).join("/") : "", after };
+      })
+      .sort((a, b) => a.after - b.after);   // tightest FUTURE first
+    if (_charts.headroomChart) { try { _charts.headroomChart.destroy(); } catch (_) {} delete _charts.headroomChart; }
+    // annotation: 6%/10% reference lines + one label at the largest ledger delta (usually PJM)
+    const ann = {
+      crit:    { type: "line", scaleID: "x", value: 6,  borderColor: hexA(CHART_PALETTE.constraint, 0.7), borderWidth: 1, borderDash: [4, 4], label: { display: true, content: "6% critical",  position: "start", color: "#fff", backgroundColor: hexA(CHART_PALETTE.constraint, 0.85), font: { size: 9, weight: 700 }, padding: 2 } },
+      healthy: { type: "line", scaleID: "x", value: 10, borderColor: hexA(CHART_PALETTE.supply, 0.7),     borderWidth: 1, borderDash: [4, 4], label: { display: true, content: "10% healthy", position: "end",   color: "#fff", backgroundColor: hexA(CHART_PALETTE.supply, 0.85),     font: { size: 9, weight: 700 }, padding: 2 } }
+    };
+    const big = rows.filter(r => r.mw).sort((a, b) => (b.now - b.after) - (a.now - a.after))[0];
+    if (big) {
+      ann.claim = { type: "label", xValue: big.after, yValue: big.ba, xAdjust: -6, yAdjust: -16,
+        content: [big.ba + ": −" + (big.mw / 1000).toFixed(1) + " GW announced°", "→ " + big.after.toFixed(1) + "%"],
+        backgroundColor: hexA(CHART_PALETTE.constraint, 0.85), color: "#fff", font: { size: 9, weight: 700 }, padding: 3, borderRadius: 3 };
+    }
+    _charts.headroomChart = new Chart($("headroomChart"), {
+      type: "bar",   // mixed chart: top-level type is required; the two dot series override per-dataset
+      data: {
+        labels: rows.map(r => r.ba),
+        datasets: [
+          { type: "bar", label: "Ledger claims°", data: rows.map(r => r.mw ? [r.after, r.now] : null),
+            backgroundColor: hexA(CHART_PALETTE.constraint, 0.28), borderColor: hexA(CHART_PALETTE.constraint, 0.6),
+            borderWidth: 1, barThickness: 10, borderSkipped: false, borderRadius: 4,
+            datalabels: { display: false } },
+          { type: "line", label: "Headroom today", data: rows.map(r => r.now), showLine: false,
+            pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: rows.map(r => col(r.now)), pointBorderWidth: 0,
+            datalabels: { display: true, align: "right", offset: 8, color: cl.label, font: { weight: 700, size: 9 },
+              formatter: (v, c) => rows[c.dataIndex].mw ? v.toFixed(0) + "% →" : v.toFixed(0) + "%" } },
+          { type: "line", label: "After announced ledger°", data: rows.map(r => r.mw ? r.after : null), showLine: false,
+            pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: "transparent",
+            pointBorderColor: rows.map(r => col(r.after)), pointBorderWidth: 2,
+            datalabels: { display: (c) => rows[c.dataIndex].mw > 0, align: "left", offset: 8,
+              color: (c) => col(rows[c.dataIndex].after), font: { weight: 700, size: 9 },
+              formatter: (v, c) => rows[c.dataIndex].after.toFixed(1) + "%" } }
+        ]
       },
-      annotation: { annotations: {
-        crit:    { type: "line", scaleID: "x", value: 6,  borderColor: hexA(CHART_PALETTE.constraint, 0.7), borderWidth: 1, borderDash: [4, 4], label: { display: true, content: "6% critical",  position: "start", color: "#fff", backgroundColor: hexA(CHART_PALETTE.constraint, 0.85), font: { size: 9, weight: 700 }, padding: 2 } },
-        healthy: { type: "line", scaleID: "x", value: 10, borderColor: hexA(CHART_PALETTE.supply, 0.7),     borderWidth: 1, borderDash: [4, 4], label: { display: true, content: "10% healthy", position: "end",   color: "#fff", backgroundColor: hexA(CHART_PALETTE.supply, 0.85),     font: { size: 9, weight: 700 }, padding: 2 } }
-      } }
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        layout: { padding: { right: 48 } },
+        plugins: {
+          legend: { display: false },
+          annotation: { annotations: ann },
+          tooltip: { callbacks: {
+            label: c => " " + rows[c.dataIndex].now + "% headroom today",
+            afterLabel: c => {
+              const r = rows[c.dataIndex];
+              return (r.mw ? "Announced ledger°: " + r.n + " live projects, " + r.mw.toLocaleString() + " MW → " + r.after.toFixed(1) + "% (mapped states: " + r.states + ", editorial crosswalk)\n" : "No live ledger project in states mapped to this BA\n")
+                + "Peak ≈ " + (r.peak_mw || 0).toLocaleString() + " MW · EIA-930 + EIA-860";
+            }
+          } }
+        },
+        scales: {
+          x: { beginAtZero: true, grid: { display: false }, border: { display: false }, ticks: { callback: v => v + "%", font: { size: 9 } } },
+          y: { grid: { display: false }, ticks: { font: { weight: 700 } } }
+        }
+      }
     });
+    const note = $("headroomNote");
+    if (note) note.innerHTML = "Nameplate-minus-peak proxy (EIA-930 + EIA-860), not accredited headroom &middot; &#9679; today (derived) &middot; &#9675; after the ledger's <b>grid-drawing</b> load (Grid + Colocated) mapped to each BA (modeled&deg;) &middot; excluded: self-supplied BTM / unclassified builds (" + (omitBTM / 1000).toFixed(1) + " GW) and multi-BA states (" + (omitBA / 1000).toFixed(1) + " GW)";
   }
 
   // "What power costs, by state" — renders the daily EIA-861 industrial-price feed
@@ -3535,12 +3734,24 @@ const $ = (id) => document.getElementById(id);
     const pa = DATA.pjmAuction;
     const col = d => d.price == null ? hexA(CHART_PALETTE.context, 0.25)
       : (d.atCap ? CHART_PALETTE.constraint : (d.price >= 200 ? CHART_PALETTE.pipeline : CHART_PALETTE.supply));
+    // Censored-price framing: a capped bar's top IS the FERC ceiling, so each atCap bar gets a
+    // dashed lid pressed on it — the plateau reads as a binding price ceiling (true market-clearing
+    // price unknown and higher), not as "prices stabilized".
     const ann = {};
-    if (pa.collar) {
-      ann.cap = { type: "line", yMin: pa.collar.cap, yMax: pa.collar.cap, borderColor: hexA(CHART_PALETTE.constraint, 0.75), borderWidth: 1, borderDash: [5, 4],
-        label: { display: true, content: "price cap $" + pa.collar.cap + "/MW-day", position: "end", backgroundColor: hexA(CHART_PALETTE.constraint, 0.85), color: "#fff", font: { size: 9, weight: 700 }, padding: 3 } };
-      ann.floor = { type: "line", yMin: pa.collar.floor, yMax: pa.collar.floor, borderColor: hexA(CHART_PALETTE.context, 0.6), borderWidth: 1, borderDash: [5, 4],
-        label: { display: true, content: "floor $" + pa.collar.floor, position: "end", backgroundColor: hexA(CHART_PALETTE.context, 0.7), color: "#fff", font: { size: 9, weight: 700 }, padding: 3 } };
+    pa.series.forEach((d, i) => {
+      if (!d.atCap || d.price == null) return;
+      ann["cap" + i] = { type: "line", xMin: i - 0.42, xMax: i + 0.42, yMin: d.price, yMax: d.price,
+        borderColor: CHART_PALETTE.constraint, borderWidth: 2, borderDash: [4, 3] };
+    });
+    // First-ever RTO-wide reliability shortfall: parsed from the series note so a wording change
+    // silently drops the annotation instead of fabricating a figure.
+    const last = pa.series.length - 1;
+    const sh = (pa.series[last].note || "").match(/by ([\d,]+) MW/);
+    if (sh && pa.series[last].price != null) {
+      ann.shortfall = { type: "label", xValue: last, yValue: pa.series[last].price * 0.45, xAdjust: -8,
+        content: ["−" + sh[1] + " MW short", "first RTO-wide miss"],
+        backgroundColor: hexA(CHART_PALETTE.constraint, 0.85), color: "#fff",
+        font: { size: 8, weight: 700 }, padding: 3, borderRadius: 3 };
     }
     _charts.pjmAuctionChart = new Chart($("pjmAuctionChart"), {
       type: "bar",
@@ -3554,7 +3765,10 @@ const $ = (id) => document.getElementById(id);
         plugins: {
           legend: { display: false },
           datalabels: Object.assign({}, LABEL_STYLE_FN(), { display: true, anchor: "end", align: "end",
-            formatter: (v, c) => v == null ? (pa.series[c.dataIndex].pending || "") : "$" + v.toLocaleString() }),
+            formatter: (v, c) => v == null ? (pa.series[c.dataIndex].pending || "")
+              : (pa.series[c.dataIndex].atCap ? ["AT CAP", "$" + v.toLocaleString()] : "$" + v.toLocaleString()),
+            color: c => pa.series[c.dataIndex].atCap ? CHART_PALETTE.constraint : getChartColors().label,
+            font: c => ({ weight: 800, size: pa.series[c.dataIndex].atCap ? 10 : 12 }) }),
           tooltip: { callbacks: {
             label: c => c.parsed.y == null ? " results pending" : " $" + c.parsed.y.toLocaleString() + "/MW-day RTO clearing price",
             afterLabel: c => pa.series[c.dataIndex].note || ""
@@ -3562,13 +3776,20 @@ const $ = (id) => document.getElementById(id);
           annotation: { annotations: ann }
         },
         scales: {
-          y: { grid: { color: cl.grid }, ticks: { callback: v => "$" + v }, beginAtZero: true },
+          // every bar carries its own $ label — the printed values replace the axis
+          y: { grid: { display: false }, border: { display: false }, ticks: { display: false }, beginAtZero: true, grace: "12%" },
           x: { grid: { display: false } }
         }
       }
     });
     const m = $("pjmAuctionMethod");
-    if (m && pa.methodology) m.innerHTML = "<b>Primary.</b> " + pa.methodology;
+    if (m && pa.methodology) {
+      m.innerHTML = "<b>Primary.</b> " + pa.methodology;
+      // dot-connect to the ratepayer chart above — both figures parsed/read from existing DATA
+      const bill = ((pa.series[last].note || "").match(/≈\$([\d.]+)B/) || [])[1];
+      const va = ((DATA.rateImpacts || {}).states || []).find(s => s.state === "Virginia");
+      if (bill && va) m.innerHTML += " · At the cap, one auction ≈ <b>$" + bill + "B</b> of capacity cost billed to PJM ratepayers — the pressure behind the rate chart above (VA +" + va.increase + "%, modeled°).";
+    }
   }
 
   // Graveyard & stalls — verified retreats from the project ledger (status stalled / paused /
@@ -3673,6 +3894,7 @@ const $ = (id) => document.getElementById(id);
     if (DATA.connections) { connectedPlayerSet._set = null; renderConnections(); renderBriefing(); }  // curated links + feed chips (self-guard on host; the module may start hidden)
     if (DATA.grid && vis($("headroomChart")))  { renderHeadroomChart._done = false; renderHeadroomChart(); }
     if (DATA.power_econ && vis($("powerPriceBoard"))) { renderPowerPriceBoard._done = false; renderPowerPriceBoard(); }
+    if (DATA.power_econ && vis($("rateImpactChart"))) { renderRateImpactChart._done = false; renderRateImpactChart(); }  // rings + price tooltips need the feed
     if (DATA.queues && vis($("queueChart")))    { renderQueueChart._done = false; renderQueueChart(); }
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
     if (DATA.projects && vis($("megaProjectsList"))) renderMegaProjects();   // swap the seed table for the canonical dataset
@@ -4714,7 +4936,7 @@ const $ = (id) => document.getElementById(id);
   // Buildout is already wrapped in markup, so it has a .more-analysis and is skipped here.
   var LEAD_CARDS = {
     capital: ["Commitment vs build-out footprint", "Buyer posture", "Capex vs operating cash flow", "The commitment book", "The commitment flywheel", "Vacancy"],
-    grid:    ["Where AI load becomes", "Annual demand growth", "Cumulative demand-supply deficit", "PJM capacity auction", "What power costs, by state"],
+    grid:    ["Where AI load becomes", "Firm power never gets ahead", "Short ~19 GW by 2030", "PJM: 11", "What power costs, by state"],
     tokens:  ["The Jevons check", "One prompt to one gigawatt", "Industry token volume", "Effective cost per useful task", "What compute costs today"]
   };
   function collapseSecondary(name, section) {
