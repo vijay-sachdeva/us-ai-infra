@@ -1094,7 +1094,7 @@ const $ = (id) => document.getElementById(id);
     }
     const cf = DATA.circularFinancing;
     if (view) renderCircularFinancing._view = view;
-    view = renderCircularFinancing._view || "all";
+    view = renderCircularFinancing._view || "loops";
 
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     const txt = isDark ? "#e2e8f0" : "#1e293b", muted = isDark ? "#94a3b8" : "#64748b";
@@ -1109,7 +1109,8 @@ const $ = (id) => document.getElementById(id);
     // FUND (top) → COMMIT (right) → BACKLOG (bottom) → the compute/debt arcs sweep RETURN to top.
     const STAGE = { NVIDIA: 0, AMD: 0, Broadcom: 0, Apollo: 0, Blackstone: 0, OpenAI: 1, xAI: 1, Anthropic: 1, Microsoft: 2, Oracle: 2, AWS: 2, Google: 2, CoreWeave: 2 };
     const order = ["NVIDIA","AMD","Broadcom","Apollo","Blackstone","OpenAI","xAI","Anthropic","Microsoft","Oracle","AWS","Google","CoreWeave"];
-    const present = cf.nodes.slice().sort((a,b) => order.indexOf(a.id) - order.indexOf(b.id));
+    const used = {}; edges.forEach(e => { used[e.from] = 1; used[e.to] = 1; });
+    const present = cf.nodes.filter(n => view === "all" || used[n.id]).sort((a,b) => order.indexOf(a.id) - order.indexOf(b.id));
 
     host.querySelectorAll("svg").forEach(s => s.remove());
     // Keep the 13-node ring + labels from colliding on phones: lay out at >=MINW and scroll.
@@ -1156,6 +1157,9 @@ const $ = (id) => document.getElementById(id);
     const kindCol = k => cf.kinds[k].color;
     const wOf = e => e.v == null ? 1.4 : Math.max(1.6, Math.min(6, Math.sqrt(e.v) * 0.5));
     const opOf = e => e.v == null ? 0.42 : (e.src && e.src.tier === "analyst" ? 0.4 : 0.62);   // analyst legs fainter than filed
+    // Instrument remains legible without colour: equity solid, compute dashed, debt dotted.
+    // Qualitative/no-public-$ legs use dash-dot so missing magnitude is never read as a tiny deal.
+    const dashOf = e => e.v == null ? "7 3 1 3" : e.kind === "vendor" ? "7 3" : e.kind === "debt" ? "2 3" : null;
 
     const linkG = svg.append("g");
     const loops = cfLoops(edges);                    // mutual pairs within the current view
@@ -1175,7 +1179,7 @@ const $ = (id) => document.getElementById(id);
         .attr("d", "M" + x1 + "," + y1 + " Q" + cxp + "," + cyp + " " + x2 + "," + y2)
         .attr("fill", "none").attr("stroke", kindCol(e.kind))
         .attr("stroke-opacity", opOf(e)).attr("stroke-width", wOf(e))
-        .attr("stroke-dasharray", e.v == null ? "4 3" : null)
+        .attr("stroke-dasharray", dashOf(e))
         .attr("marker-end", "url(#cfarrow-" + e.kind + ")")
         .append("title").text(e.from + " → " + e.to + "  ·  " + e.label + "  ·  " + e.src.label);
     };
@@ -1229,8 +1233,8 @@ const $ = (id) => document.getElementById(id);
     const lg = $("cfLegend");
     if (lg) {
       lg.innerHTML = Object.keys(cf.kinds).map(k =>
-        '<span class="cf-leg-item"><span class="cf-leg-swatch" style="background:' + cf.kinds[k].color + '"></span>' + cf.kinds[k].label + '</span>'
-      ).join("") + '<span class="cf-leg-item cf-leg-note">dashed = no public $ (qualitative)</span>';
+        '<span class="cf-leg-item" style="color:' + cf.kinds[k].color + '"><span class="cf-leg-line ' + k + '"></span><span style="color:var(--ink-2)">' + cf.kinds[k].label + '</span></span>'
+      ).join("") + '<span class="cf-leg-item cf-leg-note">width = disclosed $ &middot; dash-dot = no public $ &middot; faint = analyst leg</span>';
     }
 
     const led = $("cfLedger");
@@ -2655,6 +2659,69 @@ const $ = (id) => document.getElementById(id);
     }
   }
 
+  // Named-build reality stack: a pure roll-up of projects.json's real status + power.model fields.
+  // This deliberately refuses to manufacture a "secured" stage. Capacity definitions stay mixed,
+  // so the result is a disposition view of announced targets, not a normalized IT-load forecast.
+  function renderBuildReality() {
+    const host = $("buildRealityStack");
+    if (!host) return;
+    const pj = (DATA.projects && Array.isArray(DATA.projects.records)) ? DATA.projects.records : null;
+    if (!pj) {
+      host.innerHTML = '<div class="note" style="padding:18px 0">Project ledger loading &hellip;</div>';
+      return;
+    }
+    const hasMW = r => typeof r.capacity_mw === "number" && isFinite(r.capacity_mw) && r.capacity_mw > 0;
+    const sum = rows => rows.reduce((s, r) => s + (hasMW(r) ? r.capacity_mw : 0), 0);
+    const grave = ["paused", "stalled", "cancelled"];
+    const active = pj.filter(r => grave.indexOf(r.status) === -1);
+    const underway = active.filter(r => r.status === "construction" || r.status === "operational");
+    const live = active.filter(r => r.status === "operational");
+    const planned = active.filter(r => r.status === "planned");
+    const construction = active.filter(r => r.status === "construction");
+    const retired = pj.filter(r => grave.indexOf(r.status) !== -1);
+    const totalMW = sum(pj), activeMW = sum(active), underwayMW = sum(underway), liveMW = sum(live);
+    const plannedMW = sum(planned), constructionMW = sum(construction), retiredMW = sum(retired);
+    const unknownN = pj.filter(r => !hasMW(r)).length;
+    const fmt = mw => (mw / 1000).toFixed(1) + " GW";
+    const width = mw => totalMW ? Math.max(1, mw / totalMW * 100).toFixed(1) : 0;
+    const steps = [
+      { label: "Verified universe", mw: totalMW, cls: "universe", cut: pj.length + " named records" },
+      { label: "Active after retreats", mw: activeMW, cls: "active", cut: "−" + fmt(retiredMW) + " paused / stalled / cancelled" },
+      { label: "Underway or live", mw: underwayMW, cls: "underway", cut: "−" + fmt(plannedMW) + " still planned" },
+      { label: "Operational now", mw: liveMW, cls: "live", cut: fmt(constructionMW) + " still in construction" }
+    ];
+    const byPath = { BTM: 0, Colocated: 0, Grid: 0, Undisclosed: 0 };
+    construction.forEach(r => {
+      const m = r.power && r.power.model;
+      byPath[byPath[m] == null ? "Undisclosed" : m] += hasMW(r) ? r.capacity_mw : 0;
+    });
+    const nonGridMW = byPath.BTM + byPath.Colocated;
+    const nonGridPct = constructionMW ? Math.round(nonGridMW / constructionMW * 100) : null;
+    const pathSeg = (key, cls) => byPath[key] > 0 ? '<span class="br-pathseg ' + cls + '" style="width:' + (byPath[key] / constructionMW * 100).toFixed(1) + '%" title="' + key + ': ' + fmt(byPath[key]) + '"></span>' : '';
+    host.innerHTML =
+      '<div class="br-kpis">' +
+        '<div class="br-kpi"><b>' + fmt(totalMW) + '</b><span>source-verified named universe</span></div>' +
+        '<div class="br-kpi"><b>' + fmt(underwayMW) + '</b><span>construction + operational</span></div>' +
+        '<div class="br-kpi"><b>' + fmt(liveMW) + '</b><span>operational today</span></div>' +
+      '</div>' +
+      '<div class="br-steps">' + steps.map(s =>
+        '<div class="br-step"><div class="br-label">' + s.label + '<div class="br-cut">' + s.cut + '</div></div>' +
+        '<div class="br-track"><div class="br-fill ' + s.cls + '" style="width:' + width(s.mw) + '%">' + fmt(s.mw) + '</div></div>' +
+        '<div class="br-val">' + fmt(s.mw) + '</div></div>'
+      ).join("") + '</div>' +
+      '<div class="br-path"><div class="br-pathhead"><span>What powers the <b>' + fmt(constructionMW) + '</b> construction book</span><b>' + (nonGridPct == null ? '&mdash;' : nonGridPct + '%') + ' BTM / colocated</b></div>' +
+        '<div class="br-pathbar">' + pathSeg("BTM", "btm") + pathSeg("Colocated", "colocated") + pathSeg("Grid", "grid") + '</div>' +
+        '<div class="br-pathlegend"><span><i style="background:var(--amber)"></i>BTM ' + fmt(byPath.BTM) + '</span><span><i style="background:var(--accent)"></i>Colocated ' + fmt(byPath.Colocated) + '</span><span><i style="background:var(--muted)"></i>Grid ' + fmt(byPath.Grid) + '</span></div>' +
+      '</div>';
+    const implication = $("buildRealityImplication");
+    if (implication) implication.innerHTML = '<span class="di-label">Decision implication</span> ' +
+      (nonGridPct == null ? 'Power-path disclosure is still too sparse for a structural read.' : '<b>' + nonGridPct + '% of construction-stage GW sits behind or beside generation.</b> The second-order bottleneck migrates from queue position toward turbines, switchgear, transmission upgrades, fuel, and regulatory cost recovery.') +
+      ' <span style="opacity:.75">Editorial synthesis.</span>';
+    const method = $("buildRealityMethod");
+    if (method) method.innerHTML = '<b>Derived, not estimated.</b> Sums the current <a href="data/projects.json" target="_blank" rel="noopener">source-linked project ledger</a> by mutually-exclusive <code>status</code> and construction-stage <code>power.model</code>. ' +
+      'Capacity types are mixed (IT critical load, total facility power, unspecified) and remain un-normalized; ' + unknownN + ' record' + (unknownN === 1 ? '' : 's') + ' with undisclosed/zero MW ' + (unknownN === 1 ? 'is' : 'are') + ' counted by name but not invented into GW.';
+  }
+
   function renderMegaProjects() {
     if (!$("megaProjectsList")) return;
     // Prefer the canonical open dataset (data/projects.json, source-linked + verified);
@@ -3302,7 +3369,7 @@ const $ = (id) => document.getElementById(id);
       const regS = reg[st] ? reg[st].sev : "gap";
       const highs = [rateS, utilS, concS, regS].filter(x => x === "high").length;
       const meds = [rateS, utilS, concS, regS].filter(x => x === "med").length;
-      return { st: st, x: XWALK[st], rateS, rv, utilS, util: util[st], concS, concTxt, concTip, regS, reg: reg[st], highs, meds };
+      return { st: st, x: XWALK[st], rateS, rv, utilS, util: util[st], concS, concTxt, concTip, concMW: c.mw, concN: c.n, regS, reg: reg[st], highs, meds };
     };
     const rows = STATES.map(row).sort((a, b) => (b.highs - a.highs) || (b.meds - a.meds) || ((b.rv || 0) - (a.rv || 0)));
     const cell = (sev, txt, tip, isWord) => {
@@ -3362,6 +3429,61 @@ const $ = (id) => document.getElementById(id);
       if (PJM_ST[st]) return "FERC show-cause responses · ~Aug 2026";
       const m = trig[st]; const mm = m && (m.headline || "").match(CAT_RE); return mm ? mm[1] : "";
     };
+    // Geographic companion to the evidence matrix. This is an explicit archetype grouping,
+    // never a blended score: red = modeled rate >=25%; amber = rate >=15% OR >=1 GW of named
+    // active load; slate = tracked but below those triggers / data still incomplete.
+    const groupOf = r => r.rv != null && r.rv >= 25 ? "revolt" : ((r.rv != null && r.rv >= 15) || r.concMW >= 1000) ? "next" : "watch";
+    const groupName = { revolt: "Revolt priced", next: "Next flashpoints", watch: "Watch / gaps" };
+    const grouped = { revolt: [], next: [], watch: [] };
+    rows.forEach(r => grouped[groupOf(r)].push(r));
+    const groupHost = $("gridStateGroups");
+    if (groupHost) {
+      groupHost.innerHTML = ["revolt", "next", "watch"].map(k =>
+        '<div class="gp-group"><div class="gp-group-name ' + k + '">' + groupName[k] + '</div><div class="gp-statechips">' +
+        grouped[k].map(r => {
+          const cat = nextCat(r.st);
+          const fact = (r.rv != null ? "+" + r.rv + "% rate" : "rate gap") + " · " + (r.concN ? r.concTxt + " named load" : "no named load tracked");
+          return '<span class="gp-state" title="' + fact.replace(/"/g, "&quot;") + (cat ? " · next: " + cat : " · next catalyst not tracked") + '"><b>' + r.x.p + '</b><span>' + (r.rv != null ? "+" + r.rv + "%" : "gap") + '</span></span>';
+        }).join("") + '</div></div>'
+      ).join("") + '<div class="gp-rule"><b>Grouping rule:</b> red = modeled rate impact &ge;25%; amber = rate &ge;15% or &ge;1 GW named active load; slate = tracked but below those triggers / incomplete. Hover a state for its next catalyst. This is a routing lens, not a risk score.</div>';
+    }
+    const mapHost = $("gridPressureMap");
+    if (mapHost) {
+      mapHost.innerHTML = "";
+      if (typeof d3 === "undefined" || typeof topojson === "undefined") {
+        mapHost.innerHTML = '<div class="note" style="padding:35px 0">State map requires D3 + topojson; the evidence matrix remains available.</div>';
+      } else {
+        const renderKey = String(Date.now()) + Math.random();
+        mapHost.dataset.renderKey = renderKey;
+        const FIPS = { "06":"CA", "04":"AZ", "13":"GA", "22":"LA", "36":"NY", "37":"NC", "39":"OH", "42":"PA", "47":"TN", "48":"TX", "51":"VA" };
+        const byPostal = {}; rows.forEach(r => { byPostal[r.x.p] = r; });
+        const fill = { revolt: "#c0322b", next: "#c2710c", watch: "#64748b" };
+        d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
+          if (mapHost.dataset.renderKey !== renderKey) return;
+          const W = 500, H = 300, projection = d3.geoAlbersUsa().fitSize([W, H], topojson.feature(us, us.objects.nation));
+          const path = d3.geoPath(projection);
+          const svg = d3.select(mapHost).append("svg").attr("viewBox", "0 0 " + W + " " + H).attr("aria-hidden", "true");
+          const features = topojson.feature(us, us.objects.states).features;
+          svg.append("g").selectAll("path").data(features).join("path")
+            .attr("d", path)
+            .attr("fill", d => { const p = FIPS[String(d.id).padStart(2, "0")], r = p && byPostal[p]; return r ? fill[groupOf(r)] : "var(--line)"; })
+            .attr("fill-opacity", d => FIPS[String(d.id).padStart(2, "0")] ? .82 : .34)
+            .attr("stroke", "var(--card)").attr("stroke-width", .8)
+            .append("title").text(d => {
+              const p = FIPS[String(d.id).padStart(2, "0")], r = p && byPostal[p];
+              if (!r) return "Not in the tracked political-risk set";
+              return r.st + " · " + groupName[groupOf(r)] + " · " + (r.rv != null ? "+" + r.rv + "% modeled rate" : "rate impact gap") + " · " + (r.concN ? r.concTxt + " named active load" : "named active load not tracked") + " · next: " + (nextCat(r.st) || "not tracked");
+            });
+          svg.append("path").datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b)).attr("d", path).attr("fill", "none").attr("stroke", "var(--card)").attr("stroke-width", .55).attr("pointer-events", "none");
+          features.forEach(d => {
+            const p = FIPS[String(d.id).padStart(2, "0")], r = p && byPostal[p]; if (!r) return;
+            const c = path.centroid(d); if (!isFinite(c[0]) || !isFinite(c[1])) return;
+            svg.append("text").attr("x", c[0]).attr("y", c[1]).attr("text-anchor", "middle").attr("dy", ".34em")
+              .attr("fill", "#fff").attr("font-size", "9px").attr("font-weight", "800").attr("pointer-events", "none").text(p);
+          });
+        }).catch(() => { if (mapHost.dataset.renderKey === renderKey) mapHost.innerHTML = '<div class="note" style="padding:35px 0">State geometry unavailable; the evidence matrix remains available.</div>'; });
+      }
+    }
     const exposed = {};
     STATES.forEach(s => { exposed[s] = []; });
     pj.forEach(r => {
@@ -4031,10 +4153,12 @@ const $ = (id) => document.getElementById(id);
     if (DATA.power_econ && vis($("rateImpactChart"))) { renderRateImpactChart._done = false; renderRateImpactChart(); }  // rings + price tooltips need the feed
     if (DATA.queues && vis($("queueChart")))    { renderQueueChart._done = false; renderQueueChart(); }
     if (DATA.siting && renderMap._view === "whitespace" && vis($("map"))) { renderMap._done = false; renderMap(); }
+    if (DATA.projects && vis($("buildRealityStack"))) renderBuildReality();
     if (DATA.projects && vis($("megaProjectsList"))) renderMegaProjects();   // swap the seed table for the canonical dataset
     if (DATA.projects && vis($("megaPowerPaths"))) renderMegaPowerPaths();   // the flagship chart over the same ledger
     if (DATA.projects && vis($("commitmentQuadrant"))) renderCommitmentQuadrant();   // ledger-GW Y-axis needs the hydrated projects feed
     if (DATA.projects) renderGraveyard();         // verified retreats — not vis-gated: it self-guards + re-shows a card a cold no-data render may have hidden
+    if (DATA.projects && vis($("politicalLoadMatrix"))) renderPoliticalLoadMap();
     if (vis($("playersCards"))) { renderPlayers(); renderPowerBank(); renderPlayersGrid(); renderFilingsWatch(); renderPlayerFeed(); }  // joins pick up the fresh feeds
     renderFeedFreshness();
     if (DATA.sources) linkifySources(document.querySelector("section.tab-content.active"));
@@ -4693,6 +4817,27 @@ const $ = (id) => document.getElementById(id);
 
     const build = DATA.players.filter(p => p.layer !== "supply").map(p => ({ p: p, fp: fpSVG(p) }));
     build.sort((a, b) => (b.fp.balance == null ? -1 : b.fp.balance) - (a.fp.balance == null ? -1 : a.fp.balance));
+    // Executive comparison strip: translate four existing fingerprint lanes into "strategic room"
+    // (higher = more room/control/resilience). This is intentionally four separate lanes — never a
+    // composite score — and missing data stays hatched rather than collapsing to zero.
+    const compareHost = $("playersCompareStrip");
+    if (compareHost) {
+      const band = (v, hi, mid, lo) => v >= .66 ? hi : v >= .34 ? mid : lo;
+      const ccell = (v, cls, label, title) => v == null
+        ? '<div class="pl-c-cell gap" title="' + title.replace(/"/g, "&quot;") + '"><div class="pl-c-track"></div><div class="pl-c-v">&mdash; unknown</div></div>'
+        : '<div class="pl-c-cell" title="' + title.replace(/"/g, "&quot;") + '"><div class="pl-c-track"><div class="pl-c-fill ' + cls + '" style="width:' + Math.max(2, v * 100).toFixed(0) + '%"></div></div><div class="pl-c-v">' + label + '</div></div>';
+      compareHost.innerHTML = '<div class="pl-compare-grid"><div class="pl-c-h">Provider</div><div class="pl-c-h">Power independence&deg;</div><div class="pl-c-h">Capital room&deg;</div><div class="pl-c-h">Silicon control&deg;</div><div class="pl-c-h">Counterparty resilience&deg;</div>' +
+        build.map(x => {
+          const m = fpMetrics(x.p), gr = laneR(m, "Gr"), yr = laneR(m, "Yr"), si = laneR(m, "Si"), cp = laneR(m, "Cp");
+          const power = gr == null ? null : 1 - gr, capital = yr == null ? null : 1 - yr, counter = cp == null ? null : 1 - cp;
+          const lane = k => { const z = m.lanes.find(l => l.k === k); return z ? z.title : "no honest data"; };
+          return '<div class="pl-c-name"><span class="brand-mark b-' + (x.p.brand || "other") + '">' + x.p.name.charAt(0) + '</span>' + x.p.name + '</div>' +
+            ccell(power, "power", power == null ? "" : band(power, "more independent", "mixed path", "grid-exposed"), "Derived as 1 − the fingerprint grid-risk lane. " + lane("Gr")) +
+            ccell(capital, "capital", capital == null ? "" : band(capital, "more room", "moderate", "pre-committed"), "Derived as 1 − normalized years-of-OCF committed. " + lane("Yr")) +
+            ccell(si, "silicon", si == null ? "" : (si >= 1 ? "owns / designs" : si >= .66 ? "multi-source" : si >= .5 ? "mixed" : "merchant GPU"), lane("Si")) +
+            ccell(counter, "counterparty", counter == null ? "" : band(counter, "more resilient", "mixed", "concentrated"), "Derived as 1 − the fingerprint counterparty-exposure lane. " + lane("Cp"));
+        }).join("") + '</div><div class="pl-c-rule"><b>Read across, never total.</b> Power, capital and counterparty lanes invert the existing risk bands so longer means more strategic room; silicon keeps the existing editorial control band. Hover for the underlying cited/curated input. A hatched lane is missing evidence, not zero.</div>';
+    }
     // One scannable "why it ranks" label per core dossier — derived from the fingerprint lanes (editorial),
     // so each card leads with its standout: best portfolio · most exposed · most optionality · biggest footprint.
     const _metr = {}; build.forEach(x => { _metr[x.p.sym] = fpMetrics(x.p); });
@@ -4916,6 +5061,15 @@ const $ = (id) => document.getElementById(id);
     });
   }
 
+  // Capital opens on the networked-risk thesis, not a conventional capex ranking. Moving the
+  // existing cited card keeps one canonical DOM/data surface while promoting it to hero position.
+  function promoteCapitalFlywheel() {
+    const section = document.querySelector('section.tab-content[data-tab="capital"]');
+    const flywheel = $("capitalFlywheelCard");
+    const firstCard = section && section.querySelector(".stub-card");
+    if (section && flywheel && firstCard && flywheel !== firstCard) section.insertBefore(flywheel, firstCard);
+  }
+
   function renderTab(name) {
     if (renderedTabs.has(name)) return;
     renderedTabs.add(name);
@@ -4930,6 +5084,7 @@ const $ = (id) => document.getElementById(id);
     if (name === "overview") {
       initOverview();
     } else if (name === "capital") {
+      promoteCapitalFlywheel();
       renderCapexSankey("all");
       renderCostStack("costStack");
       renderDeals();
@@ -4946,11 +5101,12 @@ const $ = (id) => document.getElementById(id);
       renderColoRent();
       renderBuildBuyWait();
       renderOfftakeCoverage();
-      renderCircularFinancing("all");
+      renderCircularFinancing("loops");
       renderVerticalIntegration();
       renderPowerToRevenueYield();
       renderWatchStrip("capital");
     } else if (name === "buildout") {
+      renderBuildReality();
       renderFunnel();
       renderStackLayers();
       renderSubstrateBottlenecks();
@@ -5072,7 +5228,7 @@ const $ = (id) => document.getElementById(id);
   // listener). A card with no h4 (so-what boxes, calculators) is treated as a lead and left alone.
   // Buildout is already wrapped in markup, so it has a .more-analysis and is skipped here.
   var LEAD_CARDS = {
-    capital: ["Commitment vs build-out footprint", "Buyer posture", "Build, lease, rent", "Capex vs operating cash flow", "The commitment book", "The commitment flywheel", "Vacancy"],
+    capital: ["The commitment flywheel", "Commitment vs build-out footprint", "Buyer posture", "Build, lease, rent", "Capex vs operating cash flow", "The commitment book", "Vacancy"],
     grid:    ["Where AI load becomes", "Firm power never gets ahead", "Short ~19 GW by 2030", "PJM: 11", "What power costs, by state", "Who demands what"],
     tokens:  ["The Jevons check", "One prompt to one gigawatt", "Industry token volume", "Effective cost per useful task", "What compute costs today"]
   };

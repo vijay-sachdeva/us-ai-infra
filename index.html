@@ -11,11 +11,14 @@
 <meta property="og:url" content="https://vijay-sachdeva.github.io/us-ai-infra/" />
 <meta property="og:title" content="US AI Infrastructure Monitor" />
 <meta property="og:description" content="Open, source-linked tracker of US AI data-center infrastructure — power, capex, grid constraints, named projects, and token economics. Data CC BY 4.0." />
-<meta property="og:image" content="https://vijay-sachdeva.github.io/us-ai-infra/favicon.png" />
-<meta name="twitter:card" content="summary" />
+<meta property="og:image" content="https://vijay-sachdeva.github.io/us-ai-infra/og.png" />
+<meta property="og:image:width" content="1732" />
+<meta property="og:image:height" content="908" />
+<meta property="og:image:alt" content="US AI Infrastructure Monitor: tokens flow into capital and buildout before hitting the grid constraint" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="US AI Infrastructure Monitor" />
 <meta name="twitter:description" content="Open, source-linked US AI data-center infrastructure tracker — power, capex, grid, named projects, token economics. Data CC BY 4.0." />
-<meta name="twitter:image" content="https://vijay-sachdeva.github.io/us-ai-infra/favicon.png" />
+<meta name="twitter:image" content="https://vijay-sachdeva.github.io/us-ai-infra/og.png" />
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
  {"@type":"WebSite","name":"US AI Infrastructure Monitor","url":"https://vijay-sachdeva.github.io/us-ai-infra/","description":"Open, source-linked tracker of US AI data-center infrastructure — power, capex, grid constraints, named projects, and token economics."},
@@ -33,7 +36,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260717b"></script>
+<script src="config.js?v=20260717c"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -801,6 +804,22 @@
   .mm-legend .sev-gap { background: repeating-linear-gradient(45deg, var(--line) 0 4px, transparent 4px 8px); }
   .pl-loadmap .mm-lane { background: none; }
   .pl-loadmap .mm-postal { display: none; }
+  /* Grid pressure pair: geographic context beside the no-blended-score political matrix. */
+  .gp-pair { display: grid; grid-template-columns: minmax(320px,.9fr) minmax(470px,1.25fr); gap: 16px; align-items: start; margin-top: 10px; }
+  .gp-map-panel { min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 10px 11px; background: var(--bg); }
+  .gp-map { min-height: 245px; }
+  .gp-map svg { display: block; width: 100%; height: auto; }
+  .gp-map-kicker { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 2px; }
+  .gp-map-title { font-size: 13px; font-weight: 750; color: var(--ink); line-height: 1.35; }
+  .gp-group-list { display: grid; gap: 6px; margin-top: 8px; }
+  .gp-group { display: grid; grid-template-columns: 94px 1fr; gap: 7px; align-items: start; padding-top: 6px; border-top: 1px solid var(--line); }
+  .gp-group-name { font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; line-height: 1.35; }
+  .gp-group-name.revolt { color: var(--red); } .gp-group-name.next { color: var(--amber); } .gp-group-name.watch { color: var(--muted); }
+  .gp-statechips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .gp-state { display: inline-flex; gap: 4px; align-items: baseline; border: 1px solid var(--line); border-radius: 5px; padding: 2px 6px; font-size: 9.5px; color: var(--ink-2); cursor: help; }
+  .gp-state b { color: var(--ink); font-size: 10px; }
+  .gp-rule { margin-top: 8px; font-size: 9.5px; color: var(--muted); line-height: 1.45; }
+  @media (max-width: 980px) { .gp-pair { grid-template-columns: 1fr; } .gp-map { min-height: 220px; } }
   @media (max-width: 420px) { .mp-matrix-grid .mm-h, .mp-matrix-grid .mm-cell { font-size: 10px; padding: 3px 2px; } .mp-matrix-grid .mm-lane { font-size: 9px; padding: 3px 5px; }
     .pl-loadmap .mm-full { display: none; } .pl-loadmap .mm-postal { display: inline; } .pl-loadmap .mm-rail { display: none; } }
   /* Evidence-state legend for the power-path chart: fill = firmness, colour = status */
@@ -964,6 +983,9 @@
   }
   .cf-leg-item { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
   .cf-leg-swatch { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+  .cf-leg-line { width: 22px; height: 0; display: inline-block; border-top: 3px solid currentColor; }
+  .cf-leg-line.vendor { border-top-style: dashed; }
+  .cf-leg-line.debt { border-top-style: dotted; }
   .cf-leg-note { color: var(--muted); font-weight: 500; font-style: italic; }
   /* Counterparty-exposure sidebar (click a node on the map) */
   .cf-sidebar { margin-top: 10px; border: 1px solid var(--accent); border-radius: 10px; padding: 12px 14px; background: var(--accent-soft); }
@@ -1059,6 +1081,30 @@
     padding: 2px 8px; letter-spacing: .01em;
   }
   [data-theme="dark"] .funnel-stage.cut { background: #1c1014; }
+
+  /* Buildout reality stack: actual ledger statuses only; no invented "secured" stage. */
+  .br-kpis { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 10px 0 12px; }
+  .br-kpi { border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 8px; padding: 8px 10px; background: var(--bg); }
+  .br-kpi:nth-child(2) { border-top-color: var(--amber); } .br-kpi:nth-child(3) { border-top-color: var(--green); }
+  .br-kpi b { display: block; color: var(--ink); font-size: 20px; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .br-kpi span { display: block; color: var(--muted); font-size: 10px; line-height: 1.35; margin-top: 2px; }
+  .br-steps { display: grid; gap: 7px; }
+  .br-step { display: grid; grid-template-columns: 128px 1fr 76px; gap: 9px; align-items: center; }
+  .br-label { font-size: 11px; color: var(--ink-2); line-height: 1.25; }
+  .br-track { height: 24px; background: var(--line); border-radius: 4px; overflow: hidden; position: relative; }
+  .br-fill { height: 100%; min-width: 3px; display: flex; align-items: center; padding-left: 7px; border-radius: 4px; color: #fff; font-size: 9px; font-weight: 800; white-space: nowrap; }
+  .br-fill.universe { background: var(--accent); } .br-fill.active { background: #0d9488; } .br-fill.underway { background: var(--amber); } .br-fill.live { background: var(--green); }
+  .br-val { text-align: right; font-family: 'Courier New', monospace; font-size: 12px; font-weight: 800; color: var(--ink); }
+  .br-cut { font-size: 9px; color: var(--muted); font-weight: 600; }
+  .br-path { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .br-pathhead { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 11px; color: var(--ink-2); margin-bottom: 6px; }
+  .br-pathhead b { color: var(--ink); }
+  .br-pathbar { display: flex; height: 18px; border-radius: 4px; overflow: hidden; background: var(--line); }
+  .br-pathseg { min-width: 2px; }
+  .br-pathseg.btm { background: var(--amber); } .br-pathseg.colocated { background: var(--accent); } .br-pathseg.grid { background: var(--muted); }
+  .br-pathlegend { display: flex; flex-wrap: wrap; gap: 5px 12px; font-size: 10px; color: var(--muted); margin-top: 6px; }
+  .br-pathlegend i { width: 8px; height: 8px; display: inline-block; border-radius: 2px; margin-right: 4px; }
+  @media (max-width: 640px) { .br-kpis { grid-template-columns: 1fr; } .br-step { grid-template-columns: 92px 1fr 58px; gap: 6px; } .br-fill { font-size: 0; } }
 
   /* ---------- Offtake coverage (Capital) ---------- */
   .oc-bar {
@@ -1443,6 +1489,21 @@
   .pl-fp-key[open] > summary::before { content: "▾ "; }
   .pl-fp-key > div { margin-top: 6px; line-height: 1.55; }
   .pl-fp-key b { color: var(--ink-2); }
+  /* Players comparison strip: the fingerprint lanes translated into four provider-resilience lenses. */
+  .pl-compare { overflow-x: auto; margin-top: 10px; }
+  .pl-compare-grid { display: grid; grid-template-columns: 132px repeat(4,minmax(118px,1fr)); gap: 5px 8px; min-width: 700px; align-items: center; }
+  .pl-c-h { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .045em; color: var(--muted); padding-bottom: 4px; }
+  .pl-c-h:not(:first-child) { text-align: center; }
+  .pl-c-name { display: flex; align-items: center; gap: 6px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 11px; font-weight: 750; color: var(--ink); }
+  .pl-c-cell { border-top: 1px solid var(--line); padding: 7px 0; }
+  .pl-c-track { height: 9px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .pl-c-fill { height: 100%; border-radius: 3px; }
+  .pl-c-fill.power { background: var(--green); } .pl-c-fill.capital { background: var(--accent); } .pl-c-fill.silicon { background: #7c3aed; } .pl-c-fill.counterparty { background: var(--amber); }
+  .pl-c-cell.gap .pl-c-track { background: repeating-linear-gradient(45deg,var(--line) 0 4px,transparent 4px 8px); border: 1px dashed var(--line); }
+  .pl-c-v { font-size: 9px; color: var(--muted); margin-top: 3px; text-align: right; }
+  .pl-c-cell.gap .pl-c-v { text-align: center; }
+  .pl-c-rule { font-size: 10.5px; color: var(--muted); line-height: 1.45; margin-top: 8px; }
+  .pl-c-rule b { color: var(--ink-2); }
   /* dossier-card connections footer — surfaces the dot-connecting where the CSO drills in */
   .pl-conns { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
   .pl-conns .pl-klabel { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #0891b2; }
@@ -2242,9 +2303,9 @@
       </div>
 
       <!-- Full-width: circular-financing & counterparty map -->
-      <div class="stub-card">
-        <h4>The commitment flywheel — a chunk of AI &ldquo;demand&rdquo; is the vendors&rsquo; own capital, recycled</h4>
-        <div class="note">Vendors and private credit put equity + GPU-backed debt <b>into</b> the labs and neoclouds — who commit that capital straight <b>back</b> as compute purchases, landing as the vendors&rsquo; own backlog. A directed counterparty map of 2025-26 AI-infra commitments &middot; each edge individually cited &middot; the map is the insight &mdash; no blended score, not advice</div>
+      <div class="stub-card" id="capitalFlywheelCard">
+        <h4>The commitment flywheel — where capital comes back as &ldquo;demand&rdquo;</h4>
+        <div class="note">Vendors and private credit put equity + GPU-backed debt <b>into</b> labs and neoclouds, which commit capital <b>back</b> as compute purchases. Default = the true two-way loops only; edge width = disclosed $ size; line style = instrument (solid equity &middot; dashed compute &middot; dotted debt); faint/dash-dot = no public $ or analyst-tier leg.</div>
         <div class="cf-tally" id="cfTally"></div>
         <div class="cf-takeaways">
           <div class="cf-take" style="border-left-color:#1d4ed8"><b>Demand is partly recycled.</b> NVIDIA takes equity in OpenAI (up to $100B), CoreWeave (~7%) and Anthropic ($10B) — who then commit to buy NVIDIA compute. Some of the "demand" is the vendor's own capital cycling back.</div>
@@ -2252,8 +2313,8 @@
           <div class="cf-take" style="border-left-color:#d97706"><b>The chips are becoming collateral.</b> Private credit — Apollo's $35B Broadcom XPV, Blackstone's $8.5B CoreWeave loan — now lends against the GPUs themselves, a new financialization layer beneath the equity and compute deals.</div>
         </div>
         <div class="map-view-toggle" id="cfViewToggle" role="tablist">
-          <button class="map-view-btn active" data-cfview="all"    type="button">All flows</button>
-          <button class="map-view-btn"        data-cfview="loops"  type="button">Closed loops</button>
+          <button class="map-view-btn"        data-cfview="all"    type="button">All flows</button>
+          <button class="map-view-btn active" data-cfview="loops"  type="button">Closed loops</button>
           <button class="map-view-btn"        data-cfview="equity" type="button">Equity</button>
           <button class="map-view-btn"        data-cfview="vendor" type="button">Compute</button>
           <button class="map-view-btn"        data-cfview="debt"   type="button">GPU-backed debt</button>
@@ -2357,6 +2418,15 @@
       <div class="so-what">
         <label>So what &middot; 2nd order</label>
         <h3>The binding constraint isn't compute — it's transformers, queues and lead times. <b>Power procurement is the investability filter:</b> a site without secured power + offtake is haircut out of the buildable base (only ~24 of 97 GW survive), so land without power rights is the residual, not the asset.<sup title="Editorial synthesis over the queue, lead-time and phantom-load data — this dashboard's read, not a reported metric">&deg;</sup></h3>
+      </div>
+
+      <!-- Ledger reality stack: mutually-exclusive status fields from projects.json only. -->
+      <div class="stub-card" id="buildRealityCard">
+        <h4>From announcement to electrons &mdash; the named-build reality stack <span class="cf-tier cf-warn" title="Pure arithmetic over the current source-linked project ledger; capacity definitions remain mixed and are not normalized.">derived from reported status</span></h4>
+        <div class="note">Every rung comes from a real <code>projects.json</code> status: announced universe &rarr; active after verified retreats &rarr; construction + operational &rarr; operational. No invented &ldquo;secured&rdquo; stage; no queue-wide extrapolation.</div>
+        <div id="buildRealityStack"></div>
+        <div class="decision-impl" id="buildRealityImplication"></div>
+        <div class="sc-method" id="buildRealityMethod"></div>
       </div>
 
       <!-- Full-width: interconnection funnel -->
@@ -2568,7 +2638,18 @@
       <div class="stub-card" id="politicalLoadCard" style="margin-bottom:14px">
         <h4>Where AI load becomes a political fight — states most exposed to a rate revolt</h4>
         <div class="note">Political-failure risk by state across four dimensions — rate-increase risk, utility exposure, data-center load concentration, regulatory posture. Unmet load + overbuild risk get socialized onto <b>ratepayers</b>, so the binding constraint shifts from engineering (queues) to politics (PUCs, governors, legislatures). No blended score — the four cells stay separate; read a red Rate cell as a bill a PUC must approve and a governor must defend.</div>
-        <div id="politicalLoadMatrix" class="mp-matrix"></div>
+        <div class="gp-pair">
+          <div class="gp-map-panel">
+            <div class="gp-map-kicker">Geographic pressure map</div>
+            <div class="gp-map-title">Where rate risk is priced &mdash; and where load arrives first</div>
+            <div id="gridPressureMap" class="gp-map" role="img" aria-label="US state map grouping tracked states by rate-revolt risk and named data-center load"></div>
+            <div id="gridStateGroups" class="gp-group-list"></div>
+          </div>
+          <div>
+            <div class="gp-map-kicker">State-by-state evidence matrix</div>
+            <div id="politicalLoadMatrix" class="mp-matrix"></div>
+          </div>
+        </div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Ratepayer backlash can stop the AI buildout before physical scarcity does — the fight turns political (PUCs, governors) while the grid still has headroom.</div>
         <details class="mp-view-data" open>
           <summary>State risk table + attribution</summary>
@@ -2808,6 +2889,13 @@
       <h2 class="tab-title">Players</h2>
       <p class="tab-sub">The same cited numbers, indexed by <b>entity</b> instead of theme — who is doing what, under which binding constraint. Every figure on a card is a live join from its home chart (click through); nothing is re-keyed.</p>
       <div class="gap-connector"><span class="gc-tag">↑ the 19 GW gap</span> Positions differ because constraints differ: some players own megawatts, some own obligations, some own the silicon — the cards below say which.</div>
+
+      <div class="stub-card">
+        <h4>Provider posture at a glance &mdash; four ways resilience shows up<sup title="Editorial translation of the live Constraint Fingerprint lanes; no blended score and no investment recommendation.">&deg;</sup></h4>
+        <div class="note">A CAIO&rsquo;s counterparty screen and a VC&rsquo;s market-structure screen on the same scale: power independence &middot; capital room &middot; silicon control &middot; counterparty resilience. Longer = more strategic room; hatched = not honestly known, never zero.</div>
+        <div id="playersCompareStrip" class="pl-compare"></div>
+        <div class="decision-impl"><span class="di-label">Decision implication</span> Provider risk is multi-dimensional: negotiate portability where any one lane is weak, because a balance-sheet, power, silicon, or customer-concentration failure can become the same availability failure.</div>
+      </div>
 
       <div class="stub-card">
         <h4>Player dossiers</h4>
@@ -4121,7 +4209,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260717b"></script>
+<script src="app.js?v=20260717c"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
