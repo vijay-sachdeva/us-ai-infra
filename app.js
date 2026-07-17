@@ -5126,7 +5126,7 @@ const $ = (id) => document.getElementById(id);
         }
         delete _charts[id];
       }
-      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderJevonsChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderPowerPriceBoard","renderPjmAuction","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderOvercommitment","renderTenorClocks","renderPowerBank","renderFunnel"].forEach(fn => {
+      ["renderCapexChart","renderVacancyChart","renderLeadTimeChart","renderBuildoutChart","renderDemandGapChart","renderRateImpactChart","renderTokenVolumeChart","renderPriceCompressionChart","renderJevonsChart","renderCostPerTaskChart","renderCumDeficitChart","renderTurbineSlots","renderPowerSourceMixChart","renderPerfPerWattChart","renderHeadroomChart","renderPowerPriceBoard","renderPjmAuction","renderQueueChart","renderTimeToPower","renderCapexAiShare","renderSplitChart","renderCapexTrend","renderCapexVsCashflow","renderOvercommitment","renderTenorClocks","renderPowerBank","renderFunnel","renderColoRent"].forEach(fn => {
         if (typeof window[fn] === "function") window[fn]._done = false;
         try { eval(fn)._done = false; } catch(_) {}
       });
