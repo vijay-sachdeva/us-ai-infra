@@ -2697,6 +2697,9 @@ const $ = (id) => document.getElementById(id);
     });
     const nonGridMW = byPath.BTM + byPath.Colocated;
     const nonGridPct = constructionMW ? Math.round(nonGridMW / constructionMW * 100) : null;
+    const headline = $("buildRealityHeadline");
+    if (headline) headline.textContent = "Only " + fmt(liveMW) + " of " + fmt(totalMW) + " is live" +
+      (nonGridPct == null ? "" : " — " + nonGridPct + "% of construction sits behind or beside generation") + "°";
     const pathSeg = (key, cls) => byPath[key] > 0 ? '<span class="br-pathseg ' + cls + '" style="width:' + (byPath[key] / constructionMW * 100).toFixed(1) + '%" title="' + key + ': ' + fmt(byPath[key]) + '"></span>' : '';
     host.innerHTML =
       '<div class="br-kpis">' +
@@ -5223,19 +5226,22 @@ const $ = (id) => document.getElementById(id);
   }
 
   // Declutter: each dense tab LEADS with its essential cards; the rest fold into one collapsed
-  // "More analysis". Leads are matched by card title (h4 prefix) so no markup changes are needed;
-  // the secondary cards are MOVED into the disclosure (their charts repaint via the toggle
+  // "More analysis". Leads are matched by card title (h4 prefix); the designated flagship is
+  // promoted directly below the thesis. Secondary cards are MOVED into the disclosure (charts repaint via the toggle
   // listener). A card with no h4 (so-what boxes, calculators) is treated as a lead and left alone.
   // Buildout is already wrapped in markup, so it has a .more-analysis and is skipped here.
   var LEAD_CARDS = {
-    capital: ["The commitment flywheel", "Commitment vs build-out footprint", "Buyer posture", "Build, lease, rent", "Capex vs operating cash flow", "The commitment book", "Vacancy"],
-    grid:    ["Where AI load becomes", "Firm power never gets ahead", "Short ~19 GW by 2030", "PJM: 11", "What power costs, by state", "Who demands what"],
-    tokens:  ["The Jevons check", "One prompt to one gigawatt", "Industry token volume", "Effective cost per useful task", "What compute costs today"]
+    capital: ["The commitment flywheel", "The most committed balance sheets", "Scarcity rewards early commitment", "1.4% vacancy"],
+    grid:    ["Rate revolt starts", "Firm power never gets ahead", "Short ~19 GW by 2030", "PJM: 11"],
+    tokens:  ["~100× cheaper tokens", "Model choice is now a power decision", "Reasoning models give back", "Rent prices fall"]
   };
   function collapseSecondary(name, section) {
     var leads = LEAD_CARDS[name];
     if (!section || !leads) return;
     if (section.querySelector(".more-analysis")) return;                   // already collapsed
+    var flagship = section.querySelector(":scope > .flagship-card");
+    var thesis = section.querySelector(":scope > .so-what");
+    if (flagship && thesis && thesis.nextElementSibling !== flagship) thesis.insertAdjacentElement("afterend", flagship);
     var cards = [].slice.call(section.querySelectorAll(".stub-card"));
     var isLead = function (c) {
       var h = c.querySelector("h4"); if (!h) return true;                  // non-titled cards stay put

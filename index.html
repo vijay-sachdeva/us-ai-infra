@@ -36,7 +36,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260717c"></script>
+<script src="config.js?v=20260717d"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -161,6 +161,107 @@
   body[data-mode="brief"] .ov-bn-framing,
   body[data-mode="brief"] #ov-bottleneck { display: none !important; }
   body[data-mode="brief"] .decision-impl { border-left-width: 4px; }
+
+  /* IIB-inspired executive exhibits: one visual argument, then provenance. */
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) > .tab-sub,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) > .gap-connector,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .stub-card > .note,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .stub-card > p.note,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .stub-card > .so-what,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .chart-cap .cap-take,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .tab-callout,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .cf-takeaways,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .cf-tally-note,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .cf-loopstrip,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .mp-evlegend,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .br-pathlegend,
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .gp-rule {
+    display: none !important;
+  }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) > .so-what {
+    margin: 10px 0 26px;
+    padding: 0 0 0 18px;
+    border: 0;
+    border-left: 4px solid var(--accent);
+    border-radius: 0;
+    background: transparent;
+    font-size: 21px;
+    line-height: 1.36;
+    letter-spacing: -0.025em;
+  }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .stub-card {
+    padding: 26px 0 6px;
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .stub-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .stub-card > h4 {
+    max-width: 980px;
+    margin-bottom: 14px;
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: -0.018em;
+  }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .stub-card.flagship-card {
+    margin-bottom: 22px;
+    padding: 26px 28px 22px;
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--accent);
+    border-radius: 16px;
+    background: var(--card);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+  }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .stub-card.flagship-card > h4 {
+    font-size: 24px;
+  }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .chart-box {
+    min-height: 318px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .chart-box.short { min-height: 278px; }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .chart-box.tall { min-height: 352px; }
+  body[data-mode="brief"] #jevonsCard .chart-box { min-height: 0; }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .chart-cap {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-soft);
+    font-size: 10.5px;
+  }
+  body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .decision-impl {
+    margin-top: 16px;
+    padding: 14px 0 0;
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+  }
+  body[data-mode="brief"] section[data-tab="overview"] .ov-lens-stat {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  @media (max-width: 700px) {
+    body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) > .so-what {
+      padding-left: 14px;
+      font-size: 18px;
+    }
+    body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .stub-card.flagship-card {
+      padding: 22px 18px 18px;
+    }
+    body[data-mode="brief"] section.tab-content:not([data-tab="overview"]):not([data-tab="players"]) .stub-card.flagship-card > h4 {
+      font-size: 21px;
+    }
+  }
   /* the scorecard weight-profile toggle IS the CIO tool — keep it in the default view
      (overrides the generic .map-view-toggle hide above) */
   body[data-mode="brief"] .sc-presets { display: inline-flex !important; }
@@ -2189,12 +2290,12 @@
 
       <div class="so-what">
         <label>So what</label>
-        <h3>~$839B of capex is chasing a supply-constrained market. The bottleneck is power, not demand — winners will own the megawatts.</h3>
+        <h3>$839B can buy compute—but not firm power. Value accrues to megawatts already controlled; risk clusters where long obligations depend on one counterparty.</h3>
       </div>
 
       <!-- FLAGSHIP (lead): Commitment vs build-out footprint — the capital-quality quadrant -->
       <div class="stub-card">
-        <h4>Commitment vs build-out footprint <span class="cf-tier cf-ok" title="X (years of OCF pre-committed) is SEC-filed; bubble (2026 capex) is guidance/actual.">X + capex primary</span> <span class="cf-tier cf-crit" title="Y is coverage-biased named-ledger GW; silicon colour is an editorial band — not sourced numbers.">Y coverage-biased &middot; colour editorial</span></h4>
+        <h4>The most committed balance sheets also carry the most concentrated demand&deg; <span class="cf-tier cf-ok" title="X (years of OCF pre-committed) is SEC-filed; bubble (2026 capex) is guidance/actual.">X + capex primary</span> <span class="cf-tier cf-crit" title="Y is coverage-biased named-ledger GW; silicon colour is an editorial band — not sourced numbers.">Y coverage-biased &middot; colour editorial</span></h4>
         <div class="note">Who cannot back down (years of operating cash flow already pre-committed) vs what they&rsquo;ve actually secured (named live ledger power) &middot; bubble = 2026 capex &middot; colour = silicon strategy &middot; the six operators with a filed commitment book</div>
         <div class="chart-box tall"><canvas id="commitmentQuadrant"></canvas></div>
         <div class="so-what">
@@ -2218,7 +2319,7 @@
 
       <!-- CAIO comparator: the four ways to get compute, one row of cited anchors each -->
       <div class="stub-card">
-        <h4>Build, lease, rent — or wait&deg;</h4>
+        <h4>Scarcity rewards early commitment — waiting preserves flexibility, not allocation&deg;</h4>
         <div class="note">The four paths to AI capacity, joined from this dashboard&rsquo;s cited anchors &middot; native units on purpose — they don&rsquo;t reduce to one honest number &middot; Editorial&deg; synthesis; not procurement advice</div>
         <div class="ss-wrap" id="buildBuyWait"></div>
       </div>
@@ -2303,7 +2404,7 @@
       </div>
 
       <!-- Full-width: circular-financing & counterparty map -->
-      <div class="stub-card" id="capitalFlywheelCard">
+      <div class="stub-card flagship-card" id="capitalFlywheelCard">
         <h4>The commitment flywheel — where capital comes back as &ldquo;demand&rdquo;</h4>
         <div class="note">Vendors and private credit put equity + GPU-backed debt <b>into</b> labs and neoclouds, which commit capital <b>back</b> as compute purchases. Default = the true two-way loops only; edge width = disclosed $ size; line style = instrument (solid equity &middot; dashed compute &middot; dotted debt); faint/dash-dot = no public $ or analyst-tier leg.</div>
         <div class="cf-tally" id="cfTally"></div>
@@ -2364,7 +2465,7 @@
 
         <!-- Card 5: Vacancy & pricing power (real) -->
         <div class="stub-card">
-          <h4>Vacancy &amp; pricing power</h4>
+          <h4>1.4% vacancy leaves buyers with almost no spot leverage</h4>
           <div class="note">Primary-market vacancy &middot; year-end &middot; the supply-tightness story</div>
           <div class="chart-box short"><canvas id="vacancyChart"></canvas></div>
           <div class="tab-callout">
@@ -2417,12 +2518,12 @@
 
       <div class="so-what">
         <label>So what &middot; 2nd order</label>
-        <h3>The binding constraint isn't compute — it's transformers, queues and lead times. <b>Power procurement is the investability filter:</b> a site without secured power + offtake is haircut out of the buildable base (only ~24 of 97 GW survive), so land without power rights is the residual, not the asset.<sup title="Editorial synthesis over the queue, lead-time and phantom-load data — this dashboard's read, not a reported metric">&deg;</sup></h3>
+        <h3>A 97 GW queue is not a 97 GW asset. Only ~24 GW looks buildable; the scarce asset is power-deliverable land.<sup title="Editorial synthesis over the queue, lead-time and phantom-load data — this dashboard's read, not a reported metric">&deg;</sup></h3>
       </div>
 
       <!-- Ledger reality stack: mutually-exclusive status fields from projects.json only. -->
-      <div class="stub-card" id="buildRealityCard">
-        <h4>From announcement to electrons &mdash; the named-build reality stack <span class="cf-tier cf-warn" title="Pure arithmetic over the current source-linked project ledger; capacity definitions remain mixed and are not normalized.">derived from reported status</span></h4>
+      <div class="stub-card flagship-card" id="buildRealityCard">
+        <h4><span id="buildRealityHeadline">Named-build reality stack</span> <span class="cf-tier cf-warn" title="Pure arithmetic over the current source-linked project ledger; capacity definitions remain mixed and are not normalized.">derived from reported status</span></h4>
         <div class="note">Every rung comes from a real <code>projects.json</code> status: announced universe &rarr; active after verified retreats &rarr; construction + operational &rarr; operational. No invented &ldquo;secured&rdquo; stage; no queue-wide extrapolation.</div>
         <div id="buildRealityStack"></div>
         <div class="decision-impl" id="buildRealityImplication"></div>
@@ -2430,7 +2531,7 @@
       </div>
 
       <!-- Full-width: interconnection funnel -->
-      <div class="stub-card">
+      <div class="stub-card brief-hide">
         <h4>The queue is 16&times; larger than active construction</h4>
         <div class="note">Four separate snapshots of US data-center grid capacity — not one cohort moving through stages · GW · LBNL Queued Up 2025 + CBRE + Goldman Sachs</div>
         <div class="chart-box short"><canvas id="funnelCompare" role="img" aria-label="Four independent US data-center capacity snapshots in gigawatts: requested queue 97, operational stock 41, modeled buildable 24, under construction 6."></canvas></div>
@@ -2438,7 +2539,7 @@
       </div>
 
       <!-- Full-width: phantom-load reconciliation (after the funnel, before the map) -->
-      <div class="stub-card" style="margin-top:14px">
+      <div class="stub-card brief-hide" style="margin-top:14px">
         <h4>Only about one-quarter of queued demand appears buildable near term</h4>
         <div class="note">Phantom-load reconciliation — the headline queue net of duplicate and speculative requests · GW · haircuts modeled</div>
         <div class="map-view-toggle" id="phantomScenario" role="group" aria-label="Haircut scenario">
@@ -2455,14 +2556,14 @@
       </div>
 
       <!-- Full-width: interconnection-queue chart — credible vs. phantom (LBNL feed · annual, fetched in CI) -->
-      <div class="stub-card" style="margin-top:14px">
+      <div class="stub-card brief-hide" style="margin-top:14px">
         <h4>Generation interconnection queue by ISO — credible vs. phantom <span class="cf-tier cf-warn" title="Analyst — third-party research estimate (provenance).">analyst</span><span class="feed-stamp" data-feed="queues"></span></h4>
         <div class="note">Generation + storage queue by ISO (LBNL <i>Queued Up</i>) — the pipeline DC load competes within, <b>not</b> a DC-only queue; credible = post-withdrawal (<b>78% = historical withdrawal rate</b>, applied as proxy).</div>
         <div class="chart-box short"><canvas id="queueChart"></canvas></div>
       </div>
 
       <!-- Full-width: US data center map -->
-      <div class="stub-card" style="margin-top:14px">
+      <div class="stub-card brief-hide" style="margin-top:14px">
         <h4>Where the capacity sits — primary US markets<span class="feed-stamp" data-feed="siting"></span></h4>
         <div class="note" id="mapNote">Pipeline view · bubbles sum to ≈ 97 GW interconnect queue (LBNL Queued Up 2025, allocation modeled) · color = market status · hover for detail</div>
         <div class="map-view-toggle" id="mapViewToggle" role="tablist">
@@ -2488,7 +2589,7 @@
 
       <!-- Full-width: Named pipeline projects (companion to the map) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Named AI-infrastructure builds &amp; power deals</h4>
+        <h4>Power path—not project size—separates a build from a press release&deg;</h4>
         <div class="note">Announced data-center campuses + the behind-the-meter / colocated power securing them · MW = announced campus or dedicated-generation capacity · <b>power-procurement model</b> classified editorially (<b>BTM</b> = on-site generation that bypasses the interconnect queue · <b>Colocated</b> = adjacent to existing nuclear/gas · <b>Grid</b> = utility interconnection) · sorted by MW · each row cited to operator / utility filings &amp; press (not third-party trackers)</div>
         <div class="map-view-toggle" id="megaPathToggle" role="tablist" style="margin:8px 0 4px">
           <button class="map-view-btn active" data-mwpath="ranked" role="tab" type="button" aria-selected="true">Ranked</button>
@@ -2512,7 +2613,7 @@
       </div>
 
       <!-- Full-width: Graveyard & stalls — verified retreats (the counterweight to announcement bias) -->
-      <div class="stub-card" style="margin-top:14px">
+      <div class="stub-card brief-hide" style="margin-top:14px">
         <h4>Graveyard &amp; stalls — verified retreats</h4>
         <div class="note">Announced projects later <b>paused, stalled, or cancelled</b> — the counterweight to announcement bias, from the same cited open dataset (status changes carry their own sources; the <b>stated reason</b> is tiered separately from the status fact). Excluded from the headline GW totals above.</div>
         <div id="graveyardList" style="margin-top:6px"></div>
@@ -2525,14 +2626,14 @@
 
       <!-- Full-width: Time-to-power by procurement path -->
       <div class="stub-card" style="margin-top:10px">
-        <h4>Time-to-power by procurement path</h4>
+        <h4>Grid power takes years; on-site bridges buy months&deg;</h4>
         <div class="note">The binding 2026 question isn't whether power is scarce — it's which path energizes a site fastest, at what trade-off · months from decision to first power · firmness tag + one-line trade-off · grid duration cited (LBNL); on-site gas / recip bands modeled (labeled)</div>
         <div class="chart-box" style="height:300px;margin-top:10px"><canvas id="timeToPowerChart"></canvas></div>
         <div class="sc-method" id="timeToPowerMethod"></div>
       </div>
 
       <!-- Back-scheduler: the same published bands, run backwards from a target energize year -->
-      <div class="stub-card" style="margin-top:14px">
+      <div class="stub-card brief-hide" style="margin-top:14px">
         <h4>Power by 20XX — which paths still make it<sup title="Modeled back-scheduling: months remaining to Jan 1 of the target year vs each procurement path's published band above (grid duration cited; on-site bands modeled), plus the HV-transformer lead check for the grid path.">&deg;</sup></h4>
         <div class="map-view-toggle sc-presets" id="psYears" role="tablist" aria-label="Target energize year" style="margin:6px 0 8px"></div>
         <div id="powerScheduler"></div>
@@ -2540,7 +2641,7 @@
       </div>
 
       <!-- Full-width: site-selection scorecard (weight presets re-rank the same cited scores) -->
-      <div class="stub-card" style="margin-top:14px">
+      <div class="stub-card brief-hide" style="margin-top:14px">
         <h4>Site-selection scorecard</h4>
         <div class="note">Per-factor cited scores across top US markets · 1-10 (higher = better for builds) · Readiness = modeled weighted composite · pick a weight profile to re-rank</div>
         <div id="scorecardWrap"></div>
@@ -2548,7 +2649,7 @@
 
       <!-- Equipment lead times (HTML list) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Equipment lead times</h4>
+        <h4>The transformer order date—not the land—sets energization&deg;</h4>
         <div class="note">Months from order to delivery · 2026 industry estimates</div>
         <div id="equipmentLeadTimes" style="margin-top:8px"></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Transformer and turbine orders belong at site-control, not at permit — the order date, not the land, sets the energize date. <span style="opacity:.75">Editorial.</span></div>
@@ -2632,11 +2733,11 @@
 
       <div class="so-what">
         <label>So what</label>
-        <h3>If demand rises another 60 GW by 2030 without commensurate grid expansion, VA (+57%) and TX (+28%) model &gt;25% retail rate hikes with three more states &ge;15% — and AI buildout becomes politically untenable.</h3>
+        <h3>The bottleneck turns political before the grid runs out: Virginia (+57%) and Texas (+28%) already model rate impacts above 25%.</h3>
       </div>
 
-      <div class="stub-card" id="politicalLoadCard" style="margin-bottom:14px">
-        <h4>Where AI load becomes a political fight — states most exposed to a rate revolt</h4>
+      <div class="stub-card flagship-card" id="politicalLoadCard" style="margin-bottom:14px">
+        <h4>Rate revolt starts before the grid runs out—Virginia and Texas cross +25%&deg;</h4>
         <div class="note">Political-failure risk by state across four dimensions — rate-increase risk, utility exposure, data-center load concentration, regulatory posture. Unmet load + overbuild risk get socialized onto <b>ratepayers</b>, so the binding constraint shifts from engineering (queues) to politics (PUCs, governors, legislatures). No blended score — the four cells stay separate; read a red Rate cell as a bill a PUC must approve and a governor must defend.</div>
         <div class="gp-pair">
           <div class="gp-map-panel">
@@ -2794,12 +2895,12 @@
 
       <div class="so-what">
         <label>The thesis</label>
-        <h3>Cheaper inference isn&rsquo;t relieving infrastructure pressure — usage is expanding faster than efficiency. Tokens scaled <b>~330× in 24 months</b> (Google 9.7 T → 3,200 T/mo) while $/token fell <b>~100×</b>, so total energy and capital demand <b>rise</b> as tokens get cheaper.</h3>
+        <h3>Jevons wins: ~100× cheaper tokens produced ~330× more usage. Efficiency delays the power wall; it does not remove it.</h3>
       </div>
 
       <!-- HERO: Jevons — the core strategic insight, promoted above everything -->
-      <div class="stub-card">
-        <h4>The Jevons check — does cheaper mean more? <span class="cf-tier cf-warn" title="Derived from the price + volume series below; volumes are modeled.">~100× cheaper · ~330× more usage</span></h4>
+      <div class="stub-card flagship-card" id="jevonsCard">
+        <h4>~100× cheaper tokens produced ~330× more usage—power still rose&deg; <span class="cf-tier cf-warn" title="Derived from the price + volume series below; volumes are modeled.">price + usage derived</span></h4>
         <div class="note">Three aligned panels, one timeline — no dual axis: price falls, volume outruns it, so implied power <b>rises</b> as tokens get cheaper. This is the thesis in one graphic.</div>
         <div class="jv-panel"><span class="jv-lbl">Cheapest frontier flagship &middot; $/M tokens</span><div class="chart-box" style="height:96px"><canvas id="jevonsP1"></canvas></div></div>
         <div class="jv-panel"><span class="jv-lbl">Industry tokens &middot; T/quarter <span class="cf-tier cf-crit" title="Provider volumes are modeled (Epoch AI / SemiAnalysis / disclosures)">modeled</span></span><div class="chart-box" style="height:96px"><canvas id="jevonsP2"></canvas></div></div>
@@ -2811,7 +2912,7 @@
 
       <!-- LEAD: the token-to-buildout chain — the CAIO-friendly bridge, the proof of the thesis -->
       <div class="stub-card">
-        <h4>One prompt to one gigawatt — the token-to-buildout chain</h4>
+        <h4>Model choice is now a power decision—one prompt to one gigawatt</h4>
         <div class="note">The 5-stage executive chain — <b>prompt → tokens → energy → continuous MW → capex / power source</b> — labelled <b>single-prompt unit economics</b> → <b>platform-scale extrapolation</b> → <b>industry-buildout comparison</b>. Each rung sourced or [modeled]. <b>Go deeper</b> for the 10-step technical walkthrough.</div>
         <div class="map-view-toggle" id="tjDepthToggle" role="tablist" aria-label="Detail level">
           <button class="map-view-btn active" data-tjdepth="plain" type="button">Executive</button>
@@ -2835,7 +2936,7 @@
 
       <!-- Card 2: Effective cost per useful task — why model choice sets power exposure (promoted) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Effective cost per useful task — the price drop you don&rsquo;t feel</h4>
+        <h4>Reasoning models give back much of the $/token gain&deg;</h4>
         <div class="note">Sticker $/token fell ~<b>100&ndash;300&times;</b>, but reasoning/agentic models burn far more tokens per task &middot; <b>cost to COMPLETE a fixed task</b> ($/task, <b>log Y</b>), held-constant basket &middot; 2023 vs 2026 frontier &middot; <b>$/token cited, tokens-per-task &amp; $/task modeled</b></div>
         <div class="chart-box" style="height:320px"><canvas id="costPerTaskChart"></canvas></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Power exposure is set by AI strategy: a frontier reasoning-heavy stack burns far more tokens (and watts) per task than efficient enterprise inference — model mix, routing, caching and context length are power decisions. <span style="opacity:.75">Editorial.</span></div>
@@ -2844,7 +2945,7 @@
 
       <!-- Buy-side price signal: on-demand $/GPU-hr list prices (data/gpu_prices.json, fetched daily in CI) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>What compute costs today — $/GPU-hr <span class="cf-tier cf-ok" title="Published on-demand list prices scraped daily from provider pricing pages (primary); per-provider source link + as-of date.">primary &middot; daily</span></h4>
+        <h4>Rent prices fall—allocation still gates the newest GPUs <span class="cf-tier cf-ok" title="Published on-demand list prices scraped daily from provider pricing pages (primary); per-provider source link + as-of date.">primary &middot; daily</span></h4>
         <div class="note">Published <b>on-demand list prices</b> by provider &times; GPU &middot; negotiated / reserved / spot rates differ &middot; freshness is <b>per provider</b> (a provider that fails to parse keeps its last good date — shown) &middot; levels today; the trend accrues in <a href="data/history/gpu_prices.csv">data/history</a></div>
         <div id="gpuPriceBoard" style="margin-top:8px"></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Anchor build-vs-buy against the buy-side $/GPU-hr level — falling list prices favor renting; allocation still gates the newest SKUs. <span style="opacity:.75">Editorial.</span></div>
@@ -4209,7 +4310,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260717c"></script>
+<script src="app.js?v=20260717d"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
