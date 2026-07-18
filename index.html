@@ -36,7 +36,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260717d"></script>
+<script src="config.js?v=20260717e"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -607,9 +607,40 @@
   .chg-items { margin: 4px 0 0; padding: 0 0 0 4px; list-style: none; display: grid; gap: 4px; font-size: .83rem; line-height: 1.4; }
   .chg-glyph { color: var(--accent); font-weight: 700; margin-right: 5px; }
   .chg-note { color: var(--muted); font-size: .79rem; font-style: italic; margin-top: 3px; }
-  /* Jevons aligned panels (Tokens hero) */
-  .jv-panel { margin-top: 6px; }
-  .jv-lbl { display: block; font-size: 10.5px; font-weight: 700; color: var(--ink-2); margin-bottom: 1px; }
+  /* Tokens flagship — IIB-style provider constellation + frontier-price ribbon. */
+  .token-provider-filter { margin: 4px 0 8px; }
+  body[data-mode="brief"] .token-provider-filter { display: inline-flex !important; }
+  .token-provider-dot {
+    display: inline-block; width: 8px; height: 8px; margin-right: 5px;
+    border-radius: 50%; background: var(--provider-color, var(--muted));
+  }
+  .token-provider-summary {
+    min-height: 20px; margin: 0 0 10px; color: var(--ink-2);
+    font-size: 12px; line-height: 1.45; font-weight: 600;
+  }
+  .token-price-label {
+    color: var(--muted); font-size: 10.5px; font-weight: 700;
+    letter-spacing: .025em; text-transform: uppercase;
+  }
+  .token-price-ribbon {
+    display: grid; grid-template-columns: repeat(10, minmax(0, 1fr));
+    margin: 5px 0 2px; overflow: hidden; border: 1px solid var(--line);
+    border-radius: 6px; background: var(--bg);
+  }
+  .token-price-ribbon span {
+    padding: 5px 6px; color: var(--ink-2); font-size: 10.5px;
+    font-weight: 800; text-align: center; border-right: 1px solid var(--line);
+  }
+  .token-price-ribbon span:last-child { border-right: 0; }
+  .token-price-ribbon .p30 { grid-column: span 1; background: color-mix(in srgb, var(--red) 13%, transparent); }
+  .token-price-ribbon .p21 { grid-column: span 1; background: color-mix(in srgb, var(--amber) 13%, transparent); }
+  .token-price-ribbon .p15 { grid-column: span 3; background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .token-price-ribbon .p8  { grid-column: span 5; background: color-mix(in srgb, var(--green) 11%, transparent); }
+  .token-constellation-box { margin-top: 5px; }
+  @media (max-width: 700px) {
+    .token-provider-filter .map-view-btn { padding: 5px 8px; }
+    .token-price-ribbon span { padding-inline: 3px; }
+  }
   /* constraint storyboard severity + watch lines on the causal tiles */
   .ov-sev { display: inline-block; font-size: 8.5px; font-weight: 800; letter-spacing: .04em; padding: 1px 6px; border-radius: 4px; margin-top: 5px; text-transform: uppercase; }
   .ov-sev.driver { background: var(--accent-soft); color: var(--accent); }
@@ -2895,16 +2926,27 @@
 
       <div class="so-what">
         <label>The thesis</label>
-        <h3>Jevons wins: ~100× cheaper tokens produced ~330× more usage. Efficiency delays the power wall; it does not remove it.</h3>
+        <h3>Usage—not token price—is setting the power curve. The modeled provider series rises ~22× from Q1 ’24 to Q2 ’26; Google’s disclosed all-surface volume rises ~330× in 24 months.</h3>
       </div>
 
       <!-- HERO: Jevons — the core strategic insight, promoted above everything -->
       <div class="stub-card flagship-card" id="jevonsCard">
-        <h4>~100× cheaper tokens produced ~330× more usage—power still rose&deg; <span class="cf-tier cf-warn" title="Derived from the price + volume series below; volumes are modeled.">price + usage derived</span></h4>
-        <div class="note">Three aligned panels, one timeline — no dual axis: price falls, volume outruns it, so implied power <b>rises</b> as tokens get cheaper. This is the thesis in one graphic.</div>
-        <div class="jv-panel"><span class="jv-lbl">Cheapest frontier flagship &middot; $/M tokens</span><div class="chart-box" style="height:96px"><canvas id="jevonsP1"></canvas></div></div>
-        <div class="jv-panel"><span class="jv-lbl">Industry tokens &middot; T/quarter <span class="cf-tier cf-crit" title="Provider volumes are modeled (Epoch AI / SemiAnalysis / disclosures)">modeled</span></span><div class="chart-box" style="height:96px"><canvas id="jevonsP2"></canvas></div></div>
-        <div class="jv-panel"><span class="jv-lbl">Implied continuous power &middot; GW at 200M tok/MW-hr&deg; — tracked volume only, a floor</span><div class="chart-box" style="height:116px"><canvas id="jevonsP3"></canvas></div></div>
+        <h4>Modeled token volume rose ~22× while the cheapest frontier price fell 73%—power followed usage&deg; <span class="cf-tier cf-warn" title="Provider volumes and token-to-power conversion are modeled; frontier prices come from provider pricing pages.">price cited &middot; usage modeled</span></h4>
+        <div class="note">Each bubble is one provider-quarter · Y = modeled tokens/quarter (log scale) · bubble area = implied power contribution at 200M tokens/MWh · price ribbon = cheapest closed-frontier flagship · select a provider to isolate its story; hover any bubble for details.</div>
+        <div class="map-view-toggle token-provider-filter" id="tokenProviderFilter" role="group" aria-label="Highlight token provider">
+          <button class="map-view-btn active" data-token-provider="all" type="button" aria-pressed="true">All</button>
+          <button class="map-view-btn" data-token-provider="openai" type="button" aria-pressed="false"><i class="token-provider-dot" style="--provider-color:#10a37f"></i>OpenAI</button>
+          <button class="map-view-btn" data-token-provider="google" type="button" aria-pressed="false"><i class="token-provider-dot" style="--provider-color:#ea4335"></i>Google</button>
+          <button class="map-view-btn" data-token-provider="anthropic" type="button" aria-pressed="false"><i class="token-provider-dot" style="--provider-color:#d97706"></i>Anthropic</button>
+          <button class="map-view-btn" data-token-provider="meta" type="button" aria-pressed="false"><i class="token-provider-dot" style="--provider-color:#0866ff"></i>Meta-owned</button>
+          <button class="map-view-btn" data-token-provider="open" type="button" aria-pressed="false"><i class="token-provider-dot" style="--provider-color:#7c3aed"></i>Hosted open models</button>
+        </div>
+        <div class="token-provider-summary" id="tokenProviderSummary" aria-live="polite">Industry total: 100T → 2,180T tokens/quarter · implied continuous power 0.23 → 4.98 GW.</div>
+        <div class="token-price-label">Cheapest closed-frontier flagship · $ / M output tokens</div>
+        <div class="token-price-ribbon" aria-label="Frontier token price fell from 30 dollars to 8 dollars per million tokens">
+          <span class="p30">$30</span><span class="p21">$21</span><span class="p15">$15</span><span class="p8">$8</span>
+        </div>
+        <div class="chart-box tall token-constellation-box" style="height:390px"><canvas id="tokenConstellationChart" role="img" aria-label="Modeled quarterly token volume by provider from Q1 2024 to Q2 2026. Hover bubbles for provider, quarter, volume, implied power, market share and frontier price."></canvas></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Cheaper tokens don&rsquo;t mean cheaper work — efficiency <b>delays</b> the infrastructure wall, it doesn&rsquo;t remove it. <span style="opacity:.75">Editorial.</span></div>
         <div class="note" style="margin-top:6px"><b>What would change the thesis:</b> a step-change in energy-per-token, sustained low GPU utilization, materially slower enterprise adoption, or workloads shifting to far smaller/cached models.</div>
         <div class="sc-method" id="jevonsMethod"></div>
@@ -2961,7 +3003,7 @@
       <!-- Card 2: $/token compression (full-width, log y) -->
       <div class="stub-card" style="margin-top:14px">
         <h4>$/token compression — the 100× price drop</h4>
-        <div class="note">$ per 1M output tokens at launch &middot; <b>log Y axis</b> (data spans ~125&times; from frontier to OSS-hosted &mdash; linear would hide the cheap end) &middot; lower-right = newer + cheaper</div>
+        <div class="note">$ per 1M output tokens at launch &middot; <b>log Y axis</b> (data spans ~125&times; from frontier to hosted open models &mdash; linear would hide the cheap end) &middot; lower-right = newer + cheaper</div>
         <div class="chart-box" style="height:320px"><canvas id="priceCompressionChart"></canvas></div>
       </div>
 
@@ -3938,7 +3980,7 @@
       tokenLane: {
         tokensPerMwHrM: 200,   // 200M tokens / MW-hr (cited energy bridge)
         prices: [
-          { label: "Commodity ~$1/1M (OSS-hosted)", price: 1,  revPerMwYr: 1.75, paybackYrs: 24.0 },
+          { label: "Commodity ~$1/1M (hosted open models)", price: 1,  revPerMwYr: 1.75, paybackYrs: 24.0 },
           { label: "Mid ~$5/1M",                     price: 5,  revPerMwYr: 8.76, paybackYrs: 4.8 },
           { label: "Frontier ~$15/1M",               price: 15, revPerMwYr: 26.3, paybackYrs: 1.6 }
         ],
@@ -4218,8 +4260,8 @@
         { name: "OpenAI",        color: "#10a37f", values: [40,  60,  90,  130, 180, 250, 340, 450, 600, 800] },
         { name: "Google",        color: "#ea4335", values: [25,  38,  56,  82,  115, 160, 220, 295, 395, 530] },
         { name: "Anthropic",     color: "#d97706", values: [10,  15,  25,  40,  60,  85,  120, 165, 220, 295] },
-        { name: "Meta (Llama)",  color: "#0866ff", values: [15,  22,  33,  49,  70,  100, 135, 180, 240, 320] },
-        { name: "OSS hosted",    color: "#7c3aed", values: [10,  15,  23,  35,  50,  70,  95,  130, 175, 235] }
+        { name: "Meta-owned inference", color: "#0866ff", definition: "Modeled Llama inference operated inside Meta-owned products and infrastructure.", values: [15,  22,  33,  49,  70,  100, 135, 180, 240, 320] },
+        { name: "Third-party hosted open models", color: "#7c3aed", definition: "Modeled open-model inference operated by third-party clouds, platforms and enterprises; excludes Meta-operated Llama traffic.", values: [10,  15,  23,  35,  50,  70,  95,  130, 175, 235] }
       ],
       src: { label: "Epoch AI, SemiAnalysis, provider revenue disclosures (modeled)", tier: "modeled" }
     },
@@ -4249,7 +4291,7 @@
         { name: "Llama 3.3 70B (hosted)",  year: 2024.9, price: 0.6,  family: "oss" }
       ],
       familyColors: { openai: "#10a37f", anthropic: "#d97706", google: "#ea4335", oss: "#7c3aed" },
-      familyLabels: { openai: "OpenAI", anthropic: "Anthropic", google: "Google", oss: "OSS-hosted" },
+      familyLabels: { openai: "OpenAI", anthropic: "Anthropic", google: "Google", oss: "Hosted open models" },
       src: { label: "Provider pricing pages, OpenRouter, Together AI", tier: "primary" }
     },
     tokenEnergyBridge: [
@@ -4310,7 +4352,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260717d"></script>
+<script src="app.js?v=20260717e"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

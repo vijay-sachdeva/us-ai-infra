@@ -176,7 +176,7 @@ const $ = (id) => document.getElementById(id);
     playersPowerBank: { reviewed: "2026-07", take: "Among named ledger builds, Amazon leads announced GW (Rainier + Susquehanna) with Meta close behind on Hyperion alone — and the BTM/colocated share shows who is buying power independence rather than queue position.", asof: "source-verified ledger (announced targets)", src: { label: "data/projects.json (per-record citations)" } },
     overcommitmentBoard: { reviewed: "2026-07", take: "Oracle has ~$327B of filed lease + purchase commitments against $32B of annual operating cash flow — ~10 years pre-committed — and CoreWeave ~$58B against ~$6B (~10 yrs, before a $19B excluded lease); the hyperscalers sit at 2.3–3.7 years, but every book is ACCELERATING (Microsoft's unopened leases doubled to $196.6B in nine months; Google's purchase commitments doubled in one quarter).", asof: "latest 10-K/10-Q per operator (Mar–May 2026)", src: { label: "SEC 10-K / 10-Q filings" } },
     tenorClocks: { reviewed: "2026-07", take: "The revenue-bearing asset depreciates over a filed 5.5–6 years, the leases financing it run 12–25 years, and new firm power arrives in 3–7 — every long-tenor take-or-pay signature bets that demand outlives at least two chip refresh cycles.", asof: "filed useful lives + lease terms (2026 filings)", src: { label: "SEC filings + equipment lead-time panels" } },
-    jevonsChart: { reviewed: "2026-07", take: "The cheapest frontier flagship fell ~73% ($30 → $8/M tokens) across ten quarters while industry token volume grew ~22x (100T → 2,180T/quarter) — demand grew far faster than price fell, the Jevons pattern the buildout thesis rests on.", asof: "Q1 2024–Q2 2026 · derived from the two charts above", src: { label: "Derived: price-compression + token-volume series (modeled)" } },
+    tokenConstellationChart: { reviewed: "2026-07", take: "Across the modeled provider series, quarterly token volume rose ~22× (100T → 2,180T) while the cheapest closed-frontier price fell 73% ($30 → $8/M). At the fixed 200M-token/MWh conversion, implied continuous power rose in lockstep from 0.23 to 4.98 GW — power is the physical translation of usage here, not an independent series.", asof: "Q1 2024–Q2 2026 · provider volumes modeled", src: { label: "Epoch AI, SemiAnalysis + provider disclosures (modeled); provider pricing pages" } },
     pjmAuctionChart: { reviewed: "2026-07", take: "PJM capacity prices exploded ~11x from $28.92/MW-day (2024/25) to $269.92 (2025/26), then cleared AT the FERC cap in back-to-back auctions ($329.17, $333.44 for 2027/28, then $325 for 2028/29) — data-center load is the primary driver, and the 2028/29 auction (Jul 14, 2026) cleared at the cap again while the entire RTO fell short of its reliability requirement for the first time in PJM history (by 6,831 MW).", asof: "by delivery year · through the 2028/29 auction (Jul 2026)", src: { label: "PJM Base Residual Auction reports" } },
     rateImpactChart: { reviewed: "2026-06", take: "Under high-DC-load scenarios, Virginia faces a projected +57% residential rate increase by 2030 vs. 2024 — more than double any other state, with only Texas (+28%) and Ohio (+22%) also above 20%.", asof: "by 2030 vs. 2024 (modeled)", src: { label: "Fortune analysis, utility IRPs (modeled)" } },
     cumDeficitChart: { reviewed: "2026-07", take: "The base path widens to ~19 GW of standing shortfall by 2030 — but the published range brackets it hard: on EPRI's 2024 low case the gap CLOSES entirely, while LBNL's 2028 high end implies a ~100+ GW problem. (The Bloom ~35 GW reference is yet-to-be-ANNOUNCED capacity from its Jan-2025 survey, not a measured shortfall.) Both scenario paths are drawn as grey ghosts on the base view; vertical marker = earliest new gas-turbine delivery slot (2029).", asof: "2024-2030 (modeled + published scenario anchors)", src: { label: "modeled (GS / Wood Mackenzie) · anchors: EPRI 2024, LBNL 2024" } },
@@ -184,7 +184,7 @@ const $ = (id) => document.getElementById(id);
     powerSourceMixChart: { reviewed: "2026-06", take: "Gas carries US data-center load growth this decade — grid gas (+130 TWh) plus behind-the-meter on-site gas (+60 TWh) dominate the additional annual generation committed to 2030, ahead of renewables+storage (+110 TWh) and nuclear (+50 TWh, overwhelmingly post-2030 SMRs).", asof: "outlook to 2030 (period split modeled)", src: { label: "IEA, EIA STEO, S&P Global (period split modeled)" } },
     // Tokens tab (drafted from chart data after the tokens agent dropped mid-run; same grounding bar)
     tokenVolumeChart: { reviewed: "2026-06", take: "Externally-billed API token volume grew ~22× in two years — from ~100T tokens/quarter (Q1 2024) to ~2,180T (Q2 2026), led by OpenAI (~800T) — and even this excludes the far larger in-product inference load.", asof: "Q1 2024–Q2 2026 · modeled", src: { label: "Epoch AI, SemiAnalysis + provider disclosures (modeled)" } },
-    priceCompressionChart: { reviewed: "2026-06", take: "Output-token prices keep falling — GPT-4's $60 per 1M (2023) to $8 (GPT-4.1, 2025), Claude 3 Opus $75 to $15 — and span roughly 125× from today's frontier down to OSS-hosted models near $0.60 per 1M.", asof: "2023–2025 launch prices", src: { label: "Provider pricing pages, OpenRouter, Together AI" } },
+    priceCompressionChart: { reviewed: "2026-06", take: "Output-token prices keep falling — GPT-4's $60 per 1M (2023) to $8 (GPT-4.1, 2025), Claude 3 Opus $75 to $15 — and span roughly 125× from today's frontier down to hosted open models near $0.60 per 1M.", asof: "2023–2025 launch prices", src: { label: "Provider pricing pages, OpenRouter, Together AI" } },
     costPerTaskChart: { reviewed: "2026-06", take: "Cheaper tokens don't always mean cheaper work: a simple chat task's cost collapsed (~$0.04→$0.0003), but a 2026 coding/agentic task burns ~1.2M tokens (vs ~2,000 in 2023), so its cost to COMPLETE rose to ~$18 even as sticker $/token fell ~100–300×.", asof: "2023 vs 2026 frontier · $/token cited, tokens-per-task modeled", src: { label: "modeled basket; $/token from provider pricing" } },
     splitChart: { reviewed: "2026-06", take: "Inference now dominates AI compute — ~92% of compute-hours vs 8% for training — but training stays more cost-concentrated, taking ~35% of spend versus 65% for inference.", asof: "late-2025 estimates", src: { label: "SemiAnalysis, Epoch AI" } },
   };
@@ -1314,83 +1314,139 @@ const $ = (id) => document.getElementById(id);
     }
   }
 
-  // Jevons check — cheapest frontier $/M tokens vs industry token volume, by quarter.
-  // PURE derivation from DATA.priceCompression + DATA.tokenVolume (no new inputs): for each
-  // quarter, the floor price is the cheapest closed-frontier flagship (OpenAI/Anthropic/Google
-  // families; OSS excluded — it prices below frontier quality) available by that quarter's
-  // midpoint; volume is the sum across providers from the token-volume chart.
+  // Tokens flagship — an IIB-style provider constellation. X = quarter; Y = modeled provider
+  // token volume (log); bubble AREA = each provider's implied continuous-power contribution at
+  // the dashboard's fixed 200M tokens/MWh bridge. Power is intentionally a tooltip translation,
+  // not a duplicate series. Provider filters isolate a story without crowding the right edge.
   function renderJevonsChart() {
-    if (!$("jevonsP1") || typeof Chart === "undefined") return;
-    if (!DATA.tokenVolume || !DATA.priceCompression) return;
+    const canvas = $("tokenConstellationChart");
+    if (!canvas || typeof Chart === "undefined" || !DATA.tokenVolume || !DATA.priceCompression) return;
     if (renderJevonsChart._done) return;
     renderJevonsChart._done = true;
     initCharts(); applyChartDefaults();
     const cl = getChartColors();
     const tv = DATA.tokenVolume;
+    const keys = ["openai", "google", "anthropic", "meta", "open"];
     const FRONTIER = { openai: 1, anthropic: 1, google: 1 };
+    const powerGW = tokensT => tokensT * 1e12 / 2190 / 2e8 / 1000;
     const mids = tv.quarters.map(q => {
       const m = /Q(\d)\s*(\d{2})/.exec(q);
       return 2000 + parseInt(m[2], 10) + (parseInt(m[1], 10) - 1) * 0.25 + 0.125;
     });
     const floorPrice = mids.map(t => {
-      const avail = DATA.priceCompression.models.filter(mm => FRONTIER[mm.family] && mm.year <= t);
-      return avail.length ? Math.min.apply(null, avail.map(mm => mm.price)) : null;
+      const available = DATA.priceCompression.models.filter(model => FRONTIER[model.family] && model.year <= t);
+      return available.length ? Math.min.apply(null, available.map(model => model.price)) : null;
     });
-    const volume = tv.quarters.map((_, i) => tv.providers.reduce((s, p) => s + (p.values[i] || 0), 0));
-    // Implied continuous power from the same cited bridge used everywhere on this tab:
-    // 200M tokens/MW-hr → GW = T/quarter × 1e12 ÷ 2,190 hr ÷ 200e6 ÷ 1,000. Modeled°, and a
-    // FLOOR: tracked providers' modeled volume only (no untracked inference, no training).
-    const gw = volume.map(v => Math.round(v * 1e12 / 2190 / 2e8 / 1000 * 100) / 100);
-    const N = tv.quarters.length - 1;
-    // Three aligned panels, one timeline (replaces the dual-axis chart): x ticks only on the
-    // bottom panel; y axes hidden — endpoints carry their own values; annotations carry the story.
-    const panel = (id, cfg) => {
-      _charts[id] = new Chart($(id), {
-        type: "line",
-        data: { labels: tv.quarters, datasets: [Object.assign({
-          pointRadius: 0, tension: 0.3, borderWidth: 2.2, fill: true,
-          datalabels: { display: c => c.dataIndex === 0 || c.dataIndex === N, align: c => c.dataIndex === 0 ? "right" : "left",
-            anchor: "end", offset: 4, color: cl.label, font: { weight: 700, size: 9.5 }, formatter: cfg.fmt }
-        }, cfg.ds)] },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          layout: { padding: { top: 14, right: 56, left: 4 } },
-          plugins: {
-            legend: { display: false },
-            annotation: cfg.ann ? { annotations: cfg.ann } : undefined,
-            tooltip: { callbacks: { label: cfg.tip } }
-          },
-          scales: {
-            y: { display: false, grace: "12%" },
-            x: { grid: { display: false }, ticks: cfg.xTicks ? { font: { size: 9 } } : { display: false } }
+    const totals = tv.quarters.map((_, i) => tv.providers.reduce((sum, provider) => sum + (provider.values[i] || 0), 0));
+    const defaultDefinitions = [
+      "Modeled OpenAI API / platform token volume.",
+      "Modeled Google API / platform token volume; separate from Google's disclosed all-surface total.",
+      "Modeled Anthropic API / platform token volume.",
+      "Modeled Llama inference operated inside Meta-owned products and infrastructure.",
+      "Modeled open-model inference operated by third-party clouds, platforms and enterprises; excludes Meta-operated Llama traffic."
+    ];
+    const datasets = tv.providers.map((provider, providerIndex) => ({
+      label: provider.name,
+      tokenProviderKey: keys[providerIndex],
+      definition: provider.definition || defaultDefinitions[providerIndex],
+      data: provider.values,
+      borderColor: provider.color,
+      backgroundColor: hexA(provider.color, 0.22),
+      pointBackgroundColor: hexA(provider.color, 0.34),
+      pointBorderColor: provider.color,
+      pointRadius: provider.values.map(value => Math.max(3, Math.sqrt(value) * 0.7)),
+      pointHoverRadius: provider.values.map(value => Math.max(6, Math.sqrt(value) * 0.7 + 3)),
+      pointHitRadius: 8,
+      borderWidth: 1.8,
+      tension: 0.28,
+      fill: false,
+      datalabels: { display: false }
+    }));
+    if (_charts.tokenConstellationChart) {
+      try { _charts.tokenConstellationChart.destroy(); } catch (_) {}
+      delete _charts.tokenConstellationChart;
+    }
+    const chart = _charts.tokenConstellationChart = new Chart(canvas, {
+      type: "line",
+      data: { labels: tv.quarters, datasets: datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "nearest", intersect: true },
+        layout: { padding: { top: 14, right: 10, left: 2, bottom: 2 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: { display: false },
+          tooltip: {
+            displayColors: true,
+            callbacks: {
+              title: items => items.length ? tv.quarters[items[0].dataIndex] : "",
+              label: context => {
+                const value = context.parsed.y;
+                const share = totals[context.dataIndex] ? value / totals[context.dataIndex] * 100 : 0;
+                return [
+                  context.dataset.label,
+                  "Modeled volume: " + value.toLocaleString() + "T tokens / quarter",
+                  "Quarter share: " + share.toFixed(1) + "%",
+                  "Implied continuous power: " + powerGW(value).toFixed(2) + " GW"
+                ];
+              },
+              afterBody: items => items.length ? "Cheapest frontier price: $" + floorPrice[items[0].dataIndex] + " / M output tokens" : "",
+              footer: items => {
+                if (!items.length) return "";
+                const definition = items[0].dataset.definition || "Modeled provider series.";
+                if (definition.length < 72) return definition;
+                const cut = definition.lastIndexOf(" ", 72);
+                return [definition.slice(0, cut), definition.slice(cut + 1)];
+              }
+            }
           }
+        },
+        scales: {
+          y: {
+            type: "logarithmic",
+            min: 8,
+            suggestedMax: 1100,
+            grid: { color: cl.grid },
+            ticks: { callback: value => [10, 100, 1000].indexOf(Number(value)) !== -1 ? Number(value).toLocaleString() + "T" : "" },
+            title: { display: true, text: "Modeled tokens / quarter (T, log scale)" }
+          },
+          x: { grid: { display: false }, ticks: { maxTicksLimit: 6, maxRotation: 0 } }
         }
-      });
+      }
+    });
+
+    const summary = $("tokenProviderSummary");
+    const buttons = [].slice.call(document.querySelectorAll("#tokenProviderFilter [data-token-provider]"));
+    const summaryText = key => {
+      if (key === "all") return "Industry total: " + totals[0].toLocaleString() + "T → " + totals[totals.length - 1].toLocaleString() + "T tokens/quarter · implied continuous power " + powerGW(totals[0]).toFixed(2) + " → " + powerGW(totals[totals.length - 1]).toFixed(2) + " GW.";
+      const providerIndex = keys.indexOf(key);
+      const provider = tv.providers[providerIndex];
+      const start = provider.values[0], end = provider.values[provider.values.length - 1];
+      let text = provider.name + ": " + start.toLocaleString() + "T → " + end.toLocaleString() + "T tokens/quarter · " + (end / start).toFixed(1) + "× growth · " + powerGW(end).toFixed(2) + " GW by Q2 ’26.";
+      if (key === "meta") text += " Meta-operated inference only.";
+      if (key === "open") text += " Third-party operated; Meta traffic excluded.";
+      return text;
     };
-    const p0 = floorPrice[0], p1 = floorPrice[N], v0 = volume[0], v1 = volume[N];
-    panel("jevonsP1", {
-      ds: { data: floorPrice, borderColor: CHART_PALETTE.constraint, borderDash: [6, 4], stepped: "before", backgroundColor: hexA(CHART_PALETTE.constraint, 0.07) },
-      fmt: v => "$" + v, tip: c => " $" + c.parsed.y + " / M tokens (cheapest frontier flagship)",
-      ann: { drop: { type: "label", xValue: tv.quarters[Math.floor(N / 2)], yValue: (p0 + p1) / 2, content: "−" + Math.round(100 * (1 - p1 / p0)) + "% in " + N + " quarters", color: CHART_PALETTE.constraint, font: { size: 9.5, weight: 800 } } }
-    });
-    panel("jevonsP2", {
-      ds: { data: volume, borderColor: CHART_PALETTE.demand, backgroundColor: hexA(CHART_PALETTE.demand, 0.12) },
-      fmt: v => v.toLocaleString() + "T", tip: c => " " + c.parsed.y.toLocaleString() + "T tokens / quarter (modeled)",
-      ann: { grow: { type: "label", xValue: tv.quarters[Math.floor(N / 2)], yValue: v1 * 0.55, content: "×" + Math.round(v1 / v0) + " volume", color: CHART_PALETTE.demand, font: { size: 9.5, weight: 800 } } }
-    });
-    panel("jevonsP3", {
-      ds: { data: gw, borderColor: CHART_PALETTE.pipeline, backgroundColor: hexA(CHART_PALETTE.pipeline, 0.14) },
-      fmt: v => "~" + v.toFixed(1) + " GW", tip: c => " ~" + c.parsed.y + " GW continuous (modeled° floor — tracked volume only)",
-      xTicks: true,
-      ann: { rise: { type: "label", xValue: tv.quarters[Math.floor(N / 2)], yValue: gw[N] * 0.55, content: "power demand still rises°", color: CHART_PALETTE.pipeline, font: { size: 9.5, weight: 800 } } }
-    });
-    const m = $("jevonsMethod");
-    if (m) {
+    const applyProvider = key => {
+      renderJevonsChart._provider = key;
+      chart.data.datasets.forEach(dataset => { dataset.hidden = key !== "all" && dataset.tokenProviderKey !== key; });
+      buttons.forEach(button => {
+        const active = button.dataset.tokenProvider === key;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+      if (summary) summary.textContent = summaryText(key);
+      chart.update();
+    };
+    buttons.forEach(button => { button.onclick = () => applyProvider(button.dataset.tokenProvider); });
+    applyProvider(renderJevonsChart._provider || "all");
+
+    const method = $("jevonsMethod");
+    if (method) {
       const p0 = floorPrice[0], p1 = floorPrice[floorPrice.length - 1];
-      const v0 = volume[0], v1 = volume[volume.length - 1];
-      m.innerHTML = "<b>Modeled arithmetic on cited inputs.</b> Floor price = cheapest closed-frontier flagship available each quarter (from the price-compression chart; OSS excluded); volume = provider sum from the token-volume chart. Over this window the floor fell ~" +
-        Math.round(100 * (1 - p1 / p0)) + "% ($" + p0 + " → $" + p1 + "/M tokens) while volume grew ~" + Math.round(v1 / v0) +
-        "x (" + v0.toLocaleString() + "T → " + v1.toLocaleString() + "T/quarter) — demand growing far faster than price fell is the Jevons pattern the buildout thesis rests on. Directional read: both inputs are modeled/analyst series.";
+      const v0 = totals[0], v1 = totals[totals.length - 1];
+      method.innerHTML = "<b>How to read it.</b> X = quarter; Y = provider token volume on a log scale; bubble area translates that modeled volume into implied continuous power at the fixed 200M tokens/MWh bridge. Power therefore follows volume mechanically here — it is not an independent measurement. Hover exposes provider, quarter, tokens, power, share, frontier price and category definition. <b>Operationally exclusive categories:</b> Meta-owned inference means Llama traffic operated inside Meta products/infrastructure; third-party hosted open models means open-model traffic operated by other clouds, platforms and enterprises, with Meta-operated Llama excluded. Floor price = cheapest closed-frontier flagship available each quarter (hosted open models excluded from the price floor). Across the window, price fell " + Math.round(100 * (1 - p1 / p0)) + "% ($" + p0 + " → $" + p1 + "/M) while modeled volume grew " + (v1 / v0).toFixed(1) + "× (" + v0.toLocaleString() + "T → " + v1.toLocaleString() + "T/quarter).";
     }
   }
 
@@ -5233,7 +5289,7 @@ const $ = (id) => document.getElementById(id);
   var LEAD_CARDS = {
     capital: ["The commitment flywheel", "The most committed balance sheets", "Scarcity rewards early commitment", "1.4% vacancy"],
     grid:    ["Rate revolt starts", "Firm power never gets ahead", "Short ~19 GW by 2030", "PJM: 11"],
-    tokens:  ["~100× cheaper tokens", "Model choice is now a power decision", "Reasoning models give back", "Rent prices fall"]
+    tokens:  ["Modeled token volume rose", "Model choice is now a power decision", "Reasoning models give back", "Rent prices fall"]
   };
   function collapseSecondary(name, section) {
     var leads = LEAD_CARDS[name];
