@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-07-19T12:28:35Z",
+  "computed_at": "2026-07-20T13:28:02Z",
   "window_days": 7,
   "tier": "computed",
   "note": "Deltas computed from the archived daily snapshots in data/history/ — arithmetic over the cited feeds, never estimates. Grid load and retail power prices are excluded on purpose: their weekly deltas are weather/period noise, not structure.",
@@ -36,8 +36,8 @@
     {
       "key": "gpu_prices",
       "label": "GPU rental list prices",
-      "latest": "2026-07-19",
-      "baseline": "2026-07-12",
+      "latest": "2026-07-20",
+      "baseline": "2026-07-13",
       "src": "provider pricing pages (primary; see Tokens)",
       "items": [
         {
@@ -57,8 +57,8 @@
     {
       "key": "queues",
       "label": "Interconnection queues (LBNL)",
-      "latest": "2026-07-19",
-      "baseline": "2026-07-12",
+      "latest": "2026-07-20",
+      "baseline": "2026-07-13",
       "src": "LBNL Queued Up (annual; see Buildout)",
       "items": [],
       "note": "no new LBNL snapshot in this window — the queue series updates annually"
