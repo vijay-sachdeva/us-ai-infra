@@ -32,7 +32,7 @@ DATA = os.path.join(ROOT, "data")
 MAX_AGE_DAYS = int(os.environ.get("FRESHNESS_MAX_AGE_DAYS", "21"))
 STRICT = os.environ.get("FRESHNESS_STRICT", "").strip().lower() in ("1", "true", "yes", "on")
 
-# (filename, key holding the timestamp). These are the daily-refreshed feeds
+# (filename, key holding the timestamp). These are the twice-daily-refreshed feeds
 # plus the canonical ledger (which uses 'generated' rather than 'lastUpdated').
 FEEDS = [
     ("grid.json", "lastUpdated"),

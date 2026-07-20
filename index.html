@@ -36,7 +36,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260717e"></script>
+<script src="config.js?v=20260720a"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -2108,7 +2108,7 @@
     <section class="tab-content ov" data-tab="overview" id="overview">
       <div class="ov-eyebrow">
         <span>US AI infrastructure · overview</span>
-        <span class="ov-live"><i></i>auto-refreshed daily</span>
+        <span class="ov-live"><i></i>refreshed 6 AM + 2 PM PT</span>
       </div>
       <h1 class="ov-h1">AI demand outruns firm power by <span class="ov-accent">~19 GW by 2030</span></h1>
       <p class="ov-sub">Tokens pull capital, capital funds the buildout, the buildout lands on a grid that can't add firm power fast enough — and the gap keeps widening through 2030.</p>
@@ -2827,10 +2827,10 @@
           <div class="chart-box short"><canvas id="headroomChart"></canvas></div>
         </div>
 
-        <!-- Card: What power costs, by state (EIA-861 feed, fetched daily in CI) -->
+        <!-- Card: What power costs, by state (EIA-861 feed, fetched twice daily in CI) -->
         <div class="stub-card">
           <h4>What power costs, by state <span class="cf-tier cf-ok" title="Primary — directly reported by a government source.">primary</span><span class="feed-stamp" data-feed="power_econ"></span></h4>
-          <div class="note">Industrial retail electricity price ($/MWh) across the AI data-center corridor &middot; a rough proxy for the power-cost term in siting decisions (large DCs often negotiate below-tariff rates) &middot; fetched daily in CI</div>
+          <div class="note">Industrial retail electricity price ($/MWh) across the AI data-center corridor &middot; a rough proxy for the power-cost term in siting decisions (large DCs often negotiate below-tariff rates) &middot; fetched 2&times; daily in CI</div>
           <div class="chart-box short"><canvas id="powerPriceBoard"></canvas></div>
           <div class="sc-method" id="powerPriceMethod"></div>
         </div>
@@ -2985,9 +2985,9 @@
         <div class="sc-method" id="costPerTaskMethod"></div>
       </div>
 
-      <!-- Buy-side price signal: on-demand $/GPU-hr list prices (data/gpu_prices.json, fetched daily in CI) -->
+      <!-- Buy-side price signal: on-demand $/GPU-hr list prices (data/gpu_prices.json, fetched twice daily in CI) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Rent prices fall—allocation still gates the newest GPUs <span class="cf-tier cf-ok" title="Published on-demand list prices scraped daily from provider pricing pages (primary); per-provider source link + as-of date.">primary &middot; daily</span></h4>
+        <h4>Rent prices fall—allocation still gates the newest GPUs <span class="cf-tier cf-ok" title="Published on-demand list prices checked twice daily from provider pricing pages (primary); per-provider source link + as-of date.">primary &middot; 2&times; daily</span></h4>
         <div class="note">Published <b>on-demand list prices</b> by provider &times; GPU &middot; negotiated / reserved / spot rates differ &middot; freshness is <b>per provider</b> (a provider that fails to parse keeps its last good date — shown) &middot; levels today; the trend accrues in <a href="data/history/gpu_prices.csv">data/history</a></div>
         <div id="gpuPriceBoard" style="margin-top:8px"></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Anchor build-vs-buy against the buy-side $/GPU-hr level — falling list prices favor renting; allocation still gates the newest SKUs. <span style="opacity:.75">Editorial.</span></div>
@@ -3114,14 +3114,14 @@
       </div>
 
       <div class="stub-card" style="margin-top:14px">
-        <h4>Filings watch <span class="cf-tier cf-ok" title="Primary — SEC EDGAR submissions API, refreshed daily in CI.">primary</span><span class="feed-stamp" data-feed="sec_filings"></span></h4>
+        <h4>Filings watch <span class="cf-tier cf-ok" title="Primary — SEC EDGAR submissions API, refreshed twice daily in CI.">primary</span><span class="feed-stamp" data-feed="sec_filings"></span></h4>
         <div class="note">Latest disclosure-relevant SEC filings per tracked player (10-K / 10-Q / 8-K; 20-F / 6-K for foreign filers) &middot; direct EDGAR links &middot; a periodic filing dated <b>after</b> the commitment book&rsquo;s last review is flagged — that is the signal to re-verify the filed numbers on Capital</div>
         <div id="filingsWatch" style="overflow-x:auto"></div>
       </div>
 
       <div class="stub-card" style="margin-top:14px">
         <h4>Who did what this week</h4>
-        <div class="note">The weekly feed, indexed by player &middot; auto-tagged by the daily refresh</div>
+        <div class="note">The weekly feed, indexed by player &middot; auto-tagged by the twice-daily refresh</div>
         <div id="playerFeed"></div>
       </div>
 
@@ -3141,7 +3141,7 @@
   // daily-refresh workflow resumes editing this same content. Until then,
   // this is a snapshot that may lag production by a day or two.
   const DATA = {
-    lastUpdated: "2026-07-17",
+    lastUpdated: "2026-07-20",
     topStory: {
       date: "Jul 14, 2026",
       text: "PJM's 2028/29 capacity auction cleared at the FERC-approved cap of $325/MW-day (UCAP) — procuring 138,318 MW for a $16.4 billion total — and for the first time in PJM history the entire RTO fell short of its reliability requirement, by 6,831 MW. Surging data-center demand is the primary driver of the price run-up now flowing through to consumer bills.",
@@ -3150,14 +3150,14 @@
       players: ["PJM"]
     },
     feed: [
+      { date: "Jul 20, 2026", tag: "BUILDOUT", text: "PowerPlay AI announced a 400 MW behind-the-meter AI data center development in greater Abilene, Texas through a joint venture with a Nasdaq-listed neocloud partner — targeting initial power in 2028, the latest ERCOT project to bypass the interconnection queue with on-site generation.", src: "PR Newswire", url: "https://www.manilatimes.net/2026/07/20/tmt-newswire/pr-newswire/powerplay-ai-announces-400-mw-behind-the-meter-ai-data-center-development-in-greater-abilene-with-nasdaq-listed-neocloud-joint-venture-partner/2387777", players: ["PowerPlay AI"] },
+      { date: "Jul 13, 2026", tag: "BUILDOUT", text: "QTS and Lancium announced a $10+ billion data center campus in Hall County, Texas — up to 11 QTS data centers across ~465 acres on Lancium's Clean Campus near Turkey, anchored by a 1 GW grid connection, with the companies committing to pay for all needed energy-infrastructure upgrades themselves.", src: "QTS / DCD", url: "https://www.datacenterdynamics.com/en/news/qts-to-build-11-data-centers-on-lancium-campus-in-hall-county-texas/", players: ["QTS", "Lancium"] },
+      { date: "Jul 15, 2026", tag: "BUILDOUT", text: "Crusoe and Lancium announced a 1.0 GW grid-connected AI data center campus in Childress, Texas on a 270-acre Lancium-owned site, with construction beginning Q3 2026 — adding another gigawatt-scale campus to the ERCOT pipeline.", src: "Crusoe / Lancium", url: "https://www.crusoe.ai/resources/newsroom/crusoe-and-lancium-announce-1-gigawatt-ai-data-center-campus-in-childress-texas", players: ["Crusoe", "Lancium"] },
       { date: "Jul 16, 2026", tag: "SUPPLY", text: "TSMC announced an additional $100 billion investment in its Phoenix, Arizona campus — four more 2nm-class fabs, lifting total planned US investment to $265 billion, the largest foreign direct investment in US history — after AI demand drove record Q2 profit and a raised capex outlook.", src: "Data Center Knowledge / TSMC", url: "https://www.datacenterknowledge.com/infrastructure/tsmc-expands-arizona-campus-to-265b-as-ai-demand-surges", players: ["TSMC"] },
+      { date: "Jul 14, 2026", tag: "POLICY", text: "New York Gov. Hochul signed an executive order creating the nation’s first statewide moratorium on new hyperscale AI data centers — a one-year halt on permits for facilities over 20 MW — citing grid capacity limits and the risk of AI-driven power costs being passed to ratepayers.", src: "CNBC", url: "https://www.cnbc.com/2026/07/14/new-york-ai-data-center-ban.html" },
       { date: "Jul 13, 2026", tag: "GRID", text: "The Texas PUC unanimously approved 'ride-through' rules requiring data centers and other large computational loads in ERCOT to stay connected through voltage and frequency disturbances, citing 28 trip events of 100+ MW since 2023 and a 438 GW large-load study queue.", src: "Utility Dive", url: "https://www.utilitydive.com/news/texas-puc-approves-ride-through-rules-data-centers/825051/", players: ["ERCOT"] },
-      { date: "Jul 13, 2026", tag: "POLICY", text: "The White House will reportedly rally utilities, data-center operators and governors to expand the 'Ratepayer Protection Pledge' — under which Amazon, Google, Meta, Microsoft, OpenAI, Oracle and xAI committed to finance the generation and grid upgrades their AI projects need rather than pass costs to existing ratepayers — with an event expected in the coming weeks.", src: "Reuters", url: "https://virginiabusiness.com/white-house-rally-utilities-data-centers-ai-power-cost-pledge/", players: ["AMZN", "GOOGL", "META", "MSFT", "OpenAI", "ORCL", "xAI"] },
       { date: "Jul 14, 2026", tag: "POLICY", text: "A new Fortune analysis finds data centers have already added an estimated $23 billion to Americans' electricity bills, intensifying the who-pays fight as Virginia's first-of-its-kind $0.011/kWh data-center consumption tax took effect July 1.", src: "Fortune", url: "https://fortune.com/2026/07/14/data-centers-23-billion-electricity-bills/" },
-      { date: "Jul 13, 2026", tag: "BUILDOUT", text: "Meta announced its Hyperion campus in Richland Parish, Louisiana will be expanded to 5 GW and more than $50 billion — up from a $10B estimate at its December 2024 groundbreaking — making it the largest single data-center campus announced in the US, with 2 GW targeted by 2030.", src: "CNBC / Meta", url: "https://www.cnbc.com/2026/07/13/meta-louisiana-data-center-investment-reaches-50-billion-amid-ai-push.html", players: ["META"] },
-      { date: "Jul 10, 2026", tag: "CAPITAL", text: "SK hynix rose 13% in its Nasdaq debut, closing at $168.01 after pricing its ADRs at $149 and raising $26.5B — completing the largest-ever US share sale by a foreign company, with proceeds earmarked for fab and HBM capacity expansion.", src: "CNBC", url: "https://www.cnbc.com/2026/07/10/sk-hynix-skhy-stock-nasdaq.html", players: ["SK hynix"] },
-      { date: "Jul 8, 2026", tag: "BUILDOUT", text: "Google was revealed as the owner of Wyoming's largest data center project — the 2.7 GW 'Project Tembo' campus in Cheyenne, formerly known as Project Jade — adding another multi-gigawatt hyperscale campus to the Mountain West pipeline.", src: "Cowboy State Daily", url: "https://cowboystatedaily.com/2026/07/08/google-revealed-as-owner-of-wyomings-largest-data-center-now-project-tembo/", players: ["GOOGL"] },
-      { date: "Jul 8, 2026", tag: "CAPITAL", text: "Amazon priced a $25 billion bond offering to finance AI and data center infrastructure, marking one of the largest corporate debt raises of 2026 as hyperscalers increasingly tap debt markets alongside internal cash to fund record capex.", src: "Bloomberg/Reuters", url: "https://www.indexbox.io/blog/tech-giants-shift-to-debt-markets-for-ai-infrastructure-funding/" }
+      { date: "Jul 13, 2026", tag: "BUILDOUT", text: "Meta announced its Hyperion campus in Richland Parish, Louisiana will be expanded to 5 GW and more than $50 billion — up from a $10B estimate at its December 2024 groundbreaking — making it the largest single data-center campus announced in the US, with 2 GW targeted by 2030.", src: "CNBC / Meta", url: "https://www.cnbc.com/2026/07/13/meta-louisiana-data-center-investment-reaches-50-billion-amid-ai-push.html", players: ["META"] }
     ],
     kpis: [
       { label: "US power demand 2026", value: "41", unit: "GW",
@@ -4352,7 +4352,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260717e"></script>
+<script src="app.js?v=20260720a"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
@@ -4413,7 +4413,7 @@
     DATA.kpis.forEach(k => L.push("- " + k.label + ": " + k.value + " " + k.unit + (k.sub ? " (" + k.sub + ")" : "")));
     if (DATA.topStory) L.push("Top story (" + DATA.topStory.date + " · " + DATA.topStory.src + "): " + DATA.topStory.text);
     if (Array.isArray(DATA.feed) && DATA.feed.length) {
-      L.push("Recent signals (the daily-refreshed news ticker, most-recent first — each is a dated, sourced news item, NOT a refreshed metric):");
+      L.push("Recent signals (the twice-daily news ticker, most-recent first — each is a dated, sourced news item, NOT a refreshed metric):");
       DATA.feed.forEach(it => L.push("- [" + (it.tag || "SIGNAL") + " · " + (it.date || "") + " · " + (it.src || "source n/a") + "] " + (it.text || it.headline || it.title || "")));
     }
 

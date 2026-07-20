@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-17",
+  "lastUpdated": "2026-07-20",
   "topStory": {
     "date": "Jul 14, 2026",
     "text": "PJM's 2028/29 capacity auction cleared at the FERC-approved cap of $325/MW-day (UCAP) — procuring 138,318 MW for a $16.4 billion total — and for the first time in PJM history the entire RTO fell short of its reliability requirement, by 6,831 MW. Surging data-center demand is the primary driver of the price run-up now flowing through to consumer bills.",
@@ -7,6 +7,38 @@
     "url": "https://insidelines.pjm.com/pjm-capacity-auction-procures-138318-mw-of-generation-resources-as-work-continues-to-address-growing-electricity-demand/"
   },
   "feed": [
+    {
+      "date": "Jul 20, 2026",
+      "tag": "BUILDOUT",
+      "text": "PowerPlay AI announced a 400 MW behind-the-meter AI data center development in greater Abilene, Texas through a joint venture with a Nasdaq-listed neocloud partner — targeting initial power in 2028, the latest ERCOT project to bypass the interconnection queue with on-site generation.",
+      "src": "PR Newswire",
+      "url": "https://www.manilatimes.net/2026/07/20/tmt-newswire/pr-newswire/powerplay-ai-announces-400-mw-behind-the-meter-ai-data-center-development-in-greater-abilene-with-nasdaq-listed-neocloud-joint-venture-partner/2387777",
+      "players": [
+        "PowerPlay AI"
+      ]
+    },
+    {
+      "date": "Jul 13, 2026",
+      "tag": "BUILDOUT",
+      "text": "QTS and Lancium announced a $10+ billion data center campus in Hall County, Texas — up to 11 QTS data centers across ~465 acres on Lancium's Clean Campus near Turkey, anchored by a 1 GW grid connection, with the companies committing to pay for all needed energy-infrastructure upgrades themselves.",
+      "src": "QTS / DCD",
+      "url": "https://www.datacenterdynamics.com/en/news/qts-to-build-11-data-centers-on-lancium-campus-in-hall-county-texas/",
+      "players": [
+        "QTS",
+        "Lancium"
+      ]
+    },
+    {
+      "date": "Jul 15, 2026",
+      "tag": "BUILDOUT",
+      "text": "Crusoe and Lancium announced a 1.0 GW grid-connected AI data center campus in Childress, Texas on a 270-acre Lancium-owned site, with construction beginning Q3 2026 — adding another gigawatt-scale campus to the ERCOT pipeline.",
+      "src": "Crusoe / Lancium",
+      "url": "https://www.crusoe.ai/resources/newsroom/crusoe-and-lancium-announce-1-gigawatt-ai-data-center-campus-in-childress-texas",
+      "players": [
+        "Crusoe",
+        "Lancium"
+      ]
+    },
     {
       "date": "Jul 16, 2026",
       "tag": "SUPPLY",
@@ -18,6 +50,13 @@
       ]
     },
     {
+      "date": "Jul 14, 2026",
+      "tag": "POLICY",
+      "text": "New York Gov. Kathy Hochul signed an executive order creating the nation’s first statewide moratorium on new hyperscale AI data centers — a one-year halt on permits for facilities over 20 MW — citing grid capacity limits and the risk of AI-driven power costs being passed to ratepayers.",
+      "src": "CNBC",
+      "url": "https://www.cnbc.com/2026/07/14/new-york-ai-data-center-ban.html"
+    },
+    {
       "date": "Jul 13, 2026",
       "tag": "GRID",
       "text": "The Texas PUC unanimously approved 'ride-through' rules requiring data centers and other large computational loads in ERCOT to stay connected through voltage and frequency disturbances, citing 28 trip events of 100+ MW since 2023 and a 438 GW large-load study queue.",
@@ -25,22 +64,6 @@
       "url": "https://www.utilitydive.com/news/texas-puc-approves-ride-through-rules-data-centers/825051/",
       "players": [
         "ERCOT"
-      ]
-    },
-    {
-      "date": "Jul 13, 2026",
-      "tag": "POLICY",
-      "text": "The White House will reportedly rally utilities, data-center operators and governors to expand the 'Ratepayer Protection Pledge' — under which Amazon, Google, Meta, Microsoft, OpenAI, Oracle and xAI committed to finance the generation and grid upgrades their AI projects need rather than pass costs to existing ratepayers — with an event expected in the coming weeks.",
-      "src": "Reuters",
-      "url": "https://virginiabusiness.com/white-house-rally-utilities-data-centers-ai-power-cost-pledge/",
-      "players": [
-        "AMZN",
-        "GOOGL",
-        "META",
-        "MSFT",
-        "OpenAI",
-        "ORCL",
-        "xAI"
       ]
     },
     {
@@ -59,33 +82,6 @@
       "players": [
         "META"
       ]
-    },
-    {
-      "date": "Jul 10, 2026",
-      "tag": "CAPITAL",
-      "text": "SK hynix rose 13% in its Nasdaq debut, closing at $168.01 after pricing its ADRs at $149 and raising $26.5B — completing the largest-ever US share sale by a foreign company, with proceeds earmarked for fab and HBM capacity expansion.",
-      "src": "CNBC",
-      "url": "https://www.cnbc.com/2026/07/10/sk-hynix-skhy-stock-nasdaq.html",
-      "players": [
-        "SK hynix"
-      ]
-    },
-    {
-      "date": "Jul 8, 2026",
-      "tag": "BUILDOUT",
-      "text": "Google was revealed as the owner of Wyoming's largest data center project — the 2.7 GW 'Project Tembo' campus in Cheyenne, formerly known as Project Jade — adding another multi-gigawatt hyperscale campus to the Mountain West pipeline.",
-      "src": "Cowboy State Daily",
-      "url": "https://cowboystatedaily.com/2026/07/08/google-revealed-as-owner-of-wyomings-largest-data-center-now-project-tembo/",
-      "players": [
-        "GOOGL"
-      ]
-    },
-    {
-      "date": "Jul 8, 2026",
-      "tag": "CAPITAL",
-      "text": "Amazon priced a $25 billion bond offering to finance AI and data center infrastructure, marking one of the largest corporate debt raises of 2026 as hyperscalers increasingly tap debt markets alongside internal cash to fund record capex.",
-      "src": "Bloomberg/Reuters",
-      "url": "https://www.indexbox.io/blog/tech-giants-shift-to-debt-markets-for-ai-infrastructure-funding/"
     }
   ],
   "kpis": [

@@ -31,25 +31,28 @@ Plus a live AI chatbot (Cloudflare Worker → Anthropic Claude with prompt cachi
 
 ## How it stays current
 
-A GitHub Actions workflow (`daily-refresh.yml`) runs twice daily — 10:17 and 16:17 UTC (a primary slot plus an idempotent backstop). Each run:
+`.github/workflows/daily-refresh.yml` runs at **6:00 AM and 2:00 PM Pacific** every day. The schedule declares the IANA timezone `America/Los_Angeles`, so GitHub keeps those local times through daylight-saving changes. Each run:
 
-1. Calls Anthropic Claude with the `web_search` tool to find significant US AI data-center news from the past 24-72 hours.
-2. Updates `DATA.lastUpdated` and `DATA.topStory` in `index.html`.
-3. Validates the change is small (size delta < ±10%, diff < 30 lines) — aborts and reverts otherwise.
-4. Commits and pushes.
+1. Pulls every programmatic public feed: EIA grid demand, EIA industrial power prices, LBNL queue inputs, the derived siting screen, published GPU-cloud list prices, and SEC EDGAR filings for tracked public players.
+2. Uses the public web to scan the buildout, chips/memory/fabs, grid/power, policy, and capital-markets beats for material primary-source signals.
+3. Rebuilds connection-review candidates, daily history, and the "What changed" layer.
+4. Validates every generated JSON feed, commits all successful changes together, and opens one deduplicated GitHub issue if any stage failed.
 
-The second daily slot is an idempotent backstop if the first run is delayed or dropped (it no-ops once the day is already refreshed); GitHub Actions is the sole update path. No human in the loop on update days.
+The refresh attempts all sources even when one pull fails. Last-good observations remain in place for degraded sources, and each feed exposes its own retrieval timestamp and failures where supported. `.github/workflows/refresh-data.yml` is retained as a manual data-only recovery path.
 
 ## Live public-data feeds
 
-A second GitHub Actions job (`.github/workflows/refresh-data.yml`) hydrates the dashboard from authoritative public data. Small stdlib-only Python scripts in `scripts/` write pre-computed JSON into `data/`, and the front-end's `hydrate()` merges those files into `DATA` on load.
+The scheduled workflow hydrates the dashboard from authoritative public data. Small stdlib-only Python scripts in `scripts/` write pre-computed JSON into `data/`, and the front-end's `hydrate()` merges those files into `DATA` on load.
 
 | Feed | File | Source | Tier |
 |---|---|---|---|
 | Grid headroom by balancing authority | `data/grid.json` | EIA-930 demand + EIA-860 capacity | Primary |
 | Industrial power price by state | `data/power_econ.json` | EIA retail-sales (sector IND) | Primary |
 | Interconnection queue by ISO | `data/queues.json` | LBNL Queued Up + 78% withdrawal haircut | Analyst |
-| Per-state power "white-space" score | `data/siting.json` | modeled join of the above | Modeled |
+| Per-state power "white-space" score | `data/siting.json` | Modeled join of the above | Modeled |
+| GPU-cloud list prices | `data/gpu_prices.json` | Provider pricing pages | Primary |
+| Disclosure-relevant filings | `data/sec_filings.json` | SEC EDGAR submissions API | Primary |
+| Material news signals | `data/current.json` | Public web, prioritizing primary sources | Mixed, labeled per item |
 
 The white-space score (0–100, rendered as the map's county choropleth) is `0.45·headroom + 0.33·(1−queue_congestion) + 0.22·(1−industrial_price)` — a regional screen, not a site confirmation.
 
@@ -59,7 +62,7 @@ Feeds are **additive and degrade gracefully**: a missing or failed feed leaves t
 
 - **Frontend**: vanilla HTML + Chart.js (+ D3 / topojson on production for the map). No build step.
 - **Chatbot backend**: a Cloudflare Worker (free tier) proxying to the Anthropic Messages API. The system prompt is cache-controlled, so repeat queries cost ~10% of fresh ones.
-- **Daily refresh**: GitHub Actions cron + a Python driver script that calls Anthropic with web search, validates the edit, commits.
+- **Twice-daily refresh**: GitHub Actions at 6:00 AM / 2:00 PM Pacific; public-data pulls + a public-web scan, validation, and one atomic commit.
 - **Hosting**: GitHub Pages from `main`.
 
 ## Data discipline

@@ -13,7 +13,7 @@ The dashboard's "Filings watch" module flags forms filed after the commitment bo
 review stamp, so a fresh 10-Q visibly demands re-verification instead of rotting silently
 (the staleness gate's companion signal).
 
-Run: python scripts/fetch_sec_filings.py    (stdlib only; runs daily in refresh-data.yml)
+Run: python scripts/fetch_sec_filings.py    (stdlib only; runs twice daily in daily-refresh.yml)
 """
 from __future__ import annotations
 

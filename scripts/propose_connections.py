@@ -17,7 +17,7 @@ Heuristics (deterministic, stdlib-only — no API, no fabrication):
                          ledger's `reviewed` stamp needs re-verification (mirrors the Filings-watch
                          signal, but scoped to connections).
 
-Run: python scripts/propose_connections.py   (runs daily in refresh-data.yml, commits proposals)
+Run: python scripts/propose_connections.py   (runs twice daily in daily-refresh.yml, commits proposals)
 """
 from __future__ import annotations
 
