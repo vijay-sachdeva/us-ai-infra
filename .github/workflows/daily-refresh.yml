@@ -1,9 +1,9 @@
-name: Daily refresh
+name: Twice-daily dashboard refresh
 
 on:
   schedule:
-    - cron: '17 10 * * *'   # ~06:17 ET — primary
-    - cron: '17 16 * * *'   # ~12:17 ET — backstop
+    - cron: "0 6,14 * * *"
+      timezone: "America/Los_Angeles"
   workflow_dispatch: {}
 
 permissions:
@@ -11,13 +11,13 @@ permissions:
   issues: write
 
 concurrency:
-  group: daily-refresh
+  group: dashboard-refresh
   cancel-in-progress: false
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
 
     steps:
       - name: Checkout repository
@@ -26,42 +26,112 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install --quiet 'anthropic>=0.39,<1.0'
+        run: python -m pip install --quiet "anthropic>=0.39,<1.0"
 
-      - name: Run daily refresh
+      - name: Pull every public-data feed
+        id: public_data
+        continue-on-error: true
+        working-directory: scripts
+        env:
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: |
+          failed=0
+          for script in \
+            fetch_grid.py \
+            fetch_power_econ.py \
+            build_queues.py \
+            build_siting.py \
+            fetch_gpu_prices.py \
+            fetch_sec_filings.py
+          do
+            echo "::group::$script"
+            python "$script" || failed=1
+            echo "::endgroup::"
+          done
+          exit "$failed"
+
+      - name: Refresh public news and primary-source signals
+        id: news
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scripts/daily_refresh.py
 
-      - name: Verify current.json integrity
+      - name: Rebuild derived signals and daily history
+        id: derived
+        continue-on-error: true
         run: |
-          python -c "import json; d=json.load(open('data/current.json',encoding='utf-8')); assert d.get('lastUpdated') and d.get('topStory',{}).get('url'), 'current.json missing fields'; print('current.json OK', d['lastUpdated'])"
+          failed=0
+          python scripts/propose_connections.py || failed=1
+          python scripts/archive_history.py || failed=1
+          exit "$failed"
+
+      - name: Verify generated feeds
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          checks = {
+              "current.json": ("lastUpdated", "topStory"),
+              "grid.json": ("lastUpdated", "regions"),
+              "power_econ.json": ("lastUpdated", "states"),
+              "queues.json": ("lastUpdated", "iso"),
+              "siting.json": ("lastUpdated", "states"),
+              "gpu_prices.json": ("checked_at", "providers"),
+              "sec_filings.json": ("lastUpdated", "companies"),
+          }
+          for filename, required in checks.items():
+              path = Path("data") / filename
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              missing = [key for key in required if not payload.get(key)]
+              assert not missing, f"{filename} missing/non-populated fields: {missing}"
+              print(f"{filename}: OK")
+          PY
 
       - name: Commit and push if changed
+        id: commit
         run: |
-          if [[ -z "$(git status --porcelain data/current.json)" ]]; then
-            echo "No changes to data/current.json — nothing to commit."
+          if [[ -z "$(git status --porcelain data/)" ]]; then
+            echo "No generated data changed."
             exit 0
           fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data/current.json
-          git commit -m "Daily refresh ($(date -u +'%Y-%m-%d'))"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            data/current.json \
+            data/grid.json \
+            data/power_econ.json \
+            data/queues.json \
+            data/siting.json \
+            data/gpu_prices.json \
+            data/sec_filings.json \
+            data/connections.proposals.json \
+            data/changes.json \
+            data/history/*.csv
+          stamp=$(TZ=America/Los_Angeles date +"%Y-%m-%d %I:%M %p PT")
+          git commit -m "chore(data): twice-daily refresh ($stamp)"
           git push
+
+      - name: Surface partial refresh failures
+        if: always() && (steps.public_data.outcome == 'failure' || steps.news.outcome == 'failure' || steps.derived.outcome == 'failure')
+        run: |
+          echo "At least one refresh stage failed after the remaining sources were attempted and committed."
+          exit 1
 
       - name: Report failure as an issue
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          count=$(gh issue list --state open --search "Daily refresh failing in:title" --json number --jq 'length')
+          count=$(gh issue list --state open --search "Dashboard refresh failing in:title" --json number --jq 'length')
           if [ "$count" -gt 0 ]; then
-            echo "An open 'Daily refresh failing' issue already exists — not creating a duplicate."
+            echo "An open dashboard-refresh issue already exists; not creating a duplicate."
             exit 0
           fi
           gh issue create \
-            --title "⚠️ Daily refresh failing" \
-            --body "The daily-refresh workflow failed on $(date -u +'%Y-%m-%d'). Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            --title "Dashboard refresh failing" \
+            --body "The twice-daily refresh failed on $(date -u +'%Y-%m-%d'). Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

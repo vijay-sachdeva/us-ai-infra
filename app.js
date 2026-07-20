@@ -172,7 +172,7 @@ const $ = (id) => document.getElementById(id);
     perfPerWattChart: { reviewed: "2026-06", take: "On a pinned dense FP16/BF16 silicon metric, per-watt efficiency only rose ~3x from A100 (index 100) to B200 (289) — but separate modeled effective-inference markers (FP4 + NVL72 rack-scale) reach 1,000 for GB200 NVL72 and ~3,500 for Rubin, showing the real deployment gains come from lower precision and rack design, not raw FP16 FLOPS/W.", asof: "2020–2025 GPU generations · markers modeled", src: { label: "NVIDIA datasheets (A100/H100/H200/Blackwell)" } },
     demandGapChart: { reviewed: "2026-06", take: "Annual US data-center demand additions outrun new firm generation committed to DC load nearly every year of the projection, with the widest single-year gap of 7 GW in 2027 (17 GW demand added vs. 10 GW firm gen) and demand exceeding new firm gen through 2030.", asof: "2024-2030 projection", src: { label: "modeled (GS / Wood Mackenzie / EIA + IRPs)" } },
     headroomChart: { reviewed: "2026-07", take: "All tracked balancing authorities clear the 10% line today — but mapping the ledger's grid-drawing projects (BTM self-supply excluded) onto their balancing authorities shows announced load already claiming a visible slice of PJM's slack: today's green is partly spoken for.", asof: "fetched in CI (see feed stamp)", src: { label: "EIA-930 + EIA-860 · ledger overlay modeled" } },
-    powerPriceBoard: { reviewed: "2026-07", take: "Industrial retail power across the AI data-center corridor spans ~1.6x — Texas and Iowa cheapest near $63/MWh, Georgia ~$68, while Pennsylvania, Virginia and Ohio (the PJM data-center heartland) run ~$98–100/MWh — a standing incentive for megawatts to migrate.", asof: "fetched daily in CI (see method note)", src: { label: "EIA-861 prices" } },
+    powerPriceBoard: { reviewed: "2026-07", take: "Industrial retail power across the AI data-center corridor spans ~1.6x — Texas and Iowa cheapest near $63/MWh, Georgia ~$68, while Pennsylvania, Virginia and Ohio (the PJM data-center heartland) run ~$98–100/MWh — a standing incentive for megawatts to migrate.", asof: "fetched twice daily in CI (see method note)", src: { label: "EIA-861 prices" } },
     playersPowerBank: { reviewed: "2026-07", take: "Among named ledger builds, Amazon leads announced GW (Rainier + Susquehanna) with Meta close behind on Hyperion alone — and the BTM/colocated share shows who is buying power independence rather than queue position.", asof: "source-verified ledger (announced targets)", src: { label: "data/projects.json (per-record citations)" } },
     overcommitmentBoard: { reviewed: "2026-07", take: "Oracle has ~$327B of filed lease + purchase commitments against $32B of annual operating cash flow — ~10 years pre-committed — and CoreWeave ~$58B against ~$6B (~10 yrs, before a $19B excluded lease); the hyperscalers sit at 2.3–3.7 years, but every book is ACCELERATING (Microsoft's unopened leases doubled to $196.6B in nine months; Google's purchase commitments doubled in one quarter).", asof: "latest 10-K/10-Q per operator (Mar–May 2026)", src: { label: "SEC 10-K / 10-Q filings" } },
     tenorClocks: { reviewed: "2026-07", take: "The revenue-bearing asset depreciates over a filed 5.5–6 years, the leases financing it run 12–25 years, and new firm power arrives in 3–7 — every long-tenor take-or-pay signature bets that demand outlives at least two chip refresh cycles.", asof: "filed useful lives + lease terms (2026 filings)", src: { label: "SEC filings + equipment lead-time panels" } },
@@ -3100,7 +3100,7 @@ const $ = (id) => document.getElementById(id);
   }
 
   /* ----- GPU rental price board (Tokens) — the buy-side $/GPU-hr levels, from data/gpu_prices.json.
-     Fetched daily in CI (tier: primary, per-provider source URLs). Freshness is PER PROVIDER
+     Fetched twice daily in CI (tier: primary, per-provider source URLs). Freshness is PER PROVIDER
      (retrieved_at): a provider listed under `failures` did not parse this run and keeps its last
      good observation — never treat checked_at as data freshness. Failed providers with no data at
      all render as an honest gap row (named, never estimated). ----- */
@@ -3245,7 +3245,7 @@ const $ = (id) => document.getElementById(id);
         const pr = DATA.gpu_prices.providers[k].prices_usd_per_gpu_hr || {};
         Object.keys(pr).forEach(s => { if (pr[s] != null) vals.push(pr[s]); });
       });
-      if (vals.length) cloud = "$" + Math.min.apply(null, vals).toFixed(2) + "–$" + Math.max.apply(null, vals).toFixed(2) + "/GPU-hr on-demand list (daily feed, primary)";
+      if (vals.length) cloud = "$" + Math.min.apply(null, vals).toFixed(2) + "–$" + Math.max.apply(null, vals).toFixed(2) + "/GPU-hr on-demand list (2× daily feed, primary)";
     }
     host.innerHTML = `<table class="scorecard ss-table">
       <thead><tr><th style="text-align:left;padding-left:10px">Path</th><th>Time to capacity</th><th>Cost anchor</th><th>What you carry</th></tr></thead>
@@ -3902,7 +3902,7 @@ const $ = (id) => document.getElementById(id);
 
   /* ----- Lazy per-tab render ----- */
   const renderedTabs = new Set();
-  /* ----- Live public-data feeds: data/*.json built by scripts/ + refresh-data.yml.
+  /* ----- Live public-data feeds: data/*.json built by scripts/ + daily-refresh.yml.
      Additive + graceful — a missing or failed feed leaves the curated DATA untouched
      and never blanks a chart. ----- */
   // Editorial° state→BA crosswalk for mapping live ledger projects onto balancing authorities —
@@ -4033,7 +4033,7 @@ const $ = (id) => document.getElementById(id);
       const all = Object.values(st).map(v => v.ind_usd_mwh).filter(v => v != null);
       const lo = Math.round(Math.min.apply(null, all)), hi = Math.round(Math.max.apply(null, all));
       m.innerHTML = "<b>Live feed.</b> EIA retail-sales industrial price, data " + (DATA.power_econ.period || "n/a") +
-        " · corridor states shown; national range $" + lo + "–$" + hi + "/MWh · refreshed daily in CI.";
+        " · corridor states shown; national range $" + lo + "–$" + hi + "/MWh · refreshed twice daily in CI.";
     }
   }
 
@@ -5050,7 +5050,7 @@ const $ = (id) => document.getElementById(id);
           '<a class="mp-src" style="display:inline;font-style:normal;margin-right:10px" href="' + f.url + '" target="_blank" rel="noopener">' + f.form + ' ' + f.filed + '</a>').join("");
         return '<tr><td><span class="mp-name">' + t + '</span></td><td>' + pHtml + '</td><td>' + recent + '</td></tr>';
       }).join("") + "</tbody></table>" +
-      '<div class="mp-data-actions">Source: <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany" target="_blank" rel="noopener">SEC EDGAR</a> submissions API (primary) · refreshed daily in CI · feed: <a href="data/sec_filings.json" target="_blank" rel="noopener">sec_filings.json ↓</a></div>';
+      '<div class="mp-data-actions">Source: <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany" target="_blank" rel="noopener">SEC EDGAR</a> submissions API (primary) · refreshed twice daily in CI · feed: <a href="data/sec_filings.json" target="_blank" rel="noopener">sec_filings.json ↓</a></div>';
   }
 
   function renderPlayerFeed() {

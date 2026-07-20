@@ -1,20 +1,22 @@
-name: refresh-data
+name: Public-data recovery (manual)
 
+# Scheduled refreshes run through daily-refresh.yml so public feeds, SEC filings,
+# news, validation, history, and the commit share one atomic refresh contract.
+# This workflow remains as a data-only recovery path for maintainers.
 on:
-  schedule:
-    - cron: "30 11 * * *"      # after the morning news-refresh job; off-:00 to dodge GHA congestion
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 permissions:
   contents: write
 
 concurrency:
-  group: refresh-data
+  group: dashboard-refresh
   cancel-in-progress: false
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -32,12 +34,12 @@ jobs:
           python fetch_gpu_prices.py
           python fetch_sec_filings.py
           python propose_connections.py
-      - name: Archive history (append today's snapshot)
+      - name: Archive history
         run: python scripts/archive_history.py
       - name: Commit data
         run: |
-          git config user.name  "data-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/*.json data/history/*.csv
-          git commit -m "chore(data): refresh public feeds" || echo "no changes"
+          git commit -m "chore(data): manual public-feed recovery" || echo "no changes"
           git push

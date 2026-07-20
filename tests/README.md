@@ -9,6 +9,7 @@ the data files. There are two tiers:
 | **Data quality** | `test_data_quality.py` | No | every push / PR | **Yes** |
 | **Link rot** | `test_links.py` | Yes | weekly cron + manual | No |
 | **Freshness** | `test_freshness.py` | No | weekly cron + manual | No (warn-only) |
+| **Refresh contract** | `test_refresh_schedule.py` | No | every push / PR | Yes |
 
 CI is defined in [`.github/workflows/qa.yml`](../.github/workflows/qa.yml).
 

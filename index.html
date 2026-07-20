@@ -36,7 +36,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260717e"></script>
+<script src="config.js?v=20260720a"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -2108,7 +2108,7 @@
     <section class="tab-content ov" data-tab="overview" id="overview">
       <div class="ov-eyebrow">
         <span>US AI infrastructure · overview</span>
-        <span class="ov-live"><i></i>auto-refreshed daily</span>
+        <span class="ov-live"><i></i>refreshed 6 AM + 2 PM PT</span>
       </div>
       <h1 class="ov-h1">AI demand outruns firm power by <span class="ov-accent">~19 GW by 2030</span></h1>
       <p class="ov-sub">Tokens pull capital, capital funds the buildout, the buildout lands on a grid that can't add firm power fast enough — and the gap keeps widening through 2030.</p>
@@ -2827,10 +2827,10 @@
           <div class="chart-box short"><canvas id="headroomChart"></canvas></div>
         </div>
 
-        <!-- Card: What power costs, by state (EIA-861 feed, fetched daily in CI) -->
+        <!-- Card: What power costs, by state (EIA-861 feed, fetched twice daily in CI) -->
         <div class="stub-card">
           <h4>What power costs, by state <span class="cf-tier cf-ok" title="Primary — directly reported by a government source.">primary</span><span class="feed-stamp" data-feed="power_econ"></span></h4>
-          <div class="note">Industrial retail electricity price ($/MWh) across the AI data-center corridor &middot; a rough proxy for the power-cost term in siting decisions (large DCs often negotiate below-tariff rates) &middot; fetched daily in CI</div>
+          <div class="note">Industrial retail electricity price ($/MWh) across the AI data-center corridor &middot; a rough proxy for the power-cost term in siting decisions (large DCs often negotiate below-tariff rates) &middot; fetched 2&times; daily in CI</div>
           <div class="chart-box short"><canvas id="powerPriceBoard"></canvas></div>
           <div class="sc-method" id="powerPriceMethod"></div>
         </div>
@@ -2985,9 +2985,9 @@
         <div class="sc-method" id="costPerTaskMethod"></div>
       </div>
 
-      <!-- Buy-side price signal: on-demand $/GPU-hr list prices (data/gpu_prices.json, fetched daily in CI) -->
+      <!-- Buy-side price signal: on-demand $/GPU-hr list prices (data/gpu_prices.json, fetched twice daily in CI) -->
       <div class="stub-card" style="margin-top:14px">
-        <h4>Rent prices fall—allocation still gates the newest GPUs <span class="cf-tier cf-ok" title="Published on-demand list prices scraped daily from provider pricing pages (primary); per-provider source link + as-of date.">primary &middot; daily</span></h4>
+        <h4>Rent prices fall—allocation still gates the newest GPUs <span class="cf-tier cf-ok" title="Published on-demand list prices checked twice daily from provider pricing pages (primary); per-provider source link + as-of date.">primary &middot; 2&times; daily</span></h4>
         <div class="note">Published <b>on-demand list prices</b> by provider &times; GPU &middot; negotiated / reserved / spot rates differ &middot; freshness is <b>per provider</b> (a provider that fails to parse keeps its last good date — shown) &middot; levels today; the trend accrues in <a href="data/history/gpu_prices.csv">data/history</a></div>
         <div id="gpuPriceBoard" style="margin-top:8px"></div>
         <div class="decision-impl"><span class="di-label">Decision implication</span> Anchor build-vs-buy against the buy-side $/GPU-hr level — falling list prices favor renting; allocation still gates the newest SKUs. <span style="opacity:.75">Editorial.</span></div>
@@ -3114,14 +3114,14 @@
       </div>
 
       <div class="stub-card" style="margin-top:14px">
-        <h4>Filings watch <span class="cf-tier cf-ok" title="Primary — SEC EDGAR submissions API, refreshed daily in CI.">primary</span><span class="feed-stamp" data-feed="sec_filings"></span></h4>
+        <h4>Filings watch <span class="cf-tier cf-ok" title="Primary — SEC EDGAR submissions API, refreshed twice daily in CI.">primary</span><span class="feed-stamp" data-feed="sec_filings"></span></h4>
         <div class="note">Latest disclosure-relevant SEC filings per tracked player (10-K / 10-Q / 8-K; 20-F / 6-K for foreign filers) &middot; direct EDGAR links &middot; a periodic filing dated <b>after</b> the commitment book&rsquo;s last review is flagged — that is the signal to re-verify the filed numbers on Capital</div>
         <div id="filingsWatch" style="overflow-x:auto"></div>
       </div>
 
       <div class="stub-card" style="margin-top:14px">
         <h4>Who did what this week</h4>
-        <div class="note">The weekly feed, indexed by player &middot; auto-tagged by the daily refresh</div>
+        <div class="note">The weekly feed, indexed by player &middot; auto-tagged by the twice-daily refresh</div>
         <div id="playerFeed"></div>
       </div>
 
@@ -4352,7 +4352,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260717e"></script>
+<script src="app.js?v=20260720a"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
@@ -4413,7 +4413,7 @@
     DATA.kpis.forEach(k => L.push("- " + k.label + ": " + k.value + " " + k.unit + (k.sub ? " (" + k.sub + ")" : "")));
     if (DATA.topStory) L.push("Top story (" + DATA.topStory.date + " · " + DATA.topStory.src + "): " + DATA.topStory.text);
     if (Array.isArray(DATA.feed) && DATA.feed.length) {
-      L.push("Recent signals (the daily-refreshed news ticker, most-recent first — each is a dated, sourced news item, NOT a refreshed metric):");
+      L.push("Recent signals (the twice-daily news ticker, most-recent first — each is a dated, sourced news item, NOT a refreshed metric):");
       DATA.feed.forEach(it => L.push("- [" + (it.tag || "SIGNAL") + " · " + (it.date || "") + " · " + (it.src || "source n/a") + "] " + (it.text || it.headline || it.title || "")));
     }
 
