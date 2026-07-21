@@ -1,54 +1,68 @@
 {
-  "lastUpdated": "2026-07-21T15:01:57Z",
+  "lastUpdated": "2026-07-21T22:01:41Z",
   "tier": "primary",
   "source": "EIA-930 (demand) + EIA-860 (capacity)",
   "regions": {
+    "PJM": {
+      "peak_mw": 162648,
+      "avg_mw": 119578,
+      "latest_mw": 134552,
+      "capacity_mw": 185000,
+      "headroom_pct": 12.1
+    },
     "MISO": {
       "peak_mw": 121514,
-      "avg_mw": 94190,
-      "latest_mw": 93406,
+      "avg_mw": 94387,
+      "latest_mw": 113782,
       "capacity_mw": 145000,
       "headroom_pct": 16.2
     },
+    "SWPP": {
+      "peak_mw": 55062,
+      "avg_mw": 42494,
+      "latest_mw": 55062,
+      "capacity_mw": 95000,
+      "headroom_pct": 42.0
+    },
     "ERCO": {
-      "peak_mw": 85266,
-      "avg_mw": 67449,
-      "latest_mw": 58710,
+      "peak_mw": 86148,
+      "avg_mw": 67593,
+      "latest_mw": 86148,
       "capacity_mw": 110000,
-      "headroom_pct": 22.5
+      "headroom_pct": 21.7
     },
     "CISO": {
       "peak_mw": 43430,
-      "avg_mw": 30305,
-      "latest_mw": 27158,
+      "avg_mw": 30378,
+      "latest_mw": 38520,
       "capacity_mw": 80000,
       "headroom_pct": 45.7
     },
     "ISNE": {
       "peak_mw": 25289,
-      "avg_mw": 15650,
-      "latest_mw": 12860,
+      "avg_mw": 15642,
+      "latest_mw": 16272,
       "capacity_mw": 31000,
       "headroom_pct": 18.4
     },
     "NYIS": {
       "peak_mw": 31097,
-      "avg_mw": 20804,
-      "latest_mw": 19573,
+      "avg_mw": 20815,
+      "latest_mw": 22197,
       "capacity_mw": 40000,
       "headroom_pct": 22.3
     },
     "SOCO": {
       "peak_mw": 45328,
-      "avg_mw": 33257,
-      "latest_mw": 32302,
+      "avg_mw": 33333,
+      "latest_mw": 42104,
       "capacity_mw": 52000,
       "headroom_pct": 12.8
     },
     "DUK": {
       "peak_mw": 22153,
-      "avg_mw": 15799,
-      "latest_mw": 15427,
+      "avg_mw": 15843,
+      "latest_mw": 21312,
       "capacity_mw": 50000,
       "headroom_pct": 55.7
     }
