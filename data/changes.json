@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-07-23T15:06:54Z",
+  "computed_at": "2026-07-24T14:53:04Z",
   "window_days": 7,
   "tier": "computed",
   "note": "Deltas computed from the archived daily snapshots in data/history/ — arithmetic over the cited feeds, never estimates. Grid load and retail power prices are excluded on purpose: their weekly deltas are weather/period noise, not structure.",
@@ -36,29 +36,17 @@
     {
       "key": "gpu_prices",
       "label": "GPU rental list prices",
-      "latest": "2026-07-23",
-      "baseline": "2026-07-16",
+      "latest": "2026-07-24",
+      "baseline": "2026-07-17",
       "src": "provider pricing pages (primary; see Tokens)",
-      "items": [
-        {
-          "kind": "new",
-          "text": "RunPod B200 newly listed at $5.89/GPU-hr"
-        },
-        {
-          "kind": "new",
-          "text": "RunPod H100 SXM newly listed at $2.69/GPU-hr"
-        },
-        {
-          "kind": "new",
-          "text": "RunPod H200 newly listed at $3.59/GPU-hr"
-        }
-      ]
+      "items": [],
+      "note": "list prices held flat in this window"
     },
     {
       "key": "queues",
       "label": "Interconnection queues (LBNL)",
-      "latest": "2026-07-23",
-      "baseline": "2026-07-16",
+      "latest": "2026-07-24",
+      "baseline": "2026-07-17",
       "src": "LBNL Queued Up (annual; see Buildout)",
       "items": [],
       "note": "no new LBNL snapshot in this window — the queue series updates annually"
