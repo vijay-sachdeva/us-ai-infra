@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-26T14:27:39Z",
+  "lastUpdated": "2026-07-26T21:57:07Z",
   "tier": "modeled",
   "resolution": "state/ISO inputs (county-true geometry is Phase 2)",
   "formula": "0.45\u00b7headroom + 0.33\u00b7(1\u2212queue_congestion) + 0.22\u00b7(1\u2212industrial_price)",
@@ -36,7 +36,7 @@
     "28": 26,
     "29": 25,
     "30": 65,
-    "31": 71,
+    "31": 70,
     "32": 62,
     "33": 63,
     "34": 22,
