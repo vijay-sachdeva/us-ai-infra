@@ -1,11 +1,11 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-07-30T15:09:05+00:00",
+  "generated_at": "2026-07-30T22:03:52+00:00",
   "counts": {
     "co_mention": 2,
     "recurring_player": 0,
-    "filing_after_review": 1
+    "filing_after_review": 2
   },
   "candidates": [
     {
@@ -29,6 +29,15 @@
       "src": "Crusoe / Lancium",
       "evidence_text": "Crusoe and Lancium announced a 1.0 GW grid-connected AI data center campus in Childress, Texas on a 270-acre Lancium-owned site, with construction beginning Q3 2026 — adding another gigawatt-scale campus to the ERCOT pip",
       "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "filing-after-review",
+      "players": [
+        "META"
+      ],
+      "filing": "10-Q 2026-07-30",
+      "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026050705/meta-20260630.htm",
+      "suggestion": "META filed a 10-Q after the connections ledger was last reviewed (2026-07) — re-verify META's connections against the new filing."
     },
     {
       "reason": "filing-after-review",
