@@ -1,68 +1,68 @@
 {
-  "lastUpdated": "2026-08-02T14:26:56Z",
+  "lastUpdated": "2026-08-02T21:53:00Z",
   "tier": "primary",
   "source": "EIA-930 (demand) + EIA-860 (capacity)",
   "regions": {
     "PJM": {
       "peak_mw": 159046,
-      "avg_mw": 111094,
-      "latest_mw": 95432,
+      "avg_mw": 111077,
+      "latest_mw": 118685,
       "capacity_mw": 185000,
       "headroom_pct": 14.0
     },
     "MISO": {
       "peak_mw": 118325,
-      "avg_mw": 92695,
-      "latest_mw": 70849,
+      "avg_mw": 92570,
+      "latest_mw": 91505,
       "capacity_mw": 145000,
       "headroom_pct": 18.4
     },
     "SWPP": {
       "peak_mw": 57964,
-      "avg_mw": 43616,
-      "latest_mw": 31177,
+      "avg_mw": 43572,
+      "latest_mw": 47276,
       "capacity_mw": 95000,
       "headroom_pct": 39.0
     },
     "ERCO": {
       "peak_mw": 91075,
-      "avg_mw": 69140,
-      "latest_mw": 53900,
+      "avg_mw": 69167,
+      "latest_mw": 82175,
       "capacity_mw": 110000,
       "headroom_pct": 17.2
     },
     "CISO": {
       "peak_mw": 43430,
-      "avg_mw": 32984,
-      "latest_mw": 24743,
+      "avg_mw": 32964,
+      "latest_mw": 34097,
       "capacity_mw": 80000,
       "headroom_pct": 45.7
     },
     "ISNE": {
       "peak_mw": 21968,
-      "avg_mw": 14292,
-      "latest_mw": 14109,
+      "avg_mw": 14309,
+      "latest_mw": 17749,
       "capacity_mw": 31000,
       "headroom_pct": 29.1
     },
     "NYIS": {
       "peak_mw": 28697,
-      "avg_mw": 19387,
-      "latest_mw": 18175,
+      "avg_mw": 19412,
+      "latest_mw": 22778,
       "capacity_mw": 40000,
       "headroom_pct": 28.3
     },
     "SOCO": {
       "peak_mw": 44484,
-      "avg_mw": 33005,
-      "latest_mw": 26968,
+      "avg_mw": 33030,
+      "latest_mw": 38134,
       "capacity_mw": 52000,
       "headroom_pct": 14.5
     },
     "DUK": {
       "peak_mw": 21806,
-      "avg_mw": 14715,
-      "latest_mw": 11572,
+      "avg_mw": 14708,
+      "latest_mw": 16992,
       "capacity_mw": 50000,
       "headroom_pct": 56.4
     }
