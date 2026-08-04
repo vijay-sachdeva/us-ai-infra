@@ -3,8 +3,8 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-08-04T15:23:06+00:00",
-  "fetched_at": "2026-08-04T15:23:06+00:00",
+  "lastUpdated": "2026-08-04T22:12:14+00:00",
+  "fetched_at": "2026-08-04T22:12:14+00:00",
   "companies": {
     "MSFT": {
       "cik": "0000789019",
@@ -541,6 +541,14 @@
       "filings": [
         {
           "form": "8-K",
+          "filed": "2026-08-04",
+          "report_period": "2026-08-04",
+          "accession": "0000002488-26-000121",
+          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000121/amd-20260804.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
           "filed": "2026-07-01",
           "report_period": "2026-06-26",
           "accession": "0000002488-26-000115",
@@ -577,14 +585,6 @@
           "report_period": "2026-02-23",
           "accession": "0000002488-26-000045",
           "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000045/amd-20260223.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-02-17",
-          "report_period": "2026-02-10",
-          "accession": "0000002488-26-000029",
-          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000029/amd-20260210.htm",
           "description": "8-K"
         }
       ]
