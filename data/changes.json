@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-08-13T14:21:21Z",
+  "computed_at": "2026-08-13T21:41:42Z",
   "window_days": 7,
   "tier": "computed",
   "note": "Deltas computed from the archived daily snapshots in data/history/ — arithmetic over the cited feeds, never estimates. Grid load and retail power prices are excluded on purpose: their weekly deltas are weather/period noise, not structure.",
@@ -39,8 +39,12 @@
       "latest": "2026-08-13",
       "baseline": "2026-08-06",
       "src": "provider pricing pages (primary; see Tokens)",
-      "items": [],
-      "note": "list prices held flat in this window"
+      "items": [
+        {
+          "kind": "price",
+          "text": "RunPod B200: $5.89 → $5.98/GPU-hr (+1.5%)"
+        }
+      ]
     },
     {
       "key": "queues",
