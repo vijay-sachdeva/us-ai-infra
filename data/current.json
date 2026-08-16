@@ -1,19 +1,120 @@
 {
-  "lastUpdated": "2026-08-14",
+  "lastUpdated": "2026-08-16",
   "topStory": {
-    "date": "Aug 12, 2026",
-    "text": "More than two-thirds of the electricity sought for US AI data centers is unlikely to ever materialize, per new Wood Mackenzie projections: grid operators and utilities will likely commit to only about 28% of the 1,066 GW currently requested nationwide, with the rest 'phantom' — duplicative or non-binding requests filed at multiple utilities simultaneously with no realistic path to construction.",
-    "src": "Bloomberg / Yahoo Finance",
-    "url": "https://finance.yahoo.com/energy/articles/most-power-sought-us-data-093000335.html",
-    "players": []
+    "date": "Aug 10, 2026",
+    "text": "NVIDIA signed MOUs with Apollo, BlackRock, Blackstone, Brookfield, Goldman Sachs and KKR to establish financing platforms mobilizing more than $500B of third-party capital for AI infrastructure — structured so outside investors fund data centers and power for NVIDIA's own customers (frontier labs, enterprises, AI clouds) without loading its balance sheet, with NVIDIA compute itself treated as the investable collateral. Subject to final agreements.",
+    "src": "NVIDIA",
+    "url": "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital",
+    "players": [
+      "NVDA"
+    ]
   },
   "feed": [
+    {
+      "date": "Aug 12, 2026",
+      "tag": "GRID",
+      "text": "More than two-thirds of the electricity sought for US AI data centers is unlikely to ever materialize, per new Wood Mackenzie projections: grid operators and utilities will likely commit to only about 28% of the 1,066 GW currently requested nationwide, with the rest 'phantom' — duplicative or non-binding requests filed at multiple utilities simultaneously with no realistic path to construction.",
+      "src": "Bloomberg / Yahoo Finance",
+      "url": "https://finance.yahoo.com/energy/articles/most-power-sought-us-data-093000335.html"
+    },
     {
       "date": "Aug 10, 2026",
       "tag": "SUPPLY",
       "text": "HD Hyundai Heavy Industries secured a $675M deal — its largest-ever power-engine order — to supply 1,000 MW of HiMSEN gas-engine generating capacity to a US data center project via developer Coban Energy Group, underscoring how quickly demand for on-site/behind-the-meter generation equipment is scaling.",
       "src": "Korea Herald",
       "url": "https://www.koreaherald.com/article/10836118"
+    },
+    {
+      "date": "Aug 9, 2026",
+      "tag": "CAPITAL",
+      "text": "NVIDIA will reportedly invest $2B for roughly 20% of Lancium — the Blackstone-backed Texas developer whose Abilene campus is Stargate's first operational site — at about a $10B valuation, extendable to $3B on milestones including grid hookups. Reported, not confirmed by the companies.",
+      "src": "The Information / Reuters",
+      "url": "https://finance.yahoo.com/technology/articles/nvidia-invest-3-billion-lancium-014211358.html",
+      "players": [
+        "NVDA",
+        "Lancium"
+      ]
+    },
+    {
+      "date": "Aug 7, 2026",
+      "tag": "BUILDOUT",
+      "text": "Amazon is backing what could be the largest natural-gas power plant ever built in the US — up to 7.6 GW of behind-the-meter generation planned for a data center site in Pecos County, Texas — and confirmed talks to develop a data center at the 4.5 GW gas plant under construction at Homer City, PA, as developers have proposed roughly 90 GW of behind-the-meter gas nationwide since the start of 2025 per Cleanview.",
+      "src": "Distilled / DCD",
+      "url": "https://www.distilled.earth/p/scoop-amazon-is-behind-one-of-the",
+      "players": [
+        "Amazon"
+      ]
+    },
+    {
+      "date": "Aug 7, 2026",
+      "tag": "GRID",
+      "text": "Oncor CEO Allen Nye told investors the utility's large-load service requests climbed to 298 GW from 289 GW at the end of Q1, with roughly 44 GW of projects in its territory qualified for ERCOT's Batch Zero interconnection review — a queue whose timeline is now unclear after Gov. Abbott's audit order, though Oncor said it supports the state's screening effort.",
+      "src": "Utility Dive",
+      "url": "https://www.utilitydive.com/news/fate-of-oncors-nearly-300-gw-load-pipeline-unclear-following-texas-data-ce/827303/",
+      "players": [
+        "Oncor",
+        "ERCOT"
+      ]
+    },
+    {
+      "date": "Aug 6, 2026",
+      "tag": "SUPPLY",
+      "text": "AWS is reportedly telling its own engineers to cut CPU waste and reclaim low-utilization EC2 instances to preserve capacity for customers — a sign the AI-era compute crunch is tight enough that the largest cloud is rationing internally, echoing capacity-constraint talk across hyperscaler Q2 calls.",
+      "src": "The Information / Tom's Hardware",
+      "url": "https://www.tomshardware.com/pc-components/cpus/amazon-cracks-down-on-cpu-waste-among-engineers-as-agentic-ai-crunch-intensifies-cpu-demand-makes-low-utilization-ec2-instances-a-hot-commodity",
+      "players": [
+        "Amazon"
+      ]
+    },
+    {
+      "date": "Aug 6, 2026",
+      "tag": "POLICY",
+      "text": "BloombergNEF put numbers on the Texas freeze: the pause touches about 49.8 GW of projects — roughly 20% of the entire US data center pipeline — and could put up to $8 billion of data center revenue at risk by Q1 2027, with more than 70% of the ~50 GW BNEF tracks in Texas still at an early stage.",
+      "src": "BloombergNEF / Utility Dive",
+      "url": "https://www.utilitydive.com/news/texas-data-center-pause-puts-us-pipeline-risk-of-delay-bnef/827185/",
+      "players": [
+        "Texas",
+        "ERCOT"
+      ]
+    },
+    {
+      "date": "Aug 6, 2026",
+      "tag": "SUPPLY",
+      "text": "Bloomberg reports that rapid, synchronized power swings from AI training workloads are physically damaging data center equipment — batteries, generators and cooling systems are malfunctioning or wearing out well ahead of schedule — adding unplanned costs and reliability risk for operators even as rack densities climb toward 100 kW.",
+      "src": "Bloomberg",
+      "url": "https://www.bloomberg.com/news/articles/2026-08-06/data-centers-are-being-damaged-by-ai-s-volatile-power-demand"
+    },
+    {
+      "date": "Aug 5, 2026",
+      "tag": "POLICY",
+      "text": "PJM's board sent FERC its full large-load framework — an Interim Resource Adequacy Service creating a registry of every 50+ MW load and a 'bring your own new capacity' (BYONC) path for data centers to contract new generation, storage or demand response — under which, starting June 2027, large loads that don't bring capacity are curtailed ahead of pre-emergency load management, with states and utilities deciding who gets cut.",
+      "src": "Canary Media",
+      "url": "https://www.canarymedia.com/articles/data-centers/pjm-data-center-plan",
+      "players": [
+        "PJM"
+      ]
+    },
+    {
+      "date": "Aug 4, 2026",
+      "tag": "BUILDOUT",
+      "text": "NRG said on its Q2 call it has aligned on principal commercial terms with an unnamed global cloud and AI hyperscaler for a $3.2 billion, 1.2 GW combined-cycle gas plant in Texas — a 15-year minimum contract with an investment-grade counterparty targeting late-2029 commercial operation and expandable to 2.4 GW, with 95% of free cash flow underpinned by capacity payments regardless of data center utilization.",
+      "src": "NRG Q2 2026 earnings / Utility Dive",
+      "url": "https://www.utilitydive.com/news/nrg-nears-12-gw-hyperscaler-deal-amid-texas-data-center-pause/827212/",
+      "players": [
+        "NRG"
+      ]
+    },
+    {
+      "date": "Aug 3, 2026",
+      "tag": "POLICY",
+      "text": "Texas Gov. Greg Abbott directed the PUCT and ERCOT to audit all 1,800+ projects in the state's 474 GW large-load interconnection queue (~90% data centers) and paused approvals of new data center connections until each project's power demand, water use, public financial assistance and ownership are verified — prompting ERCOT to postpone its Batch Zero transmission planning study.",
+      "src": "Texas Tribune / Utility Dive",
+      "url": "https://www.texastribune.org/2026/08/03/texas-data-center-project-audit-greg-abbott/",
+      "players": [
+        "Texas",
+        "ERCOT",
+        "PUCT"
+      ]
     },
     {
       "date": "Jul 20, 2026",
@@ -23,72 +124,6 @@
       "url": "https://www.manilatimes.net/2026/07/20/tmt-newswire/pr-newswire/powerplay-ai-announces-400-mw-behind-the-meter-ai-data-center-development-in-greater-abilene-with-nasdaq-listed-neocloud-joint-venture-partner/2387777",
       "players": [
         "PowerPlay AI"
-      ]
-    },
-    {
-      "date": "Jul 13, 2026",
-      "tag": "BUILDOUT",
-      "text": "QTS and Lancium announced a $10+ billion data center campus in Hall County, Texas — up to 11 QTS data centers across ~465 acres on Lancium's Clean Campus near Turkey, anchored by a 1 GW grid connection, with the companies committing to pay for all needed energy-infrastructure upgrades themselves.",
-      "src": "QTS / DCD",
-      "url": "https://www.datacenterdynamics.com/en/news/qts-to-build-11-data-centers-on-lancium-campus-in-hall-county-texas/",
-      "players": [
-        "QTS",
-        "Lancium"
-      ]
-    },
-    {
-      "date": "Jul 15, 2026",
-      "tag": "BUILDOUT",
-      "text": "Crusoe and Lancium announced a 1.0 GW grid-connected AI data center campus in Childress, Texas on a 270-acre Lancium-owned site, with construction beginning Q3 2026 — adding another gigawatt-scale campus to the ERCOT pipeline.",
-      "src": "Crusoe / Lancium",
-      "url": "https://www.crusoe.ai/resources/newsroom/crusoe-and-lancium-announce-1-gigawatt-ai-data-center-campus-in-childress-texas",
-      "players": [
-        "Crusoe",
-        "Lancium"
-      ]
-    },
-    {
-      "date": "Jul 16, 2026",
-      "tag": "SUPPLY",
-      "text": "TSMC announced an additional $100 billion investment in its Phoenix, Arizona campus — four more 2nm-class fabs, lifting total planned US investment to $265 billion, the largest foreign direct investment in US history — after AI demand drove record Q2 profit and a raised capex outlook.",
-      "src": "Data Center Knowledge / TSMC",
-      "url": "https://www.datacenterknowledge.com/infrastructure/tsmc-expands-arizona-campus-to-265b-as-ai-demand-surges",
-      "players": [
-        "TSMC"
-      ]
-    },
-    {
-      "date": "Jul 14, 2026",
-      "tag": "POLICY",
-      "text": "New York Gov. Kathy Hochul signed an executive order creating the nation’s first statewide moratorium on new hyperscale AI data centers — a one-year halt on permits for facilities over 20 MW — citing grid capacity limits and the risk of AI-driven power costs being passed to ratepayers.",
-      "src": "CNBC",
-      "url": "https://www.cnbc.com/2026/07/14/new-york-ai-data-center-ban.html"
-    },
-    {
-      "date": "Jul 13, 2026",
-      "tag": "GRID",
-      "text": "The Texas PUC unanimously approved 'ride-through' rules requiring data centers and other large computational loads in ERCOT to stay connected through voltage and frequency disturbances, citing 28 trip events of 100+ MW since 2023 and a 438 GW large-load study queue.",
-      "src": "Utility Dive",
-      "url": "https://www.utilitydive.com/news/texas-puc-approves-ride-through-rules-data-centers/825051/",
-      "players": [
-        "ERCOT"
-      ]
-    },
-    {
-      "date": "Jul 14, 2026",
-      "tag": "POLICY",
-      "text": "A new Fortune analysis finds data centers have already added an estimated $23 billion to Americans' electricity bills, intensifying the who-pays fight as Virginia's first-of-its-kind $0.011/kWh data-center consumption tax took effect July 1.",
-      "src": "Fortune",
-      "url": "https://fortune.com/2026/07/14/data-centers-23-billion-electricity-bills/"
-    },
-    {
-      "date": "Jul 13, 2026",
-      "tag": "BUILDOUT",
-      "text": "Meta announced its Hyperion campus in Richland Parish, Louisiana will be expanded to 5 GW and more than $50 billion — up from a $10B estimate at its December 2024 groundbreaking — making it the largest single data-center campus announced in the US, with 2 GW targeted by 2030.",
-      "src": "CNBC / Meta",
-      "url": "https://www.cnbc.com/2026/07/13/meta-louisiana-data-center-investment-reaches-50-billion-amid-ai-push.html",
-      "players": [
-        "META"
       ]
     }
   ],
