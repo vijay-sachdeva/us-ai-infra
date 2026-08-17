@@ -36,7 +36,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260720a"></script>
+<script src="config.js?v=20260817a"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -2137,7 +2137,7 @@
         <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span><span class="ov-sev driver">driver</span><span class="ov-watch">watch: NVIDIA Q2 FY27 &middot; late Aug</span></a>
         <a class="ov-lens" href="#capital"><span class="ov-step">2 · Capital</span><b>$839B</b><span class="ov-lens-stat">2026 capex chasing that demand · ~75% AI. Money isn't the constraint — over-committed books are (Oracle/CoreWeave ~10 yrs OCF).</span><span class="ov-sev slack">not binding</span><span class="ov-watch">watch: Q2 capex guides &middot; late Jul&ndash;Aug</span></a>
         <a class="ov-lens" href="#buildout"><span class="ov-step">3 · Buildout</span><b>97 GW queued</b><span class="ov-lens-stat">only ~24 GW truly buildable · queued-not-secured MW carries the haircut. Queued &ne; buildable.</span><span class="ov-sev high">high — gear-gated</span><span class="ov-watch">watch: LBNL <i>Queued Up</i> snapshot</span></a>
-        <a class="ov-lens" href="#grid"><span class="ov-step">4 · Grid</span><b>~19 GW short</b><span class="ov-lens-stat">firm power can't keep up — the long pole; PJM/N. Virginia loads most exposed.</span><span class="ov-sev binding">binding</span><span class="ov-watch">watch: FERC show-cause responses &middot; ~Aug</span></a>
+        <a class="ov-lens" href="#grid"><span class="ov-step">4 · Grid</span><b>~19 GW short</b><span class="ov-lens-stat">firm power can't keep up — the long pole; PJM/N. Virginia loads most exposed.</span><span class="ov-sev binding">binding</span><span class="ov-watch">watch: FERC large-load comments close &middot; ~Sep 16</span></a>
         <a class="ov-lens" href="#grid:rateImpactChart"><span class="ov-step">5 · Rates &amp; politics</span><b>at the cap, 3&times;</b><span class="ov-lens-stat">PJM cleared AT the FERC cap three straight auctions ($325); costs land on ratepayers (VA +57% modeled&deg;) — then on permits.</span><span class="ov-sev high">rising</span><span class="ov-watch">watch: White House pledge event &middot; state PUC rulings</span></a>
       </div>
       <div class="ov-lens-label">What breaks first — the constraint board</div>
@@ -2147,7 +2147,7 @@
           <span class="ccc-sev">High<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
           <span class="ccc-bar"><i style="width:90%"></i></span>
           <span class="ccc-read"><b>~19 GW</b> firm-power shortfall by 2030; the base path widens as load compounds.</span>
-          <span class="ccc-next"><b>Next:</b> FERC show-cause responses — all six RTOs &middot; ~Aug 2026</span>
+          <span class="ccc-next"><b>Next:</b> FERC large-load comments close &middot; ~Sep 16, 2026</span>
         </a>
         <a class="ccc-tile sev-red" href="#buildout:leadTimeChart">
           <span class="ccc-head"><b class="ccc-name">GRID GEAR</b><span class="ccc-trend flat" title="Trend: holding tight (editorial read)" aria-label="trend flat, holding">&#8594;</span></span>
@@ -2218,12 +2218,12 @@
       <div class="watch-chips" id="ovWatchChips">
         <span class="wc-lbl">Top 5 watch signals</span>
         <a class="wc" href="#capital:overcommitmentBoard">Hyperscaler Q2 capex guides &middot; late Jul&ndash;Aug</a>
-        <a class="wc" href="#grid">FERC show-cause responses &middot; ~Aug 2026</a>
+        <a class="wc" href="#grid">FERC large-load comments close &middot; ~Sep 16</a>
         <a class="wc" href="#capital:overcommitmentBoard">Oracle 10-Q RPO print</a>
         <a class="wc" href="#buildout:queueChart">LBNL <i>Queued Up</i> snapshot</a>
         <a class="wc" href="#grid:rateImpactChart">Next state PUC ruling</a>
       </div>
-      <div class="vm-change"><b>What would change our mind:</b> FERC show-cause responses (~Aug 2026) · Q2 hyperscaler capex guides · next LBNL <i>Queued Up</i> · Oracle RPO print. <span class="vm-ed">Structural read — editorial.</span></div>
+      <div class="vm-change"><b>What would change our mind:</b> FERC's ruling on the RTO large-load filings (comments close ~Sep 16) · Q2 hyperscaler capex guides · next LBNL <i>Queued Up</i> · Oracle RPO print. <span class="vm-ed">Structural read — editorial.</span></div>
 
       <!-- VC sweet spots: constraint × relief-window × incumbents, joined from the cited figures above.
            Every cell traces to a chart on this dashboard; the "edge" column is the editorial synthesis. -->
@@ -2287,7 +2287,7 @@
             <li><b>Re-weight the site scorecard to your build profile</b> — Speed / Cost / Water presets re-rank the same cited market scores; check the rate-revolt map before committing. <a href="#buildout:scorecardWrap">scorecard &rarr;</a></li>
           </ul>
           <div class="decision-impl"><span class="di-label">Decision implication</span> Back-plan from the target energize date: power path first, long-lead gear second, market third.</div>
-          <div class="lens-watch"><b>Watch:</b> FERC show-cause responses — all six RTOs &middot; ~Aug 2026</div>
+          <div class="lens-watch"><b>Watch:</b> FERC large-load comments close &middot; ~Sep 16, 2026</div>
         </div>
         <div class="lens-card lens-vc">
           <div class="lens-top"><span class="lens-badge">VC</span><span class="lens-role">Venture partner</span></div>
@@ -2798,7 +2798,7 @@
           <table class="scorecard ss-table">
             <thead><tr><th style="text-align:left;padding-left:10px">Regulator &middot; utility</th><th>State</th><th>Requirement for large loads</th><th>Next date</th><th>Source</th></tr></thead>
             <tbody>
-              <tr><td class="market">FERC — all six RTOs</td><td>federal</td><td>show-cause: justify or rewrite large-load interconnection tariffs</td><td>responses ~Aug 2026</td><td>FERC / White &amp; Case &middot; primary</td></tr>
+              <tr><td class="market">FERC — all six RTOs</td><td>federal</td><td>show-cause: justify or rewrite large-load interconnection tariffs (&ge;50 MW, &ge;69 kV)</td><td>answered Aug 17; comments close ~Sep 16</td><td>FERC / Orrick &middot; primary</td></tr>
               <tr><td class="market">PUCT / ERCOT</td><td>TX</td><td>SB2 registration + curtailment &gt;75 MW &middot; ride-through rules (stay connected through disturbances) &middot; draft SB6 interconnection standards</td><td>SB6 final Dec 2026</td><td>PUCT / ERCOT / Utility Dive &middot; primary + analyst</td></tr>
               <tr><td class="market">Virginia SCC</td><td>VA</td><td>&gt;25 MW rate class — 14-yr contracts assign costs to data centers</td><td>in effect (Jan 2026)</td><td>Virginia SCC &middot; primary</td></tr>
               <tr><td class="market">Arizona ACC — APS / SRP</td><td>AZ</td><td>large-load docket open &middot; APS proposed ~45% XL-load increase &middot; SRP E-67 80% minimum billing</td><td>docket open</td><td>Arizona Corporation Commission &middot; primary</td></tr>
@@ -3141,16 +3141,17 @@
   // daily-refresh workflow resumes editing this same content. Until then,
   // this is a snapshot that may lag production by a day or two.
   const DATA = {
-    lastUpdated: "2026-08-16",
+    lastUpdated: "2026-08-17",
     topStory: {
-      date: "Aug 10, 2026",
-      text: "NVIDIA signed MOUs with Apollo, BlackRock, Blackstone, Brookfield, Goldman Sachs and KKR to establish financing platforms mobilizing more than $500B of third-party capital for AI infrastructure — structured so outside investors fund data centers and power for NVIDIA's own customers (frontier labs, enterprises, AI clouds) without loading its balance sheet, with NVIDIA compute itself treated as the investable collateral. Subject to final agreements.",
-      src: "NVIDIA",
-      url: "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital",
-      players: ["NVDA"]
+      date: "Aug 17, 2026",
+      text: "Today is the deadline for all six RTOs/ISOs — PJM, MISO, SPP, NYISO, ISO-NE and CAISO — to answer FERC's June 18 show-cause orders, which preliminarily found their large-load interconnection rules may be 'unjust, unreasonable or unduly discriminatory.' Each must either justify its existing tariff or propose reforms for connecting loads of 50 MW or more at 69 kV and above; interested parties then get 30 days to comment. The rulebook governing how every US data center reaches the grid is now in play in every federally-regulated market at once.",
+      src: "FERC / Orrick",
+      url: "https://www.orrick.com/en/Insights/2026/07/FERC-Show-Cause-Orders-Signal-Broad-Reform-to-Large-Load-Interconnection-Policies",
+      players: ["PJM", "MISO", "ERCOT"]
     },
     feed: [
       { date: "Aug 12, 2026", tag: "GRID", text: "More than two-thirds of the electricity sought for US AI data centers is unlikely to ever materialize, per new Wood Mackenzie projections: grid operators and utilities will likely commit to only about 28% of the 1,066 GW currently requested nationwide, with the rest 'phantom' — duplicative or non-binding requests filed at multiple utilities simultaneously with no realistic path to construction.", src: "Bloomberg / Yahoo Finance", url: "https://finance.yahoo.com/energy/articles/most-power-sought-us-data-093000335.html" },
+      { date: "Aug 10, 2026", tag: "CAPITAL", text: "NVIDIA signed MOUs with Apollo, BlackRock, Blackstone, Brookfield, Goldman Sachs and KKR to establish financing platforms mobilizing more than $500B of third-party capital for AI infrastructure — structured so outside investors fund data centers and power for NVIDIA's own customers (frontier labs, enterprises, AI clouds) without loading its balance sheet, with NVIDIA compute itself treated as the investable collateral. Subject to final agreements.", src: "NVIDIA", url: "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital", players: ["NVDA"] },
       { date: "Aug 10, 2026", tag: "SUPPLY", text: "HD Hyundai Heavy Industries secured a $675M deal — its largest-ever power-engine order — to supply 1,000 MW of HiMSEN gas-engine generating capacity to a US data center project via developer Coban Energy Group, underscoring how quickly demand for on-site/behind-the-meter generation equipment is scaling.", src: "Korea Herald", url: "https://www.koreaherald.com/article/10836118" },
       { date: "Aug 9, 2026", tag: "CAPITAL", text: "NVIDIA will reportedly invest $2B for roughly 20% of Lancium — the Blackstone-backed Texas developer whose Abilene campus is Stargate's first operational site — at about a $10B valuation, extendable to $3B on milestones including grid hookups. Reported, not confirmed by the companies.", src: "The Information / Reuters", url: "https://finance.yahoo.com/technology/articles/nvidia-invest-3-billion-lancium-014211358.html", players: ["NVDA", "Lancium"] },
       { date: "Aug 7, 2026", tag: "BUILDOUT", text: "Amazon is backing what could be the largest natural-gas power plant ever built in the US — up to 7.6 GW of behind-the-meter generation planned for a data center site in Pecos County, Texas — and confirmed talks to develop a data center at the 4.5 GW gas plant under construction at Homer City, PA, as developers have proposed roughly 90 GW of behind-the-meter gas nationwide since the start of 2025 per Cleanview.", src: "Distilled / DCD", url: "https://www.distilled.earth/p/scoop-amazon-is-behind-one-of-the", players: ["Amazon"] },
@@ -3161,7 +3162,6 @@
       { date: "Aug 5, 2026", tag: "POLICY", text: "PJM's board sent FERC its full large-load framework — an Interim Resource Adequacy Service creating a registry of every 50+ MW load and a 'bring your own new capacity' (BYONC) path for data centers to contract new generation, storage or demand response — under which, starting June 2027, large loads that don't bring capacity are curtailed ahead of pre-emergency load management, with states and utilities deciding who gets cut.", src: "Canary Media", url: "https://www.canarymedia.com/articles/data-centers/pjm-data-center-plan", players: ["PJM"] },
       { date: "Aug 4, 2026", tag: "BUILDOUT", text: "NRG said on its Q2 call it has aligned on principal commercial terms with an unnamed global cloud and AI hyperscaler for a $3.2 billion, 1.2 GW combined-cycle gas plant in Texas — a 15-year minimum contract with an investment-grade counterparty targeting late-2029 commercial operation and expandable to 2.4 GW, with 95% of free cash flow underpinned by capacity payments regardless of data center utilization.", src: "NRG Q2 2026 earnings / Utility Dive", url: "https://www.utilitydive.com/news/nrg-nears-12-gw-hyperscaler-deal-amid-texas-data-center-pause/827212/", players: ["NRG"] },
       { date: "Aug 3, 2026", tag: "POLICY", text: "Texas Gov. Greg Abbott directed the PUCT and ERCOT to audit all 1,800+ projects in the state's 474 GW large-load interconnection queue (~90% data centers) and paused approvals of new data center connections until each project's power demand, water use, public financial assistance and ownership are verified — prompting ERCOT to postpone its Batch Zero transmission planning study.", src: "Texas Tribune / Utility Dive", url: "https://www.texastribune.org/2026/08/03/texas-data-center-project-audit-greg-abbott/", players: ["Texas", "ERCOT", "PUCT"] },
-      { date: "Jul 20, 2026", tag: "BUILDOUT", text: "PowerPlay AI announced a 400 MW behind-the-meter AI data center development in greater Abilene, Texas through a joint venture with a Nasdaq-listed neocloud partner — targeting initial power in 2028, the latest ERCOT project to bypass the interconnection queue with on-site generation.", src: "PR Newswire", url: "https://www.manilatimes.net/2026/07/20/tmt-newswire/pr-newswire/powerplay-ai-announces-400-mw-behind-the-meter-ai-data-center-development-in-greater-abilene-with-nasdaq-listed-neocloud-joint-venture-partner/2387777", players: ["PowerPlay AI"] },
     ],
     kpis: [
       { label: "US power demand 2026", value: "41", unit: "GW",
@@ -3589,7 +3589,7 @@
        stalled), NOT a metric. Sorted date-desc; cap ~12; curated on a monthly pass. ----- */
     buildabilityMovements: [
       { date: "2026-06", market: "All ISOs (federal)", gate: "interconnection", direction: "easing",
-        headline: "FERC show-cause orders to all six RTOs: 60 days to justify or rewrite large-load interconnection tariffs — responses due ~Aug 2026",
+        headline: "FERC show-cause orders to all six RTOs: responses filed Aug 17, 2026 — every large-load tariff (≥50 MW, ≥69 kV) now under review, comments close ~Sep 16",
         src: { label: "FERC / White & Case, Jun 2026", tier: "primary" } },
       { date: "2026-06", market: "Central Ohio",     gate: "permitting",      direction: "tightening",
         headline: "Ohio lawmakers introduce sweeping data-center siting + cost-allocation bill",
@@ -4356,7 +4356,7 @@
     }
   };
 </script>
-<script src="app.js?v=20260720a"></script>
+<script src="app.js?v=20260817a"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">

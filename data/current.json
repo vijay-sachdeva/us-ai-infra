@@ -1,12 +1,14 @@
 {
-  "lastUpdated": "2026-08-16",
+  "lastUpdated": "2026-08-17",
   "topStory": {
-    "date": "Aug 10, 2026",
-    "text": "NVIDIA signed MOUs with Apollo, BlackRock, Blackstone, Brookfield, Goldman Sachs and KKR to establish financing platforms mobilizing more than $500B of third-party capital for AI infrastructure — structured so outside investors fund data centers and power for NVIDIA's own customers (frontier labs, enterprises, AI clouds) without loading its balance sheet, with NVIDIA compute itself treated as the investable collateral. Subject to final agreements.",
-    "src": "NVIDIA",
-    "url": "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital",
+    "date": "Aug 17, 2026",
+    "text": "Today is the deadline for all six RTOs/ISOs — PJM, MISO, SPP, NYISO, ISO-NE and CAISO — to answer FERC's June 18 show-cause orders, which preliminarily found their large-load interconnection rules may be 'unjust, unreasonable or unduly discriminatory.' Each must either justify its existing tariff or propose reforms for connecting loads of 50 MW or more at 69 kV and above; interested parties then get 30 days to comment. The rulebook governing how every US data center reaches the grid is now in play in every federally-regulated market at once.",
+    "src": "FERC / Orrick",
+    "url": "https://www.orrick.com/en/Insights/2026/07/FERC-Show-Cause-Orders-Signal-Broad-Reform-to-Large-Load-Interconnection-Policies",
     "players": [
-      "NVDA"
+      "PJM",
+      "MISO",
+      "ERCOT"
     ]
   },
   "feed": [
@@ -16,6 +18,16 @@
       "text": "More than two-thirds of the electricity sought for US AI data centers is unlikely to ever materialize, per new Wood Mackenzie projections: grid operators and utilities will likely commit to only about 28% of the 1,066 GW currently requested nationwide, with the rest 'phantom' — duplicative or non-binding requests filed at multiple utilities simultaneously with no realistic path to construction.",
       "src": "Bloomberg / Yahoo Finance",
       "url": "https://finance.yahoo.com/energy/articles/most-power-sought-us-data-093000335.html"
+    },
+    {
+      "date": "Aug 10, 2026",
+      "tag": "CAPITAL",
+      "text": "NVIDIA signed MOUs with Apollo, BlackRock, Blackstone, Brookfield, Goldman Sachs and KKR to establish financing platforms mobilizing more than $500B of third-party capital for AI infrastructure — structured so outside investors fund data centers and power for NVIDIA's own customers (frontier labs, enterprises, AI clouds) without loading its balance sheet, with NVIDIA compute itself treated as the investable collateral. Subject to final agreements.",
+      "src": "NVIDIA",
+      "url": "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital",
+      "players": [
+        "NVDA"
+      ]
     },
     {
       "date": "Aug 10, 2026",
@@ -114,16 +126,6 @@
         "Texas",
         "ERCOT",
         "PUCT"
-      ]
-    },
-    {
-      "date": "Jul 20, 2026",
-      "tag": "BUILDOUT",
-      "text": "PowerPlay AI announced a 400 MW behind-the-meter AI data center development in greater Abilene, Texas through a joint venture with a Nasdaq-listed neocloud partner — targeting initial power in 2028, the latest ERCOT project to bypass the interconnection queue with on-site generation.",
-      "src": "PR Newswire",
-      "url": "https://www.manilatimes.net/2026/07/20/tmt-newswire/pr-newswire/powerplay-ai-announces-400-mw-behind-the-meter-ai-data-center-development-in-greater-abilene-with-nasdaq-listed-neocloud-joint-venture-partner/2387777",
-      "players": [
-        "PowerPlay AI"
       ]
     }
   ],
