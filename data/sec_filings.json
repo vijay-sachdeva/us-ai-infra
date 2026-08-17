@@ -3,8 +3,8 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-08-16T21:18:16+00:00",
-  "fetched_at": "2026-08-16T21:18:16+00:00",
+  "lastUpdated": "2026-08-17T13:37:33+00:00",
+  "fetched_at": "2026-08-17T13:37:33+00:00",
   "companies": {
     "MSFT": {
       "cik": "0000789019",
@@ -276,6 +276,14 @@
       "filings": [
         {
           "form": "8-K",
+          "filed": "2026-08-17",
+          "report_period": "2026-08-17",
+          "accession": "0001045810-26-000069",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000069/nvda-20260817.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
           "filed": "2026-07-02",
           "report_period": "2026-06-28",
           "accession": "0001045810-26-000060",
@@ -312,14 +320,6 @@
           "report_period": "2026-05-20",
           "accession": "0001045810-26-000051",
           "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000051/nvda-20260520.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-05-08",
-          "report_period": "2026-05-07",
-          "accession": "0001045810-26-000028",
-          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000028/nvda-20260507.htm",
           "description": "8-K"
         }
       ]
@@ -806,6 +806,14 @@
       "filings": [
         {
           "form": "8-K",
+          "filed": "2026-08-17",
+          "report_period": "2026-08-15",
+          "accession": "0001193125-26-353148",
+          "url": "https://www.sec.gov/Archives/edgar/data/1116942/000119312526353148/d375900d8k.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
           "filed": "2026-08-06",
           "report_period": "2026-08-05",
           "accession": "0001193125-26-336163",
@@ -842,14 +850,6 @@
           "report_period": "2026-05-27",
           "accession": "0001193125-26-240340",
           "url": "https://www.sec.gov/Archives/edgar/data/1116942/000119312526240340/d112116d8k.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-05-18",
-          "report_period": "2026-05-15",
-          "accession": "0001193125-26-229075",
-          "url": "https://www.sec.gov/Archives/edgar/data/1116942/000119312526229075/d131334d8k.htm",
           "description": "8-K"
         }
       ]

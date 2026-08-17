@@ -1,10 +1,10 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-08-16T21:18:26+00:00",
+  "generated_at": "2026-08-17T13:37:42+00:00",
   "counts": {
-    "co_mention": 2,
-    "recurring_player": 0,
+    "co_mention": 4,
+    "recurring_player": 1,
     "filing_after_review": 3
   },
   "candidates": [
@@ -12,23 +12,59 @@
       "reason": "co-mention",
       "players": [
         "Lancium",
-        "QTS"
+        "NVDA"
       ],
-      "date": "Jul 13, 2026",
-      "src": "QTS / DCD",
-      "evidence_text": "QTS and Lancium announced a $10+ billion data center campus in Hall County, Texas — up to 11 QTS data centers across ~465 acres on Lancium's Clean Campus near Turkey, anchored by a 1 GW grid connection, with the companie",
+      "date": "Aug 9, 2026",
+      "src": "The Information / Reuters",
+      "evidence_text": "NVIDIA will reportedly invest $2B for roughly 20% of Lancium — the Blackstone-backed Texas developer whose Abilene campus is Stargate's first operational site — at about a $10B valuation, extendable to $3B on milestones ",
       "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
     },
     {
       "reason": "co-mention",
       "players": [
-        "Crusoe",
-        "Lancium"
+        "ERCOT",
+        "Oncor"
       ],
-      "date": "Jul 15, 2026",
-      "src": "Crusoe / Lancium",
-      "evidence_text": "Crusoe and Lancium announced a 1.0 GW grid-connected AI data center campus in Childress, Texas on a 270-acre Lancium-owned site, with construction beginning Q3 2026 — adding another gigawatt-scale campus to the ERCOT pip",
+      "date": "Aug 7, 2026",
+      "src": "Utility Dive",
+      "evidence_text": "Oncor CEO Allen Nye told investors the utility's large-load service requests climbed to 298 GW from 289 GW at the end of Q1, with roughly 44 GW of projects in its territory qualified for ERCOT's Batch Zero interconnectio",
       "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "co-mention",
+      "players": [
+        "ERCOT",
+        "Texas"
+      ],
+      "date": "Aug 6, 2026",
+      "src": "BloombergNEF / Utility Dive",
+      "evidence_text": "BloombergNEF put numbers on the Texas freeze: the pause touches about 49.8 GW of projects — roughly 20% of the entire US data center pipeline — and could put up to $8 billion of data center revenue at risk by Q1 2027, wi",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "co-mention",
+      "players": [
+        "ERCOT",
+        "PUCT",
+        "Texas"
+      ],
+      "date": "Aug 3, 2026",
+      "src": "Texas Tribune / Utility Dive",
+      "evidence_text": "Texas Gov. Greg Abbott directed the PUCT and ERCOT to audit all 1,800+ projects in the state's 474 GW large-load interconnection queue (~90% data centers) and paused approvals of new data center connections until each pr",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "recurring-player",
+      "players": [
+        "ERCOT"
+      ],
+      "count": 3,
+      "items": [
+        "Oncor CEO Allen Nye told investors the utility's large-load service requests cli",
+        "BloombergNEF put numbers on the Texas freeze: the pause touches about 49.8 GW of",
+        "Texas Gov. Greg Abbott directed the PUCT and ERCOT to audit all 1,800+ projects "
+      ],
+      "suggestion": "ERCOT appears in 3 feed items — candidate for a narrative thread (one motion across weeks)."
     },
     {
       "reason": "filing-after-review",
