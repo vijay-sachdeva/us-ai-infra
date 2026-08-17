@@ -2082,7 +2082,7 @@ const $ = (id) => document.getElementById(id);
       { label: "NVIDIA Q2 FY27 — supply commentary", date: "late Aug", why: "GB200 GA; allocation vs lead-time is the binding issue" }
     ],
     grid: [
-      { label: "FERC show-cause responses — all six RTOs", date: "~Aug 2026", why: "Jun 2026 orders gave each RTO 60 days to justify or rewrite large-load tariffs (see Buildout → movements); PJM just cleared AT the cap with a first-ever RTO-wide shortfall" },
+      { label: "FERC large-load comments close", date: "~Sep 16, 2026", why: "all six RTOs answered the show-cause orders on Aug 17 (see Buildout → movements); interested parties get 30 days, then FERC rules on whether every large-load tariff gets rewritten" },
       { label: "Next state PUC rate-case / large-load docket", why: "VA · TX · OH set the ratepayer-revolt pace" },
       { label: "EIA — next grid demand / headroom update", why: "the ~19 GW-by-2030 deficit path" }
     ],
@@ -2090,7 +2090,7 @@ const $ = (id) => document.getElementById(id);
     // registry to update when a catalyst lands, so a passed date can't linger in static HTML.
     overview: [
       { label: "Hyperscaler Q2 capex guides", date: "late Jul–Aug", href: "#capital:overcommitmentBoard" },
-      { label: "FERC show-cause responses", date: "~Aug 2026", href: "#grid" },
+      { label: "FERC large-load comments close", date: "~Sep 16", href: "#grid" },
       { label: "Oracle 10-Q RPO print", href: "#capital:overcommitmentBoard" },
       { label: "LBNL <i>Queued Up</i> snapshot", href: "#buildout:queueChart" },
       { label: "Next state PUC ruling", href: "#grid:rateImpactChart" }
@@ -3485,7 +3485,7 @@ const $ = (id) => document.getElementById(id);
     const CAT_RE = /(?:by|vote|final(?:\s+by)?|effective)\s+([A-Z][a-z]{2,8}\.?\s+20\d\d)/;
     const PJM_ST = { Virginia: 1, Ohio: 1, Pennsylvania: 1 };
     const nextCat = st => {
-      if (PJM_ST[st]) return "FERC show-cause responses · ~Aug 2026";
+      if (PJM_ST[st]) return "FERC large-load comments close · ~Sep 16, 2026";
       const m = trig[st]; const mm = m && (m.headline || "").match(CAT_RE); return mm ? mm[1] : "";
     };
     // Geographic companion to the evidence matrix. This is an explicit archetype grouping,
