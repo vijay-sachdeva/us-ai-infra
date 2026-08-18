@@ -1,17 +1,39 @@
 {
-  "lastUpdated": "2026-08-17",
+  "lastUpdated": "2026-08-18",
   "topStory": {
-    "date": "Aug 17, 2026",
-    "text": "Today is the deadline for all six RTOs/ISOs — PJM, MISO, SPP, NYISO, ISO-NE and CAISO — to answer FERC's June 18 show-cause orders, which preliminarily found their large-load interconnection rules may be 'unjust, unreasonable or unduly discriminatory.' Each must either justify its existing tariff or propose reforms for connecting loads of 50 MW or more at 69 kV and above; interested parties then get 30 days to comment. The rulebook governing how every US data center reaches the grid is now in play in every federally-regulated market at once.",
-    "src": "FERC / Orrick",
-    "url": "https://www.orrick.com/en/Insights/2026/07/FERC-Show-Cause-Orders-Signal-Broad-Reform-to-Large-Load-Interconnection-Policies",
+    "date": "Aug 18, 2026",
+    "text": "Bloomberg's analysis of BloombergNEF data counts 99 proposed on-site natural-gas plants — about 126 GW across 22 states, more than a third of it in Texas — being built to power US data centers. Run at industry-standard rates they would emit roughly 318 million metric tons of CO2 a year, lifting US power-sector emissions about 20%, and up to a third if run flat out. Amazon's 8,000-acre Pecos County, Texas site and Microsoft's West Texas complex behind a Chevron-built plant account for more than 10 GW and up to 45 Mt CO2e between them. The behind-the-meter gas that lets projects skip the interconnection queue is now the single largest new source of US power emissions.",
+    "src": "BloombergNEF / Fortune",
+    "url": "https://fortune.com/2026/08/18/data-center-gas-plants-to-boost-u-s-power-emissions-by-20/",
     "players": [
-      "PJM",
-      "MISO",
-      "ERCOT"
+      "Amazon",
+      "Microsoft",
+      "Texas"
     ]
   },
   "feed": [
+    {
+      "date": "Aug 17, 2026",
+      "tag": "POLICY",
+      "text": "The 60-day deadline arrived for all six FERC-jurisdictional RTOs/ISOs — PJM, MISO, SPP, NYISO, ISO-NE and CAISO — to answer FERC's June 18 show-cause orders, which preliminarily found their large-load interconnection rules may be 'unjust, unreasonable or unduly discriminatory.' Each had to justify its existing tariff or propose reforms for connecting loads of 50 MW or more at 69 kV and above. Interested parties now get 30 days to respond to those filings, closing the comment window around Sep 16.",
+      "src": "FERC / Orrick",
+      "url": "https://www.orrick.com/en/Insights/2026/07/FERC-Show-Cause-Orders-Signal-Broad-Reform-to-Large-Load-Interconnection-Policies",
+      "players": [
+        "PJM",
+        "MISO",
+        "SPP"
+      ]
+    },
+    {
+      "date": "Aug 13, 2026",
+      "tag": "POLICY",
+      "text": "PJM formally filed its large-load framework at FERC in docket ER26-3515, requesting an Oct 12, 2026 effective date. Any site adding 50 MW or more of cumulative peak demand after June 1, 2027 must designate qualifying new capacity at least equal to its peak, and any unsupported portion is curtailed ahead of pre-emergency demand response — exposure a load can reduce or eliminate through the 'bring your own new capacity' (BYONC) path. PJM's case for it: roughly 70 GW of new large load projected by 2038 against about 15 GW of generation retired since 2022.",
+      "src": "PJM FERC filing / Data Center Knowledge",
+      "url": "https://www.datacenterknowledge.com/energy-power-supply/pjm-s-new-deal-for-data-centers-bring-power-or-face-cuts",
+      "players": [
+        "PJM"
+      ]
+    },
     {
       "date": "Aug 12, 2026",
       "tag": "GRID",
