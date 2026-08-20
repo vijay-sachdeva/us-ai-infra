@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-08-19",
+  "lastUpdated": "2026-08-20",
   "topStory": {
     "date": "Aug 17, 2026",
     "text": "NVIDIA's 8-K discloses residual value guaranties backstopping OpenAI's leases at SB Energy's PORTS Technology Campus in Pike County, Ohio — roughly 4.25 GW of IT load, with NVIDIA's aggregate payment obligation cumulatively capped at $105B and discretion to add credit support for about 3.8 GW more. If OpenAI defaults or becomes insolvent, NVIDIA pays the shortfall between each lease's guaranteed minimum value and what a replacement lease or sale recovers; the obligation lapses once OpenAI achieves a satisfactory credit rating, and OpenAI has agreed to reimburse NVIDIA for any amount it actually pays. Leases are expected to reach ready-for-service beginning in 2028. The chip supplier is now underwriting its largest customer's real estate.",
@@ -128,45 +128,6 @@
       "players": [
         "Texas",
         "ERCOT"
-      ]
-    },
-    {
-      "date": "Aug 6, 2026",
-      "tag": "SUPPLY",
-      "text": "Bloomberg reports that rapid, synchronized power swings from AI training workloads are physically damaging data center equipment — batteries, generators and cooling systems are malfunctioning or wearing out well ahead of schedule — adding unplanned costs and reliability risk for operators even as rack densities climb toward 100 kW.",
-      "src": "Bloomberg",
-      "url": "https://www.bloomberg.com/news/articles/2026-08-06/data-centers-are-being-damaged-by-ai-s-volatile-power-demand"
-    },
-    {
-      "date": "Aug 5, 2026",
-      "tag": "POLICY",
-      "text": "PJM's board sent FERC its full large-load framework — an Interim Resource Adequacy Service creating a registry of every 50+ MW load and a 'bring your own new capacity' (BYONC) path for data centers to contract new generation, storage or demand response — under which, starting June 2027, large loads that don't bring capacity are curtailed ahead of pre-emergency load management, with states and utilities deciding who gets cut.",
-      "src": "Canary Media",
-      "url": "https://www.canarymedia.com/articles/data-centers/pjm-data-center-plan",
-      "players": [
-        "PJM"
-      ]
-    },
-    {
-      "date": "Aug 4, 2026",
-      "tag": "BUILDOUT",
-      "text": "NRG said on its Q2 call it has aligned on principal commercial terms with an unnamed global cloud and AI hyperscaler for a $3.2 billion, 1.2 GW combined-cycle gas plant in Texas — a 15-year minimum contract with an investment-grade counterparty targeting late-2029 commercial operation and expandable to 2.4 GW, with 95% of free cash flow underpinned by capacity payments regardless of data center utilization.",
-      "src": "NRG Q2 2026 earnings / Utility Dive",
-      "url": "https://www.utilitydive.com/news/nrg-nears-12-gw-hyperscaler-deal-amid-texas-data-center-pause/827212/",
-      "players": [
-        "NRG"
-      ]
-    },
-    {
-      "date": "Aug 3, 2026",
-      "tag": "POLICY",
-      "text": "Texas Gov. Greg Abbott directed the PUCT and ERCOT to audit all 1,800+ projects in the state's 474 GW large-load interconnection queue (~90% data centers) and paused approvals of new data center connections until each project's power demand, water use, public financial assistance and ownership are verified — prompting ERCOT to postpone its Batch Zero transmission planning study.",
-      "src": "Texas Tribune / Utility Dive",
-      "url": "https://www.texastribune.org/2026/08/03/texas-data-center-project-audit-greg-abbott/",
-      "players": [
-        "Texas",
-        "ERCOT",
-        "PUCT"
       ]
     }
   ],
