@@ -1,13 +1,37 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-08-20T13:49:22+00:00",
+  "generated_at": "2026-08-20T21:24:34+00:00",
   "counts": {
-    "co_mention": 4,
+    "co_mention": 5,
     "recurring_player": 1,
     "filing_after_review": 3
   },
   "candidates": [
+    {
+      "reason": "co-mention",
+      "players": [
+        "Amazon",
+        "Microsoft",
+        "Texas"
+      ],
+      "date": "Aug 18, 2026",
+      "src": "BloombergNEF / Fortune",
+      "evidence_text": "Bloomberg's analysis of BloombergNEF data counts 99 proposed on-site natural-gas plants — about 126 GW across 22 states, more than a third of it in Texas — being built to power US data centers. Run at industry-standard r",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "co-mention",
+      "players": [
+        "MISO",
+        "PJM",
+        "SPP"
+      ],
+      "date": "Aug 17, 2026",
+      "src": "FERC / Orrick",
+      "evidence_text": "The 60-day deadline arrived for all six FERC-jurisdictional RTOs/ISOs — PJM, MISO, SPP, NYISO, ISO-NE and CAISO — to answer FERC's June 18 show-cause orders, which preliminarily found their large-load interconnection rul",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
     {
       "reason": "co-mention",
       "players": [
@@ -42,29 +66,17 @@
       "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
     },
     {
-      "reason": "co-mention",
-      "players": [
-        "ERCOT",
-        "PUCT",
-        "Texas"
-      ],
-      "date": "Aug 3, 2026",
-      "src": "Texas Tribune / Utility Dive",
-      "evidence_text": "Texas Gov. Greg Abbott directed the PUCT and ERCOT to audit all 1,800+ projects in the state's 474 GW large-load interconnection queue (~90% data centers) and paused approvals of new data center connections until each pr",
-      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
-    },
-    {
       "reason": "recurring-player",
       "players": [
-        "ERCOT"
+        "Amazon"
       ],
       "count": 3,
       "items": [
-        "Oncor CEO Allen Nye told investors the utility's large-load service requests cli",
-        "BloombergNEF put numbers on the Texas freeze: the pause touches about 49.8 GW of",
-        "Texas Gov. Greg Abbott directed the PUCT and ERCOT to audit all 1,800+ projects "
+        "Bloomberg's analysis of BloombergNEF data counts 99 proposed on-site natural-gas",
+        "Amazon is backing what could be the largest natural-gas power plant ever built i",
+        "AWS is reportedly telling its own engineers to cut CPU waste and reclaim low-uti"
       ],
-      "suggestion": "ERCOT appears in 3 feed items — candidate for a narrative thread (one motion across weeks)."
+      "suggestion": "Amazon appears in 3 feed items — candidate for a narrative thread (one motion across weeks)."
     },
     {
       "reason": "filing-after-review",
