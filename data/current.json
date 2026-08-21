@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-08-20",
+  "lastUpdated": "2026-08-21",
   "topStory": {
     "date": "Aug 17, 2026",
     "text": "NVIDIA's 8-K discloses residual value guaranties backstopping OpenAI's leases at SB Energy's PORTS Technology Campus in Pike County, Ohio — roughly 4.25 GW of IT load, with NVIDIA's aggregate payment obligation cumulatively capped at $105B and discretion to add credit support for about 3.8 GW more. If OpenAI defaults or becomes insolvent, NVIDIA pays the shortfall between each lease's guaranteed minimum value and what a replacement lease or sale recovers; the obligation lapses once OpenAI achieves a satisfactory credit rating, and OpenAI has agreed to reimburse NVIDIA for any amount it actually pays. Leases are expected to reach ready-for-service beginning in 2028. The chip supplier is now underwriting its largest customer's real estate.",
@@ -12,6 +12,17 @@
     ]
   },
   "feed": [
+    {
+      "date": "Aug 19, 2026",
+      "tag": "BUILDOUT",
+      "text": "TerraPower says its next Natrium plant — the first aimed at a data center, customer still undisclosed — will be announced this year and break ground in 2027. The 345 MW molten-salt design stores excess heat and taps it to boost output when demand spikes, the pitch for AI loads; Meta agreed in January to buy eight Natrium plants. Advanced nuclear stays the longest path to firm power, but it is now signing commercial customers.",
+      "src": "Bloomberg / TechCrunch",
+      "url": "https://techcrunch.com/2026/08/19/terrapowers-nuclear-reactor-has-a-secret-weapon-for-powering-ai-data-centers/",
+      "players": [
+        "TerraPower",
+        "META"
+      ]
+    },
     {
       "date": "Aug 18, 2026",
       "tag": "GRID",
@@ -117,17 +128,6 @@
       "url": "https://www.tomshardware.com/pc-components/cpus/amazon-cracks-down-on-cpu-waste-among-engineers-as-agentic-ai-crunch-intensifies-cpu-demand-makes-low-utilization-ec2-instances-a-hot-commodity",
       "players": [
         "Amazon"
-      ]
-    },
-    {
-      "date": "Aug 6, 2026",
-      "tag": "POLICY",
-      "text": "BloombergNEF put numbers on the Texas freeze: the pause touches about 49.8 GW of projects — roughly 20% of the entire US data center pipeline — and could put up to $8 billion of data center revenue at risk by Q1 2027, with more than 70% of the ~50 GW BNEF tracks in Texas still at an early stage.",
-      "src": "BloombergNEF / Utility Dive",
-      "url": "https://www.utilitydive.com/news/texas-data-center-pause-puts-us-pipeline-risk-of-delay-bnef/827185/",
-      "players": [
-        "Texas",
-        "ERCOT"
       ]
     }
   ],
