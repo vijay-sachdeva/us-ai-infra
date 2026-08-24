@@ -1,17 +1,23 @@
 {
-  "lastUpdated": "2026-08-21",
+  "lastUpdated": "2026-08-23",
   "topStory": {
-    "date": "Aug 17, 2026",
-    "text": "NVIDIA's 8-K discloses residual value guaranties backstopping OpenAI's leases at SB Energy's PORTS Technology Campus in Pike County, Ohio — roughly 4.25 GW of IT load, with NVIDIA's aggregate payment obligation cumulatively capped at $105B and discretion to add credit support for about 3.8 GW more. If OpenAI defaults or becomes insolvent, NVIDIA pays the shortfall between each lease's guaranteed minimum value and what a replacement lease or sale recovers; the obligation lapses once OpenAI achieves a satisfactory credit rating, and OpenAI has agreed to reimburse NVIDIA for any amount it actually pays. Leases are expected to reach ready-for-service beginning in 2028. The chip supplier is now underwriting its largest customer's real estate.",
-    "src": "NVIDIA 8-K (Item 1.01)",
-    "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000069/nvda-20260817.htm",
-    "players": [
-      "NVDA",
-      "OpenAI",
-      "SB Energy"
-    ]
+    "date": "Aug 18, 2026",
+    "text": "Dell'Oro Group nearly doubled its 2030 outlook in eight months: worldwide data-center capex is now forecast to surpass $3 trillion by 2030, up from its January 2026 view, on higher hyperscaler guidance, bigger global power-capacity projections and rising commodity costs. High-end AI accelerators remain the largest single line and the primary growth driver, while the new AI-specialized cloud segment (model builders and neoclouds) grows at nearly a 60% CAGR. Dell'Oro notes the top four US hyperscalers alone could be about half of global capex — capital is scaling faster than the power to deploy it.",
+    "src": "Dell'Oro Group",
+    "url": "https://www.delloro.com/news/ai-buildout-maintains-momentum-as-data-center-capex-surpasses-3-trillion-by-2030/",
+    "players": []
   },
   "feed": [
+    {
+      "date": "Aug 20, 2026",
+      "tag": "SUPPLY",
+      "text": "Micron unveiled Micron Research Labs in Boise — a $10B, decade-long commitment to a dedicated US memory-research hub covering advanced memory and compute architectures, packaging and future manufacturing, with construction starting 2027. It sits on top of the $250B+ Micron has already committed to US manufacturing and R&D as the HBM crunch keeps pacing accelerator output.",
+      "src": "Micron (investor relations)",
+      "url": "https://investors.micron.com/news/press-release/2026/Micron-Unveils-Micron-Research-Labs-a-U-S--Based-Long-Horizon-Innovation-Hub-to-Shape-the-Future-of-Memory-and-AI/default.aspx",
+      "players": [
+        "MU"
+      ]
+    },
     {
       "date": "Aug 19, 2026",
       "tag": "BUILDOUT",
@@ -33,6 +39,18 @@
         "Amazon",
         "Microsoft",
         "Texas"
+      ]
+    },
+    {
+      "date": "Aug 17, 2026",
+      "tag": "CAPITAL",
+      "text": "NVIDIA's 8-K discloses residual value guaranties backstopping OpenAI's leases at SB Energy's PORTS Technology Campus in Pike County, Ohio — roughly 4.25 GW of IT load, with NVIDIA's aggregate payment obligation cumulatively capped at $105B and discretion to add credit support for about 3.8 GW more. If OpenAI defaults or becomes insolvent, NVIDIA pays the shortfall between each lease's guaranteed minimum value and what a replacement lease or sale recovers; the obligation lapses once OpenAI achieves a satisfactory credit rating, and OpenAI has agreed to reimburse NVIDIA for any amount it actually pays. Leases are expected to reach ready-for-service beginning in 2028. The chip supplier is now underwriting its largest customer's real estate.",
+      "src": "NVIDIA 8-K (Item 1.01)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000069/nvda-20260817.htm",
+      "players": [
+        "NVDA",
+        "OpenAI",
+        "SB Energy"
       ]
     },
     {
@@ -105,27 +123,6 @@
       "text": "Amazon is backing what could be the largest natural-gas power plant ever built in the US — up to 7.6 GW of behind-the-meter generation planned for a data center site in Pecos County, Texas — and confirmed talks to develop a data center at the 4.5 GW gas plant under construction at Homer City, PA, as developers have proposed roughly 90 GW of behind-the-meter gas nationwide since the start of 2025 per Cleanview.",
       "src": "Distilled / DCD",
       "url": "https://www.distilled.earth/p/scoop-amazon-is-behind-one-of-the",
-      "players": [
-        "Amazon"
-      ]
-    },
-    {
-      "date": "Aug 7, 2026",
-      "tag": "GRID",
-      "text": "Oncor CEO Allen Nye told investors the utility's large-load service requests climbed to 298 GW from 289 GW at the end of Q1, with roughly 44 GW of projects in its territory qualified for ERCOT's Batch Zero interconnection review — a queue whose timeline is now unclear after Gov. Abbott's audit order, though Oncor said it supports the state's screening effort.",
-      "src": "Utility Dive",
-      "url": "https://www.utilitydive.com/news/fate-of-oncors-nearly-300-gw-load-pipeline-unclear-following-texas-data-ce/827303/",
-      "players": [
-        "Oncor",
-        "ERCOT"
-      ]
-    },
-    {
-      "date": "Aug 6, 2026",
-      "tag": "SUPPLY",
-      "text": "AWS is reportedly telling its own engineers to cut CPU waste and reclaim low-utilization EC2 instances to preserve capacity for customers — a sign the AI-era compute crunch is tight enough that the largest cloud is rationing internally, echoing capacity-constraint talk across hyperscaler Q2 calls.",
-      "src": "The Information / Tom's Hardware",
-      "url": "https://www.tomshardware.com/pc-components/cpus/amazon-cracks-down-on-cpu-waste-among-engineers-as-agentic-ai-crunch-intensifies-cpu-demand-makes-low-utilization-ec2-instances-a-hot-commodity",
       "players": [
         "Amazon"
       ]
