@@ -1,7 +1,7 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-08-23T21:18:20+00:00",
+  "generated_at": "2026-08-24T13:50:01+00:00",
   "counts": {
     "co_mention": 5,
     "recurring_player": 1,
@@ -34,6 +34,18 @@
     {
       "reason": "co-mention",
       "players": [
+        "NVDA",
+        "OpenAI",
+        "SB Energy"
+      ],
+      "date": "Aug 17, 2026",
+      "src": "NVIDIA 8-K (Item 1.01)",
+      "evidence_text": "NVIDIA's 8-K discloses residual value guaranties backstopping OpenAI's leases at SB Energy's PORTS Technology Campus in Pike County, Ohio — roughly 4.25 GW of IT load, with NVIDIA's aggregate payment obligation cumulativ",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "co-mention",
+      "players": [
         "MISO",
         "PJM",
         "SPP"
@@ -55,28 +67,17 @@
       "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
     },
     {
-      "reason": "co-mention",
-      "players": [
-        "ERCOT",
-        "Oncor"
-      ],
-      "date": "Aug 7, 2026",
-      "src": "Utility Dive",
-      "evidence_text": "Oncor CEO Allen Nye told investors the utility's large-load service requests climbed to 298 GW from 289 GW at the end of Q1, with roughly 44 GW of projects in its territory qualified for ERCOT's Batch Zero interconnectio",
-      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
-    },
-    {
       "reason": "recurring-player",
       "players": [
-        "Amazon"
+        "NVDA"
       ],
       "count": 3,
       "items": [
-        "Bloomberg's analysis of BloombergNEF data counts 99 proposed on-site natural-gas",
-        "Amazon is backing what could be the largest natural-gas power plant ever built i",
-        "AWS is reportedly telling its own engineers to cut CPU waste and reclaim low-uti"
+        "NVIDIA's 8-K discloses residual value guaranties backstopping OpenAI's leases at",
+        "NVIDIA signed MOUs with Apollo, BlackRock, Blackstone, Brookfield, Goldman Sachs",
+        "NVIDIA will reportedly invest $2B for roughly 20% of Lancium — the Blackstone-ba"
       ],
-      "suggestion": "Amazon appears in 3 feed items — candidate for a narrative thread (one motion across weeks)."
+      "suggestion": "NVDA appears in 3 feed items — candidate for a narrative thread (one motion across weeks)."
     },
     {
       "reason": "filing-after-review",
