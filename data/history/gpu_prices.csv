@@ -391,3 +391,11 @@ date,provider,sku,usd_per_gpu_hr,source_url,retrieved_at
 2026-08-25,runpod,B200,5.98,https://www.runpod.io/pricing,2026-08-25T21:24:27+00:00
 2026-08-25,runpod,H100 SXM,2.69,https://www.runpod.io/pricing,2026-08-25T21:24:27+00:00
 2026-08-25,runpod,H200,3.59,https://www.runpod.io/pricing,2026-08-25T21:24:27+00:00
+2026-08-26,lambda,B200,6.69,https://lambda.ai/pricing,2026-08-26T13:52:31+00:00
+2026-08-26,lambda,H100 SXM,3.99,https://lambda.ai/pricing,2026-08-26T13:52:31+00:00
+2026-08-26,nebius,B200,3.95,https://nebius.com/prices,2026-08-26T13:52:31+00:00
+2026-08-26,nebius,H100 SXM,2.15,https://nebius.com/prices,2026-08-26T13:52:31+00:00
+2026-08-26,nebius,H200,2.45,https://nebius.com/prices,2026-08-26T13:52:31+00:00
+2026-08-26,runpod,B200,5.98,https://www.runpod.io/pricing,2026-08-26T13:52:31+00:00
+2026-08-26,runpod,H100 SXM,2.69,https://www.runpod.io/pricing,2026-08-26T13:52:31+00:00
+2026-08-26,runpod,H200,3.59,https://www.runpod.io/pricing,2026-08-26T13:52:31+00:00
