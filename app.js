@@ -157,7 +157,7 @@ const $ = (id) => document.getElementById(id);
     megaPowerPaths: { reviewed: "2026-07", take: "Among source-verified active builds, Meta's Hyperion tops the ledger at 5,000 MW (colocated) ahead of Homer City 4,500 MW and Joule 4,000 MW — both behind-the-meter, and both total-facility power (incl. cooling/generation), not IT load. The largest capacity clusters in BTM/colocated paths that bypass the interconnect queue, while four retreats (Project Jade, Project Blue, the Stargate-Abilene expansion, a paused Microsoft Ohio site) are segregated and excluded from the active GW total.", asof: "source-verified ledger (announced/ultimate targets; mixed capacity_type)", src: { label: "data/projects.json (per-record citations)" } },
     coCapexChart: { reviewed: "2026-07", take: "Amazon leads 2026 AI-infra capex at $200B, ahead of Microsoft ($190B), Google ($185B) and Meta ($135B — midpoint of its filed $125-145B range), with AI-native challengers far smaller: Oracle $56B (FY26 actual), CoreWeave $33B, Nebius $22B and xAI $18B.", asof: "2026 guidance", src: { label: "company 2026 capex guidance" } },
     commitmentQuadrant: { reviewed: "2026-07", take: "Capital quality beats headline capex: the two names deepest in the over-committed / power-short corner — Oracle (~10 yrs of OCF pre-committed) and CoreWeave (~10 yrs, no owned build) — are the same two leaning hardest on a single concentrated counterparty. X is SEC-filed (primary); ledger GW is coverage-biased (read direction, not magnitude); silicon colour is editorial.", asof: "SEC filings (2026) + named-build ledger", src: { label: "SEC 10-K/10-Q · data/projects.json · company capex guidance" } },
-    capexAiShareChart: { reviewed: "2026-07", take: "Across ~$799B of tracked operator capex roughly 90% is AI/data-center-attributed, with pure-plays like Oracle and CoreWeave near 100% and diversified operators lower — but the infra-vs-non-core split is an editorial Modeled estimate, not a reported line item — and the grey non-core remainder is the walk-back cushion, which Oracle and CoreWeave effectively lack.", asof: "2026 guidance", src: { label: "modeled (this dashboard)" } },
+    capexAiShareChart: { reviewed: "2026-07", take: "Across ~$837B of tracked operator capex roughly 90% is AI/data-center-attributed, with pure-plays like Oracle and CoreWeave near 100% and diversified operators lower — but the infra-vs-non-core split is an editorial Modeled estimate, not a reported line item — and the grey non-core remainder is the walk-back cushion, which Oracle and CoreWeave effectively lack.", asof: "2026 guidance", src: { label: "modeled (this dashboard)" } },
     costStack: { reviewed: "2026-06", take: "Building one MW of AI capacity runs ~$42M all-in, with compute ($31M) dwarfing facility ($11M) and GPUs/accelerators alone ($23M) the single largest layer — more than the entire shell, power, cooling and servers combined.", asof: "illustrative", src: { label: "illustrative per-MW build stack (JLL + analyst)" } },
     capexTrendChart: { reviewed: "2026-06", take: "Combined Big-5 hyperscaler capex (Amazon, Microsoft, Alphabet, Meta, Oracle) more than quintupled from $128B in 2021 to a guided ~$684B in 2026, where the 2026 figure is company guidance/estimate rather than reported actuals.", asof: "2021-2025 actuals + 2026 guidance", src: { label: "company 10-Ks / earnings (2026 = guidance)" } },
     capexVsCashflowChart: { reviewed: "2026-06", take: "Through FY2025 combined Big-5 capex ($381B) was ~66% of operating cash flow ($577B), up from ~44% in 2021, and Oracle is already the lone single-name crossover — its FY2026 capex ($55.7B) exceeds operating cash flow ($32.0B) for roughly -$24B free cash flow.", asof: "2021-2025 actuals + 2026 guidance", src: { label: "company 10-Ks / earnings (2026 = guidance)" } },
@@ -2072,14 +2072,14 @@ const $ = (id) => document.getElementById(id);
   // Forward-looking watch items are editorial (marked °), never predictions or invented dates.
   var WATCH_SIGNALS = {
     capital: [
-      { label: "Q2 2026 hyperscaler capex guides", date: "late Jul–Aug", why: "confirm or break the ~$839B run-rate" },
+      { label: "Q3 2026 hyperscaler capex guides", date: "late Oct", why: "Q2 raises already lifted the run-rate to ~$877B — watch whether 2027 guidance compounds it" },
       { label: "Oracle 10-Q — next RPO print", why: "the $138B→$638B backlog is the over-commitment tell" },
       { label: "CoreWeave customer-concentration disclosure", why: "~67% Microsoft is the renewal/survival variable" }
     ],
     buildout: [
       { label: "GE Vernova / Siemens / MHI order books", why: "turbine slots sold out to 2029–30 — first slack shows here" },
       { label: "LBNL Queued Up — next annual snapshot", why: "97 GW queued vs ~24 GW credible" },
-      { label: "NVIDIA Q2 FY27 — supply commentary", date: "late Aug", why: "GB200 GA; allocation vs lead-time is the binding issue" }
+      { label: "NVIDIA Q3 FY27 — supply commentary", date: "late Nov", why: "Q2 printed $89B data-center revenue and guided Q3 to $108B; Vera Rubin ramp is the next supply tell" }
     ],
     grid: [
       { label: "FERC large-load comments close", date: "~Sep 16, 2026", why: "all six RTOs answered the show-cause orders on Aug 17 (see Buildout → movements); interested parties get 30 days, then FERC rules on whether every large-load tariff gets rewritten" },
@@ -2089,14 +2089,14 @@ const $ = (id) => document.getElementById(id);
     // Overview "Top 5 watch signals" chips render from THIS list (renderOvWatchChips) — one
     // registry to update when a catalyst lands, so a passed date can't linger in static HTML.
     overview: [
-      { label: "Hyperscaler Q2 capex guides", date: "late Jul–Aug", href: "#capital:overcommitmentBoard" },
+      { label: "Hyperscaler Q3 capex guides", date: "late Oct", href: "#capital:overcommitmentBoard" },
       { label: "FERC large-load comments close", date: "~Sep 16", href: "#grid" },
       { label: "Oracle 10-Q RPO print", href: "#capital:overcommitmentBoard" },
       { label: "LBNL <i>Queued Up</i> snapshot", href: "#buildout:queueChart" },
       { label: "Next state PUC ruling", href: "#grid:rateImpactChart" }
     ],
     tokens: [
-      { label: "NVIDIA Q2 FY27 — data-center demand", date: "late Aug", why: "clearest external read on token→compute demand" },
+      { label: "NVIDIA Q3 FY27 — data-center demand", date: "late Nov", why: "Q2 data-center revenue $89B (+117% YoY); Q3 guided to $108B total" },
       { label: "Next hyperscaler inference-volume disclosure", why: "Google's 3.2Q tokens/mo is the last hard anchor" }
     ]
   };
@@ -3807,7 +3807,7 @@ const $ = (id) => document.getElementById(id);
       const wr = su.whRange || [ex.whPerToken, ex.whPerToken];
       const gwLo = su.aggregate.tokens * wr[0] / 730 / 1e9, gwHi = su.aggregate.tokens * wr[1] / 730 / 1e9;
       const queueGW = (DATA.powerBreakdown && DATA.powerBreakdown.funnel) ? DATA.powerBreakdown.funnel.values[0] : 97;
-      const capexB = DATA.companyCapex ? DATA.companyCapex.values.reduce((a, b) => a + b, 0) : 839;
+      const capexB = DATA.companyCapex ? DATA.companyCapex.values.reduce((a, b) => a + b, 0) : 877;
       const perMw = (DATA.powerToRevenueYield && DATA.powerToRevenueYield.costIn) ? DATA.powerToRevenueYield.costIn.allInPerMw : 42;   // $M all-in per MW
       const buildB = Math.round(gw * perMw / 10) * 10;   // ~22 GW × $42M/MW ≈ ~$920B to build that inference power
       const cell = (v, l, n) => `<div class="bridge-cell"><div class="bv">${v}</div><div class="bl">${l}</div><div class="bn">${n}</div></div>`;
