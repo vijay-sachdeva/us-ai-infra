@@ -1,13 +1,25 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-08-27T00:25:46+00:00",
+  "generated_at": "2026-08-27T22:46:24+00:00",
   "counts": {
     "co_mention": 5,
-    "recurring_player": 1,
-    "filing_after_review": 4
+    "recurring_player": 0,
+    "filing_after_review": 5
   },
   "candidates": [
+    {
+      "reason": "co-mention",
+      "players": [
+        "AMZN",
+        "GOOGL",
+        "META"
+      ],
+      "date": "Aug 26, 2026",
+      "src": "CNBC / company guidance",
+      "evidence_text": "Q2 earnings reset the 2026 capex baseline: Amazon lifted guidance to $220B citing higher memory costs and warned it still won't have enough capacity to meet demand; Alphabet raised to $195–205B on faster capacity deliver",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
     {
       "reason": "co-mention",
       "players": [
@@ -56,30 +68,6 @@
       "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
     },
     {
-      "reason": "co-mention",
-      "players": [
-        "Lancium",
-        "NVDA"
-      ],
-      "date": "Aug 9, 2026",
-      "src": "The Information / Reuters",
-      "evidence_text": "NVIDIA will reportedly invest $2B for roughly 20% of Lancium — the Blackstone-backed Texas developer whose Abilene campus is Stargate's first operational site — at about a $10B valuation, extendable to $3B on milestones ",
-      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
-    },
-    {
-      "reason": "recurring-player",
-      "players": [
-        "NVDA"
-      ],
-      "count": 3,
-      "items": [
-        "NVIDIA's 8-K discloses residual value guaranties backstopping OpenAI's leases at",
-        "NVIDIA signed MOUs with Apollo, BlackRock, Blackstone, Brookfield, Goldman Sachs",
-        "NVIDIA will reportedly invest $2B for roughly 20% of Lancium — the Blackstone-ba"
-      ],
-      "suggestion": "NVDA appears in 3 feed items — candidate for a narrative thread (one motion across weeks)."
-    },
-    {
       "reason": "filing-after-review",
       "players": [
         "CRWV"
@@ -87,6 +75,15 @@
       "filing": "10-Q 2026-08-12",
       "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000366/crwv-20260630.htm",
       "suggestion": "CRWV filed a 10-Q after the connections ledger was last reviewed (2026-07) — re-verify CRWV's connections against the new filing."
+    },
+    {
+      "reason": "filing-after-review",
+      "players": [
+        "IREN"
+      ],
+      "filing": "10-K 2026-08-27",
+      "url": "https://www.sec.gov/Archives/edgar/data/1878848/000187884826000052/iren-20260630.htm",
+      "suggestion": "IREN filed a 10-K after the connections ledger was last reviewed (2026-07) — re-verify IREN's connections against the new filing."
     },
     {
       "reason": "filing-after-review",
