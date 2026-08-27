@@ -36,7 +36,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12/dist/d3-sankey.min.js"></script>
-<script src="config.js?v=20260817a"></script>
+<script src="config.js?v=20260827a"></script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -2134,8 +2134,8 @@
       </div>
       <div class="ov-lens-label">The AI infrastructure chain — where demand becomes constraint&deg;</div>
       <div class="ov-lenses ov-causal">
-        <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span><span class="ov-sev driver">driver</span><span class="ov-watch">watch: NVIDIA Q2 FY27 &middot; late Aug</span></a>
-        <a class="ov-lens" href="#capital"><span class="ov-step">2 · Capital</span><b>$839B</b><span class="ov-lens-stat">2026 capex chasing that demand · ~75% AI. Money isn't the constraint — over-committed books are (Oracle/CoreWeave ~10 yrs OCF).</span><span class="ov-sev slack">not binding</span><span class="ov-watch">watch: Q2 capex guides &middot; late Jul&ndash;Aug</span></a>
+        <a class="ov-lens" href="#tokens"><span class="ov-step">1 · Tokens</span><b>3.2 quadrillion / mo</b><span class="ov-lens-stat">Google's all-surface inference — ~18× its billed API volume. Usage is the demand engine.</span><span class="ov-sev driver">driver</span><span class="ov-watch">watch: NVIDIA Q3 FY27 &middot; late Nov</span></a>
+        <a class="ov-lens" href="#capital"><span class="ov-step">2 · Capital</span><b>$877B</b><span class="ov-lens-stat">2026 capex chasing that demand · ~75% AI. Money isn't the constraint — over-committed books are (Oracle/CoreWeave ~10 yrs OCF).</span><span class="ov-sev slack">not binding</span><span class="ov-watch">watch: Q3 capex guides &middot; late Oct</span></a>
         <a class="ov-lens" href="#buildout"><span class="ov-step">3 · Buildout</span><b>97 GW queued</b><span class="ov-lens-stat">only ~24 GW truly buildable · queued-not-secured MW carries the haircut. Queued &ne; buildable.</span><span class="ov-sev high">high — gear-gated</span><span class="ov-watch">watch: LBNL <i>Queued Up</i> snapshot</span></a>
         <a class="ov-lens" href="#grid"><span class="ov-step">4 · Grid</span><b>~19 GW short</b><span class="ov-lens-stat">firm power can't keep up — the long pole; PJM/N. Virginia loads most exposed.</span><span class="ov-sev binding">binding</span><span class="ov-watch">watch: FERC large-load comments close &middot; ~Sep 16</span></a>
         <a class="ov-lens" href="#grid:rateImpactChart"><span class="ov-step">5 · Rates &amp; politics</span><b>at the cap, 3&times;</b><span class="ov-lens-stat">PJM cleared AT the FERC cap three straight auctions ($325); costs land on ratepayers (VA +57% modeled&deg;) — then on permits.</span><span class="ov-sev high">rising</span><span class="ov-watch">watch: White House pledge event &middot; state PUC rulings</span></a>
@@ -2167,7 +2167,7 @@
           <span class="ccc-head"><b class="ccc-name">CAPEX</b><span class="ccc-trend" title="Trend: rising (editorial read)" aria-label="trend rising">&#8593;</span></span>
           <span class="ccc-sev">Elevated<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
           <span class="ccc-bar"><i style="width:60%"></i></span>
-          <span class="ccc-read">Oracle <b>≈10 yrs</b> of operating cash flow pre-committed; <b>~$839B</b> 2026 capex, ~75% AI.</span>
+          <span class="ccc-read">Oracle <b>≈10 yrs</b> of operating cash flow pre-committed; <b>~$877B</b> 2026 capex, ~75% AI.</span>
           <span class="ccc-next"><b>Next:</b> Q2 2026 hyperscaler capex guides (late Jul–Aug)</span>
         </a>
         <a class="ccc-tile sev-amber" href="#grid">
@@ -2317,11 +2317,11 @@
     <section class="tab-content" data-tab="capital">
       <h2 class="tab-title">Capital</h2>
       <p class="tab-sub">Where the money goes — capex, vacancy, returns, M&amp;A. For capital allocators, VCs, corp dev, public-market investors.</p>
-      <p class="gap-connector"><span class="gc-tag">↑ the 19 GW gap</span>Money isn't the constraint — <b>power is</b>. $839B is chasing a market that's ~19 GW short on firm power by 2030; the winners own the megawatts, not the capex.</p>
+      <p class="gap-connector"><span class="gc-tag">↑ the 19 GW gap</span>Money isn't the constraint — <b>power is</b>. $877B is chasing a market that's ~19 GW short on firm power by 2030; the winners own the megawatts, not the capex.</p>
 
       <div class="so-what">
         <label>So what</label>
-        <h3>$839B can buy compute—but not firm power. Value accrues to megawatts already controlled; risk clusters where long obligations depend on one counterparty.</h3>
+        <h3>$877B can buy compute—but not firm power. Value accrues to megawatts already controlled; risk clusters where long obligations depend on one counterparty.</h3>
       </div>
 
       <!-- FLAGSHIP (lead): Commitment vs build-out footprint — the capital-quality quadrant -->
@@ -2411,7 +2411,7 @@
       <!-- Full-width: capex flow Sankey (after capex totals + cost stack) -->
       <div class="stub-card">
         <h4>Where the capex flows — 2026</h4>
-        <div class="note">~$799B across the <b>six</b> operators with disclosed spend buckets — the ~$839B headline adds xAI + Nebius (~$40B) · totals are each company's 2026 guidance (primary) · the bucket split is <b>modeled</b> · select a company to drill in</div>
+        <div class="note">~$837B across the <b>six</b> operators with disclosed spend buckets — the ~$877B headline adds xAI + Nebius (~$40B) · totals are each company's 2026 guidance (primary) · the bucket split is <b>modeled</b> · select a company to drill in</div>
         <div class="map-view-toggle" id="capexViewToggle" role="tablist">
           <button class="map-view-btn active" data-cview="all"       type="button">All</button>
           <button class="map-view-btn"        data-cview="Amazon"    type="button">Amazon</button>
@@ -3141,17 +3141,19 @@
   // daily-refresh workflow resumes editing this same content. Until then,
   // this is a snapshot that may lag production by a day or two.
   const DATA = {
-    lastUpdated: "2026-08-23",
+    lastUpdated: "2026-08-27",
     topStory: {
-      date: "Aug 18, 2026",
-      text: "Dell'Oro Group nearly doubled its 2030 outlook in eight months: worldwide data-center capex is now forecast to surpass $3 trillion by 2030, up from its January 2026 view, on higher hyperscaler guidance, bigger global power-capacity projections and rising commodity costs. High-end AI accelerators remain the largest single line and the primary growth driver, while the new AI-specialized cloud segment (model builders and neoclouds) grows at nearly a 60% CAGR. Dell'Oro notes the top four US hyperscalers alone could be about half of global capex — capital is scaling faster than the power to deploy it.",
-      src: "Dell'Oro Group",
-      url: "https://www.delloro.com/news/ai-buildout-maintains-momentum-as-data-center-capex-surpasses-3-trillion-by-2030/",
-      players: []
+      date: "Aug 26, 2026",
+      text: "NVIDIA's Q2 FY27: revenue $96.2B, up 106% year over year, with data-center revenue of $89.0B (+117% YoY, +18% sequentially) and Q3 guided to $108B — guidance that assumes no data-center compute revenue from China. Jensen Huang: 'AI has reached its inflection point... compute is revenue. And demand is accelerating.' The quarter caps an earnings season in which Amazon, Alphabet and Meta all raised 2026 capex, lifting the tracked operator run-rate to ~$877B.",
+      src: "NVIDIA (Q2 FY2027 results)",
+      url: "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027",
+      players: ["NVDA"]
     },
     feed: [
+      { date: "Aug 26, 2026", tag: "CAPITAL", text: "Q2 earnings reset the 2026 capex baseline: Amazon lifted guidance to $220B citing higher memory costs and warned it still won't have enough capacity to meet demand; Alphabet raised to $195–205B on faster capacity delivery; Meta lifted its floor to $130–145B as the buildout consumed nearly all quarterly operating cash flow. This dashboard's tracked operator capex moves from ~$839B to ~$877B.", src: "CNBC / company guidance", url: "https://www.cnbc.com/2026/07/30/amazon-amzn-q2-earnings-report-2026.html", players: ["AMZN", "GOOGL", "META"] },
       { date: "Aug 20, 2026", tag: "SUPPLY", text: "Micron unveiled Micron Research Labs in Boise — a $10B, decade-long commitment to a dedicated US memory-research hub covering advanced memory and compute architectures, packaging and future manufacturing, with construction starting 2027. It sits on top of the $250B+ Micron has already committed to US manufacturing and R&D as the HBM crunch keeps pacing accelerator output.", src: "Micron (investor relations)", url: "https://investors.micron.com/news/press-release/2026/Micron-Unveils-Micron-Research-Labs-a-U-S--Based-Long-Horizon-Innovation-Hub-to-Shape-the-Future-of-Memory-and-AI/default.aspx", players: ["MU"] },
       { date: "Aug 19, 2026", tag: "BUILDOUT", text: "TerraPower says its next Natrium plant — the first aimed at a data center, customer still undisclosed — will be announced this year and break ground in 2027. The 345 MW molten-salt design stores excess heat and taps it to boost output when demand spikes, the pitch for AI loads; Meta agreed in January to buy eight Natrium plants. Advanced nuclear stays the longest path to firm power, but it is now signing commercial customers.", src: "Bloomberg / TechCrunch", url: "https://techcrunch.com/2026/08/19/terrapowers-nuclear-reactor-has-a-secret-weapon-for-powering-ai-data-centers/", players: ["TerraPower", "META"] },
+      { date: "Aug 18, 2026", tag: "CAPITAL", text: "Dell'Oro Group nearly doubled its 2030 outlook in eight months: worldwide data-center capex is now forecast to surpass $3 trillion by 2030, up from its January 2026 view, on higher hyperscaler guidance, bigger global power-capacity projections and rising commodity costs. High-end AI accelerators remain the largest single line and the primary growth driver, while the new AI-specialized cloud segment (model builders and neoclouds) grows at nearly a 60% CAGR. Dell'Oro notes the top four US hyperscalers alone could be about half of global capex — capital is scaling faster than the power to deploy it.", src: "Dell'Oro Group", url: "https://www.delloro.com/news/ai-buildout-maintains-momentum-as-data-center-capex-surpasses-3-trillion-by-2030/" },
       { date: "Aug 18, 2026", tag: "GRID", text: "Bloomberg's analysis of BloombergNEF data counts 99 proposed on-site natural-gas plants — about 126 GW across 22 states, more than a third of it in Texas — being built to power US data centers. Run at industry-standard rates they would emit roughly 318 million metric tons of CO2 a year, lifting US power-sector emissions about 20%, and up to a third if run flat out. Amazon's Pecos County, Texas site and Microsoft's West Texas complex behind a Chevron-built plant account for more than 10 GW and up to 45 Mt CO2e between them.", src: "BloombergNEF / Fortune", url: "https://fortune.com/2026/08/18/data-center-gas-plants-to-boost-u-s-power-emissions-by-20/", players: ["Amazon", "Microsoft", "Texas"] },
       { date: "Aug 17, 2026", tag: "CAPITAL", text: "NVIDIA's 8-K discloses residual value guaranties backstopping OpenAI's leases at SB Energy's PORTS Technology Campus in Pike County, Ohio — roughly 4.25 GW of IT load, with NVIDIA's aggregate payment obligation cumulatively capped at $105B and discretion to add credit support for about 3.8 GW more. If OpenAI defaults or becomes insolvent, NVIDIA pays the shortfall between each lease's guaranteed minimum value and what a replacement lease or sale recovers; the obligation lapses once OpenAI achieves a satisfactory credit rating, and OpenAI has agreed to reimburse NVIDIA for any amount it actually pays. Leases are expected to reach ready-for-service beginning in 2028. The chip supplier is now underwriting its largest customer's real estate.", src: "NVIDIA 8-K (Item 1.01)", url: "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000069/nvda-20260817.htm", players: ["NVDA", "OpenAI", "SB Energy"] },
       { date: "Aug 17, 2026", tag: "POLICY", text: "The 60-day deadline arrived for all six FERC-jurisdictional RTOs/ISOs — PJM, MISO, SPP, NYISO, ISO-NE and CAISO — to answer FERC's June 18 show-cause orders, which preliminarily found their large-load interconnection rules may be 'unjust, unreasonable or unduly discriminatory.' Each had to justify its existing tariff or propose reforms for connecting loads of 50 MW or more at 69 kV and above. Interested parties now get 30 days to respond to those filings, closing the comment window around Sep 16.", src: "FERC / Orrick", url: "https://www.orrick.com/en/Insights/2026/07/FERC-Show-Cause-Orders-Signal-Broad-Reform-to-Large-Load-Interconnection-Policies", players: ["PJM", "MISO", "SPP"] },
@@ -3160,15 +3162,13 @@
       { date: "Aug 12, 2026", tag: "GRID", text: "More than two-thirds of the electricity sought for US AI data centers is unlikely to ever materialize, per new Wood Mackenzie projections: grid operators and utilities will likely commit to only about 28% of the 1,066 GW currently requested nationwide, with the rest 'phantom' — duplicative or non-binding requests filed at multiple utilities simultaneously with no realistic path to construction.", src: "Bloomberg / Yahoo Finance", url: "https://finance.yahoo.com/energy/articles/most-power-sought-us-data-093000335.html" },
       { date: "Aug 10, 2026", tag: "CAPITAL", text: "NVIDIA signed MOUs with Apollo, BlackRock, Blackstone, Brookfield, Goldman Sachs and KKR to establish financing platforms mobilizing more than $500B of third-party capital for AI infrastructure — structured so outside investors fund data centers and power for NVIDIA's own customers (frontier labs, enterprises, AI clouds) without loading its balance sheet, with NVIDIA compute itself treated as the investable collateral. Subject to final agreements.", src: "NVIDIA", url: "https://nvidianews.nvidia.com/news/nvidia-partners-with-apollo-blackrock-blackstone-brookfield-goldman-sachs-and-kkr-to-establish-ai-compute-infrastructure-financing-platforms-to-mobilize-over-500-billion-of-third-party-capital", players: ["NVDA"] },
       { date: "Aug 10, 2026", tag: "SUPPLY", text: "HD Hyundai Heavy Industries secured a $675M deal — its largest-ever power-engine order — to supply 1,000 MW of HiMSEN gas-engine generating capacity to a US data center project via developer Coban Energy Group, underscoring how quickly demand for on-site/behind-the-meter generation equipment is scaling.", src: "Korea Herald", url: "https://www.koreaherald.com/article/10836118" },
-      { date: "Aug 9, 2026", tag: "CAPITAL", text: "NVIDIA will reportedly invest $2B for roughly 20% of Lancium — the Blackstone-backed Texas developer whose Abilene campus is Stargate's first operational site — at about a $10B valuation, extendable to $3B on milestones including grid hookups. Reported, not confirmed by the companies.", src: "The Information / Reuters", url: "https://finance.yahoo.com/technology/articles/nvidia-invest-3-billion-lancium-014211358.html", players: ["NVDA", "Lancium"] },
-      { date: "Aug 7, 2026", tag: "BUILDOUT", text: "Amazon is backing what could be the largest natural-gas power plant ever built in the US — up to 7.6 GW of behind-the-meter generation planned for a data center site in Pecos County, Texas — and confirmed talks to develop a data center at the 4.5 GW gas plant under construction at Homer City, PA, as developers have proposed roughly 90 GW of behind-the-meter gas nationwide since the start of 2025 per Cleanview.", src: "Distilled / DCD", url: "https://www.distilled.earth/p/scoop-amazon-is-behind-one-of-the", players: ["Amazon"] },
     ],
     kpis: [
       { label: "US power demand 2026", value: "41", unit: "GW",
         sub: "All US data centers · facility-level load",
         delta: "<b class='up'>+32%</b> vs. 31 GW in 2025",
         src: { label: "Goldman Sachs Research", tier: "analyst" } },
-      { label: "Major operators capex", value: "$839", unit: "B",
+      { label: "Major operators capex", value: "$877", unit: "B",
         sub: "Eight largest operators · projected 2026 spend",
         delta: "<b class='up'>~75% AI-related</b> · up sharply on the AI buildout",
         src: { label: "Company 2026 guidance", tier: "analyst" } },
@@ -3189,7 +3189,7 @@
     /* ----- Investor tab ----- */
     companyCapex: {
       companies: ["Amazon", "Microsoft", "Google", "Meta", "Oracle", "CoreWeave", "Nebius", "xAI"],
-      values:    [200, 190, 185, 135, 56, 33, 22, 18],
+      values:    [220, 190, 200, 138, 56, 33, 22, 18],
       colors:    ["#ff9900", "#0078d4", "#34a853", "#0866ff", "#c74634", "#7c3aed", "#84cc16", "#64748b"],
       srcs: [
         { label: "Amazon 2026 guidance" },
@@ -3215,17 +3215,17 @@
       years: [2021, 2022, 2023, 2024, 2025, 2026],
       guidanceFrom: 2026,
       companies: [
-        { name: "Amazon",    color: "#ff9900", capex: [61.1, 63.6, 52.7, 83.0, 131.8, 200], ocf: [46.3, 46.8, 84.9, 115.9, 139.5, null] },
+        { name: "Amazon",    color: "#ff9900", capex: [61.1, 63.6, 52.7, 83.0, 131.8, 220], ocf: [46.3, 46.8, 84.9, 115.9, 139.5, null] },
         { name: "Microsoft", color: "#7cbb00", capex: [20.6, 23.9, 28.1, 44.5, 64.6, 113],  ocf: [76.7, 89.0, 87.6, 118.5, 136.2, 176]  },
-        { name: "Alphabet",  color: "#4285f4", capex: [24.6, 31.5, 32.3, 52.5, 91.4, 180],  ocf: [91.7, 91.5, 101.7, 125.3, 164.7, null] },
-        { name: "Meta",      color: "#0668e1", capex: [19.2, 32.0, 28.1, 39.2, 72.2, 135],  ocf: [57.7, 50.5, 71.1, 91.3, 115.8, null]  },
+        { name: "Alphabet",  color: "#4285f4", capex: [24.6, 31.5, 32.3, 52.5, 91.4, 200],  ocf: [91.7, 91.5, 101.7, 125.3, 164.7, null] },
+        { name: "Meta",      color: "#0668e1", capex: [19.2, 32.0, 28.1, 39.2, 72.2, 138],  ocf: [57.7, 50.5, 71.1, 91.3, 115.8, null]  },
         { name: "Oracle",    color: "#c74634", capex: [2.1, 4.5, 8.7, 6.9, 21.2, 55.7],     ocf: [15.9, 9.5, 17.2, 18.7, 20.8, 32.0]    }
       ],
       combined: {
-        capex: [127.6, 155.5, 149.9, 226.1, 381.2, 683.7],
+        capex: [127.6, 155.5, 149.9, 226.1, 381.2, 726.7],
         ocf:   [288.3, 287.3, 362.5, 469.7, 577.0, null]
       },
-      crossover: "Through FY2025 (the last full-actual year) combined Big-5 capex was ~66% of operating cash flow — $381B vs $577B — up from ~44% in 2021, as capex roughly tripled while OCF only doubled. 2026 is the inflection year: capex guidance is ~$684B, but three of the five issue no 2026 OCF guidance, so a true 2026 crossover can't be computed from sourced figures.",
+      crossover: "Through FY2025 (the last full-actual year) combined Big-5 capex was ~66% of operating cash flow — $381B vs $577B — up from ~44% in 2021, as capex roughly tripled while OCF only doubled. 2026 is the inflection year: capex guidance is ~$727B, but three of the five issue no 2026 OCF guidance, so a true 2026 crossover can't be computed from sourced figures.",
       oracleCrossover: "Oracle is the lone single-name crossover already: its FY2026 capex ($55.7B) exceeds operating cash flow ($32.0B) — negative free cash flow of roughly −$24B.",
       src: { label: "Company 10-Ks / earnings releases — FY2021–25 reported actuals; 2026 = company capex guidance (Amazon/Alphabet/Meta), Microsoft estimate, Oracle actual", tier: "primary" },
       caveats: [
@@ -3233,7 +3233,7 @@
         "<b>Fiscal years aren't aligned.</b> Amazon/Alphabet/Meta close in December, Microsoft in June, Oracle in May — combined sums add overlapping but not identical 12-month windows.",
         "<b>Capex definitions differ.</b> Meta's headline figure includes finance-lease principal; the others are cash purchases of PP&amp;E — this modestly overstates Meta's relative share.",
         "<b>2026 combined OCF is blank by design.</b> Amazon, Alphabet and Meta issue no 2026 cash-flow guidance, so a five-company 2026 OCF total (and a 2026 crossover) can't be sourced.",
-        "Excludes AI-native challengers (CoreWeave, xAI, Nebius) — this is the Big-5 <i>public-hyperscaler</i> curve, a narrower scope than the ~$839B all-in capex headline."
+        "Excludes AI-native challengers (CoreWeave, xAI, Nebius) — this is the Big-5 <i>public-hyperscaler</i> curve, a narrower scope than the ~$877B all-in capex headline."
       ]
     },
 
@@ -3258,10 +3258,10 @@
         { key: "noncore", label: "Non-core capex" }
       ],
       companies: [
-        { name: "Amazon",    color: "#ff9900", total: 200, src: { label: "Amazon 2026 guidance", tier: "primary" },
+        { name: "Amazon",    color: "#ff9900", total: 220, src: { label: "Amazon 2026 guidance", tier: "primary" },
           buckets: [
-            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 70 },
-            { label: "Server systems",             lane: "infra",   cat: "server",     value: 30 },
+            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 82 },
+            { label: "Server systems",             lane: "infra",   cat: "server",     value: 38 },
             { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 48 },
             { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 8  },
             { label: "Other AWS infra",            lane: "infra",   cat: "otherinfra", value: 4  },
@@ -3278,20 +3278,20 @@
             { label: "Other Azure infra",          lane: "infra",   cat: "otherinfra", value: 4  },
             { label: "Devices / gaming / other",   lane: "noncore", cat: "noncore",    value: 16 }
           ] },
-        { name: "Google",    color: "#34a853", total: 185, src: { label: "Alphabet 2026 guidance", tier: "primary" },
+        { name: "Google",    color: "#34a853", total: 200, src: { label: "Alphabet 2026 guidance", tier: "primary" },
           buckets: [
-            { label: "AI accelerators (TPU + GPU)",lane: "infra",   cat: "accel",      value: 68 },
-            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 32 },
-            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 52 },
-            { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 12 },
+            { label: "AI accelerators (TPU + GPU)",lane: "infra",   cat: "accel",      value: 74 },
+            { label: "Server & storage",           lane: "infra",   cat: "server",     value: 35 },
+            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 56 },
+            { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 14 },
             { label: "Other cloud infra",          lane: "infra",   cat: "otherinfra", value: 5  },
             { label: "Other Bets / devices",       lane: "noncore", cat: "noncore",    value: 16 }
           ] },
-        { name: "Meta",      color: "#0866ff", total: 135, src: { label: "Meta 2026 guidance ($125–145B filed; midpoint)", tier: "primary" },
+        { name: "Meta",      color: "#0866ff", total: 138, src: { label: "Meta 2026 guidance ($130–145B filed; midpoint)", tier: "primary" },
           buckets: [
-            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 54 },
+            { label: "AI accelerators",            lane: "infra",   cat: "accel",      value: 56 },
             { label: "Server & storage",           lane: "infra",   cat: "server",     value: 23 },
-            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 40 },
+            { label: "Physical infra + utilities", lane: "infra",   cat: "physical",   value: 41 },
             { label: "Networking fabric",          lane: "infra",   cat: "network",    value: 7  },
             { label: "Other infra",                lane: "infra",   cat: "otherinfra", value: 4  },
             { label: "Reality Labs / other",       lane: "noncore", cat: "noncore",    value: 7  }
@@ -3734,7 +3734,7 @@
     },
 
     /* ----- Offtake coverage (Capital) — is 2026 capex demand-pulled or supply-pushed? -----
-       Of the headline ~$839B major-operator capex + named GW pipeline, what share is
+       Of the headline ~$877B major-operator capex + named GW pipeline, what share is
        backed by a SIGNED long-term offtake (hyperscaler lease, AI-lab take-or-pay, cloud
        RPO/backlog) vs partially-disclosed vs speculative/merchant build?
        Backlog/RPO + lease terms = PRIMARY (company filings/IR press). The coverage SHARE
@@ -3786,7 +3786,7 @@
           note: "Hyperscaler builds for OWN demand — no external offtake; demand is internal, not a signed third-party lease.",
           src: { label: "Meta + Entergy 5 GW (megaProjects)", tier: "primary" } }
       ],
-      method: "Segments are a MODELED band: numerator = sum of disclosed long-term offtake (cloud RPO/backlog + named take-or-pay leases above); denominator = the modeled ~$839B major-operator 2026 capex plus the named GW pipeline. RPO/backlog and lease terms are PRIMARY (filings/IR). The contracted SHARE is an estimate — shown as a band, not a precise %. Self-built hyperscaler GW (e.g. Meta Hyperion) is demand-pulled by internal need but carries no external offtake, so it sits in 'speculative/merchant' for offtake-coverage purposes."
+      method: "Segments are a MODELED band: numerator = sum of disclosed long-term offtake (cloud RPO/backlog + named take-or-pay leases above); denominator = the modeled ~$877B major-operator 2026 capex plus the named GW pipeline. RPO/backlog and lease terms are PRIMARY (filings/IR). The contracted SHARE is an estimate — shown as a band, not a precise %. Self-built hyperscaler GW (e.g. Meta Hyperion) is demand-pulled by internal need but carries no external offtake, so it sits in 'speculative/merchant' for offtake-coverage purposes."
     },
 
     /* ----- Circular-financing & counterparty map (Capital) -----
@@ -4350,13 +4350,13 @@
         aggregate: { value: "3.2 quadrillion", unit: "tokens / month", who: "Google, all surfaces, May 2026", tokens: 3.2e15, src: { label: "Sundar Pichai, Google I/O 2026 keynote", tier: "primary" } },
         whRange: [0.003, 0.010],   // Wh/token low–high band (≈3–10 kWh / 1M); midpoint 0.005
         soWhat: "One prompt is a couple of watt-hours and a fraction of a cent. Multiply by the token volume the largest platforms now run and you arrive at the gigawatts and hundreds of billions of capex the rest of this dashboard tracks. That multiplication is the whole story.",
-        note: "This traces the real layers a token's work touches and the real per-token economics, decomposed for teaching — not a claim that one prompt physically travels these layers in this exact sequence. Energy, price, GW and capex are cited; the volume → GWh step is modeled arithmetic shown as a RANGE; ~13–44 GW (≈22 GW midpoint) is one company's inference under a ~3–10 kWh/1M energy band, while the ~97 GW queue spans all operators plus training and headroom. The ~$839B of actual 2026 operator capex is a different denominator again — all operators, training and headroom — so it is not a clean ratio against the modeled build cost."
+        note: "This traces the real layers a token's work touches and the real per-token economics, decomposed for teaching — not a claim that one prompt physically travels these layers in this exact sequence. Energy, price, GW and capex are cited; the volume → GWh step is modeled arithmetic shown as a RANGE; ~13–44 GW (≈22 GW midpoint) is one company's inference under a ~3–10 kWh/1M energy band, while the ~97 GW queue spans all operators plus training and headroom. The ~$877B of actual 2026 operator capex is a different denominator again — all operators, training and headroom — so it is not a clean ratio against the modeled build cost."
       },
       src: { label: "Pipeline framing original; all energy, price, GW and capex figures cited per step / rung", tier: "modeled" }
     }
   };
 </script>
-<script src="app.js?v=20260817a"></script>
+<script src="app.js?v=20260827a"></script>
 
 <!-- ================= CHAT ASSISTANT (FAB + panel) ================= -->
 <button class="chat-fab" id="chatFab" aria-label="Open the dashboard assistant">
@@ -4506,7 +4506,7 @@
     if (has("power demand", "41 gw", "how much power", "load"))
       return "US data center power demand is ~41 GW in 2026 (vs 31 GW in 2025), projected to grow to ~100 GW by 2030. See Overview tab.";
     if (has("capex", "spending", "808", "200b", "190b"))
-      return "Major operators' 2026 capex totals ~$799B: AWS $200B, Microsoft $190B, Google $185B, Meta $135B (midpoint of the filed $125-145B range), Oracle $56B (FY26 actual), CoreWeave $33B. See Investor tab.";
+      return "Major operators' 2026 capex totals ~$837B: AWS $200B, Microsoft $190B, Google $185B, Meta $135B (midpoint of the filed $125-145B range), Oracle $56B (FY26 actual), CoreWeave $33B. See Investor tab.";
     if (has("cost", "/mw", "per mw", "build cost"))
       return "Building one MW of AI capacity costs ~$42M all-in (illustrative): $11M facility (shell, power, cooling) + $31M compute (servers + GPUs). GPUs are ~$23M — the largest single layer. See Investor or Engineer tab.";
     if (has("vacancy"))

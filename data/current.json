@@ -1,13 +1,27 @@
 {
-  "lastUpdated": "2026-08-23",
+  "lastUpdated": "2026-08-27",
   "topStory": {
-    "date": "Aug 18, 2026",
-    "text": "Dell'Oro Group nearly doubled its 2030 outlook in eight months: worldwide data-center capex is now forecast to surpass $3 trillion by 2030, up from its January 2026 view, on higher hyperscaler guidance, bigger global power-capacity projections and rising commodity costs. High-end AI accelerators remain the largest single line and the primary growth driver, while the new AI-specialized cloud segment (model builders and neoclouds) grows at nearly a 60% CAGR. Dell'Oro notes the top four US hyperscalers alone could be about half of global capex — capital is scaling faster than the power to deploy it.",
-    "src": "Dell'Oro Group",
-    "url": "https://www.delloro.com/news/ai-buildout-maintains-momentum-as-data-center-capex-surpasses-3-trillion-by-2030/",
-    "players": []
+    "date": "Aug 26, 2026",
+    "text": "NVIDIA's Q2 FY27: revenue $96.2B, up 106% year over year, with data-center revenue of $89.0B (+117% YoY, +18% sequentially) and Q3 guided to $108B — guidance that assumes no data-center compute revenue from China. Jensen Huang: 'AI has reached its inflection point... compute is revenue. And demand is accelerating.' The quarter caps an earnings season in which Amazon, Alphabet and Meta all raised 2026 capex, lifting the tracked operator run-rate to ~$877B.",
+    "src": "NVIDIA (Q2 FY2027 results)",
+    "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027",
+    "players": [
+      "NVDA"
+    ]
   },
   "feed": [
+    {
+      "date": "Aug 26, 2026",
+      "tag": "CAPITAL",
+      "text": "Q2 earnings reset the 2026 capex baseline: Amazon lifted guidance to $220B citing higher memory costs and warned it still won't have enough capacity to meet demand; Alphabet raised to $195–205B on faster capacity delivery; Meta lifted its floor to $130–145B as the buildout consumed nearly all quarterly operating cash flow. This dashboard's tracked operator capex moves from ~$839B to ~$877B.",
+      "src": "CNBC / company guidance",
+      "url": "https://www.cnbc.com/2026/07/30/amazon-amzn-q2-earnings-report-2026.html",
+      "players": [
+        "AMZN",
+        "GOOGL",
+        "META"
+      ]
+    },
     {
       "date": "Aug 20, 2026",
       "tag": "SUPPLY",
@@ -28,6 +42,14 @@
         "TerraPower",
         "META"
       ]
+    },
+    {
+      "date": "Aug 18, 2026",
+      "tag": "CAPITAL",
+      "text": "Dell'Oro Group nearly doubled its 2030 outlook in eight months: worldwide data-center capex is now forecast to surpass $3 trillion by 2030, up from its January 2026 view, on higher hyperscaler guidance, bigger global power-capacity projections and rising commodity costs. High-end AI accelerators remain the largest single line and the primary growth driver, while the new AI-specialized cloud segment (model builders and neoclouds) grows at nearly a 60% CAGR. Dell'Oro notes the top four US hyperscalers alone could be about half of global capex — capital is scaling faster than the power to deploy it.",
+      "src": "Dell'Oro Group",
+      "url": "https://www.delloro.com/news/ai-buildout-maintains-momentum-as-data-center-capex-surpasses-3-trillion-by-2030/",
+      "players": []
     },
     {
       "date": "Aug 18, 2026",
@@ -105,27 +127,6 @@
       "text": "HD Hyundai Heavy Industries secured a $675M deal — its largest-ever power-engine order — to supply 1,000 MW of HiMSEN gas-engine generating capacity to a US data center project via developer Coban Energy Group, underscoring how quickly demand for on-site/behind-the-meter generation equipment is scaling.",
       "src": "Korea Herald",
       "url": "https://www.koreaherald.com/article/10836118"
-    },
-    {
-      "date": "Aug 9, 2026",
-      "tag": "CAPITAL",
-      "text": "NVIDIA will reportedly invest $2B for roughly 20% of Lancium — the Blackstone-backed Texas developer whose Abilene campus is Stargate's first operational site — at about a $10B valuation, extendable to $3B on milestones including grid hookups. Reported, not confirmed by the companies.",
-      "src": "The Information / Reuters",
-      "url": "https://finance.yahoo.com/technology/articles/nvidia-invest-3-billion-lancium-014211358.html",
-      "players": [
-        "NVDA",
-        "Lancium"
-      ]
-    },
-    {
-      "date": "Aug 7, 2026",
-      "tag": "BUILDOUT",
-      "text": "Amazon is backing what could be the largest natural-gas power plant ever built in the US — up to 7.6 GW of behind-the-meter generation planned for a data center site in Pecos County, Texas — and confirmed talks to develop a data center at the 4.5 GW gas plant under construction at Homer City, PA, as developers have proposed roughly 90 GW of behind-the-meter gas nationwide since the start of 2025 per Cleanview.",
-      "src": "Distilled / DCD",
-      "url": "https://www.distilled.earth/p/scoop-amazon-is-behind-one-of-the",
-      "players": [
-        "Amazon"
-      ]
     }
   ],
   "kpis": [
