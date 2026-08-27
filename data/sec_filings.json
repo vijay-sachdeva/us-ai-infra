@@ -3,8 +3,8 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-08-26T13:52:33+00:00",
-  "fetched_at": "2026-08-26T13:52:33+00:00",
+  "lastUpdated": "2026-08-27T00:25:37+00:00",
+  "fetched_at": "2026-08-27T00:25:37+00:00",
   "companies": {
     "MSFT": {
       "cik": "0000789019",
@@ -275,6 +275,22 @@
       "cik": "0001045810",
       "filings": [
         {
+          "form": "10-Q",
+          "filed": "2026-08-26",
+          "report_period": "2026-07-26",
+          "accession": "0001045810-26-000075",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+          "description": "10-Q"
+        },
+        {
+          "form": "8-K",
+          "filed": "2026-08-26",
+          "report_period": "2026-08-26",
+          "accession": "0001045810-26-000073",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000073/nvda-20260826.htm",
+          "description": "8-K"
+        },
+        {
           "form": "8-K",
           "filed": "2026-08-17",
           "report_period": "2026-08-17",
@@ -304,22 +320,6 @@
           "report_period": "2026-06-15",
           "accession": "0001193125-26-275783",
           "url": "https://www.sec.gov/Archives/edgar/data/1045810/000119312526275783/d48176d8k.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "10-Q",
-          "filed": "2026-05-20",
-          "report_period": "2026-04-26",
-          "accession": "0001045810-26-000052",
-          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000052/nvda-20260426.htm",
-          "description": "10-Q"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-05-20",
-          "report_period": "2026-05-20",
-          "accession": "0001045810-26-000051",
-          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000051/nvda-20260520.htm",
           "description": "8-K"
         }
       ]
