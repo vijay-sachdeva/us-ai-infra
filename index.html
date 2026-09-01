@@ -2138,7 +2138,7 @@
         <a class="ov-lens" href="#capital"><span class="ov-step">2 · Capital</span><b>$877B</b><span class="ov-lens-stat">2026 capex chasing that demand · ~75% AI. Money isn't the constraint — over-committed books are (Oracle/CoreWeave ~10 yrs OCF).</span><span class="ov-sev slack">not binding</span><span class="ov-watch">watch: Q3 capex guides &middot; late Oct</span></a>
         <a class="ov-lens" href="#buildout"><span class="ov-step">3 · Buildout</span><b>97 GW queued</b><span class="ov-lens-stat">only ~24 GW truly buildable · queued-not-secured MW carries the haircut. Queued &ne; buildable.</span><span class="ov-sev high">high — gear-gated</span><span class="ov-watch">watch: LBNL <i>Queued Up</i> snapshot</span></a>
         <a class="ov-lens" href="#grid"><span class="ov-step">4 · Grid</span><b>~19 GW short</b><span class="ov-lens-stat">firm power can't keep up — the long pole; PJM/N. Virginia loads most exposed.</span><span class="ov-sev binding">binding</span><span class="ov-watch">watch: FERC large-load comments close &middot; ~Sep 16</span></a>
-        <a class="ov-lens" href="#grid:rateImpactChart"><span class="ov-step">5 · Rates &amp; politics</span><b>at the cap, 3&times;</b><span class="ov-lens-stat">PJM cleared AT the FERC cap three straight auctions ($325); costs land on ratepayers (VA +57% modeled&deg;) — then on permits.</span><span class="ov-sev high">rising</span><span class="ov-watch">watch: White House pledge event &middot; state PUC rulings</span></a>
+        <a class="ov-lens" href="#grid:rateImpactChart"><span class="ov-step">5 · Rates &amp; politics</span><b>at the cap, 3&times;</b><span class="ov-lens-stat">PJM cleared AT the FERC cap three straight auctions ($325); costs land on ratepayers (VA +57% modeled&deg;) — then on permits.</span><span class="ov-sev high">rising</span><span class="ov-watch">watch: Ratepayer Protection Act floor vote &middot; state PUC rulings</span></a>
       </div>
       <div class="ov-lens-label">What breaks first — the constraint board</div>
       <div class="ccc-board" id="ov-constraints">
@@ -2182,7 +2182,7 @@
           <span class="ccc-sev">Elevated<sup title="Editorial severity — this dashboard's read, not a reported metric">&deg;</sup></span>
           <span class="ccc-bar"><i style="width:60%"></i></span>
           <span class="ccc-read">PJM cleared <b>at the FERC cap</b> three straight auctions ($329→$333→$325/MW-day); <b>VA +57%</b> residential by 2030 (modeled).</span>
-          <span class="ccc-next"><b>Next:</b> White House ratepayer-pledge event &middot; coming weeks</span>
+          <span class="ccc-next"><b>Next:</b> Ratepayer Protection Act &mdash; House floor vote (H.R. 9340)</span>
         </a>
         <a class="ccc-tile sev-green" href="#buildout:leadTimeChart">
           <span class="ccc-head"><b class="ccc-name">CHIPS / HBM</b><span class="ccc-trend" title="Trend: easing (editorial read)" aria-label="trend easing">&#8595;</span></span>
@@ -3141,7 +3141,7 @@
   // daily-refresh workflow resumes editing this same content. Until then,
   // this is a snapshot that may lag production by a day or two.
   const DATA = {
-    lastUpdated: "2026-08-28",
+    lastUpdated: "2026-08-31",
     topStory: {
       date: "Aug 26, 2026",
       text: "NVIDIA's Q2 FY27: revenue $96.2B, up 106% year over year, with data-center revenue of $89.0B (+117% YoY, +18% sequentially) and Q3 guided to $108B — guidance that assumes no data-center compute revenue from China. Jensen Huang: 'AI has reached its inflection point... compute is revenue. And demand is accelerating.' The quarter caps an earnings season in which Amazon, Alphabet and Meta all raised 2026 capex, lifting the tracked operator run-rate to ~$877B.",
@@ -3588,6 +3588,9 @@
        market's path to the next GW. `direction` is an editorial read of travel (easing / tightening /
        stalled), NOT a metric. Sorted date-desc; cap ~12; curated on a monthly pass. ----- */
     buildabilityMovements: [
+      { date: "2026-07", market: "All states (federal)", gate: "rate", direction: "easing",
+        headline: "White House expanded the Ratepayer Protection Pledge (Jul 23) to 187 utilities, co-ops and data-center developers plus 23 governors \u2014 voluntary commitments to fund the generation and grid upgrades their own loads need; the Ratepayer Protection Act (H.R. 9340) then cleared House Energy & Commerce 52-0 and awaits a floor vote",
+        src: { label: "White House / House Energy & Commerce, Jul 2026", tier: "primary" } },
       { date: "2026-06", market: "All ISOs (federal)", gate: "interconnection", direction: "easing",
         headline: "FERC show-cause orders to all six RTOs: responses filed Aug 17, 2026 — every large-load tariff (≥50 MW, ≥69 kV) now under review, comments close ~Sep 16",
         src: { label: "FERC / White & Case, Jun 2026", tier: "primary" } },
