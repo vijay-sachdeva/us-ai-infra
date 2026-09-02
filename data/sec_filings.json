@@ -3,8 +3,8 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-09-01T22:58:58+00:00",
-  "fetched_at": "2026-09-01T22:58:58+00:00",
+  "lastUpdated": "2026-09-02T16:58:19+00:00",
+  "fetched_at": "2026-09-02T16:58:19+00:00",
   "companies": {
     "MSFT": {
       "cik": "0000789019",
@@ -911,6 +911,22 @@
       "cik": "0001674101",
       "filings": [
         {
+          "form": "8-K",
+          "filed": "2026-09-02",
+          "report_period": "2026-09-02",
+          "accession": "0001628280-26-059961",
+          "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026059961/vrt-20260902.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
+          "filed": "2026-09-02",
+          "report_period": "2026-09-01",
+          "accession": "0001193125-26-379306",
+          "url": "https://www.sec.gov/Archives/edgar/data/1674101/000119312526379306/d472406d8k.htm",
+          "description": "8-K"
+        },
+        {
           "form": "10-Q",
           "filed": "2026-07-29",
           "report_period": "2026-06-30",
@@ -940,22 +956,6 @@
           "report_period": "2026-06-12",
           "accession": "0001628280-26-042641",
           "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026042641/vrt-20260612.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-06-03",
-          "report_period": "2026-06-03",
-          "accession": "0001628280-26-040031",
-          "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026040031/vrt-20260603.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-04-27",
-          "report_period": "2026-04-27",
-          "accession": "0001628280-26-027297",
-          "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026027297/vrt-20260427.htm",
           "description": "8-K"
         }
       ]
