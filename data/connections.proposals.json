@@ -1,13 +1,38 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-09-09T22:54:11+00:00",
+  "generated_at": "2026-09-10T16:53:16+00:00",
   "counts": {
-    "co_mention": 5,
-    "recurring_player": 0,
+    "co_mention": 7,
+    "recurring_player": 1,
     "filing_after_review": 5
   },
   "candidates": [
+    {
+      "reason": "co-mention",
+      "players": [
+        "AMZN",
+        "Anthropic",
+        "MSFT",
+        "xAI"
+      ],
+      "date": "Sep 9, 2026",
+      "src": "Epoch AI (Frontier Data Centers Hub)",
+      "evidence_text": "Independent tracking now measures what is actually energized rather than announced: Epoch AI's frontier hub — built from satellite imagery, permits and disclosures — puts xAI's Colossus 2 at ~946 MW of operating IT power",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "co-mention",
+      "players": [
+        "Anthropic",
+        "Lambda",
+        "NVDA"
+      ],
+      "date": "Sep 1, 2026",
+      "src": "WSJ / Bloomberg",
+      "evidence_text": "Anthropic signed a six-year, $35B deal to buy compute from NVIDIA-backed Lambda, with the capacity running through Hut 8's Beacon Point campus in Nueces County, Texas — a property on which NVIDIA holds the underlying lea",
+      "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
     {
       "reason": "co-mention",
       "players": [
@@ -66,6 +91,19 @@
       "src": "FERC / Orrick",
       "evidence_text": "The 60-day deadline arrived for all six FERC-jurisdictional RTOs/ISOs — PJM, MISO, SPP, NYISO, ISO-NE and CAISO — to answer FERC's June 18 show-cause orders, which preliminarily found their large-load interconnection rul",
       "suggestion": "These players co-occur in one item but aren't yet a published connection — check whether there's a real two-sided relationship to verify."
+    },
+    {
+      "reason": "recurring-player",
+      "players": [
+        "NVDA"
+      ],
+      "count": 3,
+      "items": [
+        "Anthropic signed a six-year, $35B deal to buy compute from NVIDIA-backed Lambda,",
+        "NVIDIA's Q2 FY27: revenue $96.2B, up 106% year over year, with data-center reven",
+        "NVIDIA's 8-K discloses residual value guaranties backstopping OpenAI's leases at"
+      ],
+      "suggestion": "NVDA appears in 3 feed items — candidate for a narrative thread (one motion across weeks)."
     },
     {
       "reason": "filing-after-review",
