@@ -3,8 +3,8 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-09-11T16:53:50+00:00",
-  "fetched_at": "2026-09-11T16:53:50+00:00",
+  "lastUpdated": "2026-09-11T22:57:09+00:00",
+  "fetched_at": "2026-09-11T22:57:09+00:00",
   "companies": {
     "MSFT": {
       "cik": "0000789019",
@@ -222,6 +222,14 @@
       "cik": "0001341439",
       "filings": [
         {
+          "form": "10-Q",
+          "filed": "2026-09-11",
+          "report_period": "2026-08-31",
+          "accession": "0001193125-26-389274",
+          "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/orcl-20260831.htm",
+          "description": "10-Q"
+        },
+        {
           "form": "8-K",
           "filed": "2026-09-10",
           "report_period": "2026-09-10",
@@ -260,14 +268,6 @@
           "accession": "0001193125-26-142939",
           "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526142939/d132760d8k.htm",
           "description": "8-K"
-        },
-        {
-          "form": "10-Q",
-          "filed": "2026-03-11",
-          "report_period": "2026-02-28",
-          "accession": "0001193125-26-101045",
-          "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm",
-          "description": "10-Q"
         }
       ]
     },
@@ -699,6 +699,14 @@
       "cik": "0002023554",
       "filings": [
         {
+          "form": "8-K",
+          "filed": "2026-09-11",
+          "report_period": "2026-09-09",
+          "accession": "0001193125-26-389293",
+          "url": "https://www.sec.gov/Archives/edgar/data/2023554/000119312526389293/d138343d8k.htm",
+          "description": "8-K"
+        },
+        {
           "form": "10-K",
           "filed": "2026-08-17",
           "report_period": "2026-07-03",
@@ -736,14 +744,6 @@
           "report_period": "2026-04-30",
           "accession": "0001628280-26-028879",
           "url": "https://www.sec.gov/Archives/edgar/data/2023554/000162828026028879/sndk-20260430.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-03-25",
-          "report_period": "2026-03-25",
-          "accession": "0001193125-26-122705",
-          "url": "https://www.sec.gov/Archives/edgar/data/2023554/000119312526122705/d136592d8k.htm",
           "description": "8-K"
         }
       ]

@@ -1,11 +1,11 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-09-11T16:53:58+00:00",
+  "generated_at": "2026-09-11T22:57:18+00:00",
   "counts": {
     "co_mention": 7,
     "recurring_player": 1,
-    "filing_after_review": 5
+    "filing_after_review": 6
   },
   "candidates": [
     {
@@ -149,6 +149,15 @@
       "filing": "10-Q 2026-08-26",
       "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
       "suggestion": "NVDA filed a 10-Q after the connections ledger was last reviewed (2026-07) — re-verify NVDA's connections against the new filing."
+    },
+    {
+      "reason": "filing-after-review",
+      "players": [
+        "ORCL"
+      ],
+      "filing": "10-Q 2026-09-11",
+      "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/orcl-20260831.htm",
+      "suggestion": "ORCL filed a 10-Q after the connections ledger was last reviewed (2026-07) — re-verify ORCL's connections against the new filing."
     }
   ]
 }
