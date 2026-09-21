@@ -3,62 +3,9 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-09-21T18:27:45+00:00",
-  "fetched_at": "2026-09-21T18:27:45+00:00",
+  "lastUpdated": "2026-09-21T23:48:30+00:00",
+  "fetched_at": "2026-09-21T23:48:30+00:00",
   "companies": {
-    "MSFT": {
-      "cik": "0000789019",
-      "filings": [
-        {
-          "form": "8-K",
-          "filed": "2026-09-02",
-          "report_period": "2026-09-02",
-          "accession": "0001193125-26-380280",
-          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526380280/d291965d8k.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "10-K",
-          "filed": "2026-07-29",
-          "report_period": "2026-06-30",
-          "accession": "0001193125-26-323660",
-          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm",
-          "description": "10-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-07-29",
-          "report_period": "2026-07-29",
-          "accession": "0001193125-26-323632",
-          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323632/msft-20260729.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-06-05",
-          "report_period": "2026-06-02",
-          "accession": "0001193125-26-258667",
-          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526258667/d26760d8k.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-05-14",
-          "report_period": "2026-05-13",
-          "accession": "0001193125-26-224155",
-          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526224155/d125909d8k.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "10-Q",
-          "filed": "2026-04-29",
-          "report_period": "2026-03-31",
-          "accession": "0001193125-26-191507",
-          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
-          "description": "10-Q"
-        }
-      ]
-    },
     "AMZN": {
       "cik": "0001018724",
       "filings": [
@@ -1065,7 +1012,65 @@
           "description": "8-K"
         }
       ]
+    },
+    "MSFT": {
+      "cik": "0000789019",
+      "filings": [
+        {
+          "form": "8-K",
+          "filed": "2026-09-02",
+          "report_period": "2026-09-02",
+          "accession": "0001193125-26-380280",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526380280/d291965d8k.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "10-K",
+          "filed": "2026-07-29",
+          "report_period": "2026-06-30",
+          "accession": "0001193125-26-323660",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm",
+          "description": "10-K"
+        },
+        {
+          "form": "8-K",
+          "filed": "2026-07-29",
+          "report_period": "2026-07-29",
+          "accession": "0001193125-26-323632",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323632/msft-20260729.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
+          "filed": "2026-06-05",
+          "report_period": "2026-06-02",
+          "accession": "0001193125-26-258667",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526258667/d26760d8k.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
+          "filed": "2026-05-14",
+          "report_period": "2026-05-13",
+          "accession": "0001193125-26-224155",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526224155/d125909d8k.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "10-Q",
+          "filed": "2026-04-29",
+          "report_period": "2026-03-31",
+          "accession": "0001193125-26-191507",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
+          "description": "10-Q"
+        }
+      ]
     }
   },
-  "failures": []
+  "failures": [
+    {
+      "ticker": "MSFT",
+      "reason": "<urlopen error _ssl.c:993: The handshake operation timed out>"
+    }
+  ]
 }
