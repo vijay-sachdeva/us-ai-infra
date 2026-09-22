@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-09-21T18:27:54Z",
+  "computed_at": "2026-09-22T17:31:54Z",
   "window_days": 7,
   "tier": "computed",
   "note": "Deltas computed from the archived daily snapshots in data/history/ — arithmetic over the cited feeds, never estimates. Grid load and retail power prices are excluded on purpose: their weekly deltas are weather/period noise, not structure.",
@@ -36,17 +36,29 @@
     {
       "key": "gpu_prices",
       "label": "GPU rental list prices",
-      "latest": "2026-09-21",
-      "baseline": "2026-09-14",
+      "latest": "2026-09-22",
+      "baseline": "2026-09-15",
       "src": "provider pricing pages (primary; see Tokens)",
-      "items": [],
-      "note": "list prices held flat in this window"
+      "items": [
+        {
+          "kind": "price",
+          "text": "Nebius B200: $3.95 → $7.15/GPU-hr (+81.0%)"
+        },
+        {
+          "kind": "price",
+          "text": "Nebius H100 SXM: $2.15 → $3.85/GPU-hr (+79.1%)"
+        },
+        {
+          "kind": "price",
+          "text": "Nebius H200: $2.45 → $4.50/GPU-hr (+83.7%)"
+        }
+      ]
     },
     {
       "key": "queues",
       "label": "Interconnection queues (LBNL)",
-      "latest": "2026-09-21",
-      "baseline": "2026-09-14",
+      "latest": "2026-09-22",
+      "baseline": "2026-09-15",
       "src": "LBNL Queued Up (annual; see Buildout)",
       "items": [],
       "note": "no new LBNL snapshot in this window — the queue series updates annually"
