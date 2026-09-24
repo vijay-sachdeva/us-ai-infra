@@ -3,8 +3,8 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-09-23T23:25:25+00:00",
-  "fetched_at": "2026-09-23T23:25:25+00:00",
+  "lastUpdated": "2026-09-24T17:43:47+00:00",
+  "fetched_at": "2026-09-24T17:43:47+00:00",
   "companies": {
     "MSFT": {
       "cik": "0000789019",
@@ -912,6 +912,14 @@
       "filings": [
         {
           "form": "8-K",
+          "filed": "2026-09-24",
+          "report_period": "2026-09-24",
+          "accession": "0001628280-26-063311",
+          "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026063311/vrt-20260924.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
           "filed": "2026-09-02",
           "report_period": "2026-09-01",
           "accession": "0001193125-26-379306",
@@ -948,14 +956,6 @@
           "report_period": "2026-06-17",
           "accession": "0001628280-26-044317",
           "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026044317/vrt-20260617.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-06-12",
-          "report_period": "2026-06-12",
-          "accession": "0001628280-26-042641",
-          "url": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026042641/vrt-20260612.htm",
           "description": "8-K"
         }
       ]
