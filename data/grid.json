@@ -1,68 +1,68 @@
 {
-  "lastUpdated": "2026-10-04T23:48:21Z",
+  "lastUpdated": "2026-10-05T20:56:42Z",
   "tier": "primary",
   "source": "EIA-930 (demand) + EIA-860 (capacity)",
   "regions": {
     "PJM": {
       "peak_mw": 127732,
-      "avg_mw": 92643,
-      "latest_mw": 89676,
+      "avg_mw": 91820,
+      "latest_mw": 89696,
       "capacity_mw": 185000,
       "headroom_pct": 31.0
     },
     "MISO": {
       "peak_mw": 100523,
-      "avg_mw": 77907,
-      "latest_mw": 79810,
+      "avg_mw": 77524,
+      "latest_mw": 82017,
       "capacity_mw": 145000,
       "headroom_pct": 30.7
     },
     "SWPP": {
       "peak_mw": 51644,
-      "avg_mw": 36033,
-      "latest_mw": 36305,
+      "avg_mw": 35763,
+      "latest_mw": 36378,
       "capacity_mw": 95000,
       "headroom_pct": 45.6
     },
     "ERCO": {
       "peak_mw": 86168,
-      "avg_mw": 67256,
-      "latest_mw": 59281,
+      "avg_mw": 66587,
+      "latest_mw": 67169,
       "capacity_mw": 110000,
       "headroom_pct": 21.7
     },
     "CISO": {
       "peak_mw": 42616,
-      "avg_mw": 29713,
-      "latest_mw": 41006,
+      "avg_mw": 29930,
+      "latest_mw": 41448,
       "capacity_mw": 80000,
       "headroom_pct": 46.7
     },
     "ISNE": {
       "peak_mw": 17055,
-      "avg_mw": 11742,
-      "latest_mw": 13460,
+      "avg_mw": 11655,
+      "latest_mw": 10479,
       "capacity_mw": 31000,
       "headroom_pct": 45.0
     },
     "NYIS": {
       "peak_mw": 22571,
-      "avg_mw": 15682,
-      "latest_mw": 16276,
+      "avg_mw": 15533,
+      "latest_mw": 14137,
       "capacity_mw": 40000,
       "headroom_pct": 43.6
     },
     "SOCO": {
       "peak_mw": 44610,
-      "avg_mw": 29239,
-      "latest_mw": 28364,
+      "avg_mw": 29123,
+      "latest_mw": 30173,
       "capacity_mw": 52000,
       "headroom_pct": 14.2
     },
     "DUK": {
       "peak_mw": 20124,
-      "avg_mw": 12620,
-      "latest_mw": 11655,
+      "avg_mw": 12493,
+      "latest_mw": 13303,
       "capacity_mw": 50000,
       "headroom_pct": 59.8
     }
