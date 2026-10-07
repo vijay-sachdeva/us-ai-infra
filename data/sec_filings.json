@@ -3,8 +3,8 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-10-07T00:20:47+00:00",
-  "fetched_at": "2026-10-07T00:20:47+00:00",
+  "lastUpdated": "2026-10-07T19:17:26+00:00",
+  "fetched_at": "2026-10-07T19:17:26+00:00",
   "companies": {
     "MSFT": {
       "cik": "0000789019",
@@ -536,59 +536,6 @@
         }
       ]
     },
-    "AMD": {
-      "cik": "0000002488",
-      "filings": [
-        {
-          "form": "8-K",
-          "filed": "2026-09-28",
-          "report_period": "2026-09-26",
-          "accession": "0000002488-26-000182",
-          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000182/amd-20260926.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-08-19",
-          "report_period": "2026-08-17",
-          "accession": "0000002488-26-000163",
-          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000163/amd-20260817.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-08-17",
-          "report_period": "2026-08-13",
-          "accession": "0001193125-26-354029",
-          "url": "https://www.sec.gov/Archives/edgar/data/2488/000119312526354029/d142696d8k.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "10-Q",
-          "filed": "2026-08-05",
-          "report_period": "2026-06-27",
-          "accession": "0000002488-26-000123",
-          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000123/amd-20260627.htm",
-          "description": "10-Q"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-08-04",
-          "report_period": "2026-08-04",
-          "accession": "0000002488-26-000121",
-          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000121/amd-20260804.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-07-01",
-          "report_period": "2026-06-26",
-          "accession": "0000002488-26-000115",
-          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000115/amd-20260626.htm",
-          "description": "8-K"
-        }
-      ]
-    },
     "AVGO": {
       "cik": "0001730168",
       "filings": [
@@ -1065,7 +1012,65 @@
           "description": "8-K"
         }
       ]
+    },
+    "AMD": {
+      "cik": "0000002488",
+      "filings": [
+        {
+          "form": "8-K",
+          "filed": "2026-09-28",
+          "report_period": "2026-09-26",
+          "accession": "0000002488-26-000182",
+          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000182/amd-20260926.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
+          "filed": "2026-08-19",
+          "report_period": "2026-08-17",
+          "accession": "0000002488-26-000163",
+          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000163/amd-20260817.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
+          "filed": "2026-08-17",
+          "report_period": "2026-08-13",
+          "accession": "0001193125-26-354029",
+          "url": "https://www.sec.gov/Archives/edgar/data/2488/000119312526354029/d142696d8k.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "10-Q",
+          "filed": "2026-08-05",
+          "report_period": "2026-06-27",
+          "accession": "0000002488-26-000123",
+          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000123/amd-20260627.htm",
+          "description": "10-Q"
+        },
+        {
+          "form": "8-K",
+          "filed": "2026-08-04",
+          "report_period": "2026-08-04",
+          "accession": "0000002488-26-000121",
+          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000121/amd-20260804.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
+          "filed": "2026-07-01",
+          "report_period": "2026-06-26",
+          "accession": "0000002488-26-000115",
+          "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000115/amd-20260626.htm",
+          "description": "8-K"
+        }
+      ]
     }
   },
-  "failures": []
+  "failures": [
+    {
+      "ticker": "AMD",
+      "reason": "The read operation timed out"
+    }
+  ]
 }
