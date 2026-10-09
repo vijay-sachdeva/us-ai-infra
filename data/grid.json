@@ -1,68 +1,68 @@
 {
-  "lastUpdated": "2026-10-08T19:07:52Z",
+  "lastUpdated": "2026-10-09T00:57:17Z",
   "tier": "primary",
   "source": "EIA-930 (demand) + EIA-860 (capacity)",
   "regions": {
     "PJM": {
-      "peak_mw": 126358,
-      "avg_mw": 89800,
-      "latest_mw": 90683,
+      "peak_mw": 122482,
+      "avg_mw": 88922,
+      "latest_mw": 96325,
       "capacity_mw": 185000,
-      "headroom_pct": 31.7
+      "headroom_pct": 33.8
     },
     "MISO": {
-      "peak_mw": 100066,
-      "avg_mw": 76358,
-      "latest_mw": 82387,
+      "peak_mw": 97441,
+      "avg_mw": 75840,
+      "latest_mw": 86032,
       "capacity_mw": 145000,
-      "headroom_pct": 31.0
+      "headroom_pct": 32.8
     },
     "SWPP": {
       "peak_mw": 51644,
-      "avg_mw": 34841,
-      "latest_mw": 36689,
+      "avg_mw": 34599,
+      "latest_mw": 40583,
       "capacity_mw": 95000,
       "headroom_pct": 45.6
     },
     "ERCO": {
       "peak_mw": 85940,
-      "avg_mw": 64563,
-      "latest_mw": 65716,
+      "avg_mw": 64324,
+      "latest_mw": 69426,
       "capacity_mw": 110000,
       "headroom_pct": 21.9
     },
     "CISO": {
       "peak_mw": 46213,
-      "avg_mw": 30784,
-      "latest_mw": 38797,
+      "avg_mw": 30974,
+      "latest_mw": 42502,
       "capacity_mw": 80000,
       "headroom_pct": 42.2
     },
     "ISNE": {
-      "peak_mw": 17055,
-      "avg_mw": 11548,
-      "latest_mw": 10074,
+      "peak_mw": 17038,
+      "avg_mw": 11451,
+      "latest_mw": 13884,
       "capacity_mw": 31000,
       "headroom_pct": 45.0
     },
     "NYIS": {
-      "peak_mw": 22571,
-      "avg_mw": 15224,
-      "latest_mw": 13981,
+      "peak_mw": 22449,
+      "avg_mw": 15056,
+      "latest_mw": 17429,
       "capacity_mw": 40000,
-      "headroom_pct": 43.6
+      "headroom_pct": 43.9
     },
     "SOCO": {
       "peak_mw": 43878,
-      "avg_mw": 28260,
-      "latest_mw": 28863,
+      "avg_mw": 28027,
+      "latest_mw": 29623,
       "capacity_mw": 52000,
       "headroom_pct": 15.6
     },
     "DUK": {
       "peak_mw": 19900,
-      "avg_mw": 12030,
-      "latest_mw": 13145,
+      "avg_mw": 11952,
+      "latest_mw": 13780,
       "capacity_mw": 50000,
       "headroom_pct": 60.2
     }
