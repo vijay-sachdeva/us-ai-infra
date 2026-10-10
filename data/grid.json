@@ -1,68 +1,68 @@
 {
-  "lastUpdated": "2026-10-10T00:28:17Z",
+  "lastUpdated": "2026-10-10T17:37:34Z",
   "tier": "primary",
   "source": "EIA-930 (demand) + EIA-860 (capacity)",
   "regions": {
     "PJM": {
       "peak_mw": 114265,
-      "avg_mw": 87794,
-      "latest_mw": 92199,
+      "avg_mw": 87556,
+      "latest_mw": 81926,
       "capacity_mw": 185000,
       "headroom_pct": 38.2
     },
     "MISO": {
       "peak_mw": 93107,
-      "avg_mw": 75279,
-      "latest_mw": 86366,
+      "avg_mw": 74986,
+      "latest_mw": 72284,
       "capacity_mw": 145000,
       "headroom_pct": 35.8
     },
     "SWPP": {
       "peak_mw": 49393,
-      "avg_mw": 34226,
-      "latest_mw": 42474,
+      "avg_mw": 34146,
+      "latest_mw": 32527,
       "capacity_mw": 95000,
       "headroom_pct": 48.0
     },
     "ERCO": {
       "peak_mw": 85940,
-      "avg_mw": 63818,
-      "latest_mw": 72914,
+      "avg_mw": 63475,
+      "latest_mw": 55395,
       "capacity_mw": 110000,
       "headroom_pct": 21.9
     },
     "CISO": {
       "peak_mw": 46213,
-      "avg_mw": 31199,
-      "latest_mw": 37958,
+      "avg_mw": 31128,
+      "latest_mw": 26361,
       "capacity_mw": 80000,
       "headroom_pct": 42.2
     },
     "ISNE": {
       "peak_mw": 15866,
-      "avg_mw": 11323,
-      "latest_mw": 13482,
+      "avg_mw": 11299,
+      "latest_mw": 8276,
       "capacity_mw": 31000,
       "headroom_pct": 48.8
     },
     "NYIS": {
       "peak_mw": 20839,
-      "avg_mw": 14843,
-      "latest_mw": 16975,
+      "avg_mw": 14806,
+      "latest_mw": 11911,
       "capacity_mw": 40000,
       "headroom_pct": 47.9
     },
     "SOCO": {
       "peak_mw": 41847,
-      "avg_mw": 27681,
-      "latest_mw": 24854,
+      "avg_mw": 27488,
+      "latest_mw": 23068,
       "capacity_mw": 52000,
       "headroom_pct": 19.5
     },
     "DUK": {
       "peak_mw": 19900,
-      "avg_mw": 11759,
-      "latest_mw": 11826,
+      "avg_mw": 11694,
+      "latest_mw": 10644,
       "capacity_mw": 50000,
       "headroom_pct": 60.2
     }
