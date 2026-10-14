@@ -1,68 +1,68 @@
 {
-  "lastUpdated": "2026-10-13T19:43:30Z",
+  "lastUpdated": "2026-10-14T00:07:02Z",
   "tier": "primary",
   "source": "EIA-930 (demand) + EIA-860 (capacity)",
   "regions": {
     "PJM": {
       "peak_mw": 114265,
-      "avg_mw": 86283,
-      "latest_mw": 100015,
+      "avg_mw": 86293,
+      "latest_mw": 107394,
       "capacity_mw": 185000,
       "headroom_pct": 38.2
     },
     "MISO": {
-      "peak_mw": 95171,
-      "avg_mw": 74343,
-      "latest_mw": 91431,
+      "peak_mw": 97898,
+      "avg_mw": 74439,
+      "latest_mw": 95860,
       "capacity_mw": 145000,
-      "headroom_pct": 34.4
+      "headroom_pct": 32.5
     },
     "SWPP": {
       "peak_mw": 45166,
-      "avg_mw": 33870,
-      "latest_mw": 41073,
+      "avg_mw": 33911,
+      "latest_mw": 44191,
       "capacity_mw": 95000,
       "headroom_pct": 52.5
     },
     "ERCO": {
-      "peak_mw": 85290,
-      "avg_mw": 62653,
-      "latest_mw": 73779,
+      "peak_mw": 85044,
+      "avg_mw": 62503,
+      "latest_mw": 79961,
       "capacity_mw": 110000,
-      "headroom_pct": 22.5
+      "headroom_pct": 22.7
     },
     "CISO": {
       "peak_mw": 46213,
-      "avg_mw": 30867,
-      "latest_mw": 27519,
+      "avg_mw": 30945,
+      "latest_mw": 27755,
       "capacity_mw": 80000,
       "headroom_pct": 42.2
     },
     "ISNE": {
       "peak_mw": 15866,
-      "avg_mw": 11340,
-      "latest_mw": 13376,
+      "avg_mw": 11381,
+      "latest_mw": 14646,
       "capacity_mw": 31000,
       "headroom_pct": 48.8
     },
     "NYIS": {
       "peak_mw": 20194,
-      "avg_mw": 14696,
-      "latest_mw": 15508,
+      "avg_mw": 14705,
+      "latest_mw": 18555,
       "capacity_mw": 40000,
       "headroom_pct": 49.5
     },
     "SOCO": {
-      "peak_mw": 39567,
-      "avg_mw": 26383,
-      "latest_mw": 30957,
+      "peak_mw": 37683,
+      "avg_mw": 26189,
+      "latest_mw": 33419,
       "capacity_mw": 52000,
-      "headroom_pct": 23.9
+      "headroom_pct": 27.5
     },
     "DUK": {
       "peak_mw": 20186,
-      "avg_mw": 11295,
-      "latest_mw": 13522,
+      "avg_mw": 11206,
+      "latest_mw": 14728,
       "capacity_mw": 50000,
       "headroom_pct": 59.6
     }
