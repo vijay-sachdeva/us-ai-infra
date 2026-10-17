@@ -1,14 +1,35 @@
 {
-  "lastUpdated": "2026-10-16T23:14:03Z",
+  "lastUpdated": "2026-10-17T16:07:16Z",
   "tier": "primary",
   "source": "EIA-930 (demand) + EIA-860 (capacity)",
   "regions": {
+    "PJM": {
+      "peak_mw": 114265,
+      "avg_mw": 87116,
+      "latest_mw": 83497,
+      "capacity_mw": 185000,
+      "headroom_pct": 38.2
+    },
     "MISO": {
       "peak_mw": 95171,
-      "avg_mw": 74554,
-      "latest_mw": 76874,
+      "avg_mw": 74155,
+      "latest_mw": 68609,
       "capacity_mw": 145000,
       "headroom_pct": 34.4
+    },
+    "CISO": {
+      "peak_mw": 46213,
+      "avg_mw": 30336,
+      "latest_mw": 23743,
+      "capacity_mw": 80000,
+      "headroom_pct": 42.2
+    },
+    "NYIS": {
+      "peak_mw": 20194,
+      "avg_mw": 14900,
+      "latest_mw": 13780,
+      "capacity_mw": 40000,
+      "headroom_pct": 49.5
     }
   }
 }
