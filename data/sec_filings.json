@@ -3,8 +3,8 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-10-20T17:47:49+00:00",
-  "fetched_at": "2026-10-20T17:47:49+00:00",
+  "lastUpdated": "2026-10-20T23:36:39+00:00",
+  "fetched_at": "2026-10-20T23:36:39+00:00",
   "companies": {
     "MSFT": {
       "cik": "0000789019",
@@ -858,6 +858,14 @@
       "cik": "0001040470",
       "filings": [
         {
+          "form": "8-K",
+          "filed": "2026-10-20",
+          "report_period": "2026-10-19",
+          "accession": "0001654954-26-009056",
+          "url": "https://www.sec.gov/Archives/edgar/data/1040470/000165495426009056/aehr_8k.htm",
+          "description": "FORM 8-K"
+        },
+        {
           "form": "10-K",
           "filed": "2026-07-27",
           "report_period": "2026-05-29",
@@ -896,14 +904,6 @@
           "accession": "0001654954-26-003348",
           "url": "https://www.sec.gov/Archives/edgar/data/1040470/000165495426003348/aehr_10q.htm",
           "description": "FORM 10-Q"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-04-07",
-          "report_period": "2026-04-07",
-          "accession": "0001654954-26-003310",
-          "url": "https://www.sec.gov/Archives/edgar/data/1040470/000165495426003310/aehr_8k.htm",
-          "description": "FORM 8-K"
         }
       ]
     },
