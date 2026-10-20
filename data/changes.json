@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-10-20T00:05:43Z",
+  "computed_at": "2026-10-20T17:47:57Z",
   "window_days": 7,
   "tier": "computed",
   "note": "Deltas computed from the archived daily snapshots in data/history/ — arithmetic over the cited feeds, never estimates. Grid load and retail power prices are excluded on purpose: their weekly deltas are weather/period noise, not structure.",
@@ -39,8 +39,20 @@
       "latest": "2026-10-20",
       "baseline": "2026-10-13",
       "src": "provider pricing pages (primary; see Tokens)",
-      "items": [],
-      "note": "list prices held flat in this window"
+      "items": [
+        {
+          "kind": "price",
+          "text": "Nebius B200: $8.50 → $0.99/GPU-hr (-88.4%)"
+        },
+        {
+          "kind": "price",
+          "text": "Nebius H100 SXM: $4.50 → $0.79/GPU-hr (-82.4%)"
+        },
+        {
+          "kind": "price",
+          "text": "Nebius H200: $5.40 → $0.79/GPU-hr (-85.4%)"
+        }
+      ]
     },
     {
       "key": "queues",
