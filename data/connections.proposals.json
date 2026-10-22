@@ -1,7 +1,7 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-10-21T23:53:39+00:00",
+  "generated_at": "2026-10-22T17:50:43+00:00",
   "counts": {
     "co_mention": 7,
     "recurring_player": 1,
@@ -128,8 +128,8 @@
       "players": [
         "META"
       ],
-      "filing": "10-Q 2026-07-30",
-      "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026050705/meta-20260630.htm",
+      "filing": "10-Q 2026-10-22",
+      "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026066773/meta-20260930.htm",
       "suggestion": "META filed a 10-Q after the connections ledger was last reviewed (2026-07) — re-verify META's connections against the new filing."
     },
     {
