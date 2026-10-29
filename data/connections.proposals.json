@@ -1,7 +1,7 @@
 {
   "name": "Candidate connections — PROPOSED, not published",
   "note": "Auto-generated heuristic candidates for human verification. The dashboard NEVER loads this file. Promote a verified candidate into data/connections.json BY HAND with a connectionTier; delete stale candidates. This is the proposal half of the curation model — it suggests, it does not publish.",
-  "generated_at": "2026-10-28T18:38:55+00:00",
+  "generated_at": "2026-10-29T00:35:26+00:00",
   "counts": {
     "co_mention": 7,
     "recurring_player": 1,
@@ -137,9 +137,9 @@
       "players": [
         "MSFT"
       ],
-      "filing": "10-K 2026-07-29",
-      "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm",
-      "suggestion": "MSFT filed a 10-K after the connections ledger was last reviewed (2026-07) — re-verify MSFT's connections against the new filing."
+      "filing": "10-Q 2026-10-28",
+      "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436133/msft-20260930.htm",
+      "suggestion": "MSFT filed a 10-Q after the connections ledger was last reviewed (2026-07) — re-verify MSFT's connections against the new filing."
     },
     {
       "reason": "filing-after-review",
