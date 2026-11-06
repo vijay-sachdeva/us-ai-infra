@@ -3,8 +3,8 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-11-05T20:55:43+00:00",
-  "fetched_at": "2026-11-05T20:55:43+00:00",
+  "lastUpdated": "2026-11-06T01:58:28+00:00",
+  "fetched_at": "2026-11-06T01:58:28+00:00",
   "companies": {
     "MSFT": {
       "cik": "0000789019",
@@ -116,6 +116,14 @@
       "cik": "0001652044",
       "filings": [
         {
+          "form": "8-K",
+          "filed": "2026-11-05",
+          "report_period": "2026-11-05",
+          "accession": "0001193125-26-449835",
+          "url": "https://www.sec.gov/Archives/edgar/data/1652044/000119312526449835/d174184d8k.htm",
+          "description": "8-K"
+        },
+        {
           "form": "10-Q",
           "filed": "2026-10-29",
           "report_period": "2026-09-30",
@@ -154,20 +162,20 @@
           "accession": "0001652044-26-000066",
           "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000066/goog-20260722.htm",
           "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-06-11",
-          "report_period": "2026-06-05",
-          "accession": "0001193125-26-267578",
-          "url": "https://www.sec.gov/Archives/edgar/data/1652044/000119312526267578/d57679d8k.htm",
-          "description": "8-K"
         }
       ]
     },
     "META": {
       "cik": "0001326801",
       "filings": [
+        {
+          "form": "8-K",
+          "filed": "2026-11-05",
+          "report_period": "2026-11-03",
+          "accession": "0001193125-26-450074",
+          "url": "https://www.sec.gov/Archives/edgar/data/1326801/000119312526450074/d166273d8k.htm",
+          "description": "8-K"
+        },
         {
           "form": "8-K",
           "filed": "2026-10-29",
@@ -206,14 +214,6 @@
           "report_period": "2026-07-29",
           "accession": "0001628280-26-050596",
           "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026050596/meta-20260729.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-05-29",
-          "report_period": "2026-05-27",
-          "accession": "0001628280-26-039193",
-          "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026039193/meta-20260527.htm",
           "description": "8-K"
         }
       ]
@@ -434,6 +434,22 @@
       "cik": "0001878848",
       "filings": [
         {
+          "form": "10-Q",
+          "filed": "2026-11-05",
+          "report_period": "2026-09-30",
+          "accession": "0001878848-26-000066",
+          "url": "https://www.sec.gov/Archives/edgar/data/1878848/000187884826000066/iren-20260930.htm",
+          "description": "10-Q"
+        },
+        {
+          "form": "8-K",
+          "filed": "2026-11-05",
+          "report_period": "2026-11-05",
+          "accession": "0001878848-26-000065",
+          "url": "https://www.sec.gov/Archives/edgar/data/1878848/000187884826000065/iren-20261105.htm",
+          "description": "8-K"
+        },
+        {
           "form": "10-K",
           "filed": "2026-08-27",
           "report_period": "2026-06-30",
@@ -463,22 +479,6 @@
           "report_period": "2026-08-04",
           "accession": "0001140361-26-031053",
           "url": "https://www.sec.gov/Archives/edgar/data/1878848/000114036126031053/ny20079234x2_8k.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-07-20",
-          "report_period": "2026-07-20",
-          "accession": "0001140361-26-028871",
-          "url": "https://www.sec.gov/Archives/edgar/data/1878848/000114036126028871/ef20078253_8k.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-07-01",
-          "report_period": "2026-06-30",
-          "accession": "0001140361-26-027202",
-          "url": "https://www.sec.gov/Archives/edgar/data/1878848/000114036126027202/ef20077190_8k.htm",
           "description": "8-K"
         }
       ]
@@ -646,6 +646,14 @@
       "cik": "0000723125",
       "filings": [
         {
+          "form": "8-K",
+          "filed": "2026-11-05",
+          "report_period": "2026-11-02",
+          "accession": "0001104659-26-123389",
+          "url": "https://www.sec.gov/Archives/edgar/data/723125/000110465926123389/tm2629062d1_8k.htm",
+          "description": "FORM 8-K"
+        },
+        {
           "form": "10-K",
           "filed": "2026-10-09",
           "report_period": "2026-09-03",
@@ -684,14 +692,6 @@
           "accession": "0000723125-26-000013",
           "url": "https://www.sec.gov/Archives/edgar/data/723125/000072312526000013/mu-20260624.htm",
           "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-06-09",
-          "report_period": "2026-06-09",
-          "accession": "0001104659-26-071845",
-          "url": "https://www.sec.gov/Archives/edgar/data/723125/000110465926071845/tm2617112d1_8k.htm",
-          "description": "FORM 8-K"
         }
       ]
     },
