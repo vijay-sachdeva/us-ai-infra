@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-11-08T01:03:39Z",
+  "computed_at": "2026-11-09T01:25:05Z",
   "window_days": 7,
   "tier": "computed",
   "note": "Deltas computed from the archived daily snapshots in data/history/ — arithmetic over the cited feeds, never estimates. Grid load and retail power prices are excluded on purpose: their weekly deltas are weather/period noise, not structure.",
@@ -36,25 +36,25 @@
     {
       "key": "gpu_prices",
       "label": "GPU rental list prices",
-      "latest": "2026-11-08",
-      "baseline": "2026-11-01",
+      "latest": "2026-11-09",
+      "baseline": "2026-11-02",
       "src": "provider pricing pages (primary; see Tokens)",
       "items": [
         {
           "kind": "price",
-          "text": "Lambda B200: $6.69 → $7.79/GPU-hr (+16.4%)"
+          "text": "Lambda B200: $6.79 → $7.79/GPU-hr (+14.7%)"
         },
         {
           "kind": "price",
-          "text": "Lambda H100 SXM: $3.99 → $4.69/GPU-hr (+17.5%)"
+          "text": "Lambda H100 SXM: $4.09 → $4.69/GPU-hr (+14.7%)"
         }
       ]
     },
     {
       "key": "queues",
       "label": "Interconnection queues (LBNL)",
-      "latest": "2026-11-08",
-      "baseline": "2026-11-01",
+      "latest": "2026-11-09",
+      "baseline": "2026-11-02",
       "src": "LBNL Queued Up (annual; see Buildout)",
       "items": [],
       "note": "no new LBNL snapshot in this window — the queue series updates annually"
