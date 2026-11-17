@@ -3,8 +3,8 @@
   "tier": "primary",
   "source": "SEC EDGAR submissions API (data.sec.gov)",
   "note": "Latest disclosure-relevant filings (10-K/10-Q/8-K; 20-F/6-K for foreign filers) per tracked public player. Pure primary metadata with direct EDGAR links; a company under `failures` keeps its last good data.",
-  "lastUpdated": "2026-11-16T23:11:13+00:00",
-  "fetched_at": "2026-11-16T23:11:13+00:00",
+  "lastUpdated": "2026-11-17T22:01:03+00:00",
+  "fetched_at": "2026-11-17T22:01:03+00:00",
   "companies": {
     "MSFT": {
       "cik": "0000789019",
@@ -276,6 +276,14 @@
       "filings": [
         {
           "form": "8-K",
+          "filed": "2026-11-17",
+          "report_period": "2026-11-17",
+          "accession": "0001045810-26-000088",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000088/nvda-20261117.htm",
+          "description": "8-K"
+        },
+        {
+          "form": "8-K",
           "filed": "2026-11-12",
           "report_period": "2026-11-11",
           "accession": "0001045810-26-000082",
@@ -312,14 +320,6 @@
           "report_period": "2026-08-17",
           "accession": "0001045810-26-000069",
           "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000069/nvda-20260817.htm",
-          "description": "8-K"
-        },
-        {
-          "form": "8-K",
-          "filed": "2026-07-02",
-          "report_period": "2026-06-28",
-          "accession": "0001045810-26-000060",
-          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000060/nvda-20260628.htm",
           "description": "8-K"
         }
       ]
