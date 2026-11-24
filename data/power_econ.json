@@ -1,216 +1,216 @@
 {
-  "lastUpdated": "2026-11-24T01:28:04Z",
+  "lastUpdated": "2026-11-24T23:22:10Z",
   "tier": "primary",
   "source": "EIA retail-sales (sector IND)",
-  "period": "2026-08",
+  "period": "2026-09",
   "states": {
     "AK": {
-      "ind_cents_kwh": 23.13,
-      "ind_usd_mwh": 231.3
+      "ind_cents_kwh": 19.43,
+      "ind_usd_mwh": 194.3
     },
     "AL": {
-      "ind_cents_kwh": 8.11,
-      "ind_usd_mwh": 81.1
+      "ind_cents_kwh": 8.15,
+      "ind_usd_mwh": 81.5
     },
     "AR": {
-      "ind_cents_kwh": 7.85,
-      "ind_usd_mwh": 78.5
+      "ind_cents_kwh": 7.82,
+      "ind_usd_mwh": 78.2
     },
     "AZ": {
-      "ind_cents_kwh": 9.73,
-      "ind_usd_mwh": 97.3
+      "ind_cents_kwh": 7.95,
+      "ind_usd_mwh": 79.5
     },
     "CA": {
-      "ind_cents_kwh": 24.12,
-      "ind_usd_mwh": 241.2
+      "ind_cents_kwh": 24.17,
+      "ind_usd_mwh": 241.7
     },
     "CO": {
-      "ind_cents_kwh": 9.98,
-      "ind_usd_mwh": 99.8
+      "ind_cents_kwh": 10.04,
+      "ind_usd_mwh": 100.4
     },
     "CT": {
-      "ind_cents_kwh": 16.18,
-      "ind_usd_mwh": 161.8
+      "ind_cents_kwh": 15.72,
+      "ind_usd_mwh": 157.2
     },
     "DC": {
-      "ind_cents_kwh": 18.53,
-      "ind_usd_mwh": 185.3
+      "ind_cents_kwh": 10.01,
+      "ind_usd_mwh": 100.1
     },
     "DE": {
-      "ind_cents_kwh": 10.4,
-      "ind_usd_mwh": 104.0
+      "ind_cents_kwh": 10.43,
+      "ind_usd_mwh": 104.3
     },
     "FL": {
-      "ind_cents_kwh": 8.93,
-      "ind_usd_mwh": 89.3
+      "ind_cents_kwh": 9.18,
+      "ind_usd_mwh": 91.8
     },
     "GA": {
-      "ind_cents_kwh": 13.05,
-      "ind_usd_mwh": 130.5
+      "ind_cents_kwh": 8.81,
+      "ind_usd_mwh": 88.1
     },
     "HI": {
-      "ind_cents_kwh": 39.33,
-      "ind_usd_mwh": 393.3
+      "ind_cents_kwh": 40.89,
+      "ind_usd_mwh": 408.9
     },
     "IA": {
-      "ind_cents_kwh": 9.31,
-      "ind_usd_mwh": 93.1
+      "ind_cents_kwh": 8.8,
+      "ind_usd_mwh": 88.0
     },
     "ID": {
-      "ind_cents_kwh": 9.71,
-      "ind_usd_mwh": 97.1
+      "ind_cents_kwh": 8.69,
+      "ind_usd_mwh": 86.9
     },
     "IL": {
-      "ind_cents_kwh": 11.33,
-      "ind_usd_mwh": 113.3
+      "ind_cents_kwh": 12.01,
+      "ind_usd_mwh": 120.1
     },
     "IN": {
-      "ind_cents_kwh": 9.28,
-      "ind_usd_mwh": 92.8
+      "ind_cents_kwh": 9.41,
+      "ind_usd_mwh": 94.1
     },
     "KS": {
-      "ind_cents_kwh": 8.49,
-      "ind_usd_mwh": 84.9
+      "ind_cents_kwh": 8.46,
+      "ind_usd_mwh": 84.6
     },
     "KY": {
-      "ind_cents_kwh": 7.37,
-      "ind_usd_mwh": 73.7
-    },
-    "LA": {
-      "ind_cents_kwh": 6.1,
-      "ind_usd_mwh": 61.0
-    },
-    "MA": {
-      "ind_cents_kwh": 20.03,
-      "ind_usd_mwh": 200.3
-    },
-    "MD": {
-      "ind_cents_kwh": 12.19,
-      "ind_usd_mwh": 121.9
-    },
-    "ME": {
-      "ind_cents_kwh": 14.24,
-      "ind_usd_mwh": 142.4
-    },
-    "MI": {
-      "ind_cents_kwh": 8.99,
-      "ind_usd_mwh": 89.9
-    },
-    "MN": {
-      "ind_cents_kwh": 9.96,
-      "ind_usd_mwh": 99.6
-    },
-    "MO": {
-      "ind_cents_kwh": 9.89,
-      "ind_usd_mwh": 98.9
-    },
-    "MS": {
-      "ind_cents_kwh": 7.57,
-      "ind_usd_mwh": 75.7
-    },
-    "MT": {
-      "ind_cents_kwh": 7.97,
-      "ind_usd_mwh": 79.7
-    },
-    "NC": {
-      "ind_cents_kwh": 8.23,
-      "ind_usd_mwh": 82.3
-    },
-    "ND": {
-      "ind_cents_kwh": 8.12,
-      "ind_usd_mwh": 81.2
-    },
-    "NE": {
-      "ind_cents_kwh": 8.37,
-      "ind_usd_mwh": 83.7
-    },
-    "NH": {
-      "ind_cents_kwh": 17.26,
-      "ind_usd_mwh": 172.6
-    },
-    "NJ": {
-      "ind_cents_kwh": 16.24,
-      "ind_usd_mwh": 162.4
-    },
-    "NM": {
-      "ind_cents_kwh": 5.08,
-      "ind_usd_mwh": 50.8
-    },
-    "NV": {
-      "ind_cents_kwh": 10.2,
-      "ind_usd_mwh": 102.0
-    },
-    "NY": {
-      "ind_cents_kwh": 10.54,
-      "ind_usd_mwh": 105.4
-    },
-    "OH": {
-      "ind_cents_kwh": 9.75,
-      "ind_usd_mwh": 97.5
-    },
-    "OK": {
-      "ind_cents_kwh": 8.16,
-      "ind_usd_mwh": 81.6
-    },
-    "OR": {
-      "ind_cents_kwh": 8.75,
-      "ind_usd_mwh": 87.5
-    },
-    "PA": {
-      "ind_cents_kwh": 10.47,
-      "ind_usd_mwh": 104.7
-    },
-    "RI": {
-      "ind_cents_kwh": 19.87,
-      "ind_usd_mwh": 198.7
-    },
-    "SC": {
-      "ind_cents_kwh": 7.88,
-      "ind_usd_mwh": 78.8
-    },
-    "SD": {
-      "ind_cents_kwh": 9.43,
-      "ind_usd_mwh": 94.3
-    },
-    "TN": {
-      "ind_cents_kwh": 6.92,
-      "ind_usd_mwh": 69.2
-    },
-    "TX": {
       "ind_cents_kwh": 7.21,
       "ind_usd_mwh": 72.1
     },
+    "LA": {
+      "ind_cents_kwh": 6.55,
+      "ind_usd_mwh": 65.5
+    },
+    "MA": {
+      "ind_cents_kwh": 19.05,
+      "ind_usd_mwh": 190.5
+    },
+    "MD": {
+      "ind_cents_kwh": 14.21,
+      "ind_usd_mwh": 142.1
+    },
+    "ME": {
+      "ind_cents_kwh": 13.51,
+      "ind_usd_mwh": 135.1
+    },
+    "MI": {
+      "ind_cents_kwh": 9.43,
+      "ind_usd_mwh": 94.3
+    },
+    "MN": {
+      "ind_cents_kwh": 9.89,
+      "ind_usd_mwh": 98.9
+    },
+    "MO": {
+      "ind_cents_kwh": 10.21,
+      "ind_usd_mwh": 102.1
+    },
+    "MS": {
+      "ind_cents_kwh": 7.22,
+      "ind_usd_mwh": 72.2
+    },
+    "MT": {
+      "ind_cents_kwh": 7.3,
+      "ind_usd_mwh": 73.0
+    },
+    "NC": {
+      "ind_cents_kwh": 8.45,
+      "ind_usd_mwh": 84.5
+    },
+    "ND": {
+      "ind_cents_kwh": 8.35,
+      "ind_usd_mwh": 83.5
+    },
+    "NE": {
+      "ind_cents_kwh": 8.72,
+      "ind_usd_mwh": 87.2
+    },
+    "NH": {
+      "ind_cents_kwh": 16.59,
+      "ind_usd_mwh": 165.9
+    },
+    "NJ": {
+      "ind_cents_kwh": 14.31,
+      "ind_usd_mwh": 143.1
+    },
+    "NM": {
+      "ind_cents_kwh": 6.18,
+      "ind_usd_mwh": 61.8
+    },
+    "NV": {
+      "ind_cents_kwh": 10.07,
+      "ind_usd_mwh": 100.7
+    },
+    "NY": {
+      "ind_cents_kwh": 10.2,
+      "ind_usd_mwh": 102.0
+    },
+    "OH": {
+      "ind_cents_kwh": 10.19,
+      "ind_usd_mwh": 101.9
+    },
+    "OK": {
+      "ind_cents_kwh": 8.39,
+      "ind_usd_mwh": 83.9
+    },
+    "OR": {
+      "ind_cents_kwh": 8.51,
+      "ind_usd_mwh": 85.1
+    },
+    "PA": {
+      "ind_cents_kwh": 10.31,
+      "ind_usd_mwh": 103.1
+    },
+    "RI": {
+      "ind_cents_kwh": 20.55,
+      "ind_usd_mwh": 205.5
+    },
+    "SC": {
+      "ind_cents_kwh": 8.09,
+      "ind_usd_mwh": 80.9
+    },
+    "SD": {
+      "ind_cents_kwh": 9.86,
+      "ind_usd_mwh": 98.6
+    },
+    "TN": {
+      "ind_cents_kwh": 6.81,
+      "ind_usd_mwh": 68.1
+    },
+    "TX": {
+      "ind_cents_kwh": 6.99,
+      "ind_usd_mwh": 69.9
+    },
     "US": {
-      "ind_cents_kwh": 9.64,
-      "ind_usd_mwh": 96.4
+      "ind_cents_kwh": 9.52,
+      "ind_usd_mwh": 95.2
     },
     "UT": {
-      "ind_cents_kwh": 8.56,
-      "ind_usd_mwh": 85.6
+      "ind_cents_kwh": 8.55,
+      "ind_usd_mwh": 85.5
     },
     "VA": {
-      "ind_cents_kwh": 9.98,
-      "ind_usd_mwh": 99.8
+      "ind_cents_kwh": 9.86,
+      "ind_usd_mwh": 98.6
     },
     "VT": {
-      "ind_cents_kwh": 12.72,
-      "ind_usd_mwh": 127.2
+      "ind_cents_kwh": 13.01,
+      "ind_usd_mwh": 130.1
     },
     "WA": {
-      "ind_cents_kwh": 7.43,
-      "ind_usd_mwh": 74.3
+      "ind_cents_kwh": 7.59,
+      "ind_usd_mwh": 75.9
     },
     "WI": {
-      "ind_cents_kwh": 10.88,
-      "ind_usd_mwh": 108.8
+      "ind_cents_kwh": 10.35,
+      "ind_usd_mwh": 103.5
     },
     "WV": {
-      "ind_cents_kwh": 8.34,
-      "ind_usd_mwh": 83.4
+      "ind_cents_kwh": 8.18,
+      "ind_usd_mwh": 81.8
     },
     "WY": {
-      "ind_cents_kwh": 8.8,
-      "ind_usd_mwh": 88.0
+      "ind_cents_kwh": 8.22,
+      "ind_usd_mwh": 82.2
     }
   }
 }
